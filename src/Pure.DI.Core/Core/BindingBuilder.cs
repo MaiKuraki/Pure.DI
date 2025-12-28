@@ -87,18 +87,14 @@ sealed class BindingBuilder(
                     if (implementationType is not null && contractsSource is not null)
                     {
                         var baseSymbols = Enumerable.Empty<ITypeSymbol>();
-                        if (implementationType is { SpecialType: Microsoft.CodeAnalysis.SpecialType.None, TypeKind: TypeKind.Class, IsAbstract: false })
+                        if (implementationType is { SpecialType: Microsoft.CodeAnalysis.SpecialType.None, TypeKind: TypeKind.Class or TypeKind.Struct, IsAbstract: false })
                         {
+                            var compilation = setup.SemanticModel.Compilation;
                             baseSymbols = baseSymbolsProvider
-                                .GetBaseSymbols(implementationType, (i, deepness) => deepness switch
+                                .GetBaseSymbols(implementationType, (type, deepness) => deepness switch
                                 {
                                     0 => true,
-                                    1 when
-                                        implementationType.TypeKind != TypeKind.Interface
-                                        && !implementationType.IsAbstract
-                                        && (i.TypeKind == TypeKind.Interface || i.IsAbstract)
-                                        && i.SpecialType == Microsoft.CodeAnalysis.SpecialType.None
-                                        => true,
+                                    1 => IsSuitableForBinding(compilation, type),
                                     _ => false
                                 }, 1)
                                 .Select(i => i.Type);
@@ -159,6 +155,15 @@ sealed class BindingBuilder(
             _factory = null;
             _arg = null;
         }
+    }
+
+    private bool IsSuitableForBinding(Compilation compilation, ITypeSymbol type)
+    {
+        return (type.TypeKind == TypeKind.Interface || type.IsAbstract)
+               && (type.SpecialType == Microsoft.CodeAnalysis.SpecialType.None
+                   || types.TypeEquals(type, types.TryGet(SpecialType.UnityMonoBehaviour, compilation))
+                   || types.TypeEquals(type, types.TryGet(SpecialType.UnityScriptableObject, compilation))
+                   || types.TypeEquals(type, types.TryGet(SpecialType.UnityObject, compilation)));
     }
 
     private static MdTag BuildTag(MdTag tag, ITypeSymbol? type, Lazy<int> id)

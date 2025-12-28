@@ -663,25 +663,36 @@ public class SetupTests
         result.StdOut.ShouldBe(["Sample.Service", "Sample.Service"], result);
     }
 
-    [Fact]
-    public async Task ShouldSupportBindWhenHasNoTypeParamsAndDisposables()
+    [Theory]
+    [InlineData("System.IDisposable")]
+    [InlineData("UnityEngine.MonoBehaviour")]
+    [InlineData("UnityEngine.ScriptableObject")]
+    [InlineData("UnityEngine.Object")]
+    public async Task ShouldSupportBindWhenHasNoTypeParamsAndSpecialType(string baseType)
     {
         // Given
 
         // When
         var result = await """
+                           namespace UnityEngine
+                           {
+                                public class Object {}
+                                public class ScriptableObject: Object {}
+                                public class MonoBehaviour: Object {}
+                           }
+                           
                            namespace Sample
                            {
                                using System;
                                using Pure.DI;
                                using Sample;
                            
-                               internal class Dep1: IDisposable
+                               internal class Dep1: #baseType#
                                {
                                    public void Dispose() { }
                                }
                                
-                               internal class Dep2: IDisposable
+                               internal class Dep2: #baseType#
                                {
                                    public void Dispose() { }
                                }
@@ -704,7 +715,7 @@ public class SetupTests
                                   }
                                }
                            }
-                           """.RunAsync();
+                           """.Replace("#baseType#", baseType).RunAsync();
 
         // Then
         result.Success.ShouldBeTrue(result);

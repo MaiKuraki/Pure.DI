@@ -2,6 +2,46 @@
 $v=true
 $p=1
 $d=Simplified lifetime-specific bindings
+$h=You can use the `Transient<>()`, `Singleton<>()`, `PerResolve<>()`, etc. methods. In this case binding will be performed for the implementation type itself, and if the implementation is not an abstract type or structure, for all abstract but NOT special types that are directly implemented.
+$f=These methods perform the binding with appropriate lifetime:
+$f=
+$f=- with the implementation type itself
+$f=- and if it is NOT an abstract type or structure
+$f=  - with all abstract types that it directly implements
+$f=  - exceptions are special types
+$f=
+$f=Special types will not be added to bindings:
+$f=
+$f=- `System.Object`
+$f=- `System.Enum`
+$f=- `System.MulticastDelegate`
+$f=- `System.Delegate`
+$f=- `System.Collections.IEnumerable`
+$f=- `System.Collections.Generic.IEnumerable<T>`
+$f=- `System.Collections.Generic.IList<T>`
+$f=- `System.Collections.Generic.ICollection<T>`
+$f=- `System.Collections.IEnumerator`
+$f=- `System.Collections.Generic.IEnumerator<T>`
+$f=- `System.Collections.Generic.IReadOnlyList<T>`
+$f=- `System.Collections.Generic.IReadOnlyCollection<T>`
+$f=- `System.IDisposable`
+$f=- `System.IAsyncResult`
+$f=- `System.AsyncCallback`
+$f=- `UnityEngine.MonoBehaviour`
+$f=- `UnityEngine.ScriptableObject`
+$f=- `UnityEngine.Object`
+$f=
+$f=For class `OrderManager`, the `PerBlock<OrderManager>()` binding will be equivalent to the `Bind<IOrderRepository, IOrderNotification, OrderManager>().As(Lifetime.PerBlock).To<OrderManager>()` binding. The types `IDisposable`, `IEnumerable<string>` did not get into the binding because they are special from the list above. `ManagerBase` did not get into the binding because it is not abstract. `IManager` is not included because it is not implemented directly by class `OrderManager`.
+$f=
+$f=|    |                       |                                                   |
+$f=|----|-----------------------|---------------------------------------------------|
+$f=| ✅ | `OrderManager`        | implementation type itself                        |
+$f=| ✅ | `IOrderRepository`    | directly implements                               |
+$f=| ✅ | `IOrderNotification`  | directly implements                               |
+$f=| ❌ | `IDisposable`         | special type                                      |
+$f=| ❌ | `IEnumerable<string>` | special type                                      |
+$f=| ❌ | `ManagerBase`         | non-abstract                                      |
+$f=| ❌ | `IManager`            | is not directly implemented by class OrderManager |
 */
 
 // ReSharper disable CheckNamespace
