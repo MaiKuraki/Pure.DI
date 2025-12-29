@@ -269,6 +269,100 @@ public class RootBindTests
 
 #if ROSLYN4_8_OR_GREATER
     [Fact]
+    public async Task ShouldSupportRootBindWithTagsAsArray()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using System.Collections.Generic;
+                           using Pure.DI;
+                           using static Pure.DI.Lifetime;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency {}
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind<IDependency>().To<Dependency>()
+                                           .RootBind<IDependency>("Root", RootKinds.Property, ["RootTag", "Dep2"]).As(Singleton).To<Dependency>()
+                                           .Root<IDependency>("Root2", "Dep2")
+                                           .Root<IDependency>("Root3");
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       Console.WriteLine(composition.Root == composition.Root2);
+                                       Console.WriteLine(composition.Root != composition.Root3);
+                                   }
+                               }
+                           }
+                           """.RunAsync(new Options(LanguageVersion.CSharp12));
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True", "True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportRootBindWithTagsAsNamedArgArray()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using System.Collections.Generic;
+                           using Pure.DI;
+                           using static Pure.DI.Lifetime;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency {}
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind<IDependency>().To<Dependency>()
+                                           .RootBind<IDependency>(tags: ["RootTag", "Dep2"], kind: RootKinds.Property, name: "Root").As(Singleton).To<Dependency>()
+                                           .Root<IDependency>("Root2", "Dep2")
+                                           .Root<IDependency>("Root3");
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       Console.WriteLine(composition.Root == composition.Root2);
+                                       Console.WriteLine(composition.Root != composition.Root3);
+                                   }
+                               }
+                           }
+                           """.RunAsync(new Options(LanguageVersion.CSharp12));
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True", "True"], result);
+    }
+
+    [Fact]
     public async Task ShouldSupportRootBindWithSingleton()
     {
         // Given
