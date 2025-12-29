@@ -2318,10 +2318,10 @@ var comments = string.Join(Environment.NewLine, GetSuffixes(0, i).Select(suffix 
         IConfiguration GenericTypeArgument<T>();
 <#
 foreach(var lifetime in lifetimes)
+{
 for (var i = 0; i < lifetimeBindsCount; i++)
 {
 var typeArgs = string.Join(", ", GetSuffixes(0, i).Select(suffix => $"T{suffix}"));
-var exampleTypeArgs = string.Join(", ", GetSuffixes(0, i).Select(suffix => $"Service{suffix}"));
 var comments = string.Join(Environment.NewLine, GetSuffixes(0, i).Select(suffix => $"        /// <typeparam name=\"T{suffix}\">Implementation type {(suffix == "" ? "" : suffix + " ")}to bind.</typeparam>"));
 #>
 
@@ -2344,8 +2344,87 @@ if (i < 4)
 <#
 }
 #>
-        IConfiguration <#=lifetime#><<#=typeArgs#>>(params object[] tags);
+        IConfiguration <#= lifetime #><<#= typeArgs #>>(params object[] tags);
 <#
+}
+#>
+
+        /// <summary>
+        /// Specifies a lifetime-specific factory method to create the implementation instance.
+        /// <example>
+        /// <code>
+        /// DI.Setup("Composition")
+        ///     .<#= lifetime #>&lt;IService&gt;(_ =&gt;
+        ///     {
+        ///         var service = new Service("My Service");
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        ///
+        /// // Another example:
+        /// DI.Setup("Composition")
+        ///     .<#= lifetime #>&lt;IService&gt;(ctx =&gt;
+        ///     {
+        ///         ctx.Inject&lt;IDependency&gt;(out var dependency);
+        ///         return new Service(dependency);
+        ///     })
+        ///
+        /// // And another example:
+        /// DI.Setup("Composition")
+        ///     .<#= lifetime #>&lt;IService&gt;(ctx =&gt;
+        ///     {
+        ///         // Builds up an instance with all necessary dependencies
+        ///         ctx.Inject&lt;Service&gt;(out var service);
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="To{T1,T}()"/>
+        /// <seealso cref="To{T1,T2,T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        /// <remarks>
+        /// This method is useful for creating and initializing an instance manually.
+        /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
+        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+        /// But sometimes it is necessary to manually create and/or initialize an object.
+        /// There are scenarios where manual control over the creation process is required, such as
+        /// <list type="bullet">
+        /// <item>when additional initialization logic is needed</item>
+        /// <item>when complex construction steps are required</item>
+        /// <item>when specific object states need to be set during creation</item>
+        /// </list>
+        /// </remarks>
+        IConfiguration <#= lifetime #><T>(global::System.Func<IContext, T> factory, params object[] tags);
+<#
+for (var i = 0; i < baseCount; i++)
+{
+var typeArgs = string.Join(", ", GetSuffixes(1, i + 1).Select(suffix => $"T{suffix}"));
+var comments = string.Join(Environment.NewLine, GetSuffixes(1, i + 1).Select(suffix => $"        /// <typeparam name=\"T{suffix}\">Type of dependency parameter{(suffix == "" ? "" : " " + suffix)}.</typeparam>"));
+#>
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+<#=comments#>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration <#=lifetime#><<#=typeArgs#>, T>(global::System.Func<<#=typeArgs#>, T> factory, params object[] tags);
+<#
+}
 }
 #>
     }
@@ -2660,7 +2739,6 @@ var comments = string.Join(Environment.NewLine, GetSuffixes(1, i + 1).Select(suf
         /// </summary>
         /// <param name="factory">Factory method with injected dependencies.</param>
 <#=comments#>
-        /// <typeparam name="T1">Type of the first dependency parameter.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
         /// <returns>Configuration interface for method chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
@@ -3127,6 +3205,7 @@ var typeArgs = string.Join(", ", GetSuffixes(1, i + 1).Select(suffix => $"T{suff
 #>
 <#
 foreach(var lifetime in lifetimes)
+{
 for (var i = 0; i < lifetimeBindsCount; i++)
 {
 var typeArgs = string.Join(", ", GetSuffixes(0, i).Select(suffix => $"T{suffix}"));
@@ -3138,6 +3217,28 @@ var typeArgs = string.Join(", ", GetSuffixes(0, i).Select(suffix => $"T{suffix}"
                 return this;
             }
 <#
+}
+#>
+
+            /// <inheritdoc />
+            public IConfiguration <#=lifetime#><T>(global::System.Func<IContext, T> factory, params object[] tags)
+            {
+                return this;
+            }
+<#
+for (var i = 0; i < baseCount; i++)
+{
+var typeArgs = string.Join(", ", GetSuffixes(1, i + 1).Select(suffix => $"T{suffix}"));
+var comments = string.Join(Environment.NewLine, GetSuffixes(1, i + 1).Select(suffix => $"        /// <typeparam name=\"T{suffix}\">Type of dependency parameter{(suffix == "" ? "" : " " + suffix)}.</typeparam>"));
+#>
+
+            /// <inheritdoc />
+            public IConfiguration <#=lifetime#><<#=typeArgs#>, T>(global::System.Func<<#=typeArgs#>, T> factory, params object[] tags)
+            {
+                return this;
+            }
+<#
+}
 }
 #>
         }

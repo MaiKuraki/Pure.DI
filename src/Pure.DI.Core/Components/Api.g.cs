@@ -2645,6 +2645,201 @@ namespace Pure.DI
         IConfiguration Transient<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63>(params object[] tags);
 
         /// <summary>
+        /// Specifies a lifetime-specific factory method to create the implementation instance.
+        /// <example>
+        /// <code>
+        /// DI.Setup("Composition")
+        ///     .Transient&lt;IService&gt;(_ =&gt;
+        ///     {
+        ///         var service = new Service("My Service");
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        ///
+        /// // Another example:
+        /// DI.Setup("Composition")
+        ///     .Transient&lt;IService&gt;(ctx =&gt;
+        ///     {
+        ///         ctx.Inject&lt;IDependency&gt;(out var dependency);
+        ///         return new Service(dependency);
+        ///     })
+        ///
+        /// // And another example:
+        /// DI.Setup("Composition")
+        ///     .Transient&lt;IService&gt;(ctx =&gt;
+        ///     {
+        ///         // Builds up an instance with all necessary dependencies
+        ///         ctx.Inject&lt;Service&gt;(out var service);
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="To{T1,T}()"/>
+        /// <seealso cref="To{T1,T2,T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        /// <remarks>
+        /// This method is useful for creating and initializing an instance manually.
+        /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
+        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+        /// But sometimes it is necessary to manually create and/or initialize an object.
+        /// There are scenarios where manual control over the creation process is required, such as
+        /// <list type="bullet">
+        /// <item>when additional initialization logic is needed</item>
+        /// <item>when complex construction steps are required</item>
+        /// <item>when specific object states need to be set during creation</item>
+        /// </list>
+        /// </remarks>
+        IConfiguration Transient<T>(global::System.Func<IContext, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Transient<T1, T>(global::System.Func<T1, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Transient<T1, T2, T>(global::System.Func<T1, T2, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Transient<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Transient<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Transient<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Transient<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
+        /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Transient<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
+        /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
+        /// <typeparam name="T8">Type of dependency parameter 8.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Transient<T1, T2, T3, T4, T5, T6, T7, T8, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T> factory, params object[] tags);
+
+        /// <summary>
         /// Defines simplified lifetime-specific binding.
         /// </summary>
         /// <typeparam name="T">Implementation type to bind.</typeparam>
@@ -2825,6 +3020,201 @@ namespace Pure.DI
         IConfiguration Singleton<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62>(params object[] tags);
 
         IConfiguration Singleton<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63>(params object[] tags);
+
+        /// <summary>
+        /// Specifies a lifetime-specific factory method to create the implementation instance.
+        /// <example>
+        /// <code>
+        /// DI.Setup("Composition")
+        ///     .Singleton&lt;IService&gt;(_ =&gt;
+        ///     {
+        ///         var service = new Service("My Service");
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        ///
+        /// // Another example:
+        /// DI.Setup("Composition")
+        ///     .Singleton&lt;IService&gt;(ctx =&gt;
+        ///     {
+        ///         ctx.Inject&lt;IDependency&gt;(out var dependency);
+        ///         return new Service(dependency);
+        ///     })
+        ///
+        /// // And another example:
+        /// DI.Setup("Composition")
+        ///     .Singleton&lt;IService&gt;(ctx =&gt;
+        ///     {
+        ///         // Builds up an instance with all necessary dependencies
+        ///         ctx.Inject&lt;Service&gt;(out var service);
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="To{T1,T}()"/>
+        /// <seealso cref="To{T1,T2,T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        /// <remarks>
+        /// This method is useful for creating and initializing an instance manually.
+        /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
+        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+        /// But sometimes it is necessary to manually create and/or initialize an object.
+        /// There are scenarios where manual control over the creation process is required, such as
+        /// <list type="bullet">
+        /// <item>when additional initialization logic is needed</item>
+        /// <item>when complex construction steps are required</item>
+        /// <item>when specific object states need to be set during creation</item>
+        /// </list>
+        /// </remarks>
+        IConfiguration Singleton<T>(global::System.Func<IContext, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Singleton<T1, T>(global::System.Func<T1, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Singleton<T1, T2, T>(global::System.Func<T1, T2, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Singleton<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Singleton<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Singleton<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Singleton<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
+        /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Singleton<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
+        /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
+        /// <typeparam name="T8">Type of dependency parameter 8.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Singleton<T1, T2, T3, T4, T5, T6, T7, T8, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T> factory, params object[] tags);
 
         /// <summary>
         /// Defines simplified lifetime-specific binding.
@@ -3009,6 +3399,201 @@ namespace Pure.DI
         IConfiguration Scoped<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63>(params object[] tags);
 
         /// <summary>
+        /// Specifies a lifetime-specific factory method to create the implementation instance.
+        /// <example>
+        /// <code>
+        /// DI.Setup("Composition")
+        ///     .Scoped&lt;IService&gt;(_ =&gt;
+        ///     {
+        ///         var service = new Service("My Service");
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        ///
+        /// // Another example:
+        /// DI.Setup("Composition")
+        ///     .Scoped&lt;IService&gt;(ctx =&gt;
+        ///     {
+        ///         ctx.Inject&lt;IDependency&gt;(out var dependency);
+        ///         return new Service(dependency);
+        ///     })
+        ///
+        /// // And another example:
+        /// DI.Setup("Composition")
+        ///     .Scoped&lt;IService&gt;(ctx =&gt;
+        ///     {
+        ///         // Builds up an instance with all necessary dependencies
+        ///         ctx.Inject&lt;Service&gt;(out var service);
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="To{T1,T}()"/>
+        /// <seealso cref="To{T1,T2,T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        /// <remarks>
+        /// This method is useful for creating and initializing an instance manually.
+        /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
+        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+        /// But sometimes it is necessary to manually create and/or initialize an object.
+        /// There are scenarios where manual control over the creation process is required, such as
+        /// <list type="bullet">
+        /// <item>when additional initialization logic is needed</item>
+        /// <item>when complex construction steps are required</item>
+        /// <item>when specific object states need to be set during creation</item>
+        /// </list>
+        /// </remarks>
+        IConfiguration Scoped<T>(global::System.Func<IContext, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Scoped<T1, T>(global::System.Func<T1, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Scoped<T1, T2, T>(global::System.Func<T1, T2, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Scoped<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Scoped<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Scoped<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Scoped<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
+        /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Scoped<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
+        /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
+        /// <typeparam name="T8">Type of dependency parameter 8.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration Scoped<T1, T2, T3, T4, T5, T6, T7, T8, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T> factory, params object[] tags);
+
+        /// <summary>
         /// Defines simplified lifetime-specific binding.
         /// </summary>
         /// <typeparam name="T">Implementation type to bind.</typeparam>
@@ -3191,6 +3776,201 @@ namespace Pure.DI
         IConfiguration PerResolve<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63>(params object[] tags);
 
         /// <summary>
+        /// Specifies a lifetime-specific factory method to create the implementation instance.
+        /// <example>
+        /// <code>
+        /// DI.Setup("Composition")
+        ///     .PerResolve&lt;IService&gt;(_ =&gt;
+        ///     {
+        ///         var service = new Service("My Service");
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        ///
+        /// // Another example:
+        /// DI.Setup("Composition")
+        ///     .PerResolve&lt;IService&gt;(ctx =&gt;
+        ///     {
+        ///         ctx.Inject&lt;IDependency&gt;(out var dependency);
+        ///         return new Service(dependency);
+        ///     })
+        ///
+        /// // And another example:
+        /// DI.Setup("Composition")
+        ///     .PerResolve&lt;IService&gt;(ctx =&gt;
+        ///     {
+        ///         // Builds up an instance with all necessary dependencies
+        ///         ctx.Inject&lt;Service&gt;(out var service);
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="To{T1,T}()"/>
+        /// <seealso cref="To{T1,T2,T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        /// <remarks>
+        /// This method is useful for creating and initializing an instance manually.
+        /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
+        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+        /// But sometimes it is necessary to manually create and/or initialize an object.
+        /// There are scenarios where manual control over the creation process is required, such as
+        /// <list type="bullet">
+        /// <item>when additional initialization logic is needed</item>
+        /// <item>when complex construction steps are required</item>
+        /// <item>when specific object states need to be set during creation</item>
+        /// </list>
+        /// </remarks>
+        IConfiguration PerResolve<T>(global::System.Func<IContext, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerResolve<T1, T>(global::System.Func<T1, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerResolve<T1, T2, T>(global::System.Func<T1, T2, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerResolve<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerResolve<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerResolve<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerResolve<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
+        /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerResolve<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
+        /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
+        /// <typeparam name="T8">Type of dependency parameter 8.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerResolve<T1, T2, T3, T4, T5, T6, T7, T8, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T> factory, params object[] tags);
+
+        /// <summary>
         /// Defines simplified lifetime-specific binding.
         /// </summary>
         /// <typeparam name="T">Implementation type to bind.</typeparam>
@@ -3371,6 +4151,201 @@ namespace Pure.DI
         IConfiguration PerBlock<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62>(params object[] tags);
 
         IConfiguration PerBlock<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63>(params object[] tags);
+
+        /// <summary>
+        /// Specifies a lifetime-specific factory method to create the implementation instance.
+        /// <example>
+        /// <code>
+        /// DI.Setup("Composition")
+        ///     .PerBlock&lt;IService&gt;(_ =&gt;
+        ///     {
+        ///         var service = new Service("My Service");
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        ///
+        /// // Another example:
+        /// DI.Setup("Composition")
+        ///     .PerBlock&lt;IService&gt;(ctx =&gt;
+        ///     {
+        ///         ctx.Inject&lt;IDependency&gt;(out var dependency);
+        ///         return new Service(dependency);
+        ///     })
+        ///
+        /// // And another example:
+        /// DI.Setup("Composition")
+        ///     .PerBlock&lt;IService&gt;(ctx =&gt;
+        ///     {
+        ///         // Builds up an instance with all necessary dependencies
+        ///         ctx.Inject&lt;Service&gt;(out var service);
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="To{T1,T}()"/>
+        /// <seealso cref="To{T1,T2,T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        /// <remarks>
+        /// This method is useful for creating and initializing an instance manually.
+        /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
+        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+        /// But sometimes it is necessary to manually create and/or initialize an object.
+        /// There are scenarios where manual control over the creation process is required, such as
+        /// <list type="bullet">
+        /// <item>when additional initialization logic is needed</item>
+        /// <item>when complex construction steps are required</item>
+        /// <item>when specific object states need to be set during creation</item>
+        /// </list>
+        /// </remarks>
+        IConfiguration PerBlock<T>(global::System.Func<IContext, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerBlock<T1, T>(global::System.Func<T1, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerBlock<T1, T2, T>(global::System.Func<T1, T2, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerBlock<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerBlock<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerBlock<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerBlock<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
+        /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerBlock<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// </summary>
+        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
+        /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
+        /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
+        /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
+        /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
+        /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
+        /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
+        /// <typeparam name="T8">Type of dependency parameter 8.</typeparam>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        IConfiguration PerBlock<T1, T2, T3, T4, T5, T6, T7, T8, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T> factory, params object[] tags);
     }
 
     /// <summary>
@@ -3834,7 +4809,6 @@ namespace Pure.DI
         /// </summary>
         /// <param name="factory">Factory method with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
-        /// <typeparam name="T1">Type of the first dependency parameter.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
         /// <returns>Configuration interface for method chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
@@ -3870,7 +4844,6 @@ namespace Pure.DI
         /// <param name="factory">Factory method with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
-        /// <typeparam name="T1">Type of the first dependency parameter.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
         /// <returns>Configuration interface for method chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
@@ -3907,7 +4880,6 @@ namespace Pure.DI
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
-        /// <typeparam name="T1">Type of the first dependency parameter.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
         /// <returns>Configuration interface for method chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
@@ -3945,7 +4917,6 @@ namespace Pure.DI
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
-        /// <typeparam name="T1">Type of the first dependency parameter.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
         /// <returns>Configuration interface for method chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
@@ -3984,7 +4955,6 @@ namespace Pure.DI
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
         /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
-        /// <typeparam name="T1">Type of the first dependency parameter.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
         /// <returns>Configuration interface for method chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
@@ -4024,7 +4994,6 @@ namespace Pure.DI
         /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
         /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
         /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
-        /// <typeparam name="T1">Type of the first dependency parameter.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
         /// <returns>Configuration interface for method chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
@@ -4065,7 +5034,6 @@ namespace Pure.DI
         /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
         /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
         /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
-        /// <typeparam name="T1">Type of the first dependency parameter.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
         /// <returns>Configuration interface for method chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
@@ -4107,7 +5075,6 @@ namespace Pure.DI
         /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
         /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
         /// <typeparam name="T8">Type of dependency parameter 8.</typeparam>
-        /// <typeparam name="T1">Type of the first dependency parameter.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
         /// <returns>Configuration interface for method chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
@@ -5023,6 +5990,60 @@ namespace Pure.DI
             }
 
             /// <inheritdoc />
+            public IConfiguration Transient<T>(global::System.Func<IContext, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Transient<T1, T>(global::System.Func<T1, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Transient<T1, T2, T>(global::System.Func<T1, T2, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Transient<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Transient<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Transient<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Transient<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Transient<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Transient<T1, T2, T3, T4, T5, T6, T7, T8, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
             public IConfiguration Singleton<T>(params object[] tags)
             {
                 return this;
@@ -5402,6 +6423,60 @@ namespace Pure.DI
 
             /// <inheritdoc />
             public IConfiguration Singleton<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63>(params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Singleton<T>(global::System.Func<IContext, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Singleton<T1, T>(global::System.Func<T1, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Singleton<T1, T2, T>(global::System.Func<T1, T2, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Singleton<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Singleton<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Singleton<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Singleton<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Singleton<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Singleton<T1, T2, T3, T4, T5, T6, T7, T8, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T> factory, params object[] tags)
             {
                 return this;
             }
@@ -5791,6 +6866,60 @@ namespace Pure.DI
             }
 
             /// <inheritdoc />
+            public IConfiguration Scoped<T>(global::System.Func<IContext, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Scoped<T1, T>(global::System.Func<T1, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Scoped<T1, T2, T>(global::System.Func<T1, T2, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Scoped<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Scoped<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Scoped<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Scoped<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Scoped<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Scoped<T1, T2, T3, T4, T5, T6, T7, T8, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
             public IConfiguration PerResolve<T>(params object[] tags)
             {
                 return this;
@@ -6175,6 +7304,60 @@ namespace Pure.DI
             }
 
             /// <inheritdoc />
+            public IConfiguration PerResolve<T>(global::System.Func<IContext, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerResolve<T1, T>(global::System.Func<T1, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerResolve<T1, T2, T>(global::System.Func<T1, T2, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerResolve<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerResolve<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerResolve<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerResolve<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerResolve<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerResolve<T1, T2, T3, T4, T5, T6, T7, T8, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
             public IConfiguration PerBlock<T>(params object[] tags)
             {
                 return this;
@@ -6554,6 +7737,60 @@ namespace Pure.DI
 
             /// <inheritdoc />
             public IConfiguration PerBlock<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63>(params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerBlock<T>(global::System.Func<IContext, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerBlock<T1, T>(global::System.Func<T1, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerBlock<T1, T2, T>(global::System.Func<T1, T2, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerBlock<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerBlock<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerBlock<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerBlock<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerBlock<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerBlock<T1, T2, T3, T4, T5, T6, T7, T8, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T> factory, params object[] tags)
             {
                 return this;
             }

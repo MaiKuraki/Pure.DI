@@ -986,6 +986,7 @@ public class FactoryTests
         result.Success.ShouldBeTrue(result);
         result.StdOut.ShouldBe(["Initialize Abc"], result);
     }
+
     [Fact]
     public async Task ShouldSupportFactory()
     {
@@ -1047,6 +1048,130 @@ public class FactoryTests
         result.Success.ShouldBeTrue(result);
         result.StdOut.ShouldBe(["True"], result);
         result.GeneratedCode.Contains("// My Comment").ShouldBeTrue(result);
+    }
+
+    [Theory]
+    [InlineData(Lifetime.Transient)]
+    [InlineData(Lifetime.Singleton)]
+    [InlineData(Lifetime.PerResolve)]
+    [InlineData(Lifetime.Scoped)]
+    [InlineData(Lifetime.PerBlock)]
+    internal async Task ShouldSupportFactoryWhenLifetimeSpecific(Lifetime lifetime)
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency {}
+                           
+                               interface IService
+                               {
+                                   IDependency Dep { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   public Service(IDependency dep)
+                                   { 
+                                       Dep = dep;
+                                   }
+                           
+                                   public IDependency Dep { get; }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .#lifetime#<IDependency>(ctx => new Dependency())
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Service");
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Service;
+                                   }
+                               }
+                           }
+                           """.Replace("#lifetime#", lifetime.ToString()).RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+
+    [Theory]
+    [InlineData(Lifetime.Transient)]
+    [InlineData(Lifetime.Singleton)]
+    [InlineData(Lifetime.PerResolve)]
+    [InlineData(Lifetime.Scoped)]
+    [InlineData(Lifetime.PerBlock)]
+    internal async Task ShouldSupportFactoryWhenLifetimeSpecificAndTag(Lifetime lifetime)
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency {}
+                           
+                               interface IService
+                               {
+                                   IDependency Dep { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   public Service([Tag(123)] IDependency dep)
+                                   { 
+                                       Dep = dep;
+                                   }
+                           
+                                   public IDependency Dep { get; }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .#lifetime#<IDependency>(ctx => new Dependency(), 123)
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Service");
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Service;
+                                   }
+                               }
+                           }
+                           """.Replace("#lifetime#", lifetime.ToString()).RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
     }
 
     [Fact]
