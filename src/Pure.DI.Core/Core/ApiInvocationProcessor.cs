@@ -261,61 +261,43 @@ sealed class ApiInvocationProcessor(
                         break;
 
                     case nameof(IBinding.To):
-                        if (genericName.TypeArgumentList.Arguments.Count > 1
-                            && invocation.ArgumentList.Arguments.Count == 1)
+                        var toInvocationArgs = invocation.ArgumentList.Arguments;
+                        var toInvocationTypeArgs = genericName.TypeArgumentList.Arguments;
+                        switch (toInvocationTypeArgs)
                         {
-                            switch (invocation.ArgumentList.Arguments[0].Expression)
-                            {
-                                case ParenthesizedLambdaExpressionSyntax { ParameterList.Parameters.Count: > 0 } parenthesizedLambda:
-                                    VisitSimpleFactory(
-                                        metadataVisitor,
-                                        semanticModel,
-                                        invocation,
-                                        semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, genericName.TypeArgumentList.Arguments.Last()),
-                                        genericName.TypeArgumentList.Arguments.Reverse().Skip(1).Reverse().ToList(),
-                                        parenthesizedLambda);
-                                    break;
+                            case [.., not null, {} returnTypeSyntax] when toInvocationArgs is [{ Expression: LambdaExpressionSyntax lambdaExpression }]:
+                                var returnType = semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, returnTypeSyntax);
+                                var args = toInvocationTypeArgs.ToList().GetRange(0, toInvocationTypeArgs.Count - 1);
+                                VisitSimpleFactory(
+                                    metadataVisitor,
+                                    semanticModel,
+                                    invocation,
+                                    returnType,
+                                    args,
+                                    lambdaExpression);
+                                break;
 
-                                case SimpleLambdaExpressionSyntax simpleLambda:
-                                    VisitSimpleFactory(
-                                        metadataVisitor,
-                                        semanticModel,
-                                        invocation,
-                                        semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, genericName.TypeArgumentList.Arguments.Last()),
-                                        genericName.TypeArgumentList.Arguments.Reverse().Skip(1).Reverse().ToList(),
-                                        simpleLambda);
-                                    break;
-                            }
+                            case [{} implementationTypeSyntax] when toInvocationArgs is [{ Expression: LambdaExpressionSyntax lambdaExpression }]:
+                                var factoryType = semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, implementationTypeSyntax);
+                                VisitFactory(invocation, metadataVisitor, semanticModel, factoryType, lambdaExpression);
+                                break;
 
-                            break;
-                        }
+                            case [{} implementationTypeSyntax] when toInvocationArgs is [{ Expression: LiteralExpressionSyntax { Token.Value: string sourceCodeStatement } }]:
+                                var lambda = SyntaxFactory
+                                    .SimpleLambdaExpression(RootBuilder.DefaultCtxParameter)
+                                    .WithExpressionBody(SyntaxFactory.IdentifierName(sourceCodeStatement));
+                                factoryType = semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, implementationTypeSyntax);
+                                VisitFactory(invocation, metadataVisitor, semanticModel, factoryType, lambda);
+                                break;
 
-                        if (genericName.TypeArgumentList.Arguments is [{} implementationTypeSyntax])
-                        {
-                            switch (invocation.ArgumentList.Arguments)
-                            {
-                                case [{ Expression: LambdaExpressionSyntax lambdaExpression }]:
-                                    var factoryType = semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, implementationTypeSyntax);
-                                    VisitFactory(invocation, metadataVisitor, semanticModel, factoryType, lambdaExpression);
-                                    break;
+                            case [{} implementationTypeSyntax] when toInvocationArgs is []:
+                                var implementationType = semantic.GetTypeSymbol<INamedTypeSymbol>(semanticModel, implementationTypeSyntax);
+                                metadataVisitor.VisitImplementation(new MdImplementation(semanticModel, invocation, implementationType));
+                                break;
 
-                                case [{ Expression: LiteralExpressionSyntax { Token.Value: string sourceCodeStatement } }]:
-                                    var lambda = SyntaxFactory
-                                        .SimpleLambdaExpression(SyntaxFactory.Parameter(SyntaxFactory.Identifier("_")))
-                                        .WithExpressionBody(SyntaxFactory.IdentifierName(sourceCodeStatement));
-                                    factoryType = semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, implementationTypeSyntax);
-                                    VisitFactory(invocation, metadataVisitor, semanticModel, factoryType, lambda);
-                                    break;
-
-                                case []:
-                                    var implementationType = semantic.GetTypeSymbol<INamedTypeSymbol>(semanticModel, implementationTypeSyntax);
-                                    metadataVisitor.VisitImplementation(new MdImplementation(semanticModel, invocation, implementationType));
-                                    break;
-
-                                default:
-                                    NotSupported(invocation);
-                                    break;
-                            }
+                            default:
+                                NotSupported(invocation);
+                                break;
                         }
 
                         break;
@@ -325,30 +307,37 @@ sealed class ApiInvocationProcessor(
                     case nameof(IConfiguration.Scoped):
                     case nameof(IConfiguration.PerResolve):
                     case nameof(IConfiguration.PerBlock):
-                        if (genericName.TypeArgumentList.Arguments.Count > 0
-                            && Enum.TryParse<Lifetime>(genericName.Identifier.Text, out var bindingLifetime))
+                        if (!Enum.TryParse<Lifetime>(genericName.Identifier.Text, out var bindingLifetime))
                         {
-                            var lifetimesTags = BuildTags(semanticModel, invocation.ArgumentList.Arguments);
-                            foreach (var typeArgument in genericName.TypeArgumentList.Arguments)
-                            {
-                                metadataVisitor.VisitContract(
-                                    new MdContract(
-                                        semanticModel,
-                                        typeArgument,
-                                        null,
-                                        ContractKind.Explicit,
-                                        lifetimesTags));
-
-                                metadataVisitor.VisitLifetime(new MdLifetime(semanticModel, typeArgument, bindingLifetime));
-
-                                var implementationType = semantic.GetTypeSymbol<INamedTypeSymbol>(semanticModel, typeArgument);
-                                metadataVisitor.VisitImplementation(new MdImplementation(semanticModel, typeArgument, implementationType));
-                            }
-
+                            NotSupported(invocation);
                             break;
                         }
 
-                        NotSupported(invocation);
+                        var lifetimeInvocationArgs = invocation.ArgumentList.Arguments;
+                        var lifetimeInvocationTypeArgs = genericName.TypeArgumentList.Arguments;
+                        switch (lifetimeInvocationTypeArgs)
+                        {
+                            default:
+                                var lifetimesTags = BuildTags(semanticModel, lifetimeInvocationArgs);
+                                foreach (var typeArgument in genericName.TypeArgumentList.Arguments)
+                                {
+                                    metadataVisitor.VisitContract(
+                                        new MdContract(
+                                            semanticModel,
+                                            typeArgument,
+                                            null,
+                                            ContractKind.Explicit,
+                                            lifetimesTags));
+
+                                    metadataVisitor.VisitLifetime(new MdLifetime(semanticModel, typeArgument, bindingLifetime));
+
+                                    var implementationType = semantic.GetTypeSymbol<INamedTypeSymbol>(semanticModel, typeArgument);
+                                    metadataVisitor.VisitImplementation(new MdImplementation(semanticModel, typeArgument, implementationType));
+                                }
+
+                                break;
+                        }
+
                         break;
 
                     case nameof(IConfiguration.Arg):
