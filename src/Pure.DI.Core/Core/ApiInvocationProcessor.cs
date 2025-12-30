@@ -70,9 +70,7 @@ sealed class ApiInvocationProcessor(
                         switch (invocation.ArgumentList.Arguments)
                         {
                             case [{ Expression: LambdaExpressionSyntax lambdaExpression }]:
-                                var type = semantic.TryGetTypeSymbol<ITypeSymbol>(semanticModel, lambdaExpression)
-                                           ?? semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, lambdaExpression.Body);
-
+                                var type = semantic.TryGetTypeSymbol<ITypeSymbol>(semanticModel, lambdaExpression) ?? semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, lambdaExpression.Body);
                                 if (type is INamedTypeSymbol symbol)
                                 {
                                     var typeArgumentsCount = symbol.TypeArguments.Length;
@@ -81,6 +79,7 @@ sealed class ApiInvocationProcessor(
                                     {
                                         switch (invocation.ArgumentList.Arguments[0].Expression)
                                         {
+                                            // To((T1 arg1, T2 arg2) => ..)
                                             case ParenthesizedLambdaExpressionSyntax { ParameterList.Parameters.Count: > 0 } parenthesizedLambda:
                                                 VisitSimpleFactory(
                                                     metadataVisitor,
@@ -97,6 +96,7 @@ sealed class ApiInvocationProcessor(
 
                                     if (typeArgumentsCount is 1 or 2 && symbol.TypeArguments is [.., {} resultType])
                                     {
+                                        // .To(ctx => ...)
                                         VisitFactory(invocation, metadataVisitor, semanticModel, resultType, lambdaExpression);
                                         break;
                                     }
@@ -110,6 +110,7 @@ sealed class ApiInvocationProcessor(
                                 if (expressionType is INamedTypeSymbol { IsGenericType: true, TypeArguments.Length: 1 } expressionTypeSymbol
                                     && expressionTypeSymbol.TypeArguments is [{} expressionResultType])
                                 {
+                                    // To(Guid.NewGuid)
                                     VisitFactory(
                                         invocation,
                                         metadataVisitor,
@@ -127,6 +128,125 @@ sealed class ApiInvocationProcessor(
 
                             default:
                                 NotSupported(invocation);
+                                break;
+                        }
+
+                        break;
+
+                    case nameof(IConfiguration.Transient):
+                    case nameof(IConfiguration.Singleton):
+                    case nameof(IConfiguration.Scoped):
+                    case nameof(IConfiguration.PerResolve):
+                    case nameof(IConfiguration.PerBlock):
+                        if (!Enum.TryParse<Lifetime>(identifierName.Identifier.Text, out var lifetime))
+                        {
+                            NotSupported(invocation);
+                            break;
+                        }
+
+                        switch (invocation.ArgumentList.Arguments)
+                        {
+                            case [{ Expression: LambdaExpressionSyntax lambdaExpression }, ..]:
+                                var type = semantic.TryGetTypeSymbol<ITypeSymbol>(semanticModel, lambdaExpression)
+                                           ?? semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, lambdaExpression.Body);
+
+                                if (type is INamedTypeSymbol symbol)
+                                {
+                                    var typeArgumentsCount = symbol.TypeArguments.Length;
+                                    if (typeArgumentsCount > 1
+                                        && symbolNames.GetGlobalName(symbol.TypeArguments[0]) != Names.IContextTypeName)
+                                    {
+                                        switch (invocation.ArgumentList.Arguments[0].Expression)
+                                        {
+                                            // .Transient((T1 arg1, T2 arg2) => .., tags)
+                                            case ParenthesizedLambdaExpressionSyntax { ParameterList.Parameters.Count: > 0 } parenthesizedLambda:
+                                                var lifetimeTagArguments = invocation.ArgumentList.Arguments.SkipWhile((arg, i) => arg.NameColon?.Name.Identifier.Text != "tags" && i < 1).ToList();
+                                                metadataVisitor.VisitContract(
+                                                    new MdContract(
+                                                        semanticModel,
+                                                        invocation,
+                                                        null,
+                                                        ContractKind.Explicit,
+                                                        BuildTags(semanticModel, lifetimeTagArguments)));
+
+                                                metadataVisitor.VisitLifetime(new MdLifetime(semanticModel, invocation, lifetime));
+
+                                                VisitSimpleFactory(
+                                                    metadataVisitor,
+                                                    semanticModel,
+                                                    invocation,
+                                                    symbol.TypeArguments.Last(),
+                                                    parenthesizedLambda.ParameterList.Parameters.Select(i => i.Type!).ToList(),
+                                                    parenthesizedLambda);
+                                                break;
+                                        }
+
+                                        break;
+                                    }
+
+                                    if (typeArgumentsCount is 1 or 2 && symbol.TypeArguments is [.., {} resultType])
+                                    {
+                                        // .Transient(ctx => ..., tags)
+                                        var lifetimeTagArguments = invocation.ArgumentList.Arguments.SkipWhile((arg, i) => arg.NameColon?.Name.Identifier.Text != "tags" && i < 1).ToList();
+                                        metadataVisitor.VisitContract(
+                                            new MdContract(
+                                                semanticModel,
+                                                invocation,
+                                                null,
+                                                ContractKind.Explicit,
+                                                BuildTags(semanticModel, lifetimeTagArguments)));
+
+                                        metadataVisitor.VisitLifetime(new MdLifetime(semanticModel, invocation, lifetime));
+
+                                        VisitFactory(invocation, metadataVisitor, semanticModel, resultType, lambdaExpression);
+                                        break;
+                                    }
+                                }
+
+                                var tagArguments = invocation.ArgumentList.Arguments.SkipWhile((arg, i) => arg.NameColon?.Name.Identifier.Text != "tags" && i < 1).ToList();
+                                metadataVisitor.VisitContract(
+                                    new MdContract(
+                                        semanticModel,
+                                        invocation,
+                                        null,
+                                        ContractKind.Explicit,
+                                        BuildTags(semanticModel, tagArguments)));
+
+                                metadataVisitor.VisitLifetime(new MdLifetime(semanticModel, invocation, lifetime));
+
+                                VisitFactory(invocation, metadataVisitor, semanticModel, type, lambdaExpression);
+                                break;
+
+                            case [{ Expression: {} expression }, ..]:
+                                var expressionType = semantic.TryGetTypeSymbol<ITypeSymbol>(semanticModel, expression);
+                                if (expressionType is INamedTypeSymbol { IsGenericType: true, TypeArguments.Length: 1 } expressionTypeSymbol
+                                    && expressionTypeSymbol.TypeArguments is [{} expressionResultType])
+                                {
+                                    var lifetimeTagArguments = invocation.ArgumentList.Arguments.SkipWhile((arg, i) => arg.NameColon?.Name.Identifier.Text != "tags" && i < 1).ToList();
+                                    metadataVisitor.VisitContract(
+                                        new MdContract(
+                                            semanticModel,
+                                            invocation,
+                                            null,
+                                            ContractKind.Explicit,
+                                            BuildTags(semanticModel, lifetimeTagArguments)));
+
+                                    metadataVisitor.VisitLifetime(new MdLifetime(semanticModel, invocation, lifetime));
+
+                                    // To(Guid.NewGuid, tags)
+                                    VisitFactory(
+                                        invocation,
+                                        metadataVisitor,
+                                        semanticModel,
+                                        expressionResultType,
+                                        SyntaxFactory.ParenthesizedLambdaExpression(
+                                            SyntaxFactory.InvocationExpression(expression)));
+                                }
+                                else
+                                {
+                                    NotSupported(invocation);
+                                }
+
                                 break;
                         }
 
@@ -265,6 +385,7 @@ sealed class ApiInvocationProcessor(
                         var toInvocationTypeArgs = genericName.TypeArgumentList.Arguments;
                         switch (toInvocationTypeArgs)
                         {
+                            // .To<T1, T2, ..., T>((dep1, dep2) => ..., tags)
                             case [.., not null, {} returnTypeSyntax] when toInvocationArgs is [{ Expression: LambdaExpressionSyntax lambdaExpression }]:
                                 var returnType = semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, returnTypeSyntax);
                                 var args = toInvocationTypeArgs.ToList().GetRange(0, toInvocationTypeArgs.Count - 1);
@@ -277,11 +398,13 @@ sealed class ApiInvocationProcessor(
                                     lambdaExpression);
                                 break;
 
+                            // To<T>(ctx => ...)
                             case [{} implementationTypeSyntax] when toInvocationArgs is [{ Expression: LambdaExpressionSyntax lambdaExpression }]:
                                 var factoryType = semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, implementationTypeSyntax);
                                 VisitFactory(invocation, metadataVisitor, semanticModel, factoryType, lambdaExpression);
                                 break;
 
+                            // To<T>("code")
                             case [{} implementationTypeSyntax] when toInvocationArgs is [{ Expression: LiteralExpressionSyntax { Token.Value: string sourceCodeStatement } }]:
                                 var lambda = SyntaxFactory
                                     .SimpleLambdaExpression(RootBuilder.DefaultCtxParameter)
@@ -290,6 +413,7 @@ sealed class ApiInvocationProcessor(
                                 VisitFactory(invocation, metadataVisitor, semanticModel, factoryType, lambda);
                                 break;
 
+                            // .To<T>()
                             case [{} implementationTypeSyntax] when toInvocationArgs is []:
                                 var implementationType = semantic.GetTypeSymbol<INamedTypeSymbol>(semanticModel, implementationTypeSyntax);
                                 metadataVisitor.VisitImplementation(new MdImplementation(semanticModel, invocation, implementationType));
@@ -317,7 +441,48 @@ sealed class ApiInvocationProcessor(
                         var lifetimeInvocationTypeArgs = genericName.TypeArgumentList.Arguments;
                         switch (lifetimeInvocationTypeArgs)
                         {
+                            // .To<T1, T2, ..., T>((dep1, dep2, ...) => ..., tags)
+                            case [.., not null, {} returnTypeSyntax] when lifetimeInvocationArgs is [{ Expression: LambdaExpressionSyntax lambdaExpression }, ..]:
+                                var lifetimeTagArguments = invocation.ArgumentList.Arguments.SkipWhile((arg, i) => arg.NameColon?.Name.Identifier.Text != "tags" && i < 1).ToList();
+                                metadataVisitor.VisitContract(
+                                    new MdContract(
+                                        semanticModel,
+                                        invocation,
+                                        null,
+                                        ContractKind.Explicit,
+                                        BuildTags(semanticModel, lifetimeTagArguments)));
+
+                                metadataVisitor.VisitLifetime(new MdLifetime(semanticModel, invocation, bindingLifetime));
+
+                                var returnType = semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, returnTypeSyntax);
+                                var args = lifetimeInvocationTypeArgs.ToList().GetRange(0, lifetimeInvocationTypeArgs.Count - 1 - lifetimeTagArguments.Count);
+                                VisitSimpleFactory(
+                                    metadataVisitor,
+                                    semanticModel,
+                                    invocation,
+                                    returnType,
+                                    args,
+                                    lambdaExpression);
+                                break;
+
+                            // Transient<T>(ctx => ..., tags)
+                            case [{} implementationTypeSyntax] when lifetimeInvocationArgs is [{ Expression: LambdaExpressionSyntax lambdaExpression }, ..]:
+                                metadataVisitor.VisitContract(
+                                    new MdContract(
+                                        semanticModel,
+                                        invocation,
+                                        null,
+                                        ContractKind.Explicit,
+                                        BuildTags(semanticModel, invocation.ArgumentList.Arguments.SkipWhile((arg, i) => arg.NameColon?.Name.Identifier.Text != "tags" && i < 1))));
+
+                                metadataVisitor.VisitLifetime(new MdLifetime(semanticModel, invocation, bindingLifetime));
+
+                                var factoryType = semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, implementationTypeSyntax);
+                                VisitFactory(invocation, metadataVisitor, semanticModel, factoryType, lambdaExpression);
+                                break;
+
                             default:
+                                // .Transient<T>()
                                 var lifetimesTags = BuildTags(semanticModel, lifetimeInvocationArgs);
                                 foreach (var typeArgument in genericName.TypeArgumentList.Arguments)
                                 {

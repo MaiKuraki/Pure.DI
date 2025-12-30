@@ -1118,6 +1118,568 @@ public class FactoryTests
     [InlineData(Lifetime.PerResolve)]
     [InlineData(Lifetime.Scoped)]
     [InlineData(Lifetime.PerBlock)]
+    internal async Task ShouldSupportParamsFreeFactoryWhenLifetimeSpecific(Lifetime lifetime)
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency {}
+                           
+                               interface IService
+                               {
+                                   IDependency Dep { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   public Service(IDependency dep)
+                                   { 
+                                       Dep = dep;
+                                   }
+                           
+                                   public IDependency Dep { get; }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .#lifetime#<IDependency>(() => new Dependency())
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Service");
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Service;
+                                   }
+                               }
+                           }
+                           """.Replace("#lifetime#", lifetime.ToString()).RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+
+    [Theory]
+    [InlineData(Lifetime.Transient)]
+    [InlineData(Lifetime.Singleton)]
+    [InlineData(Lifetime.PerResolve)]
+    [InlineData(Lifetime.Scoped)]
+    [InlineData(Lifetime.PerBlock)]
+    internal async Task ShouldSupportParamsFreeNotGenericFactoryWhenLifetimeSpecific(Lifetime lifetime)
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency {}
+                           
+                               interface IService
+                               {
+                                   Dependency Dep { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   public Service(Dependency dep)
+                                   { 
+                                       Dep = dep;
+                                   }
+                           
+                                   public Dependency Dep { get; }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .#lifetime#(() => new Dependency())
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Service");
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Service;
+                                   }
+                               }
+                           }
+                           """.Replace("#lifetime#", lifetime.ToString()).RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+
+    [Theory]
+    [InlineData(Lifetime.Transient)]
+    [InlineData(Lifetime.Singleton)]
+    [InlineData(Lifetime.PerResolve)]
+    [InlineData(Lifetime.Scoped)]
+    [InlineData(Lifetime.PerBlock)]
+    internal async Task ShouldSupportParamsFreeFactoryWhenLifetimeSpecificWhenTag(Lifetime lifetime)
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency {}
+                           
+                               interface IService
+                               {
+                                   IDependency Dep { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   public Service([Tag(123)] IDependency dep)
+                                   { 
+                                       Dep = dep;
+                                   }
+                           
+                                   public IDependency Dep { get; }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .#lifetime#<IDependency>(() => new Dependency(), 123)
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Service");
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Service;
+                                   }
+                               }
+                           }
+                           """.Replace("#lifetime#", lifetime.ToString()).RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+
+    [Theory]
+    [InlineData(Lifetime.Transient)]
+    [InlineData(Lifetime.Singleton)]
+    [InlineData(Lifetime.PerResolve)]
+    [InlineData(Lifetime.Scoped)]
+    [InlineData(Lifetime.PerBlock)]
+    internal async Task ShouldSupportSimpleFactoryWhenLifetimeSpecific(Lifetime lifetime)
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency {}
+                           
+                               interface IService
+                               {
+                                   IDependency Dep { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   public Service(IDependency dep)
+                                   { 
+                                       Dep = dep;
+                                   }
+                           
+                                   public IDependency Dep { get; }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .#lifetime#<IDependency>(ctx => new Dependency())
+                                           .#lifetime#<IDependency, IService>((dep) => new Service(dep))
+                                           .Root<IService>("Service");
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Service;
+                                   }
+                               }
+                           }
+                           """.Replace("#lifetime#", lifetime.ToString()).RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+
+    [Theory]
+    [InlineData(Lifetime.Transient)]
+    [InlineData(Lifetime.Singleton)]
+    [InlineData(Lifetime.PerResolve)]
+    [InlineData(Lifetime.Scoped)]
+    [InlineData(Lifetime.PerBlock)]
+    internal async Task ShouldSupportSimpleFactoryWhenLifetimeSpecificAndTag(Lifetime lifetime)
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency {}
+                           
+                               interface IService
+                               {
+                                   IDependency Dep { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   public Service(IDependency dep)
+                                   { 
+                                       Dep = dep;
+                                   }
+                           
+                                   public IDependency Dep { get; }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .#lifetime#<IDependency>(ctx => new Dependency())
+                                           .#lifetime#<IDependency, IService>((dep) => new Service(dep), 123)
+                                           .Root<IService>("Service", 123);
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Service;
+                                   }
+                               }
+                           }
+                           """.Replace("#lifetime#", lifetime.ToString()).RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+
+#if ROSLYN4_8_OR_GREATER
+    [Theory]
+    [InlineData(Lifetime.Transient)]
+    [InlineData(Lifetime.Singleton)]
+    [InlineData(Lifetime.PerResolve)]
+    [InlineData(Lifetime.Scoped)]
+    [InlineData(Lifetime.PerBlock)]
+    internal async Task ShouldSupportSimpleFactoryWhenLifetimeSpecificAndTagsArray(Lifetime lifetime)
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency {}
+                           
+                               interface IService
+                               {
+                                   IDependency Dep { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   public Service(IDependency dep)
+                                   { 
+                                       Dep = dep;
+                                   }
+                           
+                                   public IDependency Dep { get; }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .#lifetime#<IDependency>(ctx => new Dependency())
+                                           .#lifetime#<IDependency, IService>((dep) => new Service(dep), ["abc", 123])
+                                           .Root<IService>("Service", 123);
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Service;
+                                   }
+                               }
+                           }
+                           """.Replace("#lifetime#", lifetime.ToString()).RunAsync(new Options(LanguageVersion.CSharp12));
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+#endif
+
+    [Theory]
+    [InlineData(Lifetime.Transient)]
+    [InlineData(Lifetime.Singleton)]
+    [InlineData(Lifetime.PerResolve)]
+    [InlineData(Lifetime.Scoped)]
+    [InlineData(Lifetime.PerBlock)]
+    internal async Task ShouldSupportSimpleNotGenericFactoryWhenLifetimeSpecific(Lifetime lifetime)
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency {}
+                           
+                               interface IService
+                               {
+                                   IDependency Dep { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   public Service(IDependency dep)
+                                   { 
+                                       Dep = dep;
+                                   }
+                           
+                                   public IDependency Dep { get; }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .#lifetime#<IDependency>(ctx => new Dependency())
+                                           .#lifetime#(IService (IDependency dep) => new Service(dep))
+                                           .Root<IService>("Service");
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Service;
+                                   }
+                               }
+                           }
+                           """.Replace("#lifetime#", lifetime.ToString()).RunAsync(new Options(LanguageVersion.CSharp10));
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+
+    [Theory]
+    [InlineData(Lifetime.Transient)]
+    [InlineData(Lifetime.Singleton)]
+    [InlineData(Lifetime.PerResolve)]
+    [InlineData(Lifetime.Scoped)]
+    [InlineData(Lifetime.PerBlock)]
+    internal async Task ShouldSupportSimpleNotGenericFactoryWhenLifetimeSpecificAndTag(Lifetime lifetime)
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency {}
+                           
+                               interface IService
+                               {
+                                   IDependency Dep { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   public Service(IDependency dep)
+                                   { 
+                                       Dep = dep;
+                                   }
+                           
+                                   public IDependency Dep { get; }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .#lifetime#<IDependency>(ctx => new Dependency())
+                                           .#lifetime#(IService (IDependency dep) => new Service(dep), 123)
+                                           .Root<IService>("Service", 123);
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Service;
+                                   }
+                               }
+                           }
+                           """.Replace("#lifetime#", lifetime.ToString()).RunAsync(new Options(LanguageVersion.CSharp12));
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+
+#if ROSLYN4_8_OR_GREATER
+    [Theory]
+    [InlineData(Lifetime.Transient)]
+    [InlineData(Lifetime.Singleton)]
+    [InlineData(Lifetime.PerResolve)]
+    [InlineData(Lifetime.Scoped)]
+    [InlineData(Lifetime.PerBlock)]
+    internal async Task ShouldSupportSimpleNotGenericFactoryWhenLifetimeSpecificAndAsTagsArray(Lifetime lifetime)
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency {}
+                           
+                               interface IService
+                               {
+                                   IDependency Dep { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   public Service(IDependency dep)
+                                   { 
+                                       Dep = dep;
+                                   }
+                           
+                                   public IDependency Dep { get; }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .#lifetime#<IDependency>(ctx => new Dependency())
+                                           .#lifetime#(IService (IDependency dep) => new Service(dep), ["abc", 123])
+                                           .Root<IService>("Service", 123);
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Service;
+                                   }
+                               }
+                           }
+                           """.Replace("#lifetime#", lifetime.ToString()).RunAsync(new Options(LanguageVersion.CSharp12));
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+#endif
+
+    [Theory]
+    [InlineData(Lifetime.Transient)]
+    [InlineData(Lifetime.Singleton)]
+    [InlineData(Lifetime.PerResolve)]
+    [InlineData(Lifetime.Scoped)]
+    [InlineData(Lifetime.PerBlock)]
     internal async Task ShouldSupportFactoryWhenLifetimeSpecificAndTag(Lifetime lifetime)
     {
         // Given
@@ -1173,6 +1735,70 @@ public class FactoryTests
         // Then
         result.Success.ShouldBeTrue(result);
     }
+
+#if ROSLYN4_8_OR_GREATER
+    [Theory]
+    [InlineData(Lifetime.Transient)]
+    [InlineData(Lifetime.Singleton)]
+    [InlineData(Lifetime.PerResolve)]
+    [InlineData(Lifetime.Scoped)]
+    [InlineData(Lifetime.PerBlock)]
+    internal async Task ShouldSupportFactoryWhenLifetimeSpecificAndTagsArray(Lifetime lifetime)
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency {}
+                           
+                               interface IService
+                               {
+                                   IDependency Dep { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   public Service([Tag(123)] IDependency dep)
+                                   { 
+                                       Dep = dep;
+                                   }
+                           
+                                   public IDependency Dep { get; }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .#lifetime#<IDependency>(ctx => new Dependency(), [123, "abc"])
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Service");
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Service;
+                                   }
+                               }
+                           }
+                           """.Replace("#lifetime#", lifetime.ToString()).RunAsync(new Options(LanguageVersion.CSharp12));
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+#endif
 
     [Fact]
     public async Task ShouldSupportFactoryWhenBlock()
@@ -3820,6 +4446,82 @@ public class FactoryTests
     }
 
     [Fact]
+    public async Task ShouldSupportLifetimeSpecGuidFactoryWhenHasNoContext()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Transient(() => Guid.NewGuid())
+                                           .Root<Guid>("Value");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       Console.WriteLine(composition.Value != Guid.Empty);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportLifetimeSpecGuidFactoryWhenHasNoContextAndTag()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Transient(() => Guid.NewGuid(), 123)
+                                           .Root<Guid>("Value", 123);
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       Console.WriteLine(composition.Value != Guid.Empty);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
     public async Task ShouldSupportSimpleGuidFactoryWhenHasNoContext()
     {
         // Given
@@ -3837,6 +4539,82 @@ public class FactoryTests
                                    {
                                        DI.Setup("Composition")
                                            .Bind<Guid>().To(Guid.NewGuid)
+                                           .Root<Guid>("Value");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       Console.WriteLine(composition.Value != Guid.Empty);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportSimplifiedLifetimeSpecGuidFactoryWhenHasNoContextAndTag()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Transient(Guid.NewGuid, 123)
+                                           .Root<Guid>("Value", 123);
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       Console.WriteLine(composition.Value != Guid.Empty);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportSimplifiedLifetimeSpecGuidFactoryWhenHasNoContext()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Transient(Guid.NewGuid)
                                            .Root<Guid>("Value");
                                    }
                                }

@@ -2700,6 +2700,44 @@ namespace Pure.DI
         IConfiguration Transient<T>(global::System.Func<IContext, T> factory, params object[] tags);
 
         /// <summary>
+        /// Specifies a lifetime-specific context-less factory method to create the implementation instance.
+        /// <example>
+        /// <code>
+        /// DI.Setup("Composition")
+        ///     .Transient&lt;IService&gt;(() =&gt;
+        ///     {
+        ///         var service = new Service("My Service");
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(factory)"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="To{T1,T}()"/>
+        /// <seealso cref="To{T1,T2,T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        /// <remarks>
+        /// This method is useful for creating and initializing an instance manually.
+        /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
+        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+        /// But sometimes it is necessary to manually create and/or initialize an object.
+        /// There are scenarios where manual control over the creation process is required, such as
+        /// <list type="bullet">
+        /// <item>when additional initialization logic is needed</item>
+        /// <item>when complex construction steps are required</item>
+        /// <item>when specific object states need to be set during creation</item>
+        /// </list>
+        /// </remarks>
+        IConfiguration Transient<T>(global::System.Func<T> factory, params object[] tags);
+
+        /// <summary>
         /// Specifies a simplified lifetime-specific factory method with dependency parameters.
         /// </summary>
         /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
@@ -3075,6 +3113,44 @@ namespace Pure.DI
         /// </list>
         /// </remarks>
         IConfiguration Singleton<T>(global::System.Func<IContext, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a lifetime-specific context-less factory method to create the implementation instance.
+        /// <example>
+        /// <code>
+        /// DI.Setup("Composition")
+        ///     .Singleton&lt;IService&gt;(() =&gt;
+        ///     {
+        ///         var service = new Service("My Service");
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(factory)"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="To{T1,T}()"/>
+        /// <seealso cref="To{T1,T2,T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        /// <remarks>
+        /// This method is useful for creating and initializing an instance manually.
+        /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
+        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+        /// But sometimes it is necessary to manually create and/or initialize an object.
+        /// There are scenarios where manual control over the creation process is required, such as
+        /// <list type="bullet">
+        /// <item>when additional initialization logic is needed</item>
+        /// <item>when complex construction steps are required</item>
+        /// <item>when specific object states need to be set during creation</item>
+        /// </list>
+        /// </remarks>
+        IConfiguration Singleton<T>(global::System.Func<T> factory, params object[] tags);
 
         /// <summary>
         /// Specifies a simplified lifetime-specific factory method with dependency parameters.
@@ -3454,6 +3530,44 @@ namespace Pure.DI
         IConfiguration Scoped<T>(global::System.Func<IContext, T> factory, params object[] tags);
 
         /// <summary>
+        /// Specifies a lifetime-specific context-less factory method to create the implementation instance.
+        /// <example>
+        /// <code>
+        /// DI.Setup("Composition")
+        ///     .Scoped&lt;IService&gt;(() =&gt;
+        ///     {
+        ///         var service = new Service("My Service");
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(factory)"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="To{T1,T}()"/>
+        /// <seealso cref="To{T1,T2,T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        /// <remarks>
+        /// This method is useful for creating and initializing an instance manually.
+        /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
+        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+        /// But sometimes it is necessary to manually create and/or initialize an object.
+        /// There are scenarios where manual control over the creation process is required, such as
+        /// <list type="bullet">
+        /// <item>when additional initialization logic is needed</item>
+        /// <item>when complex construction steps are required</item>
+        /// <item>when specific object states need to be set during creation</item>
+        /// </list>
+        /// </remarks>
+        IConfiguration Scoped<T>(global::System.Func<T> factory, params object[] tags);
+
+        /// <summary>
         /// Specifies a simplified lifetime-specific factory method with dependency parameters.
         /// </summary>
         /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
@@ -3831,6 +3945,44 @@ namespace Pure.DI
         IConfiguration PerResolve<T>(global::System.Func<IContext, T> factory, params object[] tags);
 
         /// <summary>
+        /// Specifies a lifetime-specific context-less factory method to create the implementation instance.
+        /// <example>
+        /// <code>
+        /// DI.Setup("Composition")
+        ///     .PerResolve&lt;IService&gt;(() =&gt;
+        ///     {
+        ///         var service = new Service("My Service");
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(factory)"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="To{T1,T}()"/>
+        /// <seealso cref="To{T1,T2,T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        /// <remarks>
+        /// This method is useful for creating and initializing an instance manually.
+        /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
+        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+        /// But sometimes it is necessary to manually create and/or initialize an object.
+        /// There are scenarios where manual control over the creation process is required, such as
+        /// <list type="bullet">
+        /// <item>when additional initialization logic is needed</item>
+        /// <item>when complex construction steps are required</item>
+        /// <item>when specific object states need to be set during creation</item>
+        /// </list>
+        /// </remarks>
+        IConfiguration PerResolve<T>(global::System.Func<T> factory, params object[] tags);
+
+        /// <summary>
         /// Specifies a simplified lifetime-specific factory method with dependency parameters.
         /// </summary>
         /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
@@ -4206,6 +4358,44 @@ namespace Pure.DI
         /// </list>
         /// </remarks>
         IConfiguration PerBlock<T>(global::System.Func<IContext, T> factory, params object[] tags);
+
+        /// <summary>
+        /// Specifies a lifetime-specific context-less factory method to create the implementation instance.
+        /// <example>
+        /// <code>
+        /// DI.Setup("Composition")
+        ///     .PerBlock&lt;IService&gt;(() =&gt;
+        ///     {
+        ///         var service = new Service("My Service");
+        ///         service.Initialize();
+        ///         return service;
+        ///     })
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <typeparam name="T">Implementation type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="IConfiguration.Bind{T}"/>
+        /// <seealso cref="To{T}(factory)"/>
+        /// <seealso cref="To{T}()"/>
+        /// <seealso cref="To{T1,T}()"/>
+        /// <seealso cref="To{T1,T2,T}()"/>
+        /// <seealso cref="Tags"/>
+        /// <seealso cref="As"/>
+        /// <remarks>
+        /// This method is useful for creating and initializing an instance manually.
+        /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
+        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+        /// But sometimes it is necessary to manually create and/or initialize an object.
+        /// There are scenarios where manual control over the creation process is required, such as
+        /// <list type="bullet">
+        /// <item>when additional initialization logic is needed</item>
+        /// <item>when complex construction steps are required</item>
+        /// <item>when specific object states need to be set during creation</item>
+        /// </list>
+        /// </remarks>
+        IConfiguration PerBlock<T>(global::System.Func<T> factory, params object[] tags);
 
         /// <summary>
         /// Specifies a simplified lifetime-specific factory method with dependency parameters.
@@ -5996,6 +6186,12 @@ namespace Pure.DI
             }
 
             /// <inheritdoc />
+            public IConfiguration Transient<T>(global::System.Func<T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
             public IConfiguration Transient<T1, T>(global::System.Func<T1, T> factory, params object[] tags)
             {
                 return this;
@@ -6429,6 +6625,12 @@ namespace Pure.DI
 
             /// <inheritdoc />
             public IConfiguration Singleton<T>(global::System.Func<IContext, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration Singleton<T>(global::System.Func<T> factory, params object[] tags)
             {
                 return this;
             }
@@ -6872,6 +7074,12 @@ namespace Pure.DI
             }
 
             /// <inheritdoc />
+            public IConfiguration Scoped<T>(global::System.Func<T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
             public IConfiguration Scoped<T1, T>(global::System.Func<T1, T> factory, params object[] tags)
             {
                 return this;
@@ -7310,6 +7518,12 @@ namespace Pure.DI
             }
 
             /// <inheritdoc />
+            public IConfiguration PerResolve<T>(global::System.Func<T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
             public IConfiguration PerResolve<T1, T>(global::System.Func<T1, T> factory, params object[] tags)
             {
                 return this;
@@ -7743,6 +7957,12 @@ namespace Pure.DI
 
             /// <inheritdoc />
             public IConfiguration PerBlock<T>(global::System.Func<IContext, T> factory, params object[] tags)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration PerBlock<T>(global::System.Func<T> factory, params object[] tags)
             {
                 return this;
             }
