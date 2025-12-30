@@ -2189,6 +2189,10 @@ public class LifetimesTests
                                internal interface IDependency { }
                            
                                internal class Dependency : IDependency { }
+                               
+                               internal interface IDependency2 { }
+                           
+                               internal class Dependency2 : IDependency2 { }
                            
                                internal interface IService
                                {
@@ -2199,10 +2203,10 @@ public class LifetimesTests
                            
                                internal class Service : IService
                                {
-                                   public Service(Func<IDependency> dependency1, IDependency dependency2)
+                                   public Service(Func<IDependency> dependency1, IDependency dependency12, IDependency2 dep2, Dependency2 dep22)
                                    {
                                        Dependency1 = dependency1();
-                                       Dependency2 = dependency2;
+                                       Dependency2 = dependency12;
                                    }
                            
                                    public IDependency Dependency1 { get; }
@@ -2215,7 +2219,7 @@ public class LifetimesTests
                                    private static void SetupComposition()
                                    {
                                        DI.Setup(nameof(Composition))
-                                           .Singleton<Dependency>()
+                                           .Singleton<Dependency, Dependency2>()
                                            .Transient<Service>()
                                            .Root<IDependency>("Dependency")
                                            .Root<IService>("Root");
