@@ -6,7 +6,7 @@ using UnityEngine;
 public class Clock : MonoBehaviour
 {
     const float HoursToDegrees = -30f, MinutesToDegrees = -6f, SecondsToDegrees = -6f;
-    [SerializeField] Scope scope;
+    [SerializeField] ProjectScope scope;
     [SerializeField] Transform hoursPivot;
     [SerializeField] Transform minutesPivot;
     [SerializeField] Transform secondsPivot;

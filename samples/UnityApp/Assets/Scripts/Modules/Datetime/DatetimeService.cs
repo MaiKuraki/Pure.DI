@@ -4,12 +4,18 @@ public class DatetimeService : IDatetimeService, IDisposable
 {
     private readonly IDatetimeConfig _config;
 
+    public DateTime Now => DateTime.UtcNow + _config.Offset;
+
+
     public DatetimeService(IDatetimeConfig config)
     {
         _config = config;
     }
 
-    public DateTime Now => DateTime.UtcNow + _config.Offset;
+    public void Initialize()
+    {
+        // Initialization logic if needed
+    }
 
     public void Dispose()
     {

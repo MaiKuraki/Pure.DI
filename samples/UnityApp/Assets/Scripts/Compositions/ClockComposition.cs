@@ -7,6 +7,7 @@ public partial class ClockComposition
     [SerializeField] public ClockConfig clockConfig;
 
     void Setup() => DI.Setup(kind: CompositionKind.Global)
-        .Bind().To(_ => clockConfig)
-        .Root<ClockManager>(nameof(ClockManager));
+                        .DefaultLifetime(Singleton)
+                        .Bind().To(_ => clockConfig)
+                        .Bind().To<ClockService>();
 }
