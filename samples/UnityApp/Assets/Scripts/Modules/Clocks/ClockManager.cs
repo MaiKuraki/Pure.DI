@@ -13,7 +13,7 @@ public class ClockManager : IDisposable
         _config = config;
     }
 
-    public void Start()
+    public void Initialize()
     {
         if (_config.ShowDigital)
         {

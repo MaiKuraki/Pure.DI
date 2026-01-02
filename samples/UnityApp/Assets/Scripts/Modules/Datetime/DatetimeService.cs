@@ -1,10 +1,10 @@
 ﻿using System;
 
-public class ClockService : IClockService, IDisposable
+public class DatetimeService : IDatetimeService, IDisposable
 {
-    private readonly IClockConfig _config;
+    private readonly IDatetimeConfig _config;
 
-    public ClockService(IClockConfig config)
+    public DatetimeService(IDatetimeConfig config)
     {
         _config = config;
     }

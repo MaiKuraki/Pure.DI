@@ -12,7 +12,7 @@ public class Clock : MonoBehaviour
     [SerializeField] Transform secondsPivot;
 
     [Dependency]
-    public IClockService ClockService { private get; set; }
+    public IDatetimeService DatetimeService { private get; set; }
 
     void Awake()
     {
@@ -21,7 +21,7 @@ public class Clock : MonoBehaviour
 
     void Update()
     {
-        var now = ClockService.Now.TimeOfDay;
+        var now = DatetimeService.Now.TimeOfDay;
         hoursPivot.localRotation = Quaternion.Euler(0f, 0f, HoursToDegrees * (float)now.TotalHours);
         minutesPivot.localRotation = Quaternion.Euler(0f, 0f, MinutesToDegrees * (float)now.TotalMinutes);
         secondsPivot.localRotation = Quaternion.Euler(0f, 0f, SecondsToDegrees * (float)now.TotalSeconds);
