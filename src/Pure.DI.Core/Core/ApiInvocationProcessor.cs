@@ -455,7 +455,7 @@ sealed class ApiInvocationProcessor(
                                 metadataVisitor.VisitLifetime(new MdLifetime(semanticModel, invocation, bindingLifetime));
 
                                 var returnType = semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, returnTypeSyntax);
-                                var args = lifetimeInvocationTypeArgs.ToList().GetRange(0, lifetimeInvocationTypeArgs.Count - 1 - lifetimeTagArguments.Count);
+                                var args = lifetimeInvocationTypeArgs.ToList().GetRange(0, lifetimeInvocationTypeArgs.Count - 1);
                                 VisitSimpleFactory(
                                     metadataVisitor,
                                     semanticModel,
