@@ -16,7 +16,6 @@ static class Names
     public const string GlobalNamespacePrefix = "global::";
     public const string ApiNamespace = $"{GlobalNamespacePrefix}{GeneratorName}.";
     public const string SystemNamespace = $"{GlobalNamespacePrefix}{nameof(System)}.";
-    public const string UnityNamespace = "UnityEngine.";
 
     // Attributes
     public const string MethodImplAttributeName = $"{SystemNamespace}Runtime.CompilerServices.MethodImpl";
@@ -59,9 +58,6 @@ static class Names
     public const string IAsyncEnumerableTypeName = $"{SystemNamespace}Collections.Generic.IAsyncEnumerable<>";
     public const string CannotResolveExceptionTypeName = $"{ApiNamespace}{nameof(CannotResolveException)}";
     public const string NonSerializedAttributeTypeName = $"{SystemNamespace}{nameof(NonSerializedAttribute)}";
-    public const string UnityObjectTypeName = $"{UnityNamespace}Object";
-    public const string UnityScriptableObjectTypeName = $"{UnityNamespace}ScriptableObject";
-    public const string UnityMonoBehaviourTypeName = $"{UnityNamespace}MonoBehaviour";
 
     // Members
     public const string ResolveMethodName = nameof(IResolver<,>.Resolve);

@@ -6,8 +6,5 @@ enum SpecialType
     CompositionKind,
     Lifetime,
     Tag,
-    IConfiguration,
-    UnityObject,
-    UnityScriptableObject,
-    UnityMonoBehaviour
+    IConfiguration
 }

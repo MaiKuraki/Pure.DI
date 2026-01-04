@@ -1548,6 +1548,7 @@ public class FactoryTests
         result.Success.ShouldBeTrue(result);
     }
 
+#if ROSLYN4_8_OR_GREATER
     [Theory]
     [InlineData(Lifetime.Transient)]
     [InlineData(Lifetime.Singleton)]
@@ -1610,7 +1611,6 @@ public class FactoryTests
         result.Success.ShouldBeTrue(result);
     }
 
-#if ROSLYN4_8_OR_GREATER
     [Theory]
     [InlineData(Lifetime.Transient)]
     [InlineData(Lifetime.Singleton)]

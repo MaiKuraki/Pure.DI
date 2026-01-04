@@ -1905,8 +1905,8 @@ namespace Pure.DI
     internal interface IConfiguration
     {
         /// <summary>
-        /// Starts binding definition for the implementation type itself. Also binds all directly implemented abstract types excluding special system interfaces.
-        /// Special system interfaces are excluded from binding:
+        /// Starts binding definition for the implementation type itself (implementation binding). Also binds all directly implemented abstract types excluding special types.
+        /// Special types are excluded from binding by default:
         /// <list type="bullet">
         /// <item>System.Object</item>
         /// <item>System.Enum</item>
@@ -1924,6 +1924,7 @@ namespace Pure.DI
         /// <item>System.IAsyncResult</item>
         /// <item>System.AsyncCallback</item>
         /// </list>
+        /// Use <see cref="SpecialType{T}()"/> to add a special type.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -1933,6 +1934,7 @@ namespace Pure.DI
         /// </summary>
         /// <param name="tags">Optional tags to associate with the binding.</param>
         /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <seealso cref="SpecialType{T}()"/>
         /// <seealso cref="IBinding.To{T}()"/>
         /// <seealso cref="IBinding.To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="IBinding.To{T1,T}()"/>
@@ -2234,6 +2236,20 @@ namespace Pure.DI
         /// <returns>Configuration interface for method chaining.</returns>
         /// <seealso cref="Pure.DI.OrdinalAttribute"/>
         IConfiguration OrdinalAttribute<T>(int ordinalArgumentPosition = 0) where T: global::System.Attribute;
+
+        /// <summary>
+        /// Adds a special type that excludes it from implementation binding.
+        /// <example>
+        /// <code>
+        /// DI.Setup("Composition")
+        ///     .SpecialType&lt;UnityEngine.MonoBehaviour&gt;();
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <typeparam name="T">Special type.</typeparam>
+        /// <returns>Configuration interface for method chaining.</returns>
+        /// <seealso cref="Bind()"/>
+        IConfiguration SpecialType<T>();
 
         /// <summary>
         /// Sets the default lifetime for the following bindings.
@@ -5633,6 +5649,12 @@ namespace Pure.DI
             /// <inheritdoc />
             public IConfiguration TagAttribute<T>(int tagArgumentPosition)
                 where T: global::System.Attribute
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration SpecialType<T>()
             {
                 return this;
             }

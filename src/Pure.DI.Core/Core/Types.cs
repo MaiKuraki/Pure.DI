@@ -13,10 +13,7 @@ sealed class Types(
         { SpecialType.CompositionKind, $"{Names.GeneratorName}.{nameof(CompositionKind)}" },
         { SpecialType.Lifetime, $"{Names.GeneratorName}.{nameof(Lifetime)}" },
         { SpecialType.Tag, $"{Names.GeneratorName}.{nameof(Tag)}" },
-        { SpecialType.IConfiguration, $"{Names.GeneratorName}.{nameof(IConfiguration)}" },
-        { SpecialType.UnityObject, Names.UnityObjectTypeName },
-        { SpecialType.UnityScriptableObject, Names.UnityScriptableObjectTypeName },
-        { SpecialType.UnityMonoBehaviour, Names.UnityMonoBehaviourTypeName }
+        { SpecialType.IConfiguration, $"{Names.GeneratorName}.{nameof(IConfiguration)}" }
     };
 
     public string GetName(ITypeSymbol typeSymbol) =>

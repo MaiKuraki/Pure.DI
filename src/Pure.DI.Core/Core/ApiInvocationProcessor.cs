@@ -312,6 +312,7 @@ sealed class ApiInvocationProcessor(
                                 ImmutableArray<MdTypeAttribute>.Empty,
                                 ImmutableArray<MdTagAttribute>.Empty,
                                 ImmutableArray<MdOrdinalAttribute>.Empty,
+                                ImmutableArray<INamedTypeSymbol>.Empty,
                                 ImmutableArray<MdAccumulator>.Empty,
                                 [],
                                 comments.FilterHints(invocationComments).ToList()));
@@ -703,6 +704,19 @@ sealed class ApiInvocationProcessor(
                                 ordinalAttributeType,
                                 BuildConstantArgs<object>(semanticModel, invocation.ArgumentList.Arguments) is [int positionVal] ? positionVal : 0);
                             metadataVisitor.VisitOrdinalAttribute(attr);
+                        }
+
+                        break;
+
+                    case nameof(IConfiguration.SpecialType):
+                        if (genericName.TypeArgumentList.Arguments is [{} specialTypeExpression]
+                            && semantic.TryGetTypeSymbol<INamedTypeSymbol>(semanticModel, specialTypeExpression) is {} specialType)
+                        {
+                            metadataVisitor.VisitSpecialType(specialType);
+                        }
+                        else
+                        {
+                            NotSupported(invocation);
                         }
 
                         break;

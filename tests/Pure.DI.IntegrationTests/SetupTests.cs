@@ -676,8 +676,8 @@ public class SetupTests
         var result = await """
                            namespace UnityEngine
                            {
-                                public class Object {}
-                                public class ScriptableObject: Object {}
+                                public interface Object {}
+                                public abstract class ScriptableObject: Object {}
                                 public class MonoBehaviour: Object {}
                            }
                            
@@ -701,6 +701,9 @@ public class SetupTests
                                {                   
                                    void Setup() => 
                                        DI.Setup("Composition")
+                                           .SpecialType<UnityEngine.Object>()
+                                           .SpecialType<UnityEngine.ScriptableObject>()
+                                           .SpecialType<UnityEngine.MonoBehaviour>()
                                            .Bind().To<Dep1>()
                                            .Bind().To<Dep2>()
                                            .Root<Dep1>("Root1")

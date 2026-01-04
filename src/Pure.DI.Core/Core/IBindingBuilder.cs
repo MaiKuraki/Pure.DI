@@ -2,7 +2,6 @@
 
 interface IBindingBuilder
 {
-
     MdLifetime Lifetime { set; }
 
     MdImplementation Implementation { set; }

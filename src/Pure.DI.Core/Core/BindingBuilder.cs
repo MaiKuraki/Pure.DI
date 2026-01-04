@@ -89,12 +89,12 @@ sealed class BindingBuilder(
                         var baseSymbols = Enumerable.Empty<ITypeSymbol>();
                         if (implementationType is { SpecialType: Microsoft.CodeAnalysis.SpecialType.None, TypeKind: TypeKind.Class or TypeKind.Struct, IsAbstract: false })
                         {
-                            var compilation = setup.SemanticModel.Compilation;
+                            var specialTypes = setup.SpecialTypes.ToImmutableHashSet(SymbolEqualityComparer.Default);
                             baseSymbols = baseSymbolsProvider
                                 .GetBaseSymbols(implementationType, (type, deepness) => deepness switch
                                 {
                                     0 => true,
-                                    1 => IsSuitableForBinding(compilation, type),
+                                    1 => IsSuitableForBinding(specialTypes, type),
                                     _ => false
                                 }, 1)
                                 .Select(i => i.Type);
@@ -157,14 +157,10 @@ sealed class BindingBuilder(
         }
     }
 
-    private bool IsSuitableForBinding(Compilation compilation, ITypeSymbol type)
-    {
-        return (type.TypeKind == TypeKind.Interface || type.IsAbstract)
-               && (type.SpecialType == Microsoft.CodeAnalysis.SpecialType.None
-                   || types.TypeEquals(type, types.TryGet(SpecialType.UnityMonoBehaviour, compilation))
-                   || types.TypeEquals(type, types.TryGet(SpecialType.UnityScriptableObject, compilation))
-                   || types.TypeEquals(type, types.TryGet(SpecialType.UnityObject, compilation)));
-    }
+    private static bool IsSuitableForBinding(ImmutableHashSet<ISymbol?> specialTypes, ITypeSymbol type) =>
+        (type.TypeKind == TypeKind.Interface || type.IsAbstract)
+        && type.SpecialType == Microsoft.CodeAnalysis.SpecialType.None
+        && !specialTypes.Contains(type);
 
     private static MdTag BuildTag(MdTag tag, ITypeSymbol? type, Lazy<int> id)
     {

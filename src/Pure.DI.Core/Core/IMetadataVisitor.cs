@@ -38,6 +38,8 @@ interface IMetadataVisitor
 
     void VisitOrdinalAttribute(in MdOrdinalAttribute ordinalAttribute);
 
+    void VisitSpecialType(INamedTypeSymbol specialType);
+
     void VisitLifetime(in MdLifetime lifetime);
 
     void VisitTag(in MdTag tag);

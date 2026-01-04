@@ -125,6 +125,7 @@ sealed class MetadataBuilder(
         var genericTypeArgumentAttributesBuilder = ImmutableArray.CreateBuilder<MdGenericTypeArgumentAttribute>(1);
         var typeAttributesBuilder = ImmutableArray.CreateBuilder<MdTypeAttribute>(2);
         var tagAttributesBuilder = ImmutableArray.CreateBuilder<MdTagAttribute>(2);
+        var specialTypeBuilder = ImmutableArray.CreateBuilder<INamedTypeSymbol>(0);
         var ordinalAttributesBuilder = ImmutableArray.CreateBuilder<MdOrdinalAttribute>(2);
         var usingDirectives = ImmutableArray.CreateBuilder<MdUsingDirectives>(2);
         var accumulators = ImmutableArray.CreateBuilder<MdAccumulator>(1);
@@ -160,6 +161,7 @@ sealed class MetadataBuilder(
             typeAttributesBuilder.AddRange(setup.TypeAttributes);
             tagAttributesBuilder.AddRange(setup.TagAttributes);
             ordinalAttributesBuilder.AddRange(setup.OrdinalAttributes);
+            specialTypeBuilder.AddRange(setup.SpecialTypes);
             accumulators.AddRange(setup.Accumulators);
             foreach (var usingDirective in setup.UsingDirectives)
             {
@@ -200,6 +202,7 @@ sealed class MetadataBuilder(
             typeAttributesBuilder.ToImmutable(),
             tagAttributesBuilder.ToImmutable(),
             ordinalAttributesBuilder.ToImmutable(),
+            specialTypeBuilder.ToImmutable(),
             accumulators.ToImmutable(),
             tagOn,
             comments);

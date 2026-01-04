@@ -158,6 +158,10 @@ abstract class MetadataWalkerBase : IMetadataVisitor
     {
     }
 
+    public void VisitSpecialType(INamedTypeSymbol specialType)
+    {
+    }
+
     public virtual void VisitLifetime(in MdLifetime lifetime)
     {
     }

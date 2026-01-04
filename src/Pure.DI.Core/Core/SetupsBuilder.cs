@@ -20,6 +20,7 @@ sealed class SetupsBuilder(
     private readonly List<MdGenericTypeArgumentAttribute> _genericTypeArgumentAttributes = [];
     private readonly List<MdGenericTypeArgument> _genericTypeArguments = [];
     private readonly List<MdOrdinalAttribute> _ordinalAttributes = [];
+    private readonly List<INamedTypeSymbol> _specialTypes = [];
     private readonly List<MdRoot> _roots = [];
     private readonly List<MdSetup> _setups = [];
     private readonly List<MdTagAttribute> _tagAttributes = [];
@@ -111,6 +112,9 @@ sealed class SetupsBuilder(
     public void VisitOrdinalAttribute(in MdOrdinalAttribute ordinalAttribute) =>
         _ordinalAttributes.Add(ordinalAttribute);
 
+    public void VisitSpecialType(INamedTypeSymbol specialType) =>
+        _specialTypes.Add(specialType);
+
     public void VisitLifetime(in MdLifetime lifetime) =>
         _bindingBuilder.Lifetime = lifetime;
 
@@ -147,6 +151,7 @@ sealed class SetupsBuilder(
         _typeAttributes.AddRange(setup.TypeAttributes);
         _tagAttributes.AddRange(setup.TagAttributes);
         _ordinalAttributes.AddRange(setup.OrdinalAttributes);
+        _specialTypes.AddRange(setup.SpecialTypes);
         _usingDirectives.AddRange(setup.UsingDirectives);
         _accumulators.AddRange(setup.Accumulators);
         foreach (var binding in setup.Bindings)
@@ -397,6 +402,7 @@ sealed class SetupsBuilder(
             TypeAttributes = _typeAttributes.ToImmutableArray(),
             TagAttributes = _tagAttributes.ToImmutableArray(),
             OrdinalAttributes = _ordinalAttributes.ToImmutableArray(),
+            SpecialTypes = _specialTypes.ToImmutableArray(),
             UsingDirectives = _usingDirectives.ToImmutableArray(),
             Accumulators = _accumulators.Distinct().ToImmutableArray()
         };
@@ -410,6 +416,7 @@ sealed class SetupsBuilder(
         _genericTypeArgumentAttributes.Clear();
         _typeAttributes.Clear();
         _ordinalAttributes.Clear();
+        _specialTypes.Clear();
         _usingDirectives.Clear();
         _accumulators.Clear();
         _setup = null;
