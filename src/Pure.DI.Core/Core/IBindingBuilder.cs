@@ -9,6 +9,7 @@ interface IBindingBuilder
     MdFactory Factory { set; }
 
     MdArg Arg { set; }
+
     void AddDefaultLifetime(MdDefaultLifetime defaultLifetime);
 
     void AddContract(in MdContract contract);

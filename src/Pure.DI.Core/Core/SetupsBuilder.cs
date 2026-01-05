@@ -26,9 +26,11 @@ sealed class SetupsBuilder(
     private readonly List<MdTagAttribute> _tagAttributes = [];
     private readonly List<MdTypeAttribute> _typeAttributes = [];
     private readonly List<MdUsingDirectives> _usingDirectives = [];
+    private readonly List<IBindingBuilder> _bindingBuilders = [];
     private IBindingBuilder _bindingBuilder = bindingBuilderFactory();
     private Hints _hints = new();
     private MdSetup? _setup;
+    private MdDefaultLifetime? _defaultLifetime;
 
     public IEnumerable<MdSetup> Build(SyntaxUpdate update)
     {
@@ -97,8 +99,11 @@ sealed class SetupsBuilder(
     public void VisitGenericTypeArgumentAttribute(in MdGenericTypeArgumentAttribute genericTypeArgumentAttribute) =>
         _genericTypeArgumentAttributes.Add(genericTypeArgumentAttribute);
 
-    public void VisitDefaultLifetime(in MdDefaultLifetime defaultLifetime) =>
+    public void VisitDefaultLifetime(in MdDefaultLifetime defaultLifetime)
+    {
+        _defaultLifetime = defaultLifetime;
         _bindingBuilder.AddDefaultLifetime(defaultLifetime);
+    }
 
     public void VisitDependsOn(in MdDependsOn dependsOn) =>
         _dependsOn.Add(dependsOn);
@@ -162,8 +167,15 @@ sealed class SetupsBuilder(
         return FinishSetup(null)!;
     }
 
-    private void FinishBinding() =>
-        _bindings.Add(_bindingBuilder.Build(_setup!));
+    private void FinishBinding()
+    {
+        _bindingBuilders.Add(_bindingBuilder);
+        _bindingBuilder = bindingBuilderFactory();
+        if (_defaultLifetime is {} defaultLifetime)
+        {
+            _bindingBuilder.AddDefaultLifetime(defaultLifetime);
+        }
+    }
 
     private void FinalizeBinding(MdSetup setup, MdBinding binding)
     {
@@ -395,7 +407,6 @@ sealed class SetupsBuilder(
         {
             Hints = _hints,
             Roots = _roots.ToImmutableArray(),
-            Bindings = _bindings.Select(i => i with { SourceSetup = source ?? i.SourceSetup }).ToImmutableArray(),
             DependsOn = _dependsOn.ToImmutableArray(),
             GenericTypeArguments = _genericTypeArguments.ToImmutableArray(),
             GenericTypeArgumentAttributes = _genericTypeArgumentAttributes.ToImmutableArray(),
@@ -407,8 +418,20 @@ sealed class SetupsBuilder(
             Accumulators = _accumulators.Distinct().ToImmutableArray()
         };
 
+        // Creates bindings with all relevant information.
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+        foreach (var bindingBuilder in _bindingBuilders)
+        {
+            var binding = bindingBuilder.Build(setup);
+            binding = binding with { SourceSetup = source ?? binding.SourceSetup };
+            _bindings.Add(binding);
+        }
+
+        setup = setup with { Bindings = _bindings.Select(i => i with { SourceSetup = source ?? i.SourceSetup }).ToImmutableArray() };
+
         _setups.Add(setup);
         _hints = new Hints();
+        _bindingBuilders.Clear();
         _bindings.Clear();
         _roots.Clear();
         _dependsOn.Clear();

@@ -668,6 +668,7 @@ public class SetupTests
     [InlineData("UnityEngine.MonoBehaviour")]
     [InlineData("UnityEngine.ScriptableObject")]
     [InlineData("UnityEngine.Object")]
+    [InlineData("IComparer<int>")]
     public async Task ShouldSupportBindWhenHasNoTypeParamsAndSpecialType(string baseType)
     {
         // Given
@@ -684,17 +685,22 @@ public class SetupTests
                            namespace Sample
                            {
                                using System;
+                               using System.Collections.Generic;
                                using Pure.DI;
                                using Sample;
                            
                                internal class Dep1: #baseType#
                                {
                                    public void Dispose() { }
+                                   
+                                   public int Compare(int x, int y) => 0;
                                }
                                
                                internal class Dep2: #baseType#
                                {
                                    public void Dispose() { }
+                                   
+                                   public int Compare(int x, int y) => 0;
                                }
                                
                                internal partial class Composition
@@ -703,11 +709,12 @@ public class SetupTests
                                        DI.Setup("Composition")
                                            .SpecialType<UnityEngine.Object>()
                                            .SpecialType<UnityEngine.ScriptableObject>()
-                                           .SpecialType<UnityEngine.MonoBehaviour>()
                                            .Bind().To<Dep1>()
                                            .Bind().To<Dep2>()
                                            .Root<Dep1>("Root1")
-                                           .Root<Dep2>("Root2"); 
+                                           .Root<Dep2>("Root2")
+                                           .SpecialType<UnityEngine.MonoBehaviour>()
+                                           .SpecialType<IComparer<int>>(); 
                                }       
                            
                                public class Program

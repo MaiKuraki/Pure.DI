@@ -71,90 +71,76 @@ sealed class BindingBuilder(
     {
         var implementationType = _implementation?.Type ?? _factory?.Type ?? _arg?.Type;
         var contractsSource = _implementation?.Source ?? _factory?.Source;
-        try
+        if (_semanticModel is {} semanticModel
+            && _source is {} source)
         {
-            if (_semanticModel is {} semanticModel
-                && _source is {} source)
+            var autoContracts = _contracts.Where(i => i.ContractType == null).ToList();
+            if (autoContracts.Count > 0)
             {
-                var autoContracts = _contracts.Where(i => i.ContractType == null).ToList();
-                if (autoContracts.Count > 0)
+                foreach (var contract in autoContracts)
                 {
-                    foreach (var contract in autoContracts)
-                    {
-                        _contracts.Remove(contract);
-                    }
-
-                    if (implementationType is not null && contractsSource is not null)
-                    {
-                        var baseSymbols = Enumerable.Empty<ITypeSymbol>();
-                        if (implementationType is { SpecialType: Microsoft.CodeAnalysis.SpecialType.None, TypeKind: TypeKind.Class or TypeKind.Struct, IsAbstract: false })
-                        {
-                            var specialTypes = setup.SpecialTypes.ToImmutableHashSet(SymbolEqualityComparer.Default);
-                            baseSymbols = baseSymbolsProvider
-                                .GetBaseSymbols(implementationType, (type, deepness) => deepness switch
-                                {
-                                    0 => true,
-                                    1 => IsSuitableForBinding(specialTypes, type),
-                                    _ => false
-                                }, 1)
-                                .Select(i => i.Type);
-                        }
-
-                        var contracts = new HashSet<ITypeSymbol>(baseSymbols, SymbolEqualityComparer.Default)
-                        {
-                            implementationType
-                        };
-
-                        var tags = autoContracts
-                            .SelectMany(i => i.Tags)
-                            .GroupBy(i => i.Value)
-                            .Select(i => i.First())
-                            .ToImmutableArray();
-
-                        foreach (var contract in contracts)
-                        {
-                            _contracts.Add(
-                                new MdContract(
-                                    semanticModel,
-                                    contractsSource,
-                                    contract,
-                                    ContractKind.Explicit,
-                                    tags));
-                        }
-                    }
+                    _contracts.Remove(contract);
                 }
 
-                var id = new Lazy<int>(idGenerator.Generate);
-                var implementationTags = _tags.Select(tag => BuildTag(tag, implementationType, id)).ToImmutableArray();
-                return new MdBinding(
-                    int.MaxValue - specialBindingIdGenerator.Generate(),
-                    source,
-                    setup,
-                    semanticModel,
-                    _contracts.Select(i => i with { Tags = i.Tags.Select(tag => BuildTag(tag, implementationType, id)).ToImmutableArray() }).ToImmutableArray(),
-                    implementationTags,
-                    GetLifetime(implementationType, implementationTags),
-                    _implementation,
-                    _factory,
-                    _arg);
+                if (implementationType is not null && contractsSource is not null)
+                {
+                    var baseSymbols = Enumerable.Empty<ITypeSymbol>();
+                    if (implementationType is { SpecialType: Microsoft.CodeAnalysis.SpecialType.None, TypeKind: TypeKind.Class or TypeKind.Struct, IsAbstract: false })
+                    {
+                        var specialTypes = setup.SpecialTypes.ToImmutableHashSet(SymbolEqualityComparer.Default);
+                        baseSymbols = baseSymbolsProvider
+                            .GetBaseSymbols(implementationType, (type, deepness) => deepness switch
+                            {
+                                0 => true,
+                                1 => IsSuitableForBinding(specialTypes, type),
+                                _ => false
+                            }, 1)
+                            .Select(i => i.Type);
+                    }
+
+                    var contracts = new HashSet<ITypeSymbol>(baseSymbols, SymbolEqualityComparer.Default)
+                    {
+                        implementationType
+                    };
+
+                    var tags = autoContracts
+                        .SelectMany(i => i.Tags)
+                        .GroupBy(i => i.Value)
+                        .Select(i => i.First())
+                        .ToImmutableArray();
+
+                    foreach (var contract in contracts)
+                    {
+                        _contracts.Add(
+                            new MdContract(
+                                semanticModel,
+                                contractsSource,
+                                contract,
+                                ContractKind.Explicit,
+                                tags));
+                    }
+                }
             }
 
-            throw new CompileErrorException(
-                Strings.Error_InvalidBinding,
-                ImmutableArray.Create(locationProvider.GetLocation(setup.Source)),
-                LogId.ErrorInvalidMetadata);
+            var id = new Lazy<int>(idGenerator.Generate);
+            var implementationTags = _tags.Select(tag => BuildTag(tag, implementationType, id)).ToImmutableArray();
+            return new MdBinding(
+                int.MaxValue - specialBindingIdGenerator.Generate(),
+                source,
+                setup,
+                semanticModel,
+                _contracts.Select(i => i with { Tags = i.Tags.Select(tag => BuildTag(tag, implementationType, id)).ToImmutableArray() }).ToImmutableArray(),
+                implementationTags,
+                GetLifetime(implementationType, implementationTags),
+                _implementation,
+                _factory,
+                _arg);
         }
-        finally
-        {
-            _contracts.Clear();
-            _tags.Clear();
-            _source = null;
-            _semanticModel = null;
-            _lifetime = null;
-            _implementation = null;
-            _factory = null;
-            _arg = null;
-        }
+
+        throw new CompileErrorException(
+            Strings.Error_InvalidBinding,
+            ImmutableArray.Create(locationProvider.GetLocation(setup.Source)),
+            LogId.ErrorInvalidMetadata);
     }
 
     private static bool IsSuitableForBinding(ImmutableHashSet<ISymbol?> specialTypes, ITypeSymbol type) =>
