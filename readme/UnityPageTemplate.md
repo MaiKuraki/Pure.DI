@@ -8,7 +8,7 @@ This example demonstrates the creation of a [Unity](https://unity.com/) applicat
 
 The definition of the composition is in [Scope.cs](/samples/UnityApp/Assets/Scripts/Scope.cs). This class setups how the composition of objects will be created for the application. Remember to define builders for types inherited from `MonoBehaviour`:
 
-```csharp
+```c#
 public partial class Scope : MonoBehaviour
 {
     [SerializeField] public ClockConfig clockConfig;
@@ -39,7 +39,7 @@ Advantages over classical DI container libraries:
 
 For types inherited from `MonoBehaviour`, a `BuildUp` composition method will be generated. This method will look as follows:
 
-```csharp
+```c#
 public Clock BuildUp(Clock buildingInstance)
 {
     if (buildingInstance is null) 

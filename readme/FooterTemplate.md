@@ -294,6 +294,218 @@ To dispose objects of other lifetimes please see [this](readme/tracking-disposab
 </details>
 
 <details>
+
+<summary>Bindings</summary>
+
+## Bindings
+
+Bindings are the core mechanism of Pure.DI, used to define how types are created and which contracts they fulfill.
+
+### Overview
+
+#### For Implementations
+
+To bind a contract to a specific implementation:
+
+```c#
+.Bind<Contract1>(tags).Bind<ContractN>(tags)
+    .Tags(tags)
+    .As(Lifetime)
+    .To<Implementation>()
+```
+
+Example:
+
+```c#
+.Bind<IService>().To<Service>()
+```
+
+#### For Factories
+
+To use a custom factory logic via `IContext`:
+
+```c#
+.Bind<Contract1>(tags).Bind<ContractN>(tags)
+    .Tags(tags)
+    .As(Lifetime)
+    .To(ctx => new Implementation(ctx.Resolve<Dependency>()))
+```
+
+Example:
+
+```c#
+.Bind<IService>().To(ctx => new Service(ctx.Resolve<IDependency>()))
+```
+
+#### For Simplified Factories
+
+When you only need to inject specific dependencies without accessing the full context:
+
+```c#
+.Bind<Contract1>(tags).Bind<ContractN>(tags)
+    .Tags(tags)
+    .As(Lifetime)
+    .To<Implementation>((Dependency1 dep1, Dependency2 dep2) => new Implementation(dep1, dep2))
+```
+
+Example:
+
+```c#
+.Bind<IService>().To((IDependency dep) => new Service(dep))
+```
+
+### Lifetimes
+
+Lifetimes control how long an object lives and how it is reused:
+- **Transient**: A new instance is created for every injection (default).
+- **Singleton**: A single instance is created for the entire composition.
+- **PerResolve**: A single instance is reused within a single `Resolve` (composition root).
+- **Scoped**: A single instance is reused within a specific scope.
+- **PerBlock**: Reuses instances within a code block.
+
+### Default Lifetimes
+
+You can set a default lifetime for all subsequent bindings in a setup:
+
+```c#
+.DefaultLifetime(Lifetime.Singleton)
+// This will be a Singleton
+.Bind<IInterface>().To<Implementation>()
+```
+
+### Tags
+
+Tags allow you to distinguish between multiple implementations of the same contract.
+
+- Use `.Bind<T>(tags)` or `.Tags(tags)` to apply tags to a binding.
+- Use the `[Tag(tag)]` attribute or `ctx.Resolve<T>(tag)` to consume a tagged dependency.
+
+## Implementation Bindings
+
+Implementation bindings allow for a more concise syntax where the implementation type itself serves as the contract or where you want the binder to automatically infer suitable base types and interfaces.
+
+### For Implementations
+
+```c#
+// Infers all suitable base types and interfaces automatically
+Bind(tags).Tags(tags).As(Lifetime).To<Implementation>()
+```
+
+Example:
+
+```c#
+.Bind().To<Service>()
+```
+
+### For Factories
+
+```c#
+Bind(tags).Tags(tags).To(ctx => new Implementation())
+```
+
+Example:
+
+```c#
+.Bind().To(ctx => new Service())
+```
+
+### For Simplified Factories
+
+```c#
+Bind(tags).Tags(tags).To((Dependency dep) => new Implementation(dep))
+```
+
+Example:
+
+```c#
+.Bind().To((IDependency dep) => new Service(dep))
+```
+
+## Special types will not be added to bindings
+
+By default, Pure.DI avoids binding tospecial types during auto-inference to prevent polluting the container with unintended bindings for types like `IDisposable`, `IEnumerable`, or `object`. Special types will not be added to bindings by default:
+
+- `System.Object`
+- `System.Enum`
+- `System.MulticastDelegate`
+- `System.Delegate`
+- `System.Collections.IEnumerable`
+- `System.Collections.Generic.IEnumerable<T>`
+- `System.Collections.Generic.IList<T>`
+- `System.Collections.Generic.ICollection<T>`
+- `System.Collections.IEnumerator`
+- `System.Collections.Generic.IEnumerator<T>`
+- `System.Collections.Generic.IReadOnlyList<T>`
+- `System.Collections.Generic.IReadOnlyCollection<T>`
+- `System.IDisposable`
+- `System.IAsyncResult`
+- `System.AsyncCallback`
+- `UnityEngine.MonoBehaviour`
+- `UnityEngine.ScriptableObject`
+- `UnityEngine.Object`
+
+If you want to add yout own special type, use the `SpecialType<T>()` call, for example:
+
+```c#
+.SpecialType<MonoBehaviour>()
+.Bind().To<MyMonoBehaviourImplementation>()
+// Now MonoBehaviour will not be added to the contracts
+```
+
+## Simplified Lifetime-Specific Bindings
+
+Pure.DI provides semantic sugar for common lifetimes. These methods combine `Bind()`, `.Tags(tags)`, `As(Lifetime)`, and `To()` into a single call.
+
+### For Implementations
+
+```c#
+// Equivalent to Bind(tags).As(Lifetime.Transient).To<Implementation>()
+.Transient<Implementation>(tags)
+```
+
+Example:
+```c#
+.Transient<Service>()
+```
+
+### For Factories
+
+```c#
+// Equivalent to Bind(tags).As(Lifetime.Singleton).To(ctx => ...)
+.Singleton<Implementation>(ctx => new Implementation(), tags)
+```
+
+Example:
+
+```c#
+.Singleton<IService>(ctx => new Service())
+```
+
+### For Simplified Factories
+
+```c#
+// Equivalent to Bind(tags).As(Lifetime.PerResolve).To((Dependency dep) => ...)
+.PerResolve((Dependency dep) => new Implementation(dep), tags)
+```
+
+Example:
+
+```c#
+.PerResolve((IDependency dep) => new Service(dep))
+```
+
+Equivalent shortcuts exist for all lifetimes:
+
+- `Transient<T>(...)`
+- `Singleton<T>(...)`
+- `Scoped<T>(...)`
+- `PerResolve<T>(...)`
+- `PerBlock<T>(...)`
+
+</details>
+
+<details>
+
 <summary>Setup hints</summary>
 
 ## Setup hints

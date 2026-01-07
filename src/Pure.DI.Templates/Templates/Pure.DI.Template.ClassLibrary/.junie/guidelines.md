@@ -8874,7 +8874,7 @@ This example demonstrates the creation of a [Avalonia](https://avaloniaui.net/) 
 
 The definition of the composition is in [Composition.cs](/samples/AvaloniaApp/Composition.cs). This class setups how the composition of objects will be created for the application. You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
 
-```csharp
+```c#
 using Pure.DI;
 using static Pure.DI.Lifetime;
 using static Pure.DI.RootKinds;
@@ -9583,7 +9583,7 @@ This example demonstrates the creation of a [MAUI application](https://learn.mic
 
 The definition of the composition is in [Composition.cs](/samples/MAUIApp/Composition.cs). You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
 
-```csharp
+```c#
 using Pure.DI;
 using Pure.DI.MS;
 using static Pure.DI.Lifetime;
@@ -9842,7 +9842,7 @@ This example demonstrates the creation of a [Unity](https://unity.com/) applicat
 
 The definition of the composition is in [Composition.cs](/samples/UnityApp/Assets/Scripts/Composition.cs). This class setups how the composition of objects will be created for the application. Don't forget to define builders for types inherited from `MonoBehaviour`:
 
-```csharp
+```c#
 using Pure.DI;
 using UnityEngine;
 using static Pure.DI.Lifetime;
@@ -9865,7 +9865,7 @@ Advantages over classical DI container libraries:
 
 For types inherited from `MonoBehaviour`, a `BuildUp` composition method will be generated. This method will look as follows:
 
-```csharp
+```c#
 public Clock BuildUp(Clock buildingInstance)
 {
     if (buildingInstance is null) 
@@ -10072,7 +10072,7 @@ This example demonstrates the creation of a WinForms application in the pure DI 
 
 The composition definition is in the file [Composition.cs](/samples/WinFormsAppNetCore/Composition.cs). Remember to define all the necessary roots of the composition, for example, this could be a main form such as _FormMain_:
 
-```csharp
+```c#
 using Pure.DI;
 using static Pure.DI.Lifetime;
 
@@ -10142,7 +10142,7 @@ This example demonstrates the creation of a WinForms application in the pure DI 
 
 The composition definition is in the file [Composition.cs](/samples/WinFormsApp/Composition.cs). Remember to define all the necessary roots of the composition, for example, this could be a main form such as _FormMain_:
 
-```csharp
+```c#
 using Pure.DI;
 using static Pure.DI.Lifetime;
 
@@ -10215,7 +10215,7 @@ This example demonstrates the creation of a WPF application in the pure DI parad
 
 The definition of the composition is in [Composition.cs](/samples/WpfAppNetCore/Composition.cs). This class setups how the composition of objects will be created for the application. You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
 
-```csharp
+```c#
 using Pure.DI;
 using static Pure.DI.Lifetime;
 
