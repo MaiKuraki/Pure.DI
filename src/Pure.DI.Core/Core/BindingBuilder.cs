@@ -78,20 +78,22 @@ sealed class BindingBuilder(
         }
 
         var implementationType = _implementation?.Type ?? _factory?.Type ?? _arg?.Type;
-        var contractsSource = _implementation?.Source ?? _factory?.Source;
-        var explicitContracts = _contracts.Where(i => i.ContractType is not null).ToList();
+        var contracts = _contracts.Where(i => i.ContractType is not null).ToList();
 
         // Process implementation contracts if they exist
-        if (implementationType is not null && contractsSource is not null)
+        if (implementationType is not null
+            && (_implementation?.Source ?? _factory?.Source) is {} contractsSource)
         {
-            explicitContracts.AddRange(CreateExplicitContractsFromImplementation(setup, semanticModel, implementationType, contractsSource));
+            contracts.AddRange(CreateExplicitContractsFromImplementation(setup, semanticModel, implementationType, contractsSource));
         }
 
         var id = new Lazy<int>(idGenerator.Generate);
-        var implementationTags = _tags.Select(tag => BuildTag(tag, implementationType, id)).ToImmutableArray();
+        var implementationTags = _tags
+            .Select(tag => BuildTag(tag, implementationType, id))
+            .ToImmutableArray();
 
         // Map tags for all contracts
-        var contractsWithTags = explicitContracts
+        var contractsWithTags = contracts
             .Select(c => c with { Tags = c.Tags.Select(tag => BuildTag(tag, implementationType, id)).ToImmutableArray() })
             .ToImmutableArray();
 
@@ -102,7 +104,7 @@ sealed class BindingBuilder(
             semanticModel,
             contractsWithTags,
             implementationTags,
-            GetLifetime(implementationType, implementationTags),
+            GetLifetime(implementationType, implementationTags, contractsWithTags),
             _implementation,
             _factory,
             _arg);
@@ -189,7 +191,7 @@ sealed class BindingBuilder(
         return tag;
     }
 
-    private MdLifetime? GetLifetime(ITypeSymbol? implementationType, ImmutableArray<MdTag> implementationTags)
+    private MdLifetime? GetLifetime(ITypeSymbol? implementationType, ImmutableArray<MdTag> implementationTags, IReadOnlyCollection<MdContract> contracts)
     {
         if (_lifetime.HasValue)
         {
@@ -204,7 +206,7 @@ sealed class BindingBuilder(
         foreach (var defaultLifetime in _defaultLifetimes.Where(i => i.Type is not null))
         {
             var baseSymbols = baseSymbolsProvider.GetBaseSymbols(implementationType, (type, _) =>
-                IsMatchingDefaultLifetime(defaultLifetime, type, implementationTags));
+                IsMatchingDefaultLifetime(defaultLifetime, type, implementationTags, contracts));
 
             if (baseSymbols.Any())
             {
@@ -215,7 +217,7 @@ sealed class BindingBuilder(
         return _defaultLifetimes.FirstOrDefault(i => i.Type is null).Lifetime;
     }
 
-    private bool IsMatchingDefaultLifetime(MdDefaultLifetime defaultLifetime, ITypeSymbol type, ImmutableArray<MdTag> implementationTags)
+    private bool IsMatchingDefaultLifetime(MdDefaultLifetime defaultLifetime, ITypeSymbol type, ImmutableArray<MdTag> implementationTags, IReadOnlyCollection<MdContract> contracts)
     {
         if (!types.TypeEquals(defaultLifetime.Type, type))
         {
@@ -228,7 +230,7 @@ sealed class BindingBuilder(
         }
 
         // Combine implementation tags and contract tags for intersection check
-        var contractTags = _contracts.FirstOrDefault(j => types.TypeEquals(j.ContractType, type)).Tags;
+        var contractTags = contracts.FirstOrDefault(j => types.TypeEquals(j.ContractType, type)).Tags;
         var combinedTags = implementationTags.ToImmutableHashSet();
         if (!contractTags.IsDefaultOrEmpty)
         {
