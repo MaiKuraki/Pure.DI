@@ -79,18 +79,19 @@ sealed class BindingBuilder(
 
         var implementationType = _implementation?.Type ?? _factory?.Type ?? _arg?.Type;
         var contractsSource = _implementation?.Source ?? _factory?.Source;
+        var explicitContracts = _contracts.Where(i => i.ContractType is not null).ToList();
 
-        // Process auto-contracts if they exist
+        // Process implementation contracts if they exist
         if (implementationType is not null && contractsSource is not null)
         {
-            ProcessAutoContracts(setup, semanticModel, implementationType, contractsSource);
+            explicitContracts.AddRange(CreateExplicitContractsFromImplementation(setup, semanticModel, implementationType, contractsSource));
         }
 
         var id = new Lazy<int>(idGenerator.Generate);
         var implementationTags = _tags.Select(tag => BuildTag(tag, implementationType, id)).ToImmutableArray();
 
         // Map tags for all contracts
-        var contracts = _contracts
+        var contractsWithTags = explicitContracts
             .Select(c => c with { Tags = c.Tags.Select(tag => BuildTag(tag, implementationType, id)).ToImmutableArray() })
             .ToImmutableArray();
 
@@ -99,7 +100,7 @@ sealed class BindingBuilder(
             source,
             setup,
             semanticModel,
-            contracts,
+            contractsWithTags,
             implementationTags,
             GetLifetime(implementationType, implementationTags),
             _implementation,
@@ -107,15 +108,18 @@ sealed class BindingBuilder(
             _arg);
     }
 
-    private void ProcessAutoContracts(MdSetup setup, SemanticModel semanticModel, ITypeSymbol implementationType, ExpressionSyntax contractsSource)
+    private IEnumerable<MdContract> CreateExplicitContractsFromImplementation(
+        MdSetup setup,
+        SemanticModel semanticModel,
+        ITypeSymbol implementationType,
+        ExpressionSyntax contractsSource)
     {
-        var autoContracts = _contracts.Where(i => i.ContractType == null).ToList();
-        if (autoContracts.Count == 0)
+        var implementationContracts = _contracts.Where(i => i.ContractType is null).ToList();
+        if (implementationContracts.Count == 0)
         {
-            return;
+            yield break;
         }
 
-        _contracts.RemoveAll(i => i.ContractType == null);
         var baseSymbols = Enumerable.Empty<ITypeSymbol>();
 
         // Only search for base symbols if the implementation is a concrete class or struct
@@ -133,7 +137,7 @@ sealed class BindingBuilder(
         }
 
         var contracts = new HashSet<ITypeSymbol>(baseSymbols, SymbolEqualityComparer.Default) { implementationType };
-        var tags = autoContracts
+        var tags = implementationContracts
             .SelectMany(i => i.Tags)
             .GroupBy(i => i.Value)
             .Select(i => i.First())
@@ -141,7 +145,7 @@ sealed class BindingBuilder(
 
         foreach (var contract in contracts)
         {
-            _contracts.Add(new MdContract(semanticModel, contractsSource, contract, ContractKind.Explicit, tags));
+            yield return new MdContract(semanticModel, contractsSource, contract, ContractKind.Explicit, tags);
         }
     }
 
