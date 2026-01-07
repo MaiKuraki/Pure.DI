@@ -9,8 +9,8 @@ sealed class BindingBuilder(
     [Tag(UniqueTag)] IIdGenerator idGenerator,
     [Tag(SpecialBinding)] IIdGenerator specialBindingIdGenerator,
     IBaseSymbolsProvider baseSymbolsProvider,
-    ITypes types,
-    ILocationProvider locationProvider)
+    ILocationProvider locationProvider,
+    ILifetimeProvider lifetimeProvider)
     : IBindingBuilder
 {
     private readonly List<MdContract> _contracts = [];
@@ -97,6 +97,8 @@ sealed class BindingBuilder(
             .Select(c => c with { Tags = c.Tags.Select(tag => BuildTag(tag, implementationType, id)).ToImmutableArray() })
             .ToImmutableArray();
 
+        var lifetime = lifetimeProvider.GetActualLifetime(_defaultLifetimes, _lifetime, implementationType, implementationTags, contractsWithTags);
+
         return new MdBinding(
             int.MaxValue - specialBindingIdGenerator.Generate(),
             source,
@@ -104,7 +106,7 @@ sealed class BindingBuilder(
             semanticModel,
             contractsWithTags,
             implementationTags,
-            GetLifetime(implementationType, implementationTags, contractsWithTags),
+            lifetime,
             _implementation,
             _factory,
             _arg);
@@ -189,54 +191,5 @@ sealed class BindingBuilder(
         }
 
         return tag;
-    }
-
-    private MdLifetime? GetLifetime(ITypeSymbol? implementationType, ImmutableArray<MdTag> implementationTags, IReadOnlyCollection<MdContract> contracts)
-    {
-        if (_lifetime.HasValue)
-        {
-            return _lifetime.Value;
-        }
-
-        if (implementationType is null)
-        {
-            return _defaultLifetimes.FirstOrDefault(i => i.Type is null).Lifetime;
-        }
-
-        foreach (var defaultLifetime in _defaultLifetimes.Where(i => i.Type is not null))
-        {
-            var baseSymbols = baseSymbolsProvider.GetBaseSymbols(implementationType, (type, _) =>
-                IsMatchingDefaultLifetime(defaultLifetime, type, implementationTags, contracts));
-
-            if (baseSymbols.Any())
-            {
-                return defaultLifetime.Lifetime;
-            }
-        }
-
-        return _defaultLifetimes.FirstOrDefault(i => i.Type is null).Lifetime;
-    }
-
-    private bool IsMatchingDefaultLifetime(MdDefaultLifetime defaultLifetime, ITypeSymbol type, ImmutableArray<MdTag> implementationTags, IReadOnlyCollection<MdContract> contracts)
-    {
-        if (!types.TypeEquals(defaultLifetime.Type, type))
-        {
-            return false;
-        }
-
-        if (defaultLifetime.Tags.IsDefaultOrEmpty)
-        {
-            return true;
-        }
-
-        // Combine implementation tags and contract tags for intersection check
-        var contractTags = contracts.FirstOrDefault(j => types.TypeEquals(j.ContractType, type)).Tags;
-        var combinedTags = implementationTags.ToImmutableHashSet();
-        if (!contractTags.IsDefaultOrEmpty)
-        {
-            combinedTags = combinedTags.Union(contractTags);
-        }
-
-        return !combinedTags.Intersect(defaultLifetime.Tags).IsEmpty;
     }
 }
