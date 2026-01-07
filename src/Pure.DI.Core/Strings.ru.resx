@@ -40,6 +40,9 @@
     <data name="Error_CompositionArgumentTypeCannotBeGenericTypeMarker" xml:space="preserve">
         <value>Тип аргумента композиции не может быть основан на маркере обобщённого типа.</value>
     </data>
+    <data name="Error_SpecialTypeCannotBeGenericTypeMarker" xml:space="preserve">
+        <value>Специальный тип не может быть основан на маркере обобщённого типа.</value>
+    </data>
     <data name="Error_InvalidBindingDueToCompilationError" xml:space="preserve">
         <value>Недопустимая привязка из-за ошибки компиляции.</value>
     </data>

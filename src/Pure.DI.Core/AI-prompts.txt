@@ -19,3 +19,5 @@ In the XML document below, translate all <value> elements into Russian. Keep the
 # Readme
 
 Enhance the Markdown document below for software engineers. Retain the Markdown document structure, references and style. Simplify technical jargon without losing accuracy. Write your response in Markdown format. Here is the document:
+
+Ты технический писатель. В проекте "Pure.DI.Core" переведи локализованные сообщения, которые не переведены на другие языки. За основу возьми сообщения в "Strings.resx". Важно: сохраняй технические термины. Важно: сохраняй параметры шаблонных сообщений.

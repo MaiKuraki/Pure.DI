@@ -40,6 +40,9 @@
     <data name="Error_CompositionArgumentTypeCannotBeGenericTypeMarker" xml:space="preserve">
         <value>Il tipo di argomento della composizione non può essere un Generic Type Marker.</value>
     </data>
+    <data name="Error_SpecialTypeCannotBeGenericTypeMarker" xml:space="preserve">
+        <value>Il tipo speciale non può essere basato su un indicatore di tipo generico.</value>
+    </data>
     <data name="Error_InvalidBindingDueToCompilationError" xml:space="preserve">
         <value>Binding non valido a causa di un errore di compilazione.</value>
     </data>

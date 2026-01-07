@@ -312,7 +312,7 @@ sealed class ApiInvocationProcessor(
                                 ImmutableArray<MdTypeAttribute>.Empty,
                                 ImmutableArray<MdTagAttribute>.Empty,
                                 ImmutableArray<MdOrdinalAttribute>.Empty,
-                                ImmutableArray<INamedTypeSymbol>.Empty,
+                                ImmutableArray<MdSpecialType>.Empty,
                                 ImmutableArray<MdAccumulator>.Empty,
                                 [],
                                 comments.FilterHints(invocationComments).ToList()));
@@ -712,7 +712,7 @@ sealed class ApiInvocationProcessor(
                         if (genericName.TypeArgumentList.Arguments is [{} specialTypeExpression]
                             && semantic.TryGetTypeSymbol<INamedTypeSymbol>(semanticModel, specialTypeExpression) is {} specialType)
                         {
-                            metadataVisitor.VisitSpecialType(specialType);
+                            metadataVisitor.VisitSpecialType(new MdSpecialType(semanticModel, specialTypeExpression, specialType));
                         }
                         else
                         {

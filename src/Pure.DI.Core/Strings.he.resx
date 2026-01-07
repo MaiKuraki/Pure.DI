@@ -40,6 +40,9 @@
     <data name="Error_CompositionArgumentTypeCannotBeGenericTypeMarker" xml:space="preserve">
         <value>סוג ארגומנט הקומפוזיציה לא יכול להיות Generic Type Marker.</value>
     </data>
+    <data name="Error_SpecialTypeCannotBeGenericTypeMarker" xml:space="preserve">
+        <value>הסוג המיוחד אינו יכול להתבסס על סמן סוג גנרי.</value>
+    </data>
     <data name="Error_InvalidBindingDueToCompilationError" xml:space="preserve">
         <value>Binding לא חוקי עקב שגיאת הידור.</value>
     </data>

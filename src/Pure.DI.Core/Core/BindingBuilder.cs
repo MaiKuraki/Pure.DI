@@ -125,7 +125,7 @@ sealed class BindingBuilder(
         // Only search for base symbols if the implementation is a concrete class or struct
         if (implementationType is { SpecialType: Microsoft.CodeAnalysis.SpecialType.None, TypeKind: TypeKind.Class or TypeKind.Struct, IsAbstract: false })
         {
-            var specialTypes = setup.SpecialTypes.ToImmutableHashSet(SymbolEqualityComparer.Default);
+            var specialTypes = setup.SpecialTypes.Select(i => i.Type).ToImmutableHashSet(SymbolEqualityComparer.Default);
             baseSymbols = baseSymbolsProvider
                 .GetBaseSymbols(implementationType, (type, deepness) => deepness switch
                 {

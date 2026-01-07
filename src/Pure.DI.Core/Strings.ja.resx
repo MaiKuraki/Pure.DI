@@ -40,6 +40,9 @@
     <data name="Error_CompositionArgumentTypeCannotBeGenericTypeMarker" xml:space="preserve">
         <value>Composition argument 型は generic type marker にすることはできません。</value>
     </data>
+    <data name="Error_SpecialTypeCannotBeGenericTypeMarker" xml:space="preserve">
+        <value>特殊な型は、ジェネリック型のマーカーに基づくことはできません。</value>
+    </data>
     <data name="Error_InvalidBindingDueToCompilationError" xml:space="preserve">
         <value>コンパイルエラーのため、Binding が無効です。</value>
     </data>

@@ -1962,4 +1962,58 @@ public class ErrorsAndWarningsTests
         result.Success.ShouldBeFalse(result);
         result.Errors.Count.ShouldBe(0, result);
     }
+
+    [Fact]
+    public async Task ShouldShowErrorWhenMarkerBasedSpecialType()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           namespace Sample
+                           {
+                               using System;
+                               using System.Collections.Generic;
+                               using Pure.DI;
+                               using Sample;
+                           
+                               internal class Dep1: IComparer<int>
+                               {
+                                   public void Dispose() { }
+                                   
+                                   public int Compare(int x, int y) => 0;
+                               }
+                               
+                               internal class Dep2: IComparer<int>
+                               {
+                                   public void Dispose() { }
+                                   
+                                   public int Compare(int x, int y) => 0;
+                               }
+                               
+                               internal partial class Composition
+                               {                   
+                                   void Setup() => 
+                                       DI.Setup("Composition")
+                                           .Bind().To<Dep1>()
+                                           .Bind().To<Dep2>()
+                                           .Root<Dep1>("Root1")
+                                           .Root<Dep2>("Root2")
+                                           .SpecialType<IComparer<TT>>(); 
+                               }       
+                           
+                               public class Program
+                               {
+                                  public static void Main()
+                                  {
+                                      var composition = new Composition();
+                                  }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeFalse(result);
+        result.Logs.Count(i => i.Id == LogId.ErrorInvalidMetadata && i.Locations.FirstOrDefault().GetSource() == "IComparer<TT>").ShouldBe(1, result);
+    }
 }

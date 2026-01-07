@@ -158,7 +158,7 @@ abstract class MetadataWalkerBase : IMetadataVisitor
     {
     }
 
-    public void VisitSpecialType(INamedTypeSymbol specialType)
+    public void VisitSpecialType(in MdSpecialType specialType)
     {
     }
 

@@ -177,6 +177,15 @@ namespace Pure.DI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The special type cannot be based on a generic type marker..
+        /// </summary>
+        internal static string Error_SpecialTypeCannotBeGenericTypeMarker {
+            get {
+                return ResourceManager.GetString("Error_SpecialTypeCannotBeGenericTypeMarker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} of type {1} cannot be processed because it is marked with multiple mutually exclusive attributes..
         /// </summary>
         internal static string Error_Template_AttributeMemberCannotBeProcessed {

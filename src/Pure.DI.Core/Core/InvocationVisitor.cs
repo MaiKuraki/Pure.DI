@@ -62,7 +62,7 @@ readonly record struct InvocationVisitor(
     public void VisitOrdinalAttribute(in MdOrdinalAttribute ordinalAttribute) =>
         AddAction((visitor, i) => visitor.VisitOrdinalAttribute(i), BaseVisitor, ordinalAttribute);
 
-    public void VisitSpecialType(INamedTypeSymbol specialType) =>
+    public void VisitSpecialType(in MdSpecialType specialType) =>
         AddAction((visitor, i) => visitor.VisitSpecialType(i), BaseVisitor, specialType);
 
     public void VisitLifetime(in MdLifetime lifetime) =>

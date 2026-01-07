@@ -19,7 +19,7 @@ record MdSetup(
     in ImmutableArray<MdTypeAttribute> TypeAttributes,
     in ImmutableArray<MdTagAttribute> TagAttributes,
     in ImmutableArray<MdOrdinalAttribute> OrdinalAttributes,
-    ImmutableArray<INamedTypeSymbol> SpecialTypes,
+    in ImmutableArray<MdSpecialType> SpecialTypes,
     in ImmutableArray<MdAccumulator> Accumulators,
     IReadOnlyCollection<MdTagOnSites> TagOn,
     IReadOnlyCollection<string> Comments)

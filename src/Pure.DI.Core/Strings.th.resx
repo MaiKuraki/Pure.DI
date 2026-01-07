@@ -40,6 +40,9 @@
     <data name="Error_CompositionArgumentTypeCannotBeGenericTypeMarker" xml:space="preserve">
         <value>ประเภทอาร์กิวเมนต์ของ composition ไม่สามารถอ้างอิงจาก generic type marker ได้</value>
     </data>
+    <data name="Error_SpecialTypeCannotBeGenericTypeMarker" xml:space="preserve">
+        <value>ประเภทพิเศษไม่สามารถอ้างอิงตามตัวทำเครื่องหมายประเภททั่วไปได้</value>
+    </data>
     <data name="Error_InvalidBindingDueToCompilationError" xml:space="preserve">
         <value>Binding ไม่ถูกต้องเนื่องจากข้อผิดพลาดในการคอมไพล์</value>
     </data>

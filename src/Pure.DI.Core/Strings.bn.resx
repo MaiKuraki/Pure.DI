@@ -40,6 +40,9 @@
     <data name="Error_CompositionArgumentTypeCannotBeGenericTypeMarker" xml:space="preserve">
         <value>Composition আর্গুমেন্ট টাইপ Generic Type Marker এর ওপর ভিত্তি করে হতে পারে না।</value>
     </data>
+    <data name="Error_SpecialTypeCannotBeGenericTypeMarker" xml:space="preserve">
+        <value>বিশেষ প্রকারটি জেনেরিক টাইপ মার্কারের উপর ভিত্তি করে হতে পারে না।</value>
+    </data>
     <data name="Error_InvalidBindingDueToCompilationError" xml:space="preserve">
         <value>কম্পাইলেশন ত্রুটির কারণে অমান্য Binding।</value>
     </data>

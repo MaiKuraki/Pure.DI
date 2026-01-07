@@ -20,7 +20,7 @@ sealed class SetupsBuilder(
     private readonly List<MdGenericTypeArgumentAttribute> _genericTypeArgumentAttributes = [];
     private readonly List<MdGenericTypeArgument> _genericTypeArguments = [];
     private readonly List<MdOrdinalAttribute> _ordinalAttributes = [];
-    private readonly List<INamedTypeSymbol> _specialTypes = [];
+    private readonly List<MdSpecialType> _specialTypes = [];
     private readonly List<MdRoot> _roots = [];
     private readonly List<MdSetup> _setups = [];
     private readonly List<MdTagAttribute> _tagAttributes = [];
@@ -117,7 +117,7 @@ sealed class SetupsBuilder(
     public void VisitOrdinalAttribute(in MdOrdinalAttribute ordinalAttribute) =>
         _ordinalAttributes.Add(ordinalAttribute);
 
-    public void VisitSpecialType(INamedTypeSymbol specialType) =>
+    public void VisitSpecialType(in MdSpecialType specialType) =>
         _specialTypes.Add(specialType);
 
     public void VisitLifetime(in MdLifetime lifetime) =>

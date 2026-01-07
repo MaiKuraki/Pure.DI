@@ -40,6 +40,9 @@
     <data name="Error_CompositionArgumentTypeCannotBeGenericTypeMarker" xml:space="preserve">
         <value>Composition argument प्रकार generic type marker नहीं हो सकता।</value>
     </data>
+    <data name="Error_SpecialTypeCannotBeGenericTypeMarker" xml:space="preserve">
+        <value>विशेष प्रकार जेнеरिक प्रकार मार्कर पर आधारित नहीं हो सकता।</value>
+    </data>
     <data name="Error_InvalidBindingDueToCompilationError" xml:space="preserve">
         <value>compilation त्रुटि के कारण अमान्य binding।</value>
     </data>

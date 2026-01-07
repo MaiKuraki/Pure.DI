@@ -40,6 +40,9 @@
     <data name="Error_CompositionArgumentTypeCannotBeGenericTypeMarker" xml:space="preserve">
         <value>컴포지션 인수 유형은 Generic Type Marker일 수 없습니다.</value>
     </data>
+    <data name="Error_SpecialTypeCannotBeGenericTypeMarker" xml:space="preserve">
+        <value>특수 유형은 제네릭 유형 마커를 기반으로 할 수 없습니다.</value>
+    </data>
     <data name="Error_InvalidBindingDueToCompilationError" xml:space="preserve">
         <value>컴파일 오류로 인해 유효하지 않은 Binding입니다.</value>
     </data>

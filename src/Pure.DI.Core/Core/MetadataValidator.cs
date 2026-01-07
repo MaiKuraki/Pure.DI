@@ -93,6 +93,17 @@ sealed class MetadataValidator(
             }
         }
 
+        foreach (var specialType in setup.SpecialTypes)
+        {
+            if (marker.IsMarkerBased(setup, specialType.Type))
+            {
+                logger.CompileError(
+                    Strings.Error_SpecialTypeCannotBeGenericTypeMarker,
+                    ImmutableArray.Create(specialType.Source.GetLocation()),
+                    LogId.ErrorInvalidMetadata);
+            }
+        }
+
         return isValid ? true : throw HandledException.Shared;
     }
 

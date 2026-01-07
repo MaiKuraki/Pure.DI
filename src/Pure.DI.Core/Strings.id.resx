@@ -40,6 +40,9 @@
     <data name="Error_CompositionArgumentTypeCannotBeGenericTypeMarker" xml:space="preserve">
         <value>Tipe argumen komposisi tidak boleh didasarkan pada Generic Type Marker.</value>
     </data>
+    <data name="Error_SpecialTypeCannotBeGenericTypeMarker" xml:space="preserve">
+        <value>Tipe khusus tidak dapat didasarkan pada penanda tipe generik.</value>
+    </data>
     <data name="Error_InvalidBindingDueToCompilationError" xml:space="preserve">
         <value>Binding tidak valid karena kesalahan kompilasi.</value>
     </data>
