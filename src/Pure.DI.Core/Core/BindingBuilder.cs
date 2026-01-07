@@ -69,108 +69,117 @@ sealed class BindingBuilder(
 
     public MdBinding Build(MdSetup setup)
     {
-        var implementationType = _implementation?.Type ?? _factory?.Type ?? _arg?.Type;
-        var contractsSource = _implementation?.Source ?? _factory?.Source;
-        if (_semanticModel is {} semanticModel
-            && _source is {} source)
+        if (_semanticModel is not {} semanticModel || _source is not {} source)
         {
-            var autoContracts = _contracts.Where(i => i.ContractType == null).ToList();
-            if (autoContracts.Count > 0)
-            {
-                foreach (var contract in autoContracts)
-                {
-                    _contracts.Remove(contract);
-                }
-
-                if (implementationType is not null && contractsSource is not null)
-                {
-                    var baseSymbols = Enumerable.Empty<ITypeSymbol>();
-                    if (implementationType is { SpecialType: Microsoft.CodeAnalysis.SpecialType.None, TypeKind: TypeKind.Class or TypeKind.Struct, IsAbstract: false })
-                    {
-                        var specialTypes = setup.SpecialTypes.ToImmutableHashSet(SymbolEqualityComparer.Default);
-                        baseSymbols = baseSymbolsProvider
-                            .GetBaseSymbols(implementationType, (type, deepness) => deepness switch
-                            {
-                                0 => true,
-                                1 => IsSuitableForBinding(specialTypes, type),
-                                _ => false
-                            }, 1)
-                            .Select(i => i.Type);
-                    }
-
-                    var contracts = new HashSet<ITypeSymbol>(baseSymbols, SymbolEqualityComparer.Default)
-                    {
-                        implementationType
-                    };
-
-                    var tags = autoContracts
-                        .SelectMany(i => i.Tags)
-                        .GroupBy(i => i.Value)
-                        .Select(i => i.First())
-                        .ToImmutableArray();
-
-                    foreach (var contract in contracts)
-                    {
-                        _contracts.Add(
-                            new MdContract(
-                                semanticModel,
-                                contractsSource,
-                                contract,
-                                ContractKind.Explicit,
-                                tags));
-                    }
-                }
-            }
-
-            var id = new Lazy<int>(idGenerator.Generate);
-            var implementationTags = _tags.Select(tag => BuildTag(tag, implementationType, id)).ToImmutableArray();
-            return new MdBinding(
-                int.MaxValue - specialBindingIdGenerator.Generate(),
-                source,
-                setup,
-                semanticModel,
-                _contracts.Select(i => i with { Tags = i.Tags.Select(tag => BuildTag(tag, implementationType, id)).ToImmutableArray() }).ToImmutableArray(),
-                implementationTags,
-                GetLifetime(implementationType, implementationTags),
-                _implementation,
-                _factory,
-                _arg);
+            throw new CompileErrorException(
+                Strings.Error_InvalidBinding,
+                ImmutableArray.Create(locationProvider.GetLocation(setup.Source)),
+                LogId.ErrorInvalidMetadata);
         }
 
-        throw new CompileErrorException(
-            Strings.Error_InvalidBinding,
-            ImmutableArray.Create(locationProvider.GetLocation(setup.Source)),
-            LogId.ErrorInvalidMetadata);
+        var implementationType = _implementation?.Type ?? _factory?.Type ?? _arg?.Type;
+        var contractsSource = _implementation?.Source ?? _factory?.Source;
+
+        // Process auto-contracts if they exist
+        if (implementationType is not null && contractsSource is not null)
+        {
+            ProcessAutoContracts(setup, semanticModel, implementationType, contractsSource);
+        }
+
+        var id = new Lazy<int>(idGenerator.Generate);
+        var implementationTags = _tags.Select(tag => BuildTag(tag, implementationType, id)).ToImmutableArray();
+
+        // Map tags for all contracts
+        var contracts = _contracts
+            .Select(c => c with { Tags = c.Tags.Select(tag => BuildTag(tag, implementationType, id)).ToImmutableArray() })
+            .ToImmutableArray();
+
+        return new MdBinding(
+            int.MaxValue - specialBindingIdGenerator.Generate(),
+            source,
+            setup,
+            semanticModel,
+            contracts,
+            implementationTags,
+            GetLifetime(implementationType, implementationTags),
+            _implementation,
+            _factory,
+            _arg);
     }
 
-    private static bool IsSuitableForBinding(ImmutableHashSet<ISymbol?> specialTypes, ITypeSymbol type) =>
-        (type.TypeKind == TypeKind.Interface || type.IsAbstract)
-        && type.SpecialType == Microsoft.CodeAnalysis.SpecialType.None
-        && !specialTypes.Contains(type);
+    private void ProcessAutoContracts(MdSetup setup, SemanticModel semanticModel, ITypeSymbol implementationType, ExpressionSyntax contractsSource)
+    {
+        var autoContracts = _contracts.Where(i => i.ContractType == null).ToList();
+        if (autoContracts.Count == 0)
+        {
+            return;
+        }
+
+        _contracts.RemoveAll(i => i.ContractType == null);
+        var baseSymbols = Enumerable.Empty<ITypeSymbol>();
+
+        // Only search for base symbols if the implementation is a concrete class or struct
+        if (implementationType is { SpecialType: Microsoft.CodeAnalysis.SpecialType.None, TypeKind: TypeKind.Class or TypeKind.Struct, IsAbstract: false })
+        {
+            var specialTypes = setup.SpecialTypes.ToImmutableHashSet(SymbolEqualityComparer.Default);
+            baseSymbols = baseSymbolsProvider
+                .GetBaseSymbols(implementationType, (type, deepness) => deepness switch
+                {
+                    0 => true,
+                    1 => IsSuitableForBinding(specialTypes, type),
+                    _ => false
+                }, 1)
+                .Select(i => i.Type);
+        }
+
+        var contracts = new HashSet<ITypeSymbol>(baseSymbols, SymbolEqualityComparer.Default) { implementationType };
+        var tags = autoContracts
+            .SelectMany(i => i.Tags)
+            .GroupBy(i => i.Value)
+            .Select(i => i.First())
+            .ToImmutableArray();
+
+        foreach (var contract in contracts)
+        {
+            _contracts.Add(new MdContract(semanticModel, contractsSource, contract, ContractKind.Explicit, tags));
+        }
+    }
+
+    private static bool IsSuitableForBinding(ImmutableHashSet<ISymbol?> specialTypes, ITypeSymbol type)
+    {
+        // Checks if the type is an interface or an abstract class, which are typical candidates for DI contracts.
+        var isAbstractOrInterface = type.TypeKind == TypeKind.Interface || type.IsAbstract;
+
+        // Ensures the type is not a predefined system type like 'object', 'string', or 'int' (SpecialType.None).
+        var isNotSpecialType = type.SpecialType == Microsoft.CodeAnalysis.SpecialType.None;
+
+        // Verifies that the type is not explicitly excluded via the 'SpecialTypes' setup configuration.
+        var isNotMarkedAsSpecial = !specialTypes.Contains(type);
+
+        return isAbstractOrInterface && isNotSpecialType && isNotMarkedAsSpecial;
+    }
 
     private static MdTag BuildTag(MdTag tag, ITypeSymbol? type, Lazy<int> id)
     {
-        if (type is null || tag.Value is null)
+        if (type is null || tag.Value is not Tag tagVal)
         {
             return tag;
         }
 
-        if (tag.Value is Tag tagVal)
+        if (tagVal == Type)
         {
-            if (tagVal == Type)
-            {
-                return MdTag.CreateTypeTag(tag, type);
-            }
+            return MdTag.CreateTypeTag(tag, type);
+        }
 
-            if (tagVal == Unique)
-            {
-                return MdTag.CreateUniqueTag(tag, id.Value);
-            }
+        if (tagVal == Unique)
+        {
+            return MdTag.CreateUniqueTag(tag, id.Value);
+        }
 
-            if (tagVal == Any)
-            {
-                return MdTag.CreateAnyTag(tag);
-            }
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (tagVal == Any)
+        {
+            return MdTag.CreateAnyTag(tag);
         }
 
         return tag;
@@ -183,40 +192,45 @@ sealed class BindingBuilder(
             return _lifetime.Value;
         }
 
-        if (implementationType is not null)
+        if (implementationType is null)
         {
-            foreach (var defaultLifetime in _defaultLifetimes.Where(i => i.Type is not null))
+            return _defaultLifetimes.FirstOrDefault(i => i.Type is null).Lifetime;
+        }
+
+        foreach (var defaultLifetime in _defaultLifetimes.Where(i => i.Type is not null))
+        {
+            var baseSymbols = baseSymbolsProvider.GetBaseSymbols(implementationType, (type, _) =>
+                IsMatchingDefaultLifetime(defaultLifetime, type, implementationTags));
+
+            if (baseSymbols.Any())
             {
-                var tags = defaultLifetime.Tags.IsDefaultOrEmpty
-                    ? ImmutableHashSet<MdTag>.Empty
-                    : defaultLifetime.Tags.ToImmutableHashSet();
-
-                var baseSymbols = baseSymbolsProvider.GetBaseSymbols(implementationType, (i, _) => {
-                    if (!tags.IsEmpty)
-                    {
-                        var bindingTags = implementationTags.ToImmutableHashSet();
-                        var contractTags = _contracts.FirstOrDefault(j => types.TypeEquals(j.ContractType, i)).Tags;
-                        if (!contractTags.IsDefaultOrEmpty)
-                        {
-                            bindingTags = bindingTags.Union(contractTags);
-                        }
-
-                        if (bindingTags.Intersect(tags).IsEmpty)
-                        {
-                            return false;
-                        }
-                    }
-
-                    return types.TypeEquals(defaultLifetime.Type, i);
-                });
-
-                if (baseSymbols.Any())
-                {
-                    return defaultLifetime.Lifetime;
-                }
+                return defaultLifetime.Lifetime;
             }
         }
 
         return _defaultLifetimes.FirstOrDefault(i => i.Type is null).Lifetime;
+    }
+
+    private bool IsMatchingDefaultLifetime(MdDefaultLifetime defaultLifetime, ITypeSymbol type, ImmutableArray<MdTag> implementationTags)
+    {
+        if (!types.TypeEquals(defaultLifetime.Type, type))
+        {
+            return false;
+        }
+
+        if (defaultLifetime.Tags.IsDefaultOrEmpty)
+        {
+            return true;
+        }
+
+        // Combine implementation tags and contract tags for intersection check
+        var contractTags = _contracts.FirstOrDefault(j => types.TypeEquals(j.ContractType, type)).Tags;
+        var combinedTags = implementationTags.ToImmutableHashSet();
+        if (!contractTags.IsDefaultOrEmpty)
+        {
+            combinedTags = combinedTags.Union(contractTags);
+        }
+
+        return !combinedTags.Intersect(defaultLifetime.Tags).IsEmpty;
     }
 }
