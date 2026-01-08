@@ -108,8 +108,7 @@ class RootBuilder(
 
     private IEnumerator BuildCodeInternal(CodeContext parentCtx)
     {
-        var varInjection = parentCtx.VarInjection;
-        var var = varInjection.Var;
+        var (var, injection) = parentCtx.VarInjection;
         if (var.IsCreated)
         {
             if (parentCtx.IsFactory && !string.IsNullOrWhiteSpace(var.LocalFunctionName))
@@ -135,11 +134,10 @@ class RootBuilder(
         var varCtx = parentCtx with
         {
             Lines = lines,
-            ContextTag = ReferenceEquals(varInjection.Injection.Tag, MdTag.ContextTag) ? parentCtx.ContextTag : varInjection.Injection.Tag
+            ContextTag = ReferenceEquals(injection.Tag, MdTag.ContextTag) ? parentCtx.ContextTag : injection.Tag
         };
 
         var varsMap = varCtx.VarsMap;
-        var setup = varCtx.RootContext.Graph.Source;
         var isBlock = nodeTools.IsBlock(var.AbstractNode);
         var isLazy = nodeTools.IsLazy(var.AbstractNode.Node);
         var acc = isLazy ? accumulators.GetAccumulators(varCtx.RootContext.Graph.Graph, var.AbstractNode).ToImmutableArray() : ImmutableArray<(MdAccumulator, Dependency)>.Empty;
@@ -186,674 +184,18 @@ class RootBuilder(
         var varInjections = new List<VarInjection>();
         var.IsCreated = true;
 
-        // Implementation
-        if (var.AbstractNode.Node.Implementation is {} implementation)
+        var builder = var.AbstractNode.Node switch
         {
-            if (ctx.RootContext.Graph.Graph.TryGetInEdges(var.AbstractNode.Node, out var implementationDependencies))
-            {
-                var injections = new List<VarInjection>(implementationDependencies.Count);
-                // ReSharper disable once LoopCanBeConvertedToQuery
-                foreach (var dependency in implementationDependencies)
-                {
-                    injections.Add(varsMap.GetInjection(varCtx.RootContext.Graph, varCtx.RootContext.Root, dependency.Injection, dependency.Source));
-                }
+            { Implementation: not null } => BuildImplementation(ctx, varInjections),
+            { Factory: not null } => BuildFactory(ctx, varInjections),
+            _ => var.AbstractNode.Construct is not null ? BuildConstruct(ctx, varInjections) : null
+        };
 
-                injections.Sort(InjectionComparer);
-                foreach (var dependencyVar in injections)
-                {
-                    yield return BuildCodeInternal(ctx.CreateChild(dependencyVar));
-                }
-
-                varInjections.AddRange(injections);
-            }
-
-            var varsWalker = varsWalkerFactory(varInjections);
-            varsWalker.VisitConstructor(Unit.Shared, implementation.Constructor);
-            var ctorArgs = varsWalker.GetResult();
-
-            var requiredFields = ImmutableArray.CreateBuilder<(VarInjection RequiredVarInjection, DpField RequiredField)>();
-            foreach (var requiredField in implementation.Fields)
-            {
-                if (requiredField.Field.IsRequired)
-                {
-                    varsWalker.VisitField(Unit.Shared, requiredField, null);
-                    var dependencyVar = varsWalker.GetResult().Single();
-                    requiredFields.Add((dependencyVar, requiredField));
-                }
-            }
-
-            if (requiredFields.Count > 1)
-            {
-                requiredFields.Sort((a, b) => (a.RequiredField.Ordinal ?? (int.MaxValue - 1)).CompareTo(b.RequiredField.Ordinal ?? int.MaxValue - 1));
-            }
-
-            var requiredProperties = ImmutableArray.CreateBuilder<(VarInjection RequiredVarInjection, DpProperty RequiredProperty)>();
-            foreach (var requiredProperty in implementation.Properties)
-            {
-                if (requiredProperty.Property.IsRequired || requiredProperty.Property.SetMethod?.IsInitOnly == true)
-                {
-                    varsWalker.VisitProperty(Unit.Shared, requiredProperty, null);
-                    var dependencyVar = varsWalker.GetResult().Single();
-                    requiredProperties.Add((dependencyVar, requiredProperty));
-                }
-            }
-
-            if (requiredProperties.Count > 1)
-            {
-                requiredProperties.Sort((a, b) => (a.RequiredProperty.Ordinal ?? int.MaxValue).CompareTo(b.RequiredProperty.Ordinal ?? int.MaxValue));
-            }
-
-            var visits = new List<(Action<CodeContext, string> Run, int? Ordinal)>();
-            foreach (var field in implementation.Fields)
-            {
-                if (!field.Field.IsRequired)
-                {
-                    varsWalker.VisitField(Unit.Shared, field, null);
-                    var dependencyVar = varsWalker.GetResult().Single();
-                    visits.Add((VisitFieldAction, field.Ordinal));
-                    continue;
-
-                    void VisitFieldAction(CodeContext context, string name) => inj.FieldInjection(name, context, field, dependencyVar);
-                }
-            }
-
-            foreach (var property in implementation.Properties)
-            {
-                if (!property.Property.IsRequired && property.Property.SetMethod?.IsInitOnly != true)
-                {
-                    varsWalker.VisitProperty(Unit.Shared, property, null);
-                    var dependencyVar = varsWalker.GetResult().Single();
-                    visits.Add((VisitFieldAction, property.Ordinal));
-                    continue;
-
-                    void VisitFieldAction(CodeContext context, string name) => inj.PropertyInjection(name, context, property, dependencyVar);
-                }
-            }
-
-            foreach (var method in implementation.Methods)
-            {
-                varsWalker.VisitMethod(Unit.Shared, method, null);
-                var methodVars = varsWalker.GetResult();
-                visits.Add((VisitMethodAction, method.Ordinal));
-                continue;
-
-                void VisitMethodAction(CodeContext context, string name) => inj.MethodInjection(name, context, method, methodVars);
-            }
-
-            visits.Sort((a, b) => (a.Ordinal ?? int.MaxValue).CompareTo(b.Ordinal ?? int.MaxValue));
-
-            var onCreatedStatements = buildTools.OnCreated(ctx, varInjection);
-            var hasOnCreatedStatements = onCreatedStatements.Count > 0;
-            var hasAlternativeInjections = visits.Count > 0;
-            var tempVariableInit =
-                ctx.RootContext.IsThreadSafeEnabled
-                && var.AbstractNode.ActualLifetime is not Transient and not PerBlock
-                && (hasAlternativeInjections || hasOnCreatedStatements);
-
-            var tempVar = var;
-            if (tempVariableInit)
-            {
-                tempVar = var with { NameOverride = $"{var.Declaration.Name}{Names.TempInstanceValueNameSuffix}" };
-                lines.AppendLine($"{typeResolver.Resolve(ctx.RootContext.Graph.Source, tempVar.InstanceType)} {tempVar.Name};");
-                if (onCreatedStatements.Count > 0)
-                {
-                    onCreatedStatements = buildTools.OnCreated(ctx, varInjection with { Var = tempVar });
-                }
-            }
-
-            var instantiation = CreateInstantiation(ctx, ctorArgs, requiredFields, requiredProperties);
-            if (var.AbstractNode.ActualLifetime is not Transient
-                || hasAlternativeInjections
-                || tempVariableInit
-                || hasOnCreatedStatements)
-            {
-                lines.Append($"{buildTools.GetDeclaration(ctx, var.Declaration, useVar: true)}{tempVar.Name} = ");
-                lines.Append(instantiation);
-                lines.AppendLine(";");
-            }
-            else
-            {
-                var.CodeExpression = instantiation;
-            }
-
-            foreach (var visit in visits.OrderBy(i => i.Ordinal ?? int.MaxValue))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                visit.Run(ctx, tempVar.Name);
-            }
-
-            lines.AppendLines(onCreatedStatements);
-            if (tempVariableInit)
-            {
-                lines.AppendLine($"{Names.SystemNamespace}Threading.Thread.MemoryBarrier();");
-                lines.AppendLine($"{var.Name} = {tempVar.Name};");
-            }
-        }
-        else
+        if (builder is not null)
         {
-            if (var.AbstractNode.Node.Factory is {} factory)
+            while (builder.MoveNext())
             {
-                var originalLambda = factory.Source.Factory;
-
-                // Simple factory
-                if (factory.Source.IsSimpleFactory)
-                {
-                    var block = new List<StatementSyntax>();
-                    foreach (var resolver in factory.Source.Resolvers)
-                    {
-                        if (resolver.ArgumentType is not {} argumentType || resolver.Parameter is not {} parameter)
-                        {
-                            continue;
-                        }
-
-                        var valueDeclaration = SyntaxFactory.DeclarationExpression(
-                            argumentType,
-                            SyntaxFactory.SingleVariableDesignation(parameter.Identifier));
-
-                        var valueArg =
-                            SyntaxFactory.Argument(valueDeclaration)
-                                .WithRefOrOutKeyword(SyntaxFactory.Token(SyntaxKind.OutKeyword));
-
-                        var injection = SyntaxFactory.InvocationExpression(
-                                SyntaxFactory.MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    SyntaxFactory.IdentifierName(DefaultCtxParameter.Identifier),
-                                    SyntaxFactory.IdentifierName(nameof(IContext.Inject))))
-                            .AddArgumentListArguments(valueArg);
-
-                        block.Add(SyntaxFactory.ExpressionStatement(injection));
-                    }
-
-                    if (factory.Source.MemberResolver is {} memberResolver
-                        && memberResolver.Member is {} member
-                        && memberResolver.TypeConstructor is {} typeConstructor)
-                    {
-                        ExpressionSyntax? value = null;
-                        var type = memberResolver.ContractType;
-                        var instance = member.IsStatic
-                            ? SyntaxFactory.ParseTypeName(symbolNames.GetGlobalName(type))
-                            : SyntaxFactory.IdentifierName(Names.DefaultInstanceValueName);
-
-                        switch (member)
-                        {
-                            case IFieldSymbol:
-                            case IPropertySymbol:
-                                value = SyntaxFactory.MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    instance,
-                                    SyntaxFactory.IdentifierName(member.Name));
-                                break;
-
-                            case IMethodSymbol methodSymbol:
-                                var args = methodSymbol.Parameters
-                                    .Select(i => SyntaxFactory.Argument(SyntaxFactory.IdentifierName(i.Name)))
-                                    .ToArray();
-
-                                if (methodSymbol.IsGenericMethod)
-                                {
-                                    var binding = var.AbstractNode.Binding;
-                                    var typeArgs = new List<TypeSyntax>();
-                                    // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
-                                    foreach (var typeArg in methodSymbol.TypeArguments)
-                                    {
-                                        var argType = typeConstructor.ConstructReversed(typeArg);
-                                        if (binding.TypeConstructor is {} bindingTypeConstructor)
-                                        {
-                                            argType = bindingTypeConstructor.Construct(setup, argType);
-                                        }
-
-                                        var typeName = symbolNames.GetGlobalName(argType);
-                                        typeArgs.Add(SyntaxFactory.ParseTypeName(typeName));
-                                    }
-
-                                    value = SyntaxFactory.MemberAccessExpression(
-                                        SyntaxKind.SimpleMemberAccessExpression,
-                                        instance,
-                                        SyntaxFactory.GenericName(member.Name).AddTypeArgumentListArguments(typeArgs.ToArray()));
-                                }
-                                else
-                                {
-                                    value = SyntaxFactory.MemberAccessExpression(
-                                        SyntaxKind.SimpleMemberAccessExpression,
-                                        instance,
-                                        SyntaxFactory.IdentifierName(member.Name));
-                                }
-
-                                value = SyntaxFactory
-                                    .InvocationExpression(value)
-                                    .AddArgumentListArguments(args);
-
-                                break;
-                        }
-
-                        if (value is not null)
-                        {
-                            block.Add(SyntaxFactory.ReturnStatement(value));
-                        }
-                    }
-                    else
-                    {
-                        if (originalLambda.Block is {} lambdaBlock)
-                        {
-                            block.AddRange(lambdaBlock.Statements);
-                        }
-                        else
-                        {
-                            if (originalLambda.ExpressionBody is {} body)
-                            {
-                                block.Add(SyntaxFactory.ReturnStatement(body));
-                            }
-                        }
-                    }
-
-                    originalLambda = SyntaxFactory.SimpleLambdaExpression(DefaultCtxParameter)
-                        .WithBlock(SyntaxFactory.Block(block));
-                }
-                else
-                {
-                    ctx = ctx with { IsFactory = true };
-                }
-
-                // Rewrites syntax tree
-                var finishLabel = $"{var.Declaration.Name}Finish";
-                var localVariableRenamingRewriter = factory.Source.LocalVariableRenamingRewriter.Clone();
-                var factoryExpression = (LambdaExpressionSyntax)localVariableRenamingRewriter.Rewrite(setup.SemanticModel, false, originalLambda);
-                var injections = new List<FactoryRewriter.Injection>();
-                var inits = new List<FactoryRewriter.Initializer>();
-                var rewriterContext = new FactoryRewriterContext(factory, varInjection, finishLabel, injections, inits);
-                var factoryRewriter = factoryRewriterFactory(rewriterContext);
-                var lambda = factoryRewriter.Rewrite(ctx, factoryExpression);
-                factoryValidatorFactory(factory).Visit(lambda);
-                SyntaxNode syntaxNode = lambda.Block is not null ? lambda.Block : SyntaxFactory.ExpressionStatement((ExpressionSyntax)lambda.Body);
-                var hasOverrides = factory.HasOverrides;
-                if (hasOverrides)
-                {
-                    ctx = ctx with { HasOverrides = true };
-                }
-
-                if (!var.Declaration.IsDeclared && (var.HasCycle ?? false))
-                {
-                    lines.AppendLine($"var {var.Name} = default({typeResolver.Resolve(ctx.RootContext.Graph.Source, var.InstanceType)});");
-                    var.Declaration.IsDeclared = true;
-                }
-
-                var textLines = new List<TextLine>();
-                var hasOverridesLock = false;
-                if (hasOverrides && ctx.IsLockRequired && !isLazy)
-                {
-                    if (!var.Declaration.IsDeclared)
-                    {
-                        lines.AppendLine($"{buildTools.GetDeclaration(ctx, var.Declaration)}{var.Name};");
-                        var.Declaration.IsDeclared = true;
-                    }
-
-                    locks.AddLockStatements(ctx.RootContext.Root.IsStatic, lines, false);
-                    lines.AppendLine(BlockStart);
-                    lines.IncIndent();
-                    ctx = ctx with { IsLockRequired = false };
-                    hasOverridesLock = true;
-                }
-
-                var fixFirstLinePrefix = false;
-                if (syntaxNode is BlockSyntax curBlock)
-                {
-                    if (!var.Declaration.IsDeclared)
-                    {
-                        lines.AppendLine($"{buildTools.GetDeclaration(ctx, var.Declaration)}{var.Name};");
-                        var.Declaration.IsDeclared = true;
-                    }
-
-                    foreach (var statement in curBlock.Statements)
-                    {
-                        var text = statement.GetText();
-                        textLines.AddRange(text.Lines);
-                    }
-                }
-                else
-                {
-                    var leadingTrivia = syntaxNode.GetLeadingTrivia().ToFullString().TrimStart();
-                    if (!string.IsNullOrEmpty(leadingTrivia))
-                    {
-                        lines.Append(leadingTrivia);
-                    }
-                    else
-                    {
-                        fixFirstLinePrefix = true;
-                    }
-
-                    if (!var.Declaration.IsDeclared)
-                    {
-                        lines.Append($"{buildTools.GetDeclaration(ctx, var.Declaration)}{var.Name} = ");
-                        var.Declaration.IsDeclared = true;
-                    }
-                    else
-                    {
-                        lines.Append($"{var.Name} = ");
-                    }
-
-                    var text = syntaxNode.WithoutTrivia().GetText();
-                    textLines.AddRange(text.Lines);
-                }
-
-                var injectionArgs = new List<VarInjection>();
-                var initializationArgs = new List<VarInjection>();
-                if (ctx.RootContext.Graph.Graph.TryGetInEdges(var.AbstractNode.Node, out var dependencies))
-                {
-                    foreach (var dependency in dependencies)
-                    {
-                        var dependencyVar = varsMap.GetInjection(varCtx.RootContext.Graph, varCtx.RootContext.Root, dependency.Injection, dependency.Source);
-                        varInjections.Add(dependencyVar);
-                        if (dependencyVar.Injection.Kind is InjectionKind.FactoryInjection)
-                        {
-                            injectionArgs.Add(dependencyVar);
-                        }
-                        else
-                        {
-                            initializationArgs.Add(dependencyVar);
-                        }
-                    }
-                }
-
-                if (injections.Count != factory.Resolvers.Length
-                    || injections.Count != injectionArgs.Count)
-                {
-                    throw new CompileErrorException(
-                        string.Format(Strings.Error_Template_LifetimeDoesNotSupportCyclicDependencies, var.AbstractNode.ActualLifetime),
-                        ImmutableArray.Create(locationProvider.GetLocation(factory.Source.Source)),
-                        LogId.ErrorInvalidMetadata);
-                }
-
-                if (factory.Initializers.Length != inits.Count)
-                {
-                    throw new CompileErrorException(
-                        Strings.Error_InvalidNumberOfInitializers,
-                        ImmutableArray.Create(locationProvider.GetLocation(factory.Source.Source)),
-                        LogId.ErrorInvalidMetadata);
-                }
-
-                var resolversCount = injections.Count;
-                var initsCount = inits.Count;
-                var resolversIdx = 0;
-                var initsIdx = 0;
-                var initializationArgsIdx = new StrongBox<int>(0);
-                var linePrefixes = new List<LinePrefix>();
-                foreach (var textLine in textLines)
-                {
-                    var line = textLine.ToString();
-                    var lineSpan = line.AsSpan();
-                    var length = 0;
-                    while (length < lineSpan.Length && char.IsWhiteSpace(lineSpan[length]))
-                    {
-                        length++;
-                    }
-
-                    var prefixLength = 0;
-                    for (var i = 0; i < length; i++)
-                    {
-                        switch (lineSpan[i])
-                        {
-                            case '\t':
-                                prefixLength += 4;
-                                break;
-
-                            default:
-                                prefixLength++;
-                                break;
-                        }
-                    }
-
-                    var contentSpan = lineSpan[length..];
-                    if (contentSpan.IsWhiteSpace())
-                    {
-                        continue;
-                    }
-
-                    linePrefixes.Add(new LinePrefix(line.AsMemory(length), prefixLength >> 1));
-                }
-
-                if (fixFirstLinePrefix && linePrefixes.Count > 1)
-                {
-                    linePrefixes[0] = linePrefixes[0] with { PrefixLength = linePrefixes[1].PrefixLength };
-                }
-
-                var indents = new Dictionary<int, int>();
-                var indentIndex = 0;
-                foreach (var linePrefix in linePrefixes.OrderBy(i => i.PrefixLength))
-                {
-                    if (indents.ContainsKey(linePrefix.PrefixLength))
-                    {
-                        continue;
-                    }
-
-                    indents.Add(linePrefix.PrefixLength, indentIndex++);
-                }
-
-                foreach (var linePrefix in linePrefixes)
-                {
-                    if (!indents.TryGetValue(linePrefix.PrefixLength, out var indent))
-                    {
-                        indent = 0;
-                    }
-
-                    using (lines.Indent(indent))
-                    {
-                        var lineSpan = linePrefix.Line.Span;
-                        var marker = lineSpan.Trim();
-                        // Replaces injection markers by injection code
-                        if (marker.SequenceEqual(InjectionStatement.AsSpan()) && resolversIdx < resolversCount)
-                        {
-                            // When an injection marker
-                            var (injection, argument) = (injections[resolversIdx], injectionArgs[resolversIdx]);
-                            var resolver = factory.Resolvers[resolversIdx];
-                            resolversIdx++;
-                            
-                            if (hasOverrides)
-                            {
-                                BuildOverrides(ctx, factory, localVariableRenamingRewriter, resolver.Overrides, lines);
-                            }
-
-                            yield return BuildCodeInternal(ctx.CreateChild(argument));
-                            lines.AppendLine($"{(injection.DeclarationRequired ? $"{typeResolver.Resolve(setup, argument.Injection.Type)} " : "")}{injection.VariableName} = {buildTools.OnInjected(ctx, argument)};");
-
-                            continue;
-                        }
-
-                        // Replaces initialization markers by initialization code
-                        if (marker.SequenceEqual(InitializationStatement.AsSpan()) && initsIdx < initsCount)
-                        {
-                            var (initialization, initializer) = (inits[initsIdx], factory.Initializers[initsIdx]);
-                            initsIdx++;
-                            
-                            if (hasOverrides)
-                            {
-                                BuildOverrides(ctx, factory, localVariableRenamingRewriter, initializer.Overrides, lines);
-                            }
-
-                            var initCtx = ctx;
-                            var initializersWalker = initializersWalkerFactory(
-                                new InitializersWalkerContext(
-                                    i => BuildCodeInternal(initCtx.CreateChild(i)),
-                                    initialization.VariableName,
-                                    new FactoryInitializationArgsEnumerator(initializationArgs, initializationArgsIdx)));
-                            yield return initializersWalker.VisitInitializer(ctx, initializer);
-                            continue;
-                        }
-
-                        if (marker.SequenceEqual(OverrideStatement.AsSpan()))
-                        {
-                            continue;
-                        }
-
-                        lines.AppendLine(lineSpan.ToString());
-                    }
-                }
-
-                if (factoryRewriter.IsFinishMarkRequired)
-                {
-                    lines.AppendLine($"{finishLabel}:;");
-                }
-
-                lines.AppendLines(buildTools.OnCreated(ctx, varInjection));
-
-                if (hasOverridesLock)
-                {
-                    lines.DecIndent();
-                    lines.AppendLine(BlockFinish);
-                }
-            }
-            else
-            {
-                if (var.AbstractNode.Construct is {} construct)
-                {
-                    switch (construct.Source.Kind)
-                    {
-                        case MdConstructKind.Enumerable:
-                        case MdConstructKind.AsyncEnumerable:
-                            var localMethodName = $"{Names.EnumerateMethodNamePrefix}_{var.Declaration.Name}".Replace("__", "_");
-                            if (compilations.GetLanguageVersion(construct.Source.SemanticModel.Compilation) >= LanguageVersion.CSharp9)
-                            {
-                                buildTools.AddAggressiveInlining(lines);
-                            }
-
-                            var methodPrefix = construct.Source.Kind == MdConstructKind.AsyncEnumerable ? "async " : "";
-                            lines.AppendLine($"{methodPrefix}{typeResolver.Resolve(ctx.RootContext.Graph.Source, var.InstanceType)} {localMethodName}()");
-                            using (lines.CreateBlock())
-                            {
-                                var hasYieldReturn = false;
-                                if (ctx.RootContext.Graph.Graph.TryGetInEdges(var.AbstractNode.Node, out var enumerableDependencies))
-                                {
-                                    foreach (var dependency in enumerableDependencies)
-                                    {
-                                        var dependencyVar = varsMap.GetInjection(varCtx.RootContext.Graph, varCtx.RootContext.Root, dependency.Injection, dependency.Source);
-                                        varInjections.Add(dependencyVar);
-                                        yield return BuildCodeInternal(ctx.CreateChild(dependencyVar));
-                                        lines.AppendLine($"yield return {buildTools.OnInjected(ctx, dependencyVar)};");
-                                        hasYieldReturn = true;
-                                    }
-                                }
-
-                                if (methodPrefix == "async ")
-                                {
-                                    lines.AppendLine("await Task.CompletedTask;");
-                                }
-                                else
-                                {
-                                    if (!hasYieldReturn)
-                                    {
-                                        lines.AppendLine("yield break;");
-                                    }
-                                }
-                            }
-
-                            lines.AppendLine();
-                            var newEnum = $"{localMethodName}()";
-                            var onEnumCreated = buildTools.OnCreated(ctx, varInjection);
-                            if (onEnumCreated.Count > 0)
-                            {
-                                lines.AppendLine($"{buildTools.GetDeclaration(ctx, var.Declaration, useVar: true)}{var.Name} = {newEnum};");
-                                lines.AppendLines(onEnumCreated);
-                            }
-                            else
-                            {
-                                var.CodeExpression = newEnum;
-                            }
-
-                            break;
-
-                        case MdConstructKind.Array:
-                            if (ctx.RootContext.Graph.Graph.TryGetInEdges(var.AbstractNode.Node, out var arrayDependencies))
-                            {
-                                var injections = new List<VarInjection>(arrayDependencies.Count);
-                                // ReSharper disable once LoopCanBeConvertedToQuery
-                                foreach (var dependency in arrayDependencies)
-                                {
-                                    injections.Add(varsMap.GetInjection(varCtx.RootContext.Graph, varCtx.RootContext.Root, dependency.Injection, dependency.Source));
-                                }
-
-                                injections.Sort(InjectionComparer);
-                                foreach (var dependencyVar in injections)
-                                {
-                                    yield return BuildCodeInternal(ctx.CreateChild(dependencyVar));
-                                }
-
-                                varInjections.AddRange(injections);
-                            }
-
-                            var newArray = $"new {typeResolver.Resolve(ctx.RootContext.Graph.Source, construct.Source.ElementType)}[{varInjections.Count.ToString()}] {{ {string.Join(", ", varInjections.Select(item => buildTools.OnInjected(ctx, item)))} }}";
-                            var onArrayCreated = buildTools.OnCreated(ctx, varInjection);
-                            if (onArrayCreated.Count > 0)
-                            {
-                                lines.AppendLine($"{buildTools.GetDeclaration(ctx, var.Declaration, useVar: true)}{var.Name} = {newArray};");
-                                lines.AppendLines(onArrayCreated);
-                            }
-                            else
-                            {
-                                var.CodeExpression =  newArray;
-                            }
-
-                            break;
-
-                        case MdConstructKind.Span:
-                            if (ctx.RootContext.Graph.Graph.TryGetInEdges(var.AbstractNode.Node, out var spanDependencies))
-                            {
-                                var injections = new List<VarInjection>(spanDependencies.Count);
-                                // ReSharper disable once LoopCanBeConvertedToQuery
-                                foreach (var dependency in spanDependencies)
-                                {
-                                    injections.Add(varsMap.GetInjection(varCtx.RootContext.Graph, varCtx.RootContext.Root, dependency.Injection, dependency.Source));
-                                }
-
-                                injections.Sort(InjectionComparer);
-                                foreach (var dependencyVar in injections)
-                                {
-                                    yield return BuildCodeInternal(ctx.CreateChild(dependencyVar));
-                                }
-
-                                varInjections.AddRange(injections);
-                            }
-
-                            var createArray = $"{typeResolver.Resolve(ctx.RootContext.Graph.Source, construct.Source.ElementType)}[{varInjections.Count.ToString()}] {{ {string.Join(", ", varInjections.Select(item => buildTools.OnInjected(ctx, item)))} }}";
-
-                            var isStackalloc =
-                                construct.Source.ElementType.IsValueType
-                                && spanDependencies.Count <= Const.MaxStackalloc
-                                && compilations.GetLanguageVersion(construct.Binding.SemanticModel.Compilation) >= LanguageVersion.CSharp7_3;
-
-                            var newSpan = isStackalloc ? $"stackalloc {createArray}" : $"new {Names.SystemNamespace}Span<{typeResolver.Resolve(ctx.RootContext.Graph.Source, construct.Source.ElementType)}>(new {createArray})";
-                            var onSpanCreated = buildTools.OnCreated(ctx, varInjection);
-                            if (onSpanCreated.Count > 0)
-                            {
-                                lines.AppendLine($"{buildTools.GetDeclaration(ctx, var.Declaration)}{var.Name} = {newSpan};");
-                                lines.AppendLines(onSpanCreated);
-                            }
-                            else
-                            {
-                                var.CodeExpression =  newSpan;
-                            }
-
-                            break;
-
-                        case MdConstructKind.Composition:
-                            var.CodeExpression = "this";
-                            break;
-
-                        case MdConstructKind.OnCannotResolve:
-                            var.CodeExpression = $"{Names.OnCannotResolve}<{varInjection.ContractType}>({varInjection.Injection.Tag.ValueToString()}, {var.AbstractNode.Lifetime.ValueToString()})";
-                            break;
-
-                        case MdConstructKind.ExplicitDefaultValue:
-                            var.CodeExpression = construct.Source.ExplicitDefaultValue.ValueToString();
-                            break;
-
-                        case MdConstructKind.Accumulator:
-                        case MdConstructKind.Override:
-                            break;
-
-                        case MdConstructKind.None:
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
+                yield return builder.Current;
             }
         }
 
@@ -886,6 +228,714 @@ class RootBuilder(
 
         parentCtx.Lines.AppendLines(lines);
         var.Declaration.IsDeclared = true;
+    }
+
+    private IEnumerator BuildConstruct(CodeContext ctx, List<VarInjection> varInjections)
+    {
+        var var = ctx.VarInjection.Var;
+        var construct = var.AbstractNode.Construct!;
+        return construct.Source.Kind switch
+        {
+            MdConstructKind.Enumerable or MdConstructKind.AsyncEnumerable => BuildEnumerable(ctx, varInjections),
+            MdConstructKind.Array => BuildArray(ctx, varInjections),
+            MdConstructKind.Span => BuildSpan(ctx, varInjections),
+            MdConstructKind.Composition => BuildComposition(ctx),
+            MdConstructKind.OnCannotResolve => BuildOnCannotResolve(ctx),
+            MdConstructKind.ExplicitDefaultValue => BuildExplicitDefaultValue(ctx),
+            _ => EmptyEnumerator()
+        };
+    }
+
+    private IEnumerator BuildEnumerable(CodeContext ctx, List<VarInjection> varInjections)
+    {
+        var varInjection = ctx.VarInjection;
+        var var = varInjection.Var;
+        var lines = ctx.Lines;
+        var construct = var.AbstractNode.Construct!;
+        var setup = ctx.RootContext.Graph.Source;
+        var localMethodName = $"{Names.EnumerateMethodNamePrefix}_{var.Declaration.Name}".Replace("__", "_");
+        if (compilations.GetLanguageVersion(construct.Source.SemanticModel.Compilation) >= LanguageVersion.CSharp9)
+        {
+            buildTools.AddAggressiveInlining(lines);
+        }
+
+        var methodPrefix = construct.Source.Kind == MdConstructKind.AsyncEnumerable ? "async " : "";
+        lines.AppendLine($"{methodPrefix}{typeResolver.Resolve(setup, var.InstanceType)} {localMethodName}()");
+        using (lines.CreateBlock())
+        {
+            var hasYieldReturn = false;
+            if (ctx.RootContext.Graph.Graph.TryGetInEdges(var.AbstractNode.Node, out var enumerableDependencies))
+            {
+                foreach (var dependency in enumerableDependencies)
+                {
+                    var dependencyVar = ctx.VarsMap.GetInjection(ctx.RootContext.Graph, ctx.RootContext.Root, dependency.Injection, dependency.Source);
+                    varInjections.Add(dependencyVar);
+                    yield return BuildCodeInternal(ctx.CreateChild(dependencyVar));
+                    lines.AppendLine($"yield return {buildTools.OnInjected(ctx, dependencyVar)};");
+                    hasYieldReturn = true;
+                }
+            }
+
+            if (methodPrefix == "async ")
+            {
+                lines.AppendLine("await Task.CompletedTask;");
+            }
+            else
+            {
+                if (!hasYieldReturn)
+                {
+                    lines.AppendLine("yield break;");
+                }
+            }
+        }
+
+        lines.AppendLine();
+        var newEnum = $"{localMethodName}()";
+        var onEnumCreated = buildTools.OnCreated(ctx, varInjection);
+        if (onEnumCreated.Count > 0)
+        {
+            lines.AppendLine($"{buildTools.GetDeclaration(ctx, var.Declaration, useVar: true)}{var.Name} = {newEnum};");
+            lines.AppendLines(onEnumCreated);
+        }
+        else
+        {
+            var.CodeExpression = newEnum;
+        }
+    }
+
+    private IEnumerator BuildArray(CodeContext ctx, List<VarInjection> varInjections)
+    {
+        var varInjection = ctx.VarInjection;
+        var var = varInjection.Var;
+        var lines = ctx.Lines;
+        var construct = var.AbstractNode.Construct!;
+        var setup = ctx.RootContext.Graph.Source;
+        if (ctx.RootContext.Graph.Graph.TryGetInEdges(var.AbstractNode.Node, out var arrayDependencies))
+        {
+            var injections = new List<VarInjection>(arrayDependencies.Count);
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var dependency in arrayDependencies)
+            {
+                injections.Add(ctx.VarsMap.GetInjection(ctx.RootContext.Graph, ctx.RootContext.Root, dependency.Injection, dependency.Source));
+            }
+
+            injections.Sort(InjectionComparer);
+            foreach (var dependencyVar in injections)
+            {
+                yield return BuildCodeInternal(ctx.CreateChild(dependencyVar));
+            }
+
+            varInjections.AddRange(injections);
+        }
+
+        var newArray = $"new {typeResolver.Resolve(setup, construct.Source.ElementType)}[{varInjections.Count.ToString()}] {{ {string.Join(", ", varInjections.Select(item => buildTools.OnInjected(ctx, item)))} }}";
+        var onArrayCreated = buildTools.OnCreated(ctx, varInjection);
+        if (onArrayCreated.Count > 0)
+        {
+            lines.AppendLine($"{buildTools.GetDeclaration(ctx, var.Declaration, useVar: true)}{var.Name} = {newArray};");
+            lines.AppendLines(onArrayCreated);
+        }
+        else
+        {
+            var.CodeExpression =  newArray;
+        }
+    }
+
+    private IEnumerator BuildSpan(CodeContext ctx, List<VarInjection> varInjections)
+    {
+        var varInjection = ctx.VarInjection;
+        var var = varInjection.Var;
+        var lines = ctx.Lines;
+        var construct = var.AbstractNode.Construct!;
+        var setup = ctx.RootContext.Graph.Source;
+        if (ctx.RootContext.Graph.Graph.TryGetInEdges(var.AbstractNode.Node, out var spanDependencies))
+        {
+            var injections = new List<VarInjection>(spanDependencies.Count);
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var dependency in spanDependencies)
+            {
+                injections.Add(ctx.VarsMap.GetInjection(ctx.RootContext.Graph, ctx.RootContext.Root, dependency.Injection, dependency.Source));
+            }
+
+            injections.Sort(InjectionComparer);
+            foreach (var dependencyVar in injections)
+            {
+                yield return BuildCodeInternal(ctx.CreateChild(dependencyVar));
+            }
+
+            varInjections.AddRange(injections);
+        }
+
+        var createArray = $"{typeResolver.Resolve(setup, construct.Source.ElementType)}[{varInjections.Count.ToString()}] {{ {string.Join(", ", varInjections.Select(item => buildTools.OnInjected(ctx, item)))} }}";
+
+        var isStackalloc =
+            construct.Source.ElementType.IsValueType
+            && spanDependencies.Count <= Const.MaxStackalloc
+            && compilations.GetLanguageVersion(construct.Binding.SemanticModel.Compilation) >= LanguageVersion.CSharp7_3;
+
+        var newSpan = isStackalloc ? $"stackalloc {createArray}" : $"new {Names.SystemNamespace}Span<{typeResolver.Resolve(setup, construct.Source.ElementType)}>(new {createArray})";
+        var onSpanCreated = buildTools.OnCreated(ctx, varInjection);
+        if (onSpanCreated.Count > 0)
+        {
+            lines.AppendLine($"{buildTools.GetDeclaration(ctx, var.Declaration)}{var.Name} = {newSpan};");
+            lines.AppendLines(onSpanCreated);
+        }
+        else
+        {
+            var.CodeExpression =  newSpan;
+        }
+    }
+
+    private static IEnumerator BuildComposition(CodeContext ctx)
+    {
+        ctx.VarInjection.Var.CodeExpression = "this";
+        yield break;
+    }
+
+    private static IEnumerator BuildOnCannotResolve(CodeContext ctx)
+    {
+        var varInjection = ctx.VarInjection;
+        var var = varInjection.Var;
+        var.CodeExpression = $"{Names.OnCannotResolve}<{varInjection.ContractType}>({varInjection.Injection.Tag.ValueToString()}, {var.AbstractNode.Lifetime.ValueToString()})";
+        yield break;
+    }
+
+    private static IEnumerator BuildExplicitDefaultValue(CodeContext ctx)
+    {
+        var var = ctx.VarInjection.Var;
+        var construct = var.AbstractNode.Construct!;
+        var.CodeExpression = construct.Source.ExplicitDefaultValue.ValueToString();
+        yield break;
+    }
+
+    private static IEnumerator EmptyEnumerator()
+    {
+        yield break;
+    }
+
+    private IEnumerator BuildFactory(CodeContext ctx, List<VarInjection> varInjections)
+    {
+        var varInjection = ctx.VarInjection;
+        var var = varInjection.Var;
+        var lines = ctx.Lines;
+        var factory = var.AbstractNode.Node.Factory!;
+        var setup = ctx.RootContext.Graph.Source;
+        var varsMap = ctx.VarsMap;
+        var originalLambda = factory.Source.Factory;
+
+        // Simple factory
+        if (factory.Source.IsSimpleFactory)
+        {
+            var block = new List<StatementSyntax>();
+            foreach (var resolver in factory.Source.Resolvers)
+            {
+                if (resolver.ArgumentType is not {} argumentType || resolver.Parameter is not {} parameter)
+                {
+                    continue;
+                }
+
+                var valueDeclaration = SyntaxFactory.DeclarationExpression(
+                    argumentType,
+                    SyntaxFactory.SingleVariableDesignation(parameter.Identifier));
+
+                var valueArg =
+                    SyntaxFactory.Argument(valueDeclaration)
+                        .WithRefOrOutKeyword(SyntaxFactory.Token(SyntaxKind.OutKeyword));
+
+                var injection = SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.IdentifierName(DefaultCtxParameter.Identifier),
+                            SyntaxFactory.IdentifierName(nameof(IContext.Inject))))
+                    .AddArgumentListArguments(valueArg);
+
+                block.Add(SyntaxFactory.ExpressionStatement(injection));
+            }
+
+            if (factory.Source.MemberResolver is {} memberResolver
+                && memberResolver.Member is {} member
+                && memberResolver.TypeConstructor is {} typeConstructor)
+            {
+                ExpressionSyntax? value = null;
+                var type = memberResolver.ContractType;
+                var instance = member.IsStatic
+                    ? SyntaxFactory.ParseTypeName(symbolNames.GetGlobalName(type))
+                    : SyntaxFactory.IdentifierName(Names.DefaultInstanceValueName);
+
+                switch (member)
+                {
+                    case IFieldSymbol:
+                    case IPropertySymbol:
+                        value = SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            instance,
+                            SyntaxFactory.IdentifierName(member.Name));
+                        break;
+
+                    case IMethodSymbol methodSymbol:
+                        var args = methodSymbol.Parameters
+                            .Select(i => SyntaxFactory.Argument(SyntaxFactory.IdentifierName(i.Name)))
+                            .ToArray();
+
+                        if (methodSymbol.IsGenericMethod)
+                        {
+                            var binding = var.AbstractNode.Binding;
+                            var typeArgs = new List<TypeSyntax>();
+                            // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+                            foreach (var typeArg in methodSymbol.TypeArguments)
+                            {
+                                var argType = typeConstructor.ConstructReversed(typeArg);
+                                if (binding.TypeConstructor is {} bindingTypeConstructor)
+                                {
+                                    argType = bindingTypeConstructor.Construct(setup, argType);
+                                }
+
+                                var typeName = symbolNames.GetGlobalName(argType);
+                                typeArgs.Add(SyntaxFactory.ParseTypeName(typeName));
+                            }
+
+                            value = SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                instance,
+                                SyntaxFactory.GenericName(member.Name).AddTypeArgumentListArguments(typeArgs.ToArray()));
+                        }
+                        else
+                        {
+                            value = SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                instance,
+                                SyntaxFactory.IdentifierName(member.Name));
+                        }
+
+                        value = SyntaxFactory
+                            .InvocationExpression(value)
+                            .AddArgumentListArguments(args);
+
+                        break;
+                }
+
+                if (value is not null)
+                {
+                    block.Add(SyntaxFactory.ReturnStatement(value));
+                }
+            }
+            else
+            {
+                if (originalLambda.Block is {} lambdaBlock)
+                {
+                    block.AddRange(lambdaBlock.Statements);
+                }
+                else
+                {
+                    if (originalLambda.ExpressionBody is {} body)
+                    {
+                        block.Add(SyntaxFactory.ReturnStatement(body));
+                    }
+                }
+            }
+
+            originalLambda = SyntaxFactory.SimpleLambdaExpression(DefaultCtxParameter)
+                .WithBlock(SyntaxFactory.Block(block));
+        }
+        else
+        {
+            ctx = ctx with { IsFactory = true };
+        }
+
+        // Rewrites syntax tree
+        var finishLabel = $"{var.Declaration.Name}Finish";
+        var localVariableRenamingRewriter = factory.Source.LocalVariableRenamingRewriter.Clone();
+        var factoryExpression = (LambdaExpressionSyntax)localVariableRenamingRewriter.Rewrite(setup.SemanticModel, false, originalLambda);
+        var injections = new List<FactoryRewriter.Injection>();
+        var inits = new List<FactoryRewriter.Initializer>();
+        var rewriterContext = new FactoryRewriterContext(factory, varInjection, finishLabel, injections, inits);
+        var factoryRewriter = factoryRewriterFactory(rewriterContext);
+        var lambda = factoryRewriter.Rewrite(ctx, factoryExpression);
+        factoryValidatorFactory(factory).Visit(lambda);
+        SyntaxNode syntaxNode = lambda.Block is not null ? lambda.Block : SyntaxFactory.ExpressionStatement((ExpressionSyntax)lambda.Body);
+        var hasOverrides = factory.HasOverrides;
+        if (hasOverrides)
+        {
+            ctx = ctx with { HasOverrides = true };
+        }
+
+        if (!var.Declaration.IsDeclared && (var.HasCycle ?? false))
+        {
+            lines.AppendLine($"var {var.Name} = default({typeResolver.Resolve(ctx.RootContext.Graph.Source, var.InstanceType)});");
+            var.Declaration.IsDeclared = true;
+        }
+
+        var textLines = new List<TextLine>();
+        var hasOverridesLock = false;
+        var isLazy = nodeTools.IsLazy(var.AbstractNode.Node);
+        if (hasOverrides && ctx.IsLockRequired && !isLazy)
+        {
+            if (!var.Declaration.IsDeclared)
+            {
+                lines.AppendLine($"{buildTools.GetDeclaration(ctx, var.Declaration)}{var.Name};");
+                var.Declaration.IsDeclared = true;
+            }
+
+            locks.AddLockStatements(ctx.RootContext.Root.IsStatic, lines, false);
+            lines.AppendLine(BlockStart);
+            lines.IncIndent();
+            ctx = ctx with { IsLockRequired = false };
+            hasOverridesLock = true;
+        }
+
+        var fixFirstLinePrefix = false;
+        if (syntaxNode is BlockSyntax curBlock)
+        {
+            if (!var.Declaration.IsDeclared)
+            {
+                lines.AppendLine($"{buildTools.GetDeclaration(ctx, var.Declaration)}{var.Name};");
+                var.Declaration.IsDeclared = true;
+            }
+
+            foreach (var statement in curBlock.Statements)
+            {
+                var text = statement.GetText();
+                textLines.AddRange(text.Lines);
+            }
+        }
+        else
+        {
+            var leadingTrivia = syntaxNode.GetLeadingTrivia().ToFullString().TrimStart();
+            if (!string.IsNullOrEmpty(leadingTrivia))
+            {
+                lines.Append(leadingTrivia);
+            }
+            else
+            {
+                fixFirstLinePrefix = true;
+            }
+
+            if (!var.Declaration.IsDeclared)
+            {
+                lines.Append($"{buildTools.GetDeclaration(ctx, var.Declaration)}{var.Name} = ");
+                var.Declaration.IsDeclared = true;
+            }
+            else
+            {
+                lines.Append($"{var.Name} = ");
+            }
+
+            var text = syntaxNode.WithoutTrivia().GetText();
+            textLines.AddRange(text.Lines);
+        }
+
+        var injectionArgs = new List<VarInjection>();
+        var initializationArgs = new List<VarInjection>();
+        if (ctx.RootContext.Graph.Graph.TryGetInEdges(var.AbstractNode.Node, out var dependencies))
+        {
+            foreach (var dependency in dependencies)
+            {
+                var dependencyVar = varsMap.GetInjection(ctx.RootContext.Graph, ctx.RootContext.Root, dependency.Injection, dependency.Source);
+                varInjections.Add(dependencyVar);
+                if (dependencyVar.Injection.Kind is InjectionKind.FactoryInjection)
+                {
+                    injectionArgs.Add(dependencyVar);
+                }
+                else
+                {
+                    initializationArgs.Add(dependencyVar);
+                }
+            }
+        }
+            
+        if (injections.Count != factory.Resolvers.Length
+            || injections.Count != injectionArgs.Count)
+        {
+            throw new CompileErrorException(
+                string.Format(Strings.Error_Template_LifetimeDoesNotSupportCyclicDependencies, var.AbstractNode.ActualLifetime),
+                ImmutableArray.Create(locationProvider.GetLocation(factory.Source.Source)),
+                LogId.ErrorInvalidMetadata);
+        }
+
+        if (factory.Initializers.Length != inits.Count)
+        {
+            throw new CompileErrorException(
+                Strings.Error_InvalidNumberOfInitializers,
+                ImmutableArray.Create(locationProvider.GetLocation(factory.Source.Source)),
+                LogId.ErrorInvalidMetadata);
+        }
+
+        var resolversCount = injections.Count;
+        var initsCount = inits.Count;
+        var resolversIdx = 0;
+        var initsIdx = 0;
+        var initializationArgsIdx = new StrongBox<int>(0);
+        var linePrefixes = new List<LinePrefix>();
+        foreach (var textLine in textLines)
+        {
+            var line = textLine.ToString();
+            var lineSpan = line.AsSpan();
+            var length = 0;
+            while (length < lineSpan.Length && char.IsWhiteSpace(lineSpan[length]))
+            {
+                length++;
+            }
+
+            var prefixLength = 0;
+            for (var i = 0; i < length; i++)
+            {
+                switch (lineSpan[i])
+                {
+                    case '\t':
+                        prefixLength += 4;
+                        break;
+
+                    default:
+                        prefixLength++;
+                        break;
+                }
+            }
+
+            var contentSpan = lineSpan[length..];
+            if (contentSpan.IsWhiteSpace())
+            {
+                continue;
+            }
+
+            linePrefixes.Add(new LinePrefix(line.AsMemory(length), prefixLength >> 1));
+        }
+
+        if (fixFirstLinePrefix && linePrefixes.Count > 1)
+        {
+            linePrefixes[0] = linePrefixes[0] with { PrefixLength = linePrefixes[1].PrefixLength };
+        }
+
+        var indents = new Dictionary<int, int>();
+        var indentIndex = 0;
+        foreach (var linePrefix in linePrefixes.OrderBy(i => i.PrefixLength))
+        {
+            if (indents.ContainsKey(linePrefix.PrefixLength))
+            {
+                continue;
+            }
+
+            indents.Add(linePrefix.PrefixLength, indentIndex++);
+        }
+
+        foreach (var linePrefix in linePrefixes)
+        {
+            if (!indents.TryGetValue(linePrefix.PrefixLength, out var indent))
+            {
+                indent = 0;
+            }
+
+            using (lines.Indent(indent))
+            {
+                var lineSpan = linePrefix.Line.Span;
+                var marker = lineSpan.Trim();
+                // Replaces injection markers by injection code
+                if (marker.SequenceEqual(InjectionStatement.AsSpan()) && resolversIdx < resolversCount)
+                {
+                    // When an injection marker
+                    var (injection, argument) = (injections[resolversIdx], injectionArgs[resolversIdx]);
+                    var resolver = factory.Resolvers[resolversIdx];
+                    resolversIdx++;
+                        
+                    if (hasOverrides)
+                    {
+                        BuildOverrides(ctx, factory, localVariableRenamingRewriter, resolver.Overrides, lines);
+                    }
+
+                    yield return BuildCodeInternal(ctx.CreateChild(argument));
+                    lines.AppendLine($"{(injection.DeclarationRequired ? $"{typeResolver.Resolve(setup, argument.Injection.Type)} " : "")}{injection.VariableName} = {buildTools.OnInjected(ctx, argument)};");
+
+                    continue;
+                }
+
+                // Replaces initialization markers by initialization code
+                if (marker.SequenceEqual(InitializationStatement.AsSpan()) && initsIdx < initsCount)
+                {
+                    var (initialization, initializer) = (inits[initsIdx], factory.Initializers[initsIdx]);
+                    initsIdx++;
+                        
+                    if (hasOverrides)
+                    {
+                        BuildOverrides(ctx, factory, localVariableRenamingRewriter, initializer.Overrides, lines);
+                    }
+
+                    var initCtx = ctx;
+                    var initializersWalker = initializersWalkerFactory(
+                        new InitializersWalkerContext(
+                            i => BuildCodeInternal(initCtx.CreateChild(i)),
+                            initialization.VariableName,
+                            new FactoryInitializationArgsEnumerator(initializationArgs, initializationArgsIdx)));
+                    yield return initializersWalker.VisitInitializer(ctx, initializer);
+                    continue;
+                }
+
+                if (marker.SequenceEqual(OverrideStatement.AsSpan()))
+                {
+                    continue;
+                }
+
+                lines.AppendLine(lineSpan.ToString());
+            }
+        }
+
+        if (factoryRewriter.IsFinishMarkRequired)
+        {
+            lines.AppendLine($"{finishLabel}:;");
+        }
+
+        lines.AppendLines(buildTools.OnCreated(ctx, varInjection));
+
+        if (hasOverridesLock)
+        {
+            lines.DecIndent();
+            lines.AppendLine(BlockFinish);
+        }
+    }
+
+    private IEnumerator BuildImplementation(CodeContext ctx, List<VarInjection> varInjections)
+    {
+        var varInjection = ctx.VarInjection;
+        var var = varInjection.Var;
+        var lines = ctx.Lines;
+        var implementation = var.AbstractNode.Node.Implementation!;
+        if (ctx.RootContext.Graph.Graph.TryGetInEdges(var.AbstractNode.Node, out var implementationDependencies))
+        {
+            var injections = new List<VarInjection>(implementationDependencies.Count);
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var dependency in implementationDependencies)
+            {
+                injections.Add(ctx.VarsMap.GetInjection(ctx.RootContext.Graph, ctx.RootContext.Root, dependency.Injection, dependency.Source));
+            }
+
+            injections.Sort(InjectionComparer);
+            foreach (var dependencyVar in injections)
+            {
+                yield return BuildCodeInternal(ctx.CreateChild(dependencyVar));
+            }
+
+            varInjections.AddRange(injections);
+        }
+
+        var varsWalker = varsWalkerFactory(varInjections);
+        varsWalker.VisitConstructor(Unit.Shared, implementation.Constructor);
+        var ctorArgs = varsWalker.GetResult();
+
+        var requiredFields = ImmutableArray.CreateBuilder<(VarInjection RequiredVarInjection, DpField RequiredField)>();
+        foreach (var requiredField in implementation.Fields)
+        {
+            if (requiredField.Field.IsRequired)
+            {
+                varsWalker.VisitField(Unit.Shared, requiredField, null);
+                var dependencyVar = varsWalker.GetResult().Single();
+                requiredFields.Add((dependencyVar, requiredField));
+            }
+        }
+
+        if (requiredFields.Count > 1)
+        {
+            requiredFields.Sort((a, b) => (a.RequiredField.Ordinal ?? int.MaxValue - 1).CompareTo(b.RequiredField.Ordinal ?? int.MaxValue - 1));
+        }
+
+        var requiredProperties = ImmutableArray.CreateBuilder<(VarInjection RequiredVarInjection, DpProperty RequiredProperty)>();
+        foreach (var requiredProperty in implementation.Properties)
+        {
+            if (requiredProperty.Property.IsRequired || requiredProperty.Property.SetMethod?.IsInitOnly == true)
+            {
+                varsWalker.VisitProperty(Unit.Shared, requiredProperty, null);
+                var dependencyVar = varsWalker.GetResult().Single();
+                requiredProperties.Add((dependencyVar, requiredProperty));
+            }
+        }
+
+        if (requiredProperties.Count > 1)
+        {
+            requiredProperties.Sort((a, b) => (a.RequiredProperty.Ordinal ?? int.MaxValue).CompareTo(b.RequiredProperty.Ordinal ?? int.MaxValue));
+        }
+
+        var visits = new List<(Action<CodeContext, string> Run, int? Ordinal)>();
+        foreach (var field in implementation.Fields)
+        {
+            if (!field.Field.IsRequired)
+            {
+                varsWalker.VisitField(Unit.Shared, field, null);
+                var dependencyVar = varsWalker.GetResult().Single();
+                visits.Add((VisitFieldAction, field.Ordinal));
+                continue;
+
+                void VisitFieldAction(CodeContext context, string name) => inj.FieldInjection(name, context, field, dependencyVar);
+            }
+        }
+
+        foreach (var property in implementation.Properties)
+        {
+            if (!property.Property.IsRequired && property.Property.SetMethod?.IsInitOnly != true)
+            {
+                varsWalker.VisitProperty(Unit.Shared, property, null);
+                var dependencyVar = varsWalker.GetResult().Single();
+                visits.Add((VisitFieldAction, property.Ordinal));
+                continue;
+
+                void VisitFieldAction(CodeContext context, string name) => inj.PropertyInjection(name, context, property, dependencyVar);
+            }
+        }
+
+        foreach (var method in implementation.Methods)
+        {
+            varsWalker.VisitMethod(Unit.Shared, method, null);
+            var methodVars = varsWalker.GetResult();
+            visits.Add((VisitMethodAction, method.Ordinal));
+            continue;
+
+            void VisitMethodAction(CodeContext context, string name) => inj.MethodInjection(name, context, method, methodVars);
+        }
+
+        visits.Sort((a, b) => (a.Ordinal ?? int.MaxValue).CompareTo(b.Ordinal ?? int.MaxValue));
+
+        var onCreatedStatements = buildTools.OnCreated(ctx, varInjection);
+        var hasOnCreatedStatements = onCreatedStatements.Count > 0;
+        var hasAlternativeInjections = visits.Count > 0;
+        var tempVariableInit =
+            ctx.RootContext.IsThreadSafeEnabled
+            && var.AbstractNode.ActualLifetime is not Transient and not PerBlock
+            && (hasAlternativeInjections || hasOnCreatedStatements);
+
+        var tempVar = var;
+        if (tempVariableInit)
+        {
+            tempVar = var with { NameOverride = $"{var.Declaration.Name}{Names.TempInstanceValueNameSuffix}" };
+            lines.AppendLine($"{typeResolver.Resolve(ctx.RootContext.Graph.Source, tempVar.InstanceType)} {tempVar.Name};");
+            if (onCreatedStatements.Count > 0)
+            {
+                onCreatedStatements = buildTools.OnCreated(ctx, varInjection with { Var = tempVar });
+            }
+        }
+
+        var instantiation = CreateInstantiation(ctx, ctorArgs, requiredFields, requiredProperties);
+        if (var.AbstractNode.ActualLifetime is not Transient
+            || hasAlternativeInjections
+            || tempVariableInit
+            || hasOnCreatedStatements)
+        {
+            lines.Append($"{buildTools.GetDeclaration(ctx, var.Declaration, useVar: true)}{tempVar.Name} = ");
+            lines.Append(instantiation);
+            lines.AppendLine(";");
+        }
+        else
+        {
+            var.CodeExpression = instantiation;
+        }
+
+        foreach (var visit in visits.OrderBy(i => i.Ordinal ?? int.MaxValue))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            visit.Run(ctx, tempVar.Name);
+        }
+
+        lines.AppendLines(onCreatedStatements);
+        if (tempVariableInit)
+        {
+            lines.AppendLine($"{Names.SystemNamespace}Threading.Thread.MemoryBarrier();");
+            lines.AppendLine($"{var.Name} = {tempVar.Name};");
+        }
     }
 
     private static int GetInjectionPriority(VarInjection varInjection)
