@@ -558,7 +558,8 @@ class RootBuilder(
 
                     using (lines.Indent(indent))
                     {
-                        if (line.Contains(InjectionStatement) && resolvers.MoveNext())
+                        var marker = line.Trim();
+                        if (marker == InjectionStatement && resolvers.MoveNext())
                         {
                             // When an injection marker
                             var (injection, argument, resolver) = resolvers.Current;
@@ -573,7 +574,7 @@ class RootBuilder(
                             continue;
                         }
 
-                        if (line.Contains(InitializationStatement) && initializers.MoveNext())
+                        if (marker == InitializationStatement && initializers.MoveNext())
                         {
                             var (initialization, initializer) = initializers.Current;
                             if (hasOverrides)
@@ -591,7 +592,7 @@ class RootBuilder(
                             continue;
                         }
 
-                        if (line.Contains(OverrideStatement))
+                        if (marker == OverrideStatement)
                         {
                             continue;
                         }
