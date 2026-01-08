@@ -1,62 +1,65 @@
-﻿// ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
+﻿using System.Collections;
+
+// ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
 namespace Pure.DI.Core.Code;
 
 sealed class InitializersWalker(
     IInjections injections,
-    ILocationProvider locationProvider,
     InitializersWalkerContext ctx)
-    : DependenciesWalker<CodeContext>(locationProvider), IInitializersWalker
+    : IInitializersWalker
 {
     private readonly List<(Action Run, int? Ordinal)> _actions = [];
     private readonly List<VarInjection> _varInjections = [];
 
-    public override void VisitInitializer(in CodeContext codeCtx, DpInitializer initializer)
+    public IEnumerator VisitInitializer(CodeContext codeCtx, DpInitializer initializer)
     {
-        base.VisitInitializer(in codeCtx, initializer);
+        _actions.Clear();
+        _varInjections.Clear();
+
+        foreach (var field in initializer.Fields)
+        {
+            if (ctx.VarInjections.MoveNext())
+            {
+                yield return ctx.BuildVarInjection(ctx.VarInjections.Current);
+                var curVariable = ctx.VarInjections.Current;
+                var curField = field;
+                var curCtx = codeCtx;
+                _actions.Add(new(() => injections.FieldInjection(ctx.VariableName, curCtx, curField, curVariable), curField.Ordinal));
+            }
+        }
+
+        foreach (var property in initializer.Properties)
+        {
+            if (ctx.VarInjections.MoveNext())
+            {
+                yield return ctx.BuildVarInjection(ctx.VarInjections.Current);
+                var curVariable = ctx.VarInjections.Current;
+                var curProperty = property;
+                var curCtx = codeCtx;
+                _actions.Add(new(() => injections.PropertyInjection(ctx.VariableName, curCtx, curProperty, curVariable), curProperty.Ordinal));
+            }
+        }
+
+        foreach (var method in initializer.Methods)
+        {
+            var curVariables = new List<VarInjection>();
+            foreach (var parameter in method.Parameters)
+            {
+                if (ctx.VarInjections.MoveNext())
+                {
+                    yield return ctx.BuildVarInjection(ctx.VarInjections.Current);
+                    curVariables.Add(ctx.VarInjections.Current);
+                }
+            }
+
+            var curMethod = method;
+            var curCtx = codeCtx;
+            _actions.Add(new(() => injections.MethodInjection(ctx.VariableName, curCtx, curMethod, curVariables), curMethod.Ordinal));
+        }
+
         foreach (var action in _actions.OrderBy(i => i.Ordinal ?? int.MaxValue).Select(i => i.Run))
         {
             action();
         }
-    }
-
-    public override void VisitInjection(in CodeContext codeCtx, in Injection injection, bool hasExplicitDefaultValue, object? explicitDefaultValue, in ImmutableArray<Location> locations, int? position)
-    {
-        if (ctx.VarInjections.MoveNext())
-        {
-            ctx.BuildVarInjection.Invoke(ctx.VarInjections.Current);
-            _varInjections.Add(ctx.VarInjections.Current);
-        }
-
-        base.VisitInjection(in codeCtx, in injection, hasExplicitDefaultValue, explicitDefaultValue, in locations, position);
-    }
-
-    public override void VisitMethod(in CodeContext codeCtx, in DpMethod method, int? position)
-    {
-        base.VisitMethod(in codeCtx, in method, position);
-        var curCtx = codeCtx;
-        var curMethod = method;
-        var curVariables = _varInjections.ToList();
-        _actions.Add(new(() => injections.MethodInjection(ctx.VariableName, curCtx, curMethod, curVariables), curMethod.Ordinal));
-        _varInjections.Clear();
-    }
-
-    public override void VisitProperty(in CodeContext codeCtx, in DpProperty property, int? position)
-    {
-        base.VisitProperty(in codeCtx, in property, position);
-        var curCtx = codeCtx;
-        var curProperty = property;
-        var curVariable = _varInjections.Single();
-        _actions.Add(new(() => injections.PropertyInjection(ctx.VariableName, curCtx, curProperty, curVariable), curProperty.Ordinal));
-        _varInjections.Clear();
-    }
-
-    public override void VisitField(in CodeContext codeCtx, in DpField field, int? position)
-    {
-        base.VisitField(in codeCtx, in field, position);
-        var curCtx = codeCtx;
-        var curField = field;
-        var curVariable = _varInjections.Single();
-        _actions.Add(new(() => injections.FieldInjection(ctx.VariableName, curCtx, curField, curVariable), curField.Ordinal));
-        _varInjections.Clear();
     }
 }

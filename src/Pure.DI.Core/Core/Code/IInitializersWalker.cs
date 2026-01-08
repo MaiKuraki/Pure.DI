@@ -1,6 +1,8 @@
-﻿namespace Pure.DI.Core.Code;
+﻿using System.Collections;
+
+namespace Pure.DI.Core.Code;
 
 interface IInitializersWalker
 {
-    void VisitInitializer(in CodeContext ctx, DpInitializer initializer);
+    IEnumerator VisitInitializer(CodeContext ctx, DpInitializer initializer);
 }

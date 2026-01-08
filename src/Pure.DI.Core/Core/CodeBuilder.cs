@@ -48,18 +48,14 @@ sealed class CodeBuilder(
         cancellationToken.ThrowIfCancellationRequested();
         CompositionCode? composition = null;
         Exception? error = null;
-        var thread = new Thread(() => {
-            try
-            {
-                composition = compositionBuilder.Build(dependencyGraph);
-            }
-            catch (Exception ex)
-            {
-                error = ex;
-            }
-        }, Const.StackSize) { IsBackground = true, Priority = ThreadPriority.Highest, Name = "Composition Builder" };
-        thread.Start();
-        thread.Join();
+        try
+        {
+            composition = compositionBuilder.Build(dependencyGraph);
+        }
+        catch (Exception ex)
+        {
+            error = ex;
+        }
 
         if (error is not null)
         {
