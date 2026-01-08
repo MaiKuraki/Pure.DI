@@ -5,7 +5,7 @@ sealed class VariablesWalker : DependenciesWalker<Unit>, IVariablesWalker
     private readonly List<VarInjection> _result = [];
     private readonly Dictionary<Injection, LinkedList<VarInjection>> _varInjectionsMap;
 
-    public VariablesWalker(ILocationProvider locationProvider, IReadOnlyCollection<VarInjection> varInjections) : base(locationProvider)
+    public VariablesWalker(ILocationProvider locationProvider, IEnumerable<VarInjection> varInjections) : base(locationProvider)
     {
         _varInjectionsMap = varInjections
             .GroupBy(varInjection => varInjection.Injection)

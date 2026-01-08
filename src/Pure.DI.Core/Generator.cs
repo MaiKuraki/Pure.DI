@@ -59,8 +59,6 @@ public sealed partial class Generator
                 return new Logger(observersProvider, ctx.ConsumerType);
             })
             .Bind().To(_ => Compiled | CultureInvariant | Singleline | IgnoreCase)
-            .Bind(VarName).To<IdGenerator>()
-            .Bind().To<UniqueNameProvider>()
 
             // Walkers
             .Bind<IMetadataWalker>().To<MetadataWalker>()
@@ -81,11 +79,14 @@ public sealed partial class Generator
             .Bind().To((IBuilder<Unit, IEnumerable<Source>> api) => api.Build(Shared))
             .Bind().To<Metadata>()
             .Bind().To<Information>()
+            .Bind<IVariableTools>().To<VariableTools>()
+            .Bind(VarName).To<IdGenerator>()
+            .Bind<IUniqueNameProvider>().To<UniqueNameProvider>()
 
         .DefaultLifetime(PerBlock)
             .Bind().To<Arguments>()
             .Bind().To<Comments>()
-            .Bind().To<BuildTools>()
+            .Bind<IBuildTools>().To<BuildTools>()
             .Bind().To<Resources>()
             .Bind().To<GlobalProperties>()
             .Bind().To<Marker>()
@@ -156,6 +157,16 @@ public sealed partial class Generator
             .Bind().To<MermaidUrlBuilder>()
             .Bind().To<CompositionBuilder>()
             .Bind().To<RootBuilder>()
+            .Bind<IBuilder<CodeContext, IEnumerator>>().To<RootCodeBuilder>()
+            .Bind<IBuilder<CodeBuilderContext, IEnumerator>>(CodeBuilderKind.Implementation).To<ImplementationCodeBuilder>()
+            .Bind<IBuilder<CodeBuilderContext, IEnumerator>>(CodeBuilderKind.Factory).To<FactoryCodeBuilder>()
+            .Bind<IBuilder<CodeBuilderContext, IEnumerator>>(CodeBuilderKind.Construct).To<ConstructCodeBuilder>()
+            .Bind<IBuilder<CodeBuilderContext, IEnumerator>>(CodeBuilderKind.Enumerable).Bind<IBuilder<CodeBuilderContext, IEnumerator>>(CodeBuilderKind.AsyncEnumerable).To<EnumerableCodeBuilder>()
+            .Bind<IBuilder<CodeBuilderContext, IEnumerator>>(CodeBuilderKind.Array).To<ArrayCodeBuilder>()
+            .Bind<IBuilder<CodeBuilderContext, IEnumerator>>(CodeBuilderKind.Span).To<SpanCodeBuilder>()
+            .Bind<IBuilder<CodeBuilderContext, IEnumerator>>(CodeBuilderKind.Composition).To<CompositionCodeBuilder>()
+            .Bind<IBuilder<CodeBuilderContext, IEnumerator>>(CodeBuilderKind.OnCannotResolve).To<OnCannotResolveCodeBuilder>()
+            .Bind<IBuilder<CodeBuilderContext, IEnumerator>>(CodeBuilderKind.ExplicitDefaultValue).To<ExplicitDefaultValueCodeBuilder>()
             .Bind().To<VarDeclarationTools>()
 
             // Code builders
