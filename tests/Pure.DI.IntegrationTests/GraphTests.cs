@@ -21,7 +21,6 @@ public class GraphTests
         // Given
         var graphText = new StringBuilder();
         var bindingCode = new StringBuilder();
-        var resolveCode = new StringBuilder();
         bindingCode.AppendLine();
         for (var i = 0; i <= count; i++)
         {
@@ -35,8 +34,6 @@ public class GraphTests
             {
                 bindingCode.AppendLine($"                        .Bind<IDependency{i}>().To<Dependency{i}>()");
             }
-            resolveCode.AppendLine($"composition.Resolve<IDependency{i}>();");
-            resolveCode.AppendLine($"composition.Resolve(typeof(IDependency{i}));");
         }
 
         bindingCode.AppendLine("                    ;");
@@ -75,8 +72,7 @@ public class GraphTests
                                 public static void Main()
                                 {
                                     var composition = new Composition();
-                        """ + resolveCode +
-                        """
+                                    var root = composition.Root;
                                 }
                             }
                         
@@ -94,7 +90,7 @@ public class GraphTests
                             internal partial class Composition
                             {                   
                                 void Setup() => Pure.DI.DI.Setup("Composition")
-                                    .Bind<IService>().To<Service>().Root<IService>() 
+                                    .Bind<IService>().To<Service>().Root<IService>("Root") 
                         """ + bindingCode;
 
         // When
@@ -107,8 +103,8 @@ public class GraphTests
             var graphs = GetGraphs(result);
             graphs.Length.ShouldBe(1, result);
             graphs[0].ConvertToString().ShouldBe(("""
-                                                  Sample.IService() 
-                                                    +[Sample.IService() ]<--[Sample.IService]--[Service(Sample.IDependency0 dependency<--Sample.IDependency0))]
+                                                  Sample.IService() Root
+                                                    +[Sample.IService() Root]<--[Sample.IService]--[Service(Sample.IDependency0 dependency<--Sample.IDependency0))]
                                                   Service(Sample.IDependency0 dependency<--Sample.IDependency0))
                                                     +[Service(Sample.IDependency0 dependency<--Sample.IDependency0))]<--[Sample.IDependency0]--[Dependency0(Sample.IDependency1 dep<--Sample.IDependency1))]
                                                   """ + graphText).Replace("\r", ""));
