@@ -12,11 +12,10 @@ namespace Pure.DI.IntegrationTests;
 
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Runtime.Loader;
 using Core;
 using Core.Models;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -26,8 +25,70 @@ using Generator=Generator;
 
 public static class TestExtensions
 {
+    private static readonly AsyncLocal<StringWriter?> OutputWriter = new();
+
+    static TestExtensions()
+    {
+        var initialOut = Console.Out;
+        Console.SetOut(new ThreadSafeConsoleWriter(initialOut));
+        var initialError = Console.Error;
+        Console.SetError(new ThreadSafeConsoleWriter(initialError));
+    }
+
+    private class ThreadSafeConsoleWriter(TextWriter initialOut) : TextWriter
+    {
+        public override System.Text.Encoding Encoding => initialOut.Encoding;
+
+        public override void Write(char value)
+        {
+            OutputWriter.Value?.Write(value);
+            initialOut.Write(value);
+        }
+
+        public override void Write(char[]? buffer, int index, int count)
+        {
+            if (buffer == null)
+            {
+                return;
+            }
+
+            OutputWriter.Value?.Write(buffer, index, count);
+            initialOut.Write(buffer, index, count);
+        }
+
+        public override void Write(string? value)
+        {
+            OutputWriter.Value?.Write(value);
+            initialOut.Write(value);
+        }
+
+        public override void Write(ReadOnlySpan<char> buffer)
+        {
+            OutputWriter.Value?.Write(buffer);
+            initialOut.Write(buffer);
+        }
+
+        public override void WriteLine()
+        {
+            OutputWriter.Value?.WriteLine();
+            initialOut.WriteLine();
+        }
+
+        public override void WriteLine(string? value)
+        {
+            OutputWriter.Value?.WriteLine(value);
+            initialOut.WriteLine(value);
+        }
+
+        public override void WriteLine(ReadOnlySpan<char> buffer)
+        {
+            OutputWriter.Value?.WriteLine(buffer);
+            initialOut.WriteLine(buffer);
+        }
+    }
+
     [SuppressMessage("Performance", "CA1806:Не игнорируйте результаты метода")]
-    internal static async Task<Result> RunAsync(this string setupCode, Options? options = null)
+    internal static Task<Result> RunAsync(this string setupCode, Options? options = null)
     {
         var stdOut = new List<string>();
         var runOptions = options ?? new Options();
@@ -78,14 +139,14 @@ public static class TestExtensions
         var warnings = logs.Where(i => i.Severity == DiagnosticSeverity.Warning).ToImmutableArray();
         if (errors.Any())
         {
-            return new Result(
+            return Task.FromResult(new Result(
                 false,
                 [..stdOut],
                 logs,
                 errors,
                 warnings,
                 dependencyGraphObserver.Values,
-                string.Empty);
+                string.Empty));
         }
 
         compilation = compilation
@@ -96,116 +157,88 @@ public static class TestExtensions
 
         compilation.Check(stdOut, options, generatedCode);
 
-        var tempFileName = Path.Combine(Environment.CurrentDirectory, Guid.NewGuid().ToString().Replace("-", string.Empty)[..8]);
-        var assemblyPath = Path.ChangeExtension(tempFileName, "exe");
-        var configPath = Path.ChangeExtension(tempFileName, "runtimeconfig.json");
-        var runtime = RuntimeInformation.FrameworkDescription.Split(" ")[1];
-        var dotnetVersion = $"{Environment.Version.Major}.{Environment.Version.Minor}";
-        var config = """
-                     {
-                       "runtimeOptions": {
-                                 "tfm": "netV.V",
-                                 "framework": {
-                                     "name": "Microsoft.NETCore.App",
-                                     "version": "RUNTIME"
-                                 }
-                             }
-                     }
-                     """.Replace("V.V", dotnetVersion).Replace("RUNTIME", runtime);
-
-        try
+        using var assemblyStream = new MemoryStream();
+        var result = compilation.Emit(assemblyStream);
+        if (options?.CheckCompilationErrors ?? true)
         {
-            var result = compilation.Emit(assemblyPath);
-            if (options?.CheckCompilationErrors ?? true)
-            {
-                Assert.True(result.Success);
-            }
+            Assert.True(result.Success);
+        }
 
-            if (!result.Success)
-            {
-                return new Result(
-                    false,
-                    [..stdOut],
-                    logs,
-                    errors,
-                    warnings,
-                    dependencyGraphObserver.Values,
-                    generatedCode);
-            }
-
-            await File.WriteAllTextAsync(configPath, config);
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    FileName = "dotnet",
-                    Arguments = assemblyPath
-                }
-            };
-
-            try
-            {
-                process.OutputDataReceived += StdOutReceived;
-                process.Start();
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-                await process.WaitForExitAsync();
-            }
-            finally
-            {
-                process.OutputDataReceived -= StdOutReceived;
-            }
-
-            return new Result(
-                !errors.Any() && !warnings.Any(),
+        if (!result.Success)
+        {
+            return Task.FromResult(new Result(
+                false,
                 [..stdOut],
                 logs,
                 errors,
                 warnings,
                 dependencyGraphObserver.Values,
-                generatedCode);
+                generatedCode));
+        }
 
-            void StdOutReceived(object sender, DataReceivedEventArgs args)
+        assemblyStream.Seek(0, SeekOrigin.Begin);
+        var assemblyLoadContext = new AssemblyLoadContext("RunContext", true);
+        var isExecutionSuccess = true;
+        try
+        {
+            var assembly = assemblyLoadContext.LoadFromStream(assemblyStream);
+            var entryPoint = assembly.EntryPoint;
+            if (entryPoint == null)
             {
-                if (args.Data != null)
+                return Task.FromResult(new Result(
+                    false,
+                    ["No entry point found."],
+                    logs,
+                    errors,
+                    warnings,
+                    dependencyGraphObserver.Values,
+                    generatedCode));
+            }
+
+            try
+            {
+                using var stringWriter = new StringWriter();
+                OutputWriter.Value = stringWriter;
+                try
                 {
-                    stdOut.Add(args.Data);
+                    object?[]? args = entryPoint.GetParameters().Length > 0 ? [Array.Empty<string>()] : null;
+                    entryPoint.Invoke(null, args);
                 }
+                catch (System.Reflection.TargetInvocationException ex)
+                {
+                    isExecutionSuccess = false;
+                    stdOut.Add(ex.InnerException?.ToString() ?? ex.ToString());
+                }
+                catch (Exception ex)
+                {
+                    isExecutionSuccess = false;
+                    stdOut.Add(ex.ToString());
+                }
+                finally
+                {
+                    stringWriter.Flush();
+                    var output = stringWriter.ToString().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                    stdOut.AddRange(output);
+                }
+            }
+            finally
+            {
+                OutputWriter.Value = null;
             }
         }
         finally
         {
-            var attempts = 5;
-            while (attempts-- > 0)
-            {
-                try
-                {
-                    if (File.Exists(assemblyPath))
-                    {
-                        File.Delete(assemblyPath);
-                    }
-
-                    if (File.Exists(configPath))
-                    {
-                        File.Delete(configPath);
-                    }
-
-                    attempts = 0;
-                }
-                catch (IOException)
-                {
-                    Thread.Sleep(1000);
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    Thread.Sleep(1000);
-                }
-            }
+            assemblyLoadContext.Unload();
         }
+
+        return Task.FromResult(new Result(
+            isExecutionSuccess && !errors.Any() && !warnings.Any(),
+            [..stdOut],
+            logs,
+            errors,
+            warnings,
+            dependencyGraphObserver.Values,
+            generatedCode));
     }
 
     private static SyntaxUpdate CreateUpdate(SyntaxTree syntaxTree, Compilation compilation)
