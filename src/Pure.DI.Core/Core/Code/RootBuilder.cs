@@ -6,6 +6,7 @@
 // ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
 namespace Pure.DI.Core.Code;
 
+using System.Runtime.CompilerServices;
 using static Lifetime;
 using static LinesExtensions;
 
@@ -37,6 +38,7 @@ class RootBuilder(
     private static readonly string InjectionStatement = $"{Names.InjectionMarker};";
     private static readonly string InitializationStatement = $"{Names.InitializationMarker};";
     private static readonly string OverrideStatement = $"{Names.OverrideMarker};";
+    private static readonly Comparison<VarInjection> InjectionComparer = (a, b) => GetInjectionPriority(a).CompareTo(GetInjectionPriority(b));
 
     public VarInjection Build(RootContext rootContext)
     {
@@ -58,7 +60,18 @@ class RootBuilder(
         rootVarInjection.Var.CodeExpression = buildTools.OnInjected(ctx, rootVarInjection);
 
         var setup = rootContext.Graph.Source;
-        foreach (var perResolve in rootVarsMap.Declarations.Where(i => i.Node.ActualLifetime is PerResolve).OrderBy(i => i.Node.BindingId))
+        var perResolves = new List<VarDeclaration>();
+        foreach (var declaration in rootVarsMap.Declarations)
+        {
+            if (declaration.Node.ActualLifetime is PerResolve)
+            {
+                perResolves.Add(declaration);
+            }
+        }
+
+        perResolves.Sort((a, b) => a.Node.BindingId.CompareTo(b.Node.BindingId));
+
+        foreach (var perResolve in perResolves)
         {
             rootContext.Lines.AppendLine($"var {perResolve.Name} = default({typeResolver.Resolve(setup, perResolve.InstanceType)});");
             if (perResolve.InstanceType.IsValueType)
@@ -156,8 +169,15 @@ class RootBuilder(
         {
             if (ctx.RootContext.Graph.Graph.TryGetInEdges(var.AbstractNode.Node, out var implementationDependencies))
             {
-                var injections = implementationDependencies.Select(dependency => varsMap.GetInjection(varCtx.RootContext.Graph, varCtx.RootContext.Root, dependency.Injection, dependency.Source)).ToList();
-                foreach (var dependencyVar in SortInjections(injections))
+                var injections = new List<VarInjection>(implementationDependencies.Count);
+                // ReSharper disable once LoopCanBeConvertedToQuery
+                foreach (var dependency in implementationDependencies)
+                {
+                    injections.Add(varsMap.GetInjection(varCtx.RootContext.Graph, varCtx.RootContext.Root, dependency.Injection, dependency.Source));
+                }
+
+                injections.Sort(InjectionComparer);
+                foreach (var dependencyVar in injections)
                 {
                     BuildCode(ctx.CreateChild(dependencyVar));
                 }
@@ -170,40 +190,62 @@ class RootBuilder(
             var ctorArgs = varsWalker.GetResult();
 
             var requiredFields = ImmutableArray.CreateBuilder<(VarInjection RequiredVarInjection, DpField RequiredField)>();
-            foreach (var requiredField in implementation.Fields.Where(i => i.Field.IsRequired).OrderBy(i => i.Ordinal ?? int.MaxValue - 1))
+            foreach (var requiredField in implementation.Fields)
             {
-                varsWalker.VisitField(Unit.Shared, requiredField, null);
-                var dependencyVar = varsWalker.GetResult().Single();
-                requiredFields.Add((dependencyVar, requiredField));
+                if (requiredField.Field.IsRequired)
+                {
+                    varsWalker.VisitField(Unit.Shared, requiredField, null);
+                    var dependencyVar = varsWalker.GetResult().Single();
+                    requiredFields.Add((dependencyVar, requiredField));
+                }
+            }
+
+            if (requiredFields.Count > 1)
+            {
+                requiredFields.Sort((a, b) => (a.RequiredField.Ordinal ?? (int.MaxValue - 1)).CompareTo(b.RequiredField.Ordinal ?? int.MaxValue - 1));
             }
 
             var requiredProperties = ImmutableArray.CreateBuilder<(VarInjection RequiredVarInjection, DpProperty RequiredProperty)>();
-            foreach (var requiredProperty in implementation.Properties.Where(i => i.Property.IsRequired || i.Property.SetMethod?.IsInitOnly == true).OrderBy(i => i.Ordinal ?? int.MaxValue))
+            foreach (var requiredProperty in implementation.Properties)
             {
-                varsWalker.VisitProperty(Unit.Shared, requiredProperty, null);
-                var dependencyVar = varsWalker.GetResult().Single();
-                requiredProperties.Add((dependencyVar, requiredProperty));
+                if (requiredProperty.Property.IsRequired || requiredProperty.Property.SetMethod?.IsInitOnly == true)
+                {
+                    varsWalker.VisitProperty(Unit.Shared, requiredProperty, null);
+                    var dependencyVar = varsWalker.GetResult().Single();
+                    requiredProperties.Add((dependencyVar, requiredProperty));
+                }
+            }
+
+            if (requiredProperties.Count > 1)
+            {
+                requiredProperties.Sort((a, b) => (a.RequiredProperty.Ordinal ?? int.MaxValue).CompareTo(b.RequiredProperty.Ordinal ?? int.MaxValue));
             }
 
             var visits = new List<(Action<CodeContext, string> Run, int? Ordinal)>();
-            foreach (var field in implementation.Fields.Where(i => !i.Field.IsRequired))
+            foreach (var field in implementation.Fields)
             {
-                varsWalker.VisitField(Unit.Shared, field, null);
-                var dependencyVar = varsWalker.GetResult().Single();
-                visits.Add((VisitFieldAction, field.Ordinal));
-                continue;
+                if (!field.Field.IsRequired)
+                {
+                    varsWalker.VisitField(Unit.Shared, field, null);
+                    var dependencyVar = varsWalker.GetResult().Single();
+                    visits.Add((VisitFieldAction, field.Ordinal));
+                    continue;
 
-                void VisitFieldAction(CodeContext context, string name) => inj.FieldInjection(name, context, field, dependencyVar);
+                    void VisitFieldAction(CodeContext context, string name) => inj.FieldInjection(name, context, field, dependencyVar);
+                }
             }
 
-            foreach (var property in implementation.Properties.Where(i => !i.Property.IsRequired && i.Property.SetMethod?.IsInitOnly != true))
+            foreach (var property in implementation.Properties)
             {
-                varsWalker.VisitProperty(Unit.Shared, property, null);
-                var dependencyVar = varsWalker.GetResult().Single();
-                visits.Add((VisitFieldAction, property.Ordinal));
-                continue;
+                if (!property.Property.IsRequired && property.Property.SetMethod?.IsInitOnly != true)
+                {
+                    varsWalker.VisitProperty(Unit.Shared, property, null);
+                    var dependencyVar = varsWalker.GetResult().Single();
+                    visits.Add((VisitFieldAction, property.Ordinal));
+                    continue;
 
-                void VisitFieldAction(CodeContext context, string name) => inj.PropertyInjection(name, context, property, dependencyVar);
+                    void VisitFieldAction(CodeContext context, string name) => inj.PropertyInjection(name, context, property, dependencyVar);
+                }
             }
 
             foreach (var method in implementation.Methods)
@@ -216,8 +258,10 @@ class RootBuilder(
                 void VisitMethodAction(CodeContext context, string name) => inj.MethodInjection(name, context, method, methodVars);
             }
 
+            visits.Sort((a, b) => (a.Ordinal ?? int.MaxValue).CompareTo(b.Ordinal ?? int.MaxValue));
+
             var onCreatedStatements = buildTools.OnCreated(ctx, varInjection);
-            var hasOnCreatedStatements = buildTools.OnCreated(ctx, varInjection).Count > 0;
+            var hasOnCreatedStatements = onCreatedStatements.Count > 0;
             var hasAlternativeInjections = visits.Count > 0;
             var tempVariableInit =
                 ctx.RootContext.IsThreadSafeEnabled
@@ -469,21 +513,27 @@ class RootBuilder(
                     textLines.AddRange(text.Lines);
                 }
 
+                var injectionArgs = new List<VarInjection>();
+                var initializationArgs = new List<VarInjection>();
                 if (ctx.RootContext.Graph.Graph.TryGetInEdges(var.AbstractNode.Node, out var dependencies))
                 {
-                    // ReSharper disable once LoopCanBeConvertedToQuery
                     foreach (var dependency in dependencies)
                     {
                         var dependencyVar = varsMap.GetInjection(varCtx.RootContext.Graph, varCtx.RootContext.Root, dependency.Injection, dependency.Source);
                         varInjections.Add(dependencyVar);
+                        if (dependencyVar.Injection.Kind is InjectionKind.FactoryInjection)
+                        {
+                            injectionArgs.Add(dependencyVar);
+                        }
+                        else
+                        {
+                            initializationArgs.Add(dependencyVar);
+                        }
                     }
                 }
 
-                var injectionArgs = varInjections.Where(i => i.Injection.Kind is InjectionKind.FactoryInjection).ToList();
-                var initializationArgs = varInjections.Where(i => i.Injection.Kind != InjectionKind.FactoryInjection).ToList();
-
-                // Replaces injection markers by injection code
-                if (injectionArgs.Count != injections.Count)
+                if (injections.Count != factory.Resolvers.Length
+                    || injections.Count != injectionArgs.Count)
                 {
                     throw new CompileErrorException(
                         string.Format(Strings.Error_Template_LifetimeDoesNotSupportCyclicDependencies, var.AbstractNode.ActualLifetime),
@@ -499,25 +549,26 @@ class RootBuilder(
                         LogId.ErrorInvalidMetadata);
                 }
 
-                using var resolvers = injections
-                    .Zip(injectionArgs, (injection, argument) => (injection, argument))
-                    .Zip(factory.Resolvers, (i, resolver) => (i.injection, i.argument, resolver))
-                    .GetEnumerator();
-
-                using var initializers = inits
-                    .Zip(factory.Initializers, (initialization, initializer) => (initialization, initializer))
-                    .GetEnumerator();
-
-                var initializationArgsEnum = initializationArgs.GetEnumerator();
-                var linePrefixes = new List<(string line, int prefixLength)>();
+                var resolversCount = injections.Count;
+                var initsCount = inits.Count;
+                var resolversIdx = 0;
+                var initsIdx = 0;
+                var initializationArgsIdx = new StrongBox<int>(0);
+                var linePrefixes = new List<LinePrefix>();
                 foreach (var textLine in textLines)
                 {
                     var line = textLine.ToString();
-                    var length = line.TakeWhile(char.IsWhiteSpace).Count();
+                    var lineSpan = line.AsSpan();
+                    var length = 0;
+                    while (length < lineSpan.Length && char.IsWhiteSpace(lineSpan[length]))
+                    {
+                        length++;
+                    }
+
                     var prefixLength = 0;
                     for (var i = 0; i < length; i++)
                     {
-                        switch (line[i])
+                        switch (lineSpan[i])
                         {
                             case '\t':
                                 prefixLength += 4;
@@ -529,40 +580,51 @@ class RootBuilder(
                         }
                     }
 
-                    line = line[length..];
-                    if (string.IsNullOrWhiteSpace(line))
+                    var contentSpan = lineSpan[length..];
+                    if (contentSpan.IsWhiteSpace())
                     {
                         continue;
                     }
 
-                    linePrefixes.Add((line, prefixLength >> 1));
+                    linePrefixes.Add(new LinePrefix(line.AsMemory(length), prefixLength >> 1));
                 }
 
                 if (fixFirstLinePrefix && linePrefixes.Count > 1)
                 {
-                    linePrefixes[0] = linePrefixes[0] with { prefixLength = linePrefixes[1].prefixLength };
+                    linePrefixes[0] = linePrefixes[0] with { PrefixLength = linePrefixes[1].PrefixLength };
                 }
 
-                var indents = linePrefixes
-                    .GroupBy(i => i.prefixLength)
-                    .OrderBy(i => i.Key)
-                    .Select((i, index) => (prefix: i.Key, indent: index))
-                    .ToDictionary(i => i.prefix, i => i.indent);
-
-                foreach (var (line, prefixLength) in linePrefixes)
+                var indents = new Dictionary<int, int>();
+                var indentIndex = 0;
+                foreach (var linePrefix in linePrefixes.OrderBy(i => i.PrefixLength))
                 {
-                    if (!indents.TryGetValue(prefixLength, out var indent))
+                    if (indents.ContainsKey(linePrefix.PrefixLength))
+                    {
+                        continue;
+                    }
+
+                    indents.Add(linePrefix.PrefixLength, indentIndex++);
+                }
+
+                foreach (var linePrefix in linePrefixes)
+                {
+                    if (!indents.TryGetValue(linePrefix.PrefixLength, out var indent))
                     {
                         indent = 0;
                     }
 
                     using (lines.Indent(indent))
                     {
-                        var marker = line.AsSpan().Trim();
-                        if (marker.SequenceEqual(InjectionStatement.AsSpan()) && resolvers.MoveNext())
+                        var lineSpan = linePrefix.Line.Span;
+                        var marker = lineSpan.Trim();
+                        // Replaces injection markers by injection code
+                        if (marker.SequenceEqual(InjectionStatement.AsSpan()) && resolversIdx < resolversCount)
                         {
                             // When an injection marker
-                            var (injection, argument, resolver) = resolvers.Current;
+                            var (injection, argument) = (injections[resolversIdx], injectionArgs[resolversIdx]);
+                            var resolver = factory.Resolvers[resolversIdx];
+                            resolversIdx++;
+                            
                             if (hasOverrides)
                             {
                                 BuildOverrides(ctx, factory, localVariableRenamingRewriter, resolver.Overrides, lines);
@@ -574,9 +636,12 @@ class RootBuilder(
                             continue;
                         }
 
-                        if (marker.SequenceEqual(InitializationStatement.AsSpan()) && initializers.MoveNext())
+                        // Replaces initialization markers by initialization code
+                        if (marker.SequenceEqual(InitializationStatement.AsSpan()) && initsIdx < initsCount)
                         {
-                            var (initialization, initializer) = initializers.Current;
+                            var (initialization, initializer) = (inits[initsIdx], factory.Initializers[initsIdx]);
+                            initsIdx++;
+                            
                             if (hasOverrides)
                             {
                                 BuildOverrides(ctx, factory, localVariableRenamingRewriter, initializer.Overrides, lines);
@@ -587,7 +652,7 @@ class RootBuilder(
                                 new InitializersWalkerContext(
                                     i => BuildCode(initCtx.CreateChild(i)),
                                     initialization.VariableName,
-                                    initializationArgsEnum));
+                                    new FactoryInitializationArgsEnumerator(initializationArgs, initializationArgsIdx)));
                             initializersWalker.VisitInitializer(ctx, initializer);
                             continue;
                         }
@@ -597,7 +662,7 @@ class RootBuilder(
                             continue;
                         }
 
-                        lines.AppendLine(line);
+                        lines.AppendLine(lineSpan.ToString());
                     }
                 }
 
@@ -676,8 +741,15 @@ class RootBuilder(
                         case MdConstructKind.Array:
                             if (ctx.RootContext.Graph.Graph.TryGetInEdges(var.AbstractNode.Node, out var arrayDependencies))
                             {
-                                var injections = arrayDependencies.Select(dependency => varsMap.GetInjection(varCtx.RootContext.Graph, varCtx.RootContext.Root, dependency.Injection, dependency.Source)).ToList();
-                                foreach (var dependencyVar in SortInjections(injections))
+                                var injections = new List<VarInjection>(arrayDependencies.Count);
+                                // ReSharper disable once LoopCanBeConvertedToQuery
+                                foreach (var dependency in arrayDependencies)
+                                {
+                                    injections.Add(varsMap.GetInjection(varCtx.RootContext.Graph, varCtx.RootContext.Root, dependency.Injection, dependency.Source));
+                                }
+
+                                injections.Sort(InjectionComparer);
+                                foreach (var dependencyVar in injections)
                                 {
                                     BuildCode(ctx.CreateChild(dependencyVar));
                                 }
@@ -702,8 +774,15 @@ class RootBuilder(
                         case MdConstructKind.Span:
                             if (ctx.RootContext.Graph.Graph.TryGetInEdges(var.AbstractNode.Node, out var spanDependencies))
                             {
-                                var injections = spanDependencies.Select(dependency => varsMap.GetInjection(varCtx.RootContext.Graph, varCtx.RootContext.Root, dependency.Injection, dependency.Source)).ToList();
-                                foreach (var dependencyVar in SortInjections(injections))
+                                var injections = new List<VarInjection>(spanDependencies.Count);
+                                // ReSharper disable once LoopCanBeConvertedToQuery
+                                foreach (var dependency in spanDependencies)
+                                {
+                                    injections.Add(varsMap.GetInjection(varCtx.RootContext.Graph, varCtx.RootContext.Root, dependency.Injection, dependency.Source));
+                                }
+
+                                injections.Sort(InjectionComparer);
+                                foreach (var dependencyVar in injections)
                                 {
                                     BuildCode(ctx.CreateChild(dependencyVar));
                                 }
@@ -786,8 +865,6 @@ class RootBuilder(
         parentCtx.Lines.AppendLines(lines);
         var.Declaration.IsDeclared = true;
     }
-
-    private static IEnumerable<VarInjection> SortInjections(List<VarInjection> injections) => injections.OrderBy(GetInjectionPriority);
 
     private static int GetInjectionPriority(VarInjection varInjection)
     {
@@ -938,4 +1015,33 @@ class RootBuilder(
             overridesRegistry.Register(ctx.RootContext.Root, @override);
         }
     }
+
+    private class FactoryInitializationArgsEnumerator(
+        List<VarInjection> args,
+        StrongBox<int> index)
+        : IEnumerator<VarInjection>
+    {
+        public bool MoveNext()
+        {
+            if (index.Value < args.Count)
+            {
+                Current = args[index.Value++];
+                return true;
+            }
+
+            return false;
+        }
+
+        public void Reset() => throw new NotSupportedException();
+
+        public VarInjection Current { get; private set; } = null!;
+
+        object IEnumerator.Current => Current;
+
+        public void Dispose()
+        {
+        }
+    }
+
+    private record struct LinePrefix(ReadOnlyMemory<char> Line, int PrefixLength);
 }
