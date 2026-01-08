@@ -196,8 +196,8 @@ sealed class FactoryRewriter(
         if (node.Parent is null or BlockSyntax)
         {
             newNode = SyntaxFactory.ExpressionStatement(expressionSyntax)
-                .WithLeadingTrivia(node.GetLeadingTrivia())
-                .WithTrailingTrivia(node.GetTrailingTrivia());
+                .WithLeadingTrivia(new SyntaxTriviaList().Add(SyntaxFactory.LineFeed).AddRange(node.GetLeadingTrivia()))
+                .WithTrailingTrivia(new SyntaxTriviaList().Add(SyntaxFactory.LineFeed).AddRange(node.GetTrailingTrivia()));
         }
         else
         {
