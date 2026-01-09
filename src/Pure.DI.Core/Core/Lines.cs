@@ -58,6 +58,26 @@ sealed class Lines: IEnumerable<Line>
         }
     }
 
+    /// <summary>
+    /// Creates a complete copy of the code lines.
+    /// </summary>
+    /// <returns>A new <see cref="Lines"/> instance containing the same lines.</returns>
+    public Lines Clone()
+    {
+        var clone = new Lines
+        {
+            _indent = _indent
+        };
+
+        clone._lines.AddRange(_lines);
+        if (_sb.Length > 0)
+        {
+            clone._sb.Append(_sb.ToString());
+        }
+
+        return clone;
+    }
+
     public void AppendLine(string line = "")
     {
         if (_sb.Length > 0)

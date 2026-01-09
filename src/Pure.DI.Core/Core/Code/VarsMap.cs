@@ -1,8 +1,16 @@
 ﻿// ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
 namespace Pure.DI.Core.Code;
 
+/// <summary>
+/// Default implementation of <see cref="IVarsMap"/>.
+/// </summary>
+/// <param name="idGenerator">The ID generator.</param>
+/// <param name="nameProvider">The name provider.</param>
+/// <param name="cycleTools">The cycle tools.</param>
+/// <param name="lifetimeOptimizer">The lifetime optimizer.</param>
+/// <param name="constructors">The constructors tools.</param>
 class VarsMap(
-    [Tag(Tag.VarName)] IIdGenerator idGenerator,
+    [Tag("VarName")] IIdGenerator idGenerator,
     INameProvider nameProvider,
     ICycleTools cycleTools,
     ILifetimeOptimizer lifetimeOptimizer,
@@ -11,12 +19,16 @@ class VarsMap(
 {
     private readonly Dictionary<int, Var> _map = [];
 
+    /// <inheritdoc />
     public IEnumerable<Var> Vars => _map.Values;
 
+    /// <inheritdoc />
     public IEnumerable<VarDeclaration> Declarations => _map.Values.Select(i => i.Declaration);
 
+    /// <inheritdoc />
     public bool IsThreadSafe { get; private set; }
 
+    /// <inheritdoc />
     public VarInjection GetInjection(DependencyGraph graph, Root root, in Injection injection, IDependencyNode node)
     {
         var hasCycle = cycleTools.GetCyclicNode(graph.Graph, node.Node) == node.Node;
@@ -67,6 +79,7 @@ class VarsMap(
         return varInjection;
     }
 
+    /// <inheritdoc />
     public IDisposable Root(Lines lines)
     {
         return Disposables.Create(() => {
@@ -84,35 +97,35 @@ class VarsMap(
             {
                 var.Declaration.ResetToDefaults();
                 var.ResetToDefaults();
-                var.LocalFunction = new Lines();
-                var.LocalFunctionName = "";
-                var.CodeExpression = "";
-                var.HasCycle = null;
             }
 
             IsThreadSafe = false;
         });
     }
 
+    /// <inheritdoc />
     public IDisposable LocalFunction(Var var, Lines lines)
     {
+        // Snapshot the current state before entering a local function.
         var state = CreateState(var);
-        // Remove per-block vars
+        
+        // Per-block variables should be isolated between local functions.
         var removed = new List<KeyValuePair<int, Var>>();
         _map
             .Where(i => i.Value.Declaration.Node.ActualLifetime is Lifetime.PerBlock)
             .ToList()
             .ForEach(i => {
 #if DEBUG
-                lines.AppendLine($"// {i.Value.Declaration.Name}: remove ({nameof(Root)})");
+                lines.AppendLine($"// {i.Value.Declaration.Name}: remove ({nameof(LocalFunction)})");
 #endif
                 removed.Add(i);
                 _map.Remove(i.Key);
             });
 
-        // ResetVarsToDefaults(var, lines, nameof(LocalFunction));
         return Disposables.Create(() => {
+            // Cleanup and restore state after exiting the local function.
             RemoveNewPerBlockVars(var, state, lines, nameof(LocalFunction));
+            RestoreState(var, state, lines, nameof(LocalFunction));
             foreach (var item in removed)
             {
 #if DEBUG
@@ -123,31 +136,47 @@ class VarsMap(
         });
     }
 
+    /// <inheritdoc />
     public IDisposable Lazy(Var var, Lines lines)
     {
+        // Snapshot the state before entering a lazy scope (e.g., Func<T>).
         var state = CreateState(var);
         return Disposables.Create(() => {
+            // Cleanup and restore state after exiting the lazy scope.
             RemoveNewPerBlockVars(var, state, lines, nameof(Lazy));
             RestoreState(var, state, lines, nameof(Lazy));
         });
     }
 
+    /// <inheritdoc />
     public IDisposable Block(Var var, Lines lines)
     {
+        // Snapshot the state before entering a code block.
         var state = CreateState(var);
         return Disposables.Create(() => {
+            // Cleanup and restore state after exiting the block.
             RemoveNewPerBlockVars(var, state, lines, nameof(Block));
+            RestoreState(var, state, lines, nameof(Block));
         });
     }
 
     private VarDeclaration CreateDeclaration(IDependencyNode node) =>
         new(nameProvider, idGenerator.Generate(), node);
 
+    /// <summary>
+    /// Creates a snapshot of the current variables' state.
+    /// Global code state (like LocalFunction) is NOT part of the snapshot because it should accumulate.
+    /// Only path-specific state (IsDeclared, IsCreated, CodeExpression) is captured.
+    /// </summary>
     private IReadOnlyDictionary<int, VarState> CreateState(Var var) =>
         _map
             .Where(i => i.Key != var.Declaration.Node.BindingId)
             .ToDictionary(i => i.Key, i => new VarState(i.Value));
 
+    /// <summary>
+    /// Removes variables that were newly introduced in the nested scope and have PerBlock lifetime.
+    /// This prevents them from leaking into the parent scope.
+    /// </summary>
     private void RemoveNewPerBlockVars(Var var, IReadOnlyDictionary<int, VarState> state, Lines lines, string reason)
     {
 #if DEBUG
@@ -177,6 +206,9 @@ class VarsMap(
         }
     }
 
+    /// <summary>
+    /// Restores the variables' state from a previously taken snapshot.
+    /// </summary>
     private void RestoreState(Var var, IReadOnlyDictionary<int, VarState> state, Lines lines, string reason)
     {
 #if DEBUG
@@ -193,7 +225,12 @@ class VarsMap(
             }
 
             restored.Add(stateItem.Key);
-            if (varToRestore.Declaration.IsDeclared == varState.IsDeclared && varToRestore.IsCreated == varState.IsCreated)
+            
+            // Only restore path-specific state. 
+            // Global state (like LocalFunction) should persist even after exiting a nested scope.
+            if (varToRestore.Declaration.IsDeclared == varState.IsDeclared 
+                && varToRestore.IsCreated == varState.IsCreated
+                && varToRestore.CodeExpression == varState.CodeExpression)
             {
                 continue;
             }
@@ -203,8 +240,12 @@ class VarsMap(
 #endif
             varToRestore.Declaration.IsDeclared = varState.IsDeclared;
             varToRestore.IsCreated = varState.IsCreated;
+            varToRestore.CodeExpression = varState.CodeExpression;
         }
 
+        // For variables that were NOT in the snapshot (newly discovered in the nested scope),
+        // we reset their path-specific state to defaults.
+        // This ensures that if they are needed again in the parent scope, they will be properly initialized.
         foreach (var varToRestore in _map.Where(i => !restored.Contains(i.Key)).Select(i => i.Value))
         {
             if (varToRestore.Declaration.Node.BindingId == var.Declaration.Node.BindingId)
@@ -212,8 +253,8 @@ class VarsMap(
                 continue;
             }
 
-            var declarationReset = varToRestore.Declaration.ResetToDefaults();
-            var varReset = varToRestore.ResetToDefaults();
+            var declarationReset = varToRestore.Declaration.ResetStateToDefaults();
+            var varReset = varToRestore.ResetStateToDefaults();
             if (!declarationReset && !varReset)
             {
                 continue;
@@ -225,11 +266,20 @@ class VarsMap(
         }
     }
 
-    private record VarState(Var Var)
+    private record VarState(
+        Var Var,
+        bool IsDeclared,
+        bool IsCreated,
+        string CodeExpression)
     {
-        public readonly bool IsDeclared = Var.Declaration.IsDeclared;
-
-        public readonly bool IsCreated = Var.IsCreated;
+        public VarState(Var variable)
+            : this(
+                variable,
+                variable.Declaration.IsDeclared,
+                variable.IsCreated,
+                variable.CodeExpression)
+        {
+        }
     }
 
     private record OptimizedNode(
