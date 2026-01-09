@@ -1095,4 +1095,422 @@ public class BclInjectionTests
         result.Success.ShouldBeTrue(result);
         result.StdOut.ShouldBe(["True"], result);
     }
+
+    [Fact]
+    public async Task ShouldSupportComplexCompositionWhenCyclesViaEnumerable()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using System.Collections.Generic;
+                           using System.Linq;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               public interface IProviderA { string GetData(); }
+                               public interface IProviderB { int GetNumber(); }
+                               public interface IServiceA {}
+                               public interface IServiceB {}
+                               public interface IServiceC {}
+                               public interface IProviderA1 {}
+                               public interface IProviderA2 {}
+                               public interface IProviderB1 {}
+                               public interface IProviderB2 {}
+
+                               public class ServiceA : IServiceA
+                               {
+                                   public ServiceA(IEnumerable<IProviderA> providers)
+                                   {
+                                       if (!providers.Any()) throw new Exception("ServiceA: providers are empty");
+                                   }
+                               }
+
+                               public class ServiceB : IServiceB
+                               {
+                                   public ServiceB(IEnumerable<IProviderB> providers)
+                                   {
+                                       if (!providers.Any()) throw new Exception("ServiceB: providers are empty");
+                                   }
+                               }
+
+                               public class ServiceC : IServiceC
+                               {
+                                   public ServiceC(IServiceB serviceB)
+                                   {
+                                       if (serviceB == null) throw new Exception("ServiceC: serviceB is null");
+                                   }
+                               }
+
+                               public class Manager
+                               {
+                                   public Manager(IServiceC serviceC, IProviderA1 providerA1)
+                                   {
+                                       if (serviceC == null) throw new Exception("Manager: serviceC is null");
+                                       if (providerA1 == null) throw new Exception("Manager: providerA1 is null");
+                                   }
+                               }
+
+                               public class ProviderA1 : IProviderA, IProviderA1
+                               {
+                                   public string GetData() => "ProviderA1 Data";
+                               }
+
+                               public class ProviderA2 : IProviderA, IProviderA2
+                               {
+                                   public string GetData() => "ProviderA2 Data";
+                               }
+
+                               public class ProviderB1 : IProviderB, IProviderB1
+                               {
+                                   public ProviderB1(IServiceC serviceC)
+                                   {
+                                       if (serviceC == null) throw new Exception("ProviderB1: serviceC is null");
+                                   }
+                                   public int GetNumber() => 1;
+                               }
+
+                               public class ProviderB2 : IProviderB, IProviderB2
+                               {
+                                   public int GetNumber() => 2;
+                               }
+
+                               public class Root
+                               {
+                                   public Root(Manager manager)
+                                   {
+                                       if (manager == null) throw new Exception("Root: manager is null");
+                                   }
+
+                                   public void Run() => Console.WriteLine("Composition Root is running!");
+                               }
+
+                               internal partial class CompositionCore
+                               {
+                                   void Setup() => DI.Setup(nameof(CompositionCore), CompositionKind.Internal)
+                                       .DefaultLifetime(Lifetime.Singleton)
+                                       .Bind<IServiceA>().To<ServiceA>()
+                                       .Bind<IServiceB>().To<ServiceB>()
+                                       .Bind<IServiceC>().To<ServiceC>();
+                               }
+
+                               internal partial class CompositionImplementation
+                               {
+                                   void Setup() => DI.Setup("Composition")
+                                       .DependsOn(nameof(CompositionCore))
+                                       .DefaultLifetime(Lifetime.Singleton)
+                                       .Bind<IProviderA>(Tag.Unique).Bind<IProviderA1>().To<ProviderA1>()
+                                       .Bind<IProviderB>(Tag.Unique).Bind<IProviderB1>().To<ProviderB1>()
+                                       .Bind<IProviderB>(Tag.Unique).Bind<IProviderB2>().To<ProviderB2>()
+                                       .Bind<Manager>().To<Manager>()
+                                       .Root<Root>("Root");
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       composition.Root.Run();
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Composition Root is running!"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportMoreComplexCompositionWhenCyclesViaEnumerable()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using System.Collections.Generic;
+                           using System.Linq;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               public interface IProviderA { string GetData(); }
+                               public interface IProviderB { int GetNumber(); }
+                               public interface IServiceA {}
+                               public interface IServiceB {}
+                               public interface IServiceC {}
+                               public interface IProviderA1 {}
+                               public interface IProviderA2 {}
+                               public interface IProviderB1 {}
+                               public interface IProviderB2 {}
+
+                               public class ServiceA : IServiceA
+                               {
+                                   public ServiceA(IEnumerable<IProviderA> providers)
+                                   {
+                                       if (!providers.Any()) throw new Exception("ServiceA: providers are empty");
+                                   }
+                               }
+
+                               public class ServiceB : IServiceB
+                               {
+                                   public ServiceB(IEnumerable<IProviderB> providers)
+                                   {
+                                       if (!providers.Any()) throw new Exception("ServiceB: providers are empty");
+                                   }
+                               }
+
+                               public class ServiceC : IServiceC
+                               {
+                                   public ServiceC(ServiceB serviceB, ServiceA serviceA)
+                                   {
+                                       if (serviceB == null) throw new Exception("ServiceC: serviceB is null");
+                                       if (serviceA == null) throw new Exception("ServiceC: serviceA is null");
+                                   }
+                               }
+
+                               public class Manager
+                               {
+                                   public Manager(IServiceC serviceC, IProviderA1 providerA1, IProviderB1 providerB1)
+                                   {
+                                       if (serviceC == null) throw new Exception("Manager: serviceC is null");
+                                       if (providerA1 == null) throw new Exception("Manager: providerA1 is null");
+                                       if (providerB1 == null) throw new Exception("Manager: providerB1 is null");
+                                   }
+                               }
+
+                               public class ProviderA1 : IProviderA, IProviderA1
+                               {
+                                   public string GetData() => "ProviderA1 Data";
+                               }
+
+                               public class ProviderA2 : IProviderA, IProviderA2
+                               {
+                                   public string GetData() => "ProviderA2 Data";
+                               }
+
+                               public class ProviderB1 : IProviderB, IProviderB1
+                               {
+                                   public ProviderB1(IServiceC serviceC)
+                                   {
+                                       if (serviceC == null) throw new Exception("ProviderB1: serviceC is null");
+                                   }
+                                   public int GetNumber() => 1;
+                               }
+
+                               public class ProviderB2 : IProviderB, IProviderB2
+                               {
+                                   public int GetNumber() => 2;
+                               }
+
+                               public class Root
+                               {
+                                   public Root(Manager manager)
+                                   {
+                                       if (manager == null) throw new Exception("Root: manager is null");
+                                   }
+
+                                   public void Run() => Console.WriteLine("Composition Root is running!");
+                               }
+
+                               internal partial class CompositionCore
+                               {
+                                   void Setup() => DI.Setup(nameof(CompositionCore), CompositionKind.Internal)
+                                       .DefaultLifetime(Lifetime.Singleton)
+                                       .Bind<IServiceA>().To<ServiceA>()
+                                       .Bind<IServiceB>().To<ServiceB>()
+                                       .Bind<IServiceC>().To<ServiceC>();
+                               }
+
+                               internal partial class CompositionImplementation
+                               {
+                                   void Setup() => DI.Setup("Composition")
+                                       .DependsOn(nameof(CompositionCore))
+                                       .DefaultLifetime(Lifetime.Singleton)
+                                       .Bind<IProviderA>(Tag.Unique).Bind<IProviderA1>().To<ProviderA1>()
+                                       .Bind<IProviderB>(Tag.Unique).Bind<IProviderB1>().To<ProviderB1>()
+                                       .Bind<IProviderB>(Tag.Unique).Bind<IProviderB2>().To<ProviderB2>()
+                                       .Bind<Manager>().To<Manager>()
+                                       .Root<Root>("Root");
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       composition.Root.Run();
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Composition Root is running!"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportComplexCircularDependencyViaEnumerableAndFunc()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using System.Collections.Generic;
+                           using System.Linq;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               public interface IA { }
+                               public interface IB { }
+                               public interface IC { }
+
+                               public class A : IA
+                               {
+                                   public A(IEnumerable<IB> b) { }
+                               }
+
+                               public class B : IB
+                               {
+                                   public B(Func<IC> cFactory) { }
+                               }
+
+                               public class C : IC
+                               {
+                                   public C(IA a) { }
+                               }
+
+                               internal partial class Composition
+                               {
+                                   void Setup() => DI.Setup(nameof(Composition))
+                                       .DefaultLifetime(Lifetime.Singleton)
+                                       .Bind<IA>().To<A>()
+                                       .Bind<IB>().To<B>()
+                                       .Bind<IC>().To<C>()
+                                       .Root<IA>("Root");
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                       Console.WriteLine("Composition Root is running!");
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Composition Root is running!"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportCircularDependencyViaLazy()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               public interface IA { }
+                               public interface IB { }
+
+                               public class A : IA
+                               {
+                                   public A(Lazy<IB> b) { }
+                               }
+
+                               public class B : IB
+                               {
+                                   public B(IA a) { }
+                               }
+
+                               internal partial class Composition
+                               {
+                                   void Setup() => DI.Setup(nameof(Composition))
+                                       .Bind<IA>().To<A>()
+                                       .Bind<IB>().To<B>()
+                                       .Root<IA>("Root");
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                       Console.WriteLine("Composition Root is running!");
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Composition Root is running!"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportCircularDependencyViaFunc()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               public interface IA { }
+                               public interface IB { }
+
+                               public class A : IA
+                               {
+                                   public A(Func<IB> bFactory) { }
+                               }
+
+                               public class B : IB
+                               {
+                                   public B(IA a) { }
+                               }
+
+                               internal partial class Composition
+                               {
+                                   void Setup() => DI.Setup(nameof(Composition))
+                                       .Bind<IA>().To<A>()
+                                       .Bind<IB>().To<B>()
+                                       .Root<IA>("Root");
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                       Console.WriteLine("Composition Root is running!");
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Composition Root is running!"], result);
+    }
 }

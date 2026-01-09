@@ -7,7 +7,8 @@ sealed class EnumerableCodeBuilder(
     Func<IBuilder<CodeContext, IEnumerator>> variablesCodeBuilderFactory,
     ICompilations compilations,
     IBuildTools buildTools,
-    ITypeResolver typeResolver)
+    ITypeResolver typeResolver,
+    IVariableTools variableTools)
     : IBuilder<CodeBuilderContext, IEnumerator>
 {
     public IEnumerator Build(CodeBuilderContext data)
@@ -31,9 +32,17 @@ sealed class EnumerableCodeBuilder(
             var hasYieldReturn = false;
             if (ctx.RootContext.Graph.Graph.TryGetInEdges(var.AbstractNode.Node, out var enumerableDependencies))
             {
+                var injections = new List<VarInjection>(enumerableDependencies.Count);
+                // ReSharper disable once LoopCanBeConvertedToQuery
                 foreach (var dependency in enumerableDependencies)
                 {
-                    var dependencyVar = ctx.VarsMap.GetInjection(ctx.RootContext.Graph, ctx.RootContext.Root, dependency.Injection, dependency.Source);
+                    injections.Add(ctx.VarsMap.GetInjection(ctx.RootContext.Graph, ctx.RootContext.Root, dependency.Injection, dependency.Source));
+                }
+
+                injections.Sort(variableTools.InjectionComparer);
+
+                foreach (var dependencyVar in injections)
+                {
                     varInjections.Add(dependencyVar);
                     yield return variablesCodeBuilderFactory().Build(ctx.CreateChild(dependencyVar));
                     lines.AppendLine($"yield return {buildTools.OnInjected(ctx, dependencyVar)};");
