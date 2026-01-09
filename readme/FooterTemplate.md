@@ -40,12 +40,6 @@ DI.Setup("Composition")
 ```c#
 partial class Composition
 {
-    // Default constructor
-    public Composition() { }
-
-    // Scope constructor
-    internal Composition(Composition parentScope) { }
-
     // Composition root
     public IService Root
     {
@@ -54,14 +48,6 @@ partial class Composition
             return new Service(new Dependency());
         }
     }
-
-    public T Resolve<T>()  { ... }
-
-    public T Resolve<T>(object? tag)  { ... }
-
-    public object Resolve(Type type) { ... }
-
-    public object Resolve(Type type, object? tag) { ... }
 }
 ```
 
@@ -314,6 +300,13 @@ To bind a contract to a specific implementation:
     .To<Implementation>()
 ```
 
+Alternatively, you can bind multiple contracts at once:
+
+```c#
+.Bind<Contract1, Contract2>(tags)
+    .To<Implementation>()
+```
+
 Example:
 
 ```c#
@@ -360,8 +353,8 @@ Lifetimes control how long an object lives and how it is reused:
 - **Transient**: A new instance is created for every injection (default).
 - **Singleton**: A single instance is created for the entire composition.
 - **PerResolve**: A single instance is reused within a single `Resolve` (composition root).
+- **PerBlock**: Reuses instances within a code block to reduce allocations.
 - **Scoped**: A single instance is reused within a specific scope.
-- **PerBlock**: Reuses instances within a code block.
 
 ### Default Lifetimes
 
@@ -373,12 +366,24 @@ You can set a default lifetime for all subsequent bindings in a setup:
 .Bind<IInterface>().To<Implementation>()
 ```
 
+Alternatively, you can set a default lifetime for a specific contract type:
+
+```c#
+.DefaultLifetime<IDisposable>(Lifetime.Singleton)
+```
+
 ### Tags
 
 Tags allow you to distinguish between multiple implementations of the same contract.
 
 - Use `.Bind<T>(tags)` or `.Tags(tags)` to apply tags to a binding.
 - Use the `[Tag(tag)]` attribute or `ctx.Resolve<T>(tag)` to consume a tagged dependency.
+
+Example:
+
+```c#
+.Bind<IService>("MyTag").To<Service>()
+```
 
 ## Implementation Bindings
 
@@ -388,7 +393,13 @@ Implementation bindings allow for a more concise syntax where the implementation
 
 ```c#
 // Infers all suitable base types and interfaces automatically
-Bind(tags).Tags(tags).As(Lifetime).To<Implementation>()
+.Bind(tags).Tags(tags).As(Lifetime).To<Implementation>()
+```
+
+Alternatively, you can use the implementation type as the contract:
+
+```c#
+.Bind().To<Implementation>()
 ```
 
 Example:
@@ -400,7 +411,7 @@ Example:
 ### For Factories
 
 ```c#
-Bind(tags).Tags(tags).To(ctx => new Implementation())
+.Bind(tags).Tags(tags).To(ctx => new Implementation())
 ```
 
 Example:
@@ -412,7 +423,7 @@ Example:
 ### For Simplified Factories
 
 ```c#
-Bind(tags).Tags(tags).To((Dependency dep) => new Implementation(dep))
+.Bind(tags).Tags(tags).To((Dependency dep) => new Implementation(dep))
 ```
 
 Example:
@@ -459,13 +470,17 @@ Pure.DI provides semantic sugar for common lifetimes. These methods combine `Bin
 ### For Implementations
 
 ```c#
-// Equivalent to Bind(tags).As(Lifetime.Transient).To<Implementation>()
-.Transient<Implementation>(tags)
+// Equivalent to Bind<T, T1, ...>(tags).As(Lifetime.Transient).To<Implementation>()
+.Transient<T>(tags)
+// or multiple types at once
+.PerResolve<T, T1, ...>(tags)
 ```
 
 Example:
+
 ```c#
 .Transient<Service>()
+.Singleton<Service2, Service3, Service4>()
 ```
 
 ### For Factories
