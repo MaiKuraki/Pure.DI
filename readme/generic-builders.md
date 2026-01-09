@@ -6,7 +6,7 @@ using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind(Tag.Id).To<TT>(_ => (TT)(object)Guid.NewGuid())
+    .Bind(Tag.Id).To(() => (TT)(object)Guid.NewGuid())
     .Bind().To<MessageTracker<TT>>()
     // Generic builder to inject dependencies into existing messages
     .Builders<IMessage<TT, TT2>>("BuildUp");
@@ -113,15 +113,15 @@ partial class Composition
 
   #pragma warning disable CS0162
   [MethodImpl(MethodImplOptions.NoInlining)]
-  public IMessage<T1, T4> BuildUp<T1, T4>(IMessage<T1, T4> buildingInstance)
-    where T1: struct
+  public IMessage<T2, T5> BuildUp<T2, T5>(IMessage<T2, T5> buildingInstance)
+    where T2: struct
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
     switch (buildingInstance)
     {
-      case QueryMessage<T1, T4> QueryMessage_TT_TT2:
+      case QueryMessage<T2, T5> QueryMessage_TT_TT2:
         return BuildUp(QueryMessage_TT_TT2);
-      case CommandMessage<T1, T4> CommandMessage_TT_TT2:
+      case CommandMessage<T2, T5> CommandMessage_TT_TT2:
         return BuildUp(CommandMessage_TT_TT2);
       default:
         throw new ArgumentException($"Unable to build an instance of typeof type {buildingInstance.GetType()}.", "buildingInstance");
@@ -131,29 +131,29 @@ partial class Composition
   #pragma warning restore CS0162
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  public CommandMessage<T1, T4> BuildUp<T1, T4>(CommandMessage<T1, T4> buildingInstance)
-    where T1: struct
+  public CommandMessage<T2, T5> BuildUp<T2, T5>(CommandMessage<T2, T5> buildingInstance)
+    where T2: struct
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    CommandMessage<T1, T4> transientCommandMessage2;
-    CommandMessage<T1, T4> localBuildingInstance10 = buildingInstance;
-    localBuildingInstance10.Tracker = new MessageTracker<T4>();
-    transientCommandMessage2 = localBuildingInstance10;
-    return transientCommandMessage2;
+    CommandMessage<T2, T5> transientCommandMessage435;
+    CommandMessage<T2, T5> localBuildingInstance10 = buildingInstance;
+    localBuildingInstance10.Tracker = new MessageTracker<T5>();
+    transientCommandMessage435 = localBuildingInstance10;
+    return transientCommandMessage435;
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  public QueryMessage<T1, T4> BuildUp<T1, T4>(QueryMessage<T1, T4> buildingInstance)
-    where T1: struct
+  public QueryMessage<T2, T5> BuildUp<T2, T5>(QueryMessage<T2, T5> buildingInstance)
+    where T2: struct
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    QueryMessage<T1, T4> transientQueryMessage5;
-    QueryMessage<T1, T4> localBuildingInstance11 = buildingInstance;
-    T1 transientTT8 = (T1)(object)Guid.NewGuid();
-    localBuildingInstance11.Tracker = new MessageTracker<T4>();
-    localBuildingInstance11.SetId(transientTT8);
-    transientQueryMessage5 = localBuildingInstance11;
-    return transientQueryMessage5;
+    QueryMessage<T2, T5> transientQueryMessage438;
+    QueryMessage<T2, T5> localBuildingInstance11 = buildingInstance;
+    T2 transientTT441 = (T2)(object)Guid.NewGuid();
+    localBuildingInstance11.Tracker = new MessageTracker<T5>();
+    localBuildingInstance11.SetId(transientTT441);
+    transientQueryMessage438 = localBuildingInstance11;
+    return transientQueryMessage438;
   }
 }
 ```
@@ -169,38 +169,38 @@ Class diagram:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	MessageTrackerᐸT4ᐳ --|> IMessageTrackerᐸT4ᐳ
-	Composition ..> IMessageᐸT1ˏT4ᐳ : IMessageᐸT1ˏT4ᐳ BuildUpᐸT1ˏT4ᐳ(Pure.DI.UsageTests.Generics.GenericBuildersScenario.IMessage<T1, T4> buildingInstance)
-	Composition ..> CommandMessageᐸT1ˏT4ᐳ : CommandMessageᐸT1ˏT4ᐳ BuildUpᐸT1ˏT4ᐳ(Pure.DI.UsageTests.Generics.GenericBuildersScenario.CommandMessage<T1, T4> buildingInstance)
-	Composition ..> QueryMessageᐸT1ˏT4ᐳ : QueryMessageᐸT1ˏT4ᐳ BuildUpᐸT1ˏT4ᐳ(Pure.DI.UsageTests.Generics.GenericBuildersScenario.QueryMessage<T1, T4> buildingInstance)
-	CommandMessageᐸT1ˏT4ᐳ *--  MessageTrackerᐸT4ᐳ : IMessageTrackerᐸT4ᐳ
-	QueryMessageᐸT1ˏT4ᐳ *--  MessageTrackerᐸT4ᐳ : IMessageTrackerᐸT4ᐳ
-	QueryMessageᐸT1ˏT4ᐳ *--  T1 : "Id"  T1
+	MessageTrackerᐸT5ᐳ --|> IMessageTrackerᐸT5ᐳ
+	Composition ..> IMessageᐸT2ˏT5ᐳ : IMessageᐸT2ˏT5ᐳ BuildUpᐸT2ˏT5ᐳ(Pure.DI.UsageTests.Generics.GenericBuildersScenario.IMessage<T2, T5> buildingInstance)
+	Composition ..> CommandMessageᐸT2ˏT5ᐳ : CommandMessageᐸT2ˏT5ᐳ BuildUpᐸT2ˏT5ᐳ(Pure.DI.UsageTests.Generics.GenericBuildersScenario.CommandMessage<T2, T5> buildingInstance)
+	Composition ..> QueryMessageᐸT2ˏT5ᐳ : QueryMessageᐸT2ˏT5ᐳ BuildUpᐸT2ˏT5ᐳ(Pure.DI.UsageTests.Generics.GenericBuildersScenario.QueryMessage<T2, T5> buildingInstance)
+	CommandMessageᐸT2ˏT5ᐳ *--  MessageTrackerᐸT5ᐳ : IMessageTrackerᐸT5ᐳ
+	QueryMessageᐸT2ˏT5ᐳ *--  MessageTrackerᐸT5ᐳ : IMessageTrackerᐸT5ᐳ
+	QueryMessageᐸT2ˏT5ᐳ *--  T2 : "Id"  T2
 	namespace Pure.DI.UsageTests.Generics.GenericBuildersScenario {
-		class CommandMessageᐸT1ˏT4ᐳ {
+		class CommandMessageᐸT2ˏT5ᐳ {
 				<<record>>
-			+IMessageTrackerᐸT4ᐳ Tracker
+			+IMessageTrackerᐸT5ᐳ Tracker
 		}
 		class Composition {
 		<<partial>>
-		+IMessageᐸT1ˏT4ᐳ BuildUpᐸT1ˏT4ᐳ(Pure.DI.UsageTests.Generics.GenericBuildersScenario.IMessage<T1, T4> buildingInstance)
-		+CommandMessageᐸT1ˏT4ᐳ BuildUpᐸT1ˏT4ᐳ(Pure.DI.UsageTests.Generics.GenericBuildersScenario.CommandMessage<T1, T4> buildingInstance)
-		+QueryMessageᐸT1ˏT4ᐳ BuildUpᐸT1ˏT4ᐳ(Pure.DI.UsageTests.Generics.GenericBuildersScenario.QueryMessage<T1, T4> buildingInstance)
+		+IMessageᐸT2ˏT5ᐳ BuildUpᐸT2ˏT5ᐳ(Pure.DI.UsageTests.Generics.GenericBuildersScenario.IMessage<T2, T5> buildingInstance)
+		+CommandMessageᐸT2ˏT5ᐳ BuildUpᐸT2ˏT5ᐳ(Pure.DI.UsageTests.Generics.GenericBuildersScenario.CommandMessage<T2, T5> buildingInstance)
+		+QueryMessageᐸT2ˏT5ᐳ BuildUpᐸT2ˏT5ᐳ(Pure.DI.UsageTests.Generics.GenericBuildersScenario.QueryMessage<T2, T5> buildingInstance)
 		}
-		class IMessageTrackerᐸT4ᐳ {
+		class IMessageTrackerᐸT5ᐳ {
 			<<interface>>
 		}
-		class IMessageᐸT1ˏT4ᐳ {
+		class IMessageᐸT2ˏT5ᐳ {
 				<<interface>>
 		}
-		class MessageTrackerᐸT4ᐳ {
+		class MessageTrackerᐸT5ᐳ {
 				<<class>>
 			+MessageTracker()
 		}
-		class QueryMessageᐸT1ˏT4ᐳ {
+		class QueryMessageᐸT2ˏT5ᐳ {
 				<<record>>
-			+IMessageTrackerᐸT4ᐳ Tracker
-			+SetId(T1 id) : Void
+			+IMessageTrackerᐸT5ᐳ Tracker
+			+SetId(T2 id) : Void
 		}
 	}
 ```

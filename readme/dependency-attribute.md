@@ -126,11 +126,11 @@ partial class PersonComposition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var transientPerson = new Person();
-      transientPerson.Id = _argPersonId;
-      transientPerson.FirstName = _argPersonName;
-      transientPerson.Birthday = _argPersonBirthday;
-      return transientPerson;
+      var transientPerson165 = new Person();
+      transientPerson165.Id = _argPersonId;
+      transientPerson165.FirstName = _argPersonName;
+      transientPerson165.Birthday = _argPersonBirthday;
+      return transientPerson165;
     }
   }
 }

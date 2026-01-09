@@ -93,10 +93,10 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsureTemperatureSensorLivingRoomExists();
+      EnsureTemperatureSensorLivingRoomExists1();
       return _singletonTemperatureSensor51;
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsureTemperatureSensorLivingRoomExists()
+      void EnsureTemperatureSensorLivingRoomExists1()
       {
         if (_singletonTemperatureSensor51 is null)
           lock (_lock)

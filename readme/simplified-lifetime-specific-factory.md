@@ -1,6 +1,4 @@
-#### Simplified factory
-
-This example shows how to create and initialize an instance manually in a simplified form. When you use a lambda function to specify custom instance initialization logic, each parameter of that function represents an injection of a dependency. Starting with C# 10, you can also put the `Tag(...)` attribute in front of the parameter to specify the tag of the injected dependency.
+#### Simplified lifetime-specific factory
 
 
 ```c#
@@ -8,17 +6,18 @@ using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind("today").To(() => DateTime.Today)
+    .Transient(Guid.NewGuid)
+    .Transient(() => DateTime.Today, "today")
     // Injects FileLogger and DateTime instances
     // and performs further initialization logic
     // defined in the lambda function to set up the log file name
-    .Bind<IFileLogger>().To((
+    .Singleton<FileLogger, DateTime, IFileLogger>((
         FileLogger logger,
         [Tag("today")] DateTime date) => {
         logger.Init($"app-{date:yyyy-MM-dd}.log");
         return logger;
     })
-    .Bind().To<OrderProcessingService>()
+    .Transient<OrderProcessingService>()
 
     // Composition root
     .Root<IOrderProcessingService>("OrderService");
@@ -35,7 +34,7 @@ interface IFileLogger
     void Log(string message);
 }
 
-class FileLogger : IFileLogger
+class FileLogger(Func<Guid> idFactory) : IFileLogger
 {
     public string FileName { get; private set; } = "";
 
@@ -43,6 +42,7 @@ class FileLogger : IFileLogger
 
     public void Log(string message)
     {
+        var id = idFactory();
         // Write to file
     }
 }
@@ -85,25 +85,44 @@ dotnet run
 
 </details>
 
-The example creates a `service` that depends on a `logger` initialized with a specific file name based on the current date. The `Tag` attribute allows specifying named dependencies for more complex scenarios.
-
 The following partial class will be generated:
 
 ```c#
 partial class Composition
 {
+#if NET9_0_OR_GREATER
+  private readonly Lock _lock = new Lock();
+#else
+  private readonly Object _lock = new Object();
+#endif
+
+  private IFileLogger? _singletonIFileLogger53;
+
   public IOrderProcessingService OrderService
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      FileLogger transientFileLogger300;
-      FileLogger localLogger4 = new FileLogger();
-      DateTime transientDateTime302 = DateTime.Today;
-      DateTime localDate = transientDateTime302;
-      localLogger4.Init($"app-{localDate:yyyy-MM-dd}.log");
-      transientFileLogger300 = localLogger4;
-      return new OrderProcessingService(transientFileLogger300);
+      if (_singletonIFileLogger53 is null)
+        lock (_lock)
+          if (_singletonIFileLogger53 is null)
+          {
+            Func<Guid> transientFunc310 = new Func<Guid>(
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            () =>
+            {
+              Guid transientGuid311 = Guid.NewGuid();
+              Guid localValue19 = transientGuid311;
+              return localValue19;
+            });
+            FileLogger localLogger5 = new FileLogger(transientFunc310);
+            DateTime transientDateTime309 = DateTime.Today;
+            DateTime localDate1 = transientDateTime309;
+            localLogger5.Init($"app-{localDate1:yyyy-MM-dd}.log");
+            _singletonIFileLogger53 = localLogger5;
+          }
+
+      return new OrderProcessingService(_singletonIFileLogger53);
     }
   }
 }
@@ -120,21 +139,33 @@ Class diagram:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	FileLogger --|> IFileLogger
+	Guid --|> IComparable
+	Guid --|> IComparableᐸGuidᐳ
+	Guid --|> IEquatableᐸGuidᐳ
+	Guid --|> IFormattable
+	Guid --|> IParsableᐸGuidᐳ
+	Guid --|> ISpanFormattable
+	Guid --|> ISpanParsableᐸGuidᐳ
+	Guid --|> IUtf8SpanFormattable
+	Guid --|> IUtf8SpanParsableᐸGuidᐳ
 	OrderProcessingService --|> IOrderProcessingService
 	Composition ..> OrderProcessingService : IOrderProcessingService OrderService
-	FileLogger *--  DateTime : "today"  DateTime
-	OrderProcessingService *--  FileLogger : IFileLogger
-	namespace Pure.DI.UsageTests.Basics.SimplifiedFactoryScenario {
+	IFileLogger *--  DateTime : "today"  DateTime
+	IFileLogger *--  FileLogger : FileLogger
+	OrderProcessingService o-- "Singleton" IFileLogger : IFileLogger
+	FileLogger o-- "PerBlock" FuncᐸGuidᐳ : FuncᐸGuidᐳ
+	FuncᐸGuidᐳ *--  Guid : Guid
+	namespace Pure.DI.UsageTests.Basics.SimplifiedLifetimeFactoryScenario {
 		class Composition {
 		<<partial>>
 		+IOrderProcessingService OrderService
 		}
 		class FileLogger {
 				<<class>>
+			+FileLogger(FuncᐸGuidᐳ idFactory)
 		}
 		class IFileLogger {
-			<<interface>>
+				<<interface>>
 		}
 		class IOrderProcessingService {
 			<<interface>>
@@ -147,6 +178,39 @@ classDiagram
 	namespace System {
 		class DateTime {
 				<<struct>>
+		}
+		class FuncᐸGuidᐳ {
+				<<delegate>>
+		}
+		class Guid {
+				<<struct>>
+		}
+		class IComparable {
+			<<interface>>
+		}
+		class IComparableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IEquatableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IFormattable {
+			<<interface>>
+		}
+		class IParsableᐸGuidᐳ {
+			<<interface>>
+		}
+		class ISpanFormattable {
+			<<interface>>
+		}
+		class ISpanParsableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IUtf8SpanFormattable {
+			<<interface>>
+		}
+		class IUtf8SpanParsableᐸGuidᐳ {
+			<<interface>>
 		}
 	}
 ```

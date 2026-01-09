@@ -71,14 +71,14 @@ partial class Composition
     {
       if (_singletonReportGenerator52 is null)
       {
-        Func<IDatabaseConnection> transientFunc1 = new Func<IDatabaseConnection>(
+        Func<IDatabaseConnection> transientFunc494 = new Func<IDatabaseConnection>(
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         () =>
         {
-          IDatabaseConnection localValue30 = new SqlDatabaseConnection();
-          return localValue30;
+          IDatabaseConnection localValue31 = new SqlDatabaseConnection();
+          return localValue31;
         });
-        _singletonReportGenerator52 = new ReportGenerator(transientFunc1);
+        _singletonReportGenerator52 = new ReportGenerator(transientFunc494);
       }
 
       return _singletonReportGenerator52;

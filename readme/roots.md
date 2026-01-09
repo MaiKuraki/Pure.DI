@@ -92,10 +92,10 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsurePreferencesExists();
+      EnsurePreferencesExists1();
       return new MainWindow(_singletonPreferences51);
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsurePreferencesExists()
+      void EnsurePreferencesExists1()
       {
         if (_singletonPreferences51 is null)
           lock (_lock)

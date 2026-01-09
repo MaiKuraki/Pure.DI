@@ -9,7 +9,7 @@ using Pure.DI;
 
 DI.Setup(nameof(Composition))
     .RootArg<string>("userName")
-    .Bind().To(_ => Guid.NewGuid())
+    .Bind().To(Guid.NewGuid)
     .Bind().To(ctx => {
         // The "BuildUp" method injects dependencies into an existing object.
         // This is useful when the object is created externally (e.g., by a UI framework
@@ -103,16 +103,16 @@ partial class Composition
   public IFacade<Guid> GetFacade(string userName)
   {
     if (userName is null) throw new ArgumentNullException(nameof(userName));
-    UserContext<Guid> transientUserContext1;
+    UserContext<Guid> transientUserContext443;
     // The "BuildUp" method injects dependencies into an existing object.
     // This is useful when the object is created externally (e.g., by a UI framework
     // or an ORM) or requires specific initialization before injection.
     UserContext<Guid> localContext = new UserContext<Guid>();
-    Guid transientGuid3 = Guid.NewGuid();
+    Guid transientGuid445 = Guid.NewGuid();
     localContext.UserName = userName;
-    localContext.SetId(transientGuid3);
-    transientUserContext1 = localContext;
-    return new Facade<Guid>(transientUserContext1);
+    localContext.SetId(transientGuid445);
+    transientUserContext443 = localContext;
+    return new Facade<Guid>(transientUserContext443);
   }
 }
 ```
@@ -128,6 +128,15 @@ Class diagram:
    hideEmptyMembersBox: true
 ---
 classDiagram
+	Guid --|> IComparable
+	Guid --|> IComparableᐸGuidᐳ
+	Guid --|> IEquatableᐸGuidᐳ
+	Guid --|> IFormattable
+	Guid --|> IParsableᐸGuidᐳ
+	Guid --|> ISpanFormattable
+	Guid --|> ISpanParsableᐸGuidᐳ
+	Guid --|> IUtf8SpanFormattable
+	Guid --|> IUtf8SpanParsableᐸGuidᐳ
 	FacadeᐸGuidᐳ --|> IFacadeᐸGuidᐳ
 	FacadeᐸGuidᐳ --|> IEquatableᐸFacadeᐸGuidᐳᐳ
 	UserContextᐸGuidᐳ --|> IUserContextᐸGuidᐳ
@@ -160,7 +169,34 @@ classDiagram
 		class Guid {
 				<<struct>>
 		}
+		class IComparable {
+			<<interface>>
+		}
+		class IComparableᐸGuidᐳ {
+			<<interface>>
+		}
 		class IEquatableᐸFacadeᐸGuidᐳᐳ {
+			<<interface>>
+		}
+		class IEquatableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IFormattable {
+			<<interface>>
+		}
+		class IParsableᐸGuidᐳ {
+			<<interface>>
+		}
+		class ISpanFormattable {
+			<<interface>>
+		}
+		class ISpanParsableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IUtf8SpanFormattable {
+			<<interface>>
+		}
+		class IUtf8SpanParsableᐸGuidᐳ {
 			<<interface>>
 		}
 		class String {

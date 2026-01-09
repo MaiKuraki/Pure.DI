@@ -101,12 +101,12 @@ partial class Composition
   public Satellite Initialize(Satellite buildingInstance, Guid id)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    Satellite transientSatellite;
+    Satellite transientSatellite224;
     Satellite localBuildingInstance7 = buildingInstance;
     localBuildingInstance7.Telemetry = new TelemetrySystem();
     localBuildingInstance7.SetId(id);
-    transientSatellite = localBuildingInstance7;
-    return transientSatellite;
+    transientSatellite224 = localBuildingInstance7;
+    return transientSatellite224;
   }
 }
 ```

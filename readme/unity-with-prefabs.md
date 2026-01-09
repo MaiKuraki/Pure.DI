@@ -118,7 +118,7 @@ public partial class Scope : MonoBehaviour
     [SerializeField]  ClockConfig clockConfig;
 
     void Setup() => DI.Setup()
-        .Bind().To(_ => clockConfig)
+        .Bind().To(() => clockConfig)
         .Bind().As(Lifetime.Singleton).To<ClockService>()
         .Root<ClockManager>(nameof(ClockManager))
         .Builders<MonoBehaviour>();
@@ -179,21 +179,21 @@ partial class Scope: IDisposable
   public Clock BuildUp(Clock buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    Clock transientClock6;
+    Clock transientClock556;
     Clock localBuildingInstance16 = buildingInstance;
-    EnsureClockServiceExists();
+    EnsureClockServiceExists1();
     localBuildingInstance16.ClockService = _singletonClockService52;
-    transientClock6 = localBuildingInstance16;
-    return transientClock6;
+    transientClock556 = localBuildingInstance16;
+    return transientClock556;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    void EnsureClockServiceExists()
+    void EnsureClockServiceExists1()
     {
       if (_singletonClockService52 is null)
         lock (_lock)
           if (_singletonClockService52 is null)
           {
-            ClockConfig transientClockConfig8 = clockConfig;
-            _singletonClockService52 = new ClockService(transientClockConfig8);
+            ClockConfig transientClockConfig558 = clockConfig;
+            _singletonClockService52 = new ClockService(transientClockConfig558);
             _disposables[_disposeIndex++] = _singletonClockService52;
           }
     }
@@ -203,12 +203,12 @@ partial class Scope: IDisposable
   public ClockDigital BuildUp(ClockDigital buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    ClockDigital transientClockDigital2;
+    ClockDigital transientClockDigital552;
     ClockDigital localBuildingInstance15 = buildingInstance;
     EnsureClockServiceExists();
     localBuildingInstance15.ClockService = _singletonClockService52;
-    transientClockDigital2 = localBuildingInstance15;
-    return transientClockDigital2;
+    transientClockDigital552 = localBuildingInstance15;
+    return transientClockDigital552;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void EnsureClockServiceExists()
     {
@@ -216,8 +216,8 @@ partial class Scope: IDisposable
         lock (_lock)
           if (_singletonClockService52 is null)
           {
-            ClockConfig transientClockConfig5 = clockConfig;
-            _singletonClockService52 = new ClockService(transientClockConfig5);
+            ClockConfig transientClockConfig555 = clockConfig;
+            _singletonClockService52 = new ClockService(transientClockConfig555);
             _disposables[_disposeIndex++] = _singletonClockService52;
           }
     }
@@ -230,8 +230,8 @@ partial class Scope: IDisposable
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
     switch (buildingInstance)
     {
-      case Clock Clock:
-        return BuildUp(Clock);
+      case Clock Clock1:
+        return BuildUp(Clock1);
       case ClockDigital ClockDigital:
         return BuildUp(ClockDigital);
       default:
@@ -246,8 +246,8 @@ partial class Scope: IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      ClockConfig transientClockConfig11 = clockConfig;
-      return new ClockManager(this, transientClockConfig11);
+      ClockConfig transientClockConfig561 = clockConfig;
+      return new ClockManager(this, transientClockConfig561);
     }
   }
 

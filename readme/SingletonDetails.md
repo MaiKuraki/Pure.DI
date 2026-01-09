@@ -102,6 +102,40 @@ partial class Singleton
       _scopedService149 = new Service1(new Service2(new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452)));
     }
 
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
+    EnsureService4Exists();
     return new CompositionRoot(_scopedService149, new Service2(new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452)), new Service2(new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452)), new Service2(new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452), new Service3(_scopedService452, _scopedService452)), new Service3(_scopedService452, _scopedService452), _scopedService452, _scopedService452);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void EnsureService4Exists()

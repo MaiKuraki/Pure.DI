@@ -117,26 +117,28 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perResolveRoutePlanningSession1 = default(RoutePlanningSession);
+      var perResolveRoutePlanningSession531 = default(RoutePlanningSession);
       if (!_singletonValueTuple54Created)
         lock (_lock)
           if (!_singletonValueTuple54Created)
           {
             EnsureRoutePlanningSessionExists();
-            _singletonValueTuple54 = (perResolveRoutePlanningSession1, perResolveRoutePlanningSession1);
+            _singletonValueTuple54 = (perResolveRoutePlanningSession531, perResolveRoutePlanningSession531);
             Thread.MemoryBarrier();
             _singletonValueTuple54Created = true;
           }
 
-      return new TrainTripPlanner(perResolveRoutePlanningSession1, perResolveRoutePlanningSession1, _singletonValueTuple54);
+      EnsureRoutePlanningSessionExists();
+      EnsureRoutePlanningSessionExists();
+      return new TrainTripPlanner(perResolveRoutePlanningSession531, perResolveRoutePlanningSession531, _singletonValueTuple54);
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       void EnsureRoutePlanningSessionExists()
       {
-        if (perResolveRoutePlanningSession1 is null)
+        if (perResolveRoutePlanningSession531 is null)
           lock (_lock)
-            if (perResolveRoutePlanningSession1 is null)
+            if (perResolveRoutePlanningSession531 is null)
             {
-              perResolveRoutePlanningSession1 = new RoutePlanningSession();
+              perResolveRoutePlanningSession531 = new RoutePlanningSession();
             }
       }
     }
@@ -156,6 +158,12 @@ Class diagram:
 ---
 classDiagram
 	RoutePlanningSession --|> IRoutePlanningSession
+	ValueTupleᐸIRoutePlanningSessionˏIRoutePlanningSessionᐳ --|> IStructuralComparable
+	ValueTupleᐸIRoutePlanningSessionˏIRoutePlanningSessionᐳ --|> IStructuralEquatable
+	ValueTupleᐸIRoutePlanningSessionˏIRoutePlanningSessionᐳ --|> IComparable
+	ValueTupleᐸIRoutePlanningSessionˏIRoutePlanningSessionᐳ --|> IComparableᐸValueTupleᐸIRoutePlanningSessionˏIRoutePlanningSessionᐳᐳ
+	ValueTupleᐸIRoutePlanningSessionˏIRoutePlanningSessionᐳ --|> IEquatableᐸValueTupleᐸIRoutePlanningSessionˏIRoutePlanningSessionᐳᐳ
+	ValueTupleᐸIRoutePlanningSessionˏIRoutePlanningSessionᐳ --|> ITuple
 	Composition ..> TrainTripPlanner : TrainTripPlanner Planner
 	TrainTripPlanner o-- "2 PerResolve instances" RoutePlanningSession : IRoutePlanningSession
 	TrainTripPlanner o-- "Singleton" ValueTupleᐸIRoutePlanningSessionˏIRoutePlanningSessionᐳ : ValueTupleᐸIRoutePlanningSessionˏIRoutePlanningSessionᐳ
@@ -178,9 +186,31 @@ classDiagram
 		}
 	}
 	namespace System {
+		class IComparable {
+			<<interface>>
+		}
+		class IComparableᐸValueTupleᐸIRoutePlanningSessionˏIRoutePlanningSessionᐳᐳ {
+			<<interface>>
+		}
+		class IEquatableᐸValueTupleᐸIRoutePlanningSessionˏIRoutePlanningSessionᐳᐳ {
+			<<interface>>
+		}
 		class ValueTupleᐸIRoutePlanningSessionˏIRoutePlanningSessionᐳ {
 				<<struct>>
 			+ValueTuple(IRoutePlanningSession item1, IRoutePlanningSession item2)
+		}
+	}
+	namespace System.Collections {
+		class IStructuralComparable {
+			<<interface>>
+		}
+		class IStructuralEquatable {
+			<<interface>>
+		}
+	}
+	namespace System.Runtime.CompilerServices {
+		class ITuple {
+			<<interface>>
 		}
 	}
 ```

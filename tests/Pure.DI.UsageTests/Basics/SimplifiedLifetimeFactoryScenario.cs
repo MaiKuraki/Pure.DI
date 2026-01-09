@@ -1,6 +1,6 @@
 ﻿/*
 $v=true
-$p=2
+$p=8
 $d=Simplified lifetime-specific factory
 $r=Shouldly
 */

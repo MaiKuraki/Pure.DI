@@ -104,32 +104,32 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perBlockOwned1 = new Owned();
-      Owned<IOrderProcessingService> transientOwned;
+      var perBlockOwned128 = new Owned();
+      Owned<IOrderProcessingService> transientOwned127;
       // Creates the owner of an instance
-      Owned transientOwned2;
-      Owned localOwned7 = perBlockOwned1;
-      transientOwned2 = localOwned7;
+      Owned transientOwned129;
+      Owned localOwned7 = perBlockOwned128;
+      transientOwned129 = localOwned7;
       lock (_lock)
       {
-        perBlockOwned1.Add(transientOwned2);
+        perBlockOwned128.Add(transientOwned129);
       }
 
-      IOwned localOwned6 = transientOwned2;
-      var transientDbConnection4 = new DbConnection();
+      IOwned localOwned6 = transientOwned129;
+      var transientDbConnection131 = new DbConnection();
       lock (_lock)
       {
-        perBlockOwned1.Add(transientDbConnection4);
+        perBlockOwned128.Add(transientDbConnection131);
       }
 
-      IOrderProcessingService localValue6 = new OrderProcessingService(transientDbConnection4);
-      transientOwned = new Owned<IOrderProcessingService>(localValue6, localOwned6);
+      IOrderProcessingService localValue6 = new OrderProcessingService(transientDbConnection131);
+      transientOwned127 = new Owned<IOrderProcessingService>(localValue6, localOwned6);
       lock (_lock)
       {
-        perBlockOwned1.Add(transientOwned);
+        perBlockOwned128.Add(transientOwned127);
       }
 
-      return transientOwned;
+      return transientOwned127;
     }
   }
 }

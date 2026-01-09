@@ -9,7 +9,7 @@ using Pure.DI;
 
 DI.Setup(nameof(Composition))
     .RootArg<string>("name")
-    .Bind().To(_ => Guid.NewGuid())
+    .Bind().To(Guid.NewGuid)
     .Bind().To(ctx => {
         var person = new Person();
         // Injects dependencies into an existing object
@@ -99,14 +99,14 @@ partial class Composition
   public IGreeter GetGreeter(string name)
   {
     if (name is null) throw new ArgumentNullException(nameof(name));
-    Person transientPerson1;
+    Person transientPerson229;
     var localPerson = new Person();
     // Injects dependencies into an existing object
-    Guid transientGuid3 = Guid.NewGuid();
+    Guid transientGuid231 = Guid.NewGuid();
     localPerson.Name = name;
-    localPerson.SetId(transientGuid3);
-    transientPerson1 = localPerson;
-    return new Greeter(transientPerson1);
+    localPerson.SetId(transientGuid231);
+    transientPerson229 = localPerson;
+    return new Greeter(transientPerson229);
   }
 }
 ```
@@ -122,6 +122,15 @@ Class diagram:
    hideEmptyMembersBox: true
 ---
 classDiagram
+	Guid --|> IComparable
+	Guid --|> IComparableᐸGuidᐳ
+	Guid --|> IEquatableᐸGuidᐳ
+	Guid --|> IFormattable
+	Guid --|> IParsableᐸGuidᐳ
+	Guid --|> ISpanFormattable
+	Guid --|> ISpanParsableᐸGuidᐳ
+	Guid --|> IUtf8SpanFormattable
+	Guid --|> IUtf8SpanParsableᐸGuidᐳ
 	Person --|> IPerson
 	Greeter --|> IGreeter
 	Greeter --|> IEquatableᐸGreeterᐳ
@@ -154,7 +163,34 @@ classDiagram
 		class Guid {
 				<<struct>>
 		}
+		class IComparable {
+			<<interface>>
+		}
+		class IComparableᐸGuidᐳ {
+			<<interface>>
+		}
 		class IEquatableᐸGreeterᐳ {
+			<<interface>>
+		}
+		class IEquatableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IFormattable {
+			<<interface>>
+		}
+		class IParsableᐸGuidᐳ {
+			<<interface>>
+		}
+		class ISpanFormattable {
+			<<interface>>
+		}
+		class ISpanParsableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IUtf8SpanFormattable {
+			<<interface>>
+		}
+		class IUtf8SpanParsableᐸGuidᐳ {
 			<<interface>>
 		}
 		class String {

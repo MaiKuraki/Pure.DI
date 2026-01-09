@@ -8,7 +8,7 @@ using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind().To(_ => Guid.NewGuid())
+    .Bind().To(Guid.NewGuid)
     .Bind().To<PhotonBlaster>()
     .Builder<Player>("Equip");
 
@@ -103,13 +103,13 @@ partial class Composition
   public Player Equip(Player buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    Player transientPlayer;
+    Player transientPlayer202;
     Player localBuildingInstance = buildingInstance;
-    Guid transientGuid3 = Guid.NewGuid();
+    Guid transientGuid205 = Guid.NewGuid();
     localBuildingInstance.Weapon = new PhotonBlaster();
-    localBuildingInstance.SetId(transientGuid3);
-    transientPlayer = localBuildingInstance;
-    return transientPlayer;
+    localBuildingInstance.SetId(transientGuid205);
+    transientPlayer202 = localBuildingInstance;
+    return transientPlayer202;
   }
 }
 ```
@@ -125,6 +125,15 @@ Class diagram:
    hideEmptyMembersBox: true
 ---
 classDiagram
+	Guid --|> IComparable
+	Guid --|> IComparableᐸGuidᐳ
+	Guid --|> IEquatableᐸGuidᐳ
+	Guid --|> IFormattable
+	Guid --|> IParsableᐸGuidᐳ
+	Guid --|> ISpanFormattable
+	Guid --|> ISpanParsableᐸGuidᐳ
+	Guid --|> IUtf8SpanFormattable
+	Guid --|> IUtf8SpanParsableᐸGuidᐳ
 	PhotonBlaster --|> IWeapon
 	Composition ..> Player : Player Equip(Pure.DI.UsageTests.Basics.BuilderScenario.Player buildingInstance)
 	Player *--  Guid : Guid
@@ -150,6 +159,33 @@ classDiagram
 	namespace System {
 		class Guid {
 				<<struct>>
+		}
+		class IComparable {
+			<<interface>>
+		}
+		class IComparableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IEquatableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IFormattable {
+			<<interface>>
+		}
+		class IParsableᐸGuidᐳ {
+			<<interface>>
+		}
+		class ISpanFormattable {
+			<<interface>>
+		}
+		class ISpanParsableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IUtf8SpanFormattable {
+			<<interface>>
+		}
+		class IUtf8SpanParsableᐸGuidᐳ {
+			<<interface>>
 		}
 	}
 ```

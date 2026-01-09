@@ -10,7 +10,7 @@ using System.Collections.Immutable;
 using System.Drawing;
 
 DI.Setup(nameof(Composition))
-    .Bind(Tag.Red).To(_ => Color.Red)
+    .Bind(Tag.Red).To(() => Color.Red)
     .Bind().As(Lifetime.Singleton).To<Clock>()
     // The factory accepts the widget ID and the layer index
     .Bind().To<Func<int, int, IWidget>>(ctx =>
@@ -147,7 +147,7 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<int, int, IWidget> transientFunc1 =
+      Func<int, int, IWidget> transientFunc266 =
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       (localWidgetId, localLayerIndex) =>
       {
@@ -158,8 +158,8 @@ partial class Composition
         int overriddenInt32 = localWidgetId;
         int overriddenInt324 = localLayerIndex;
         string overriddenString2 = $"Widget {localWidgetId} on layer {localLayerIndex}";
-        Drawing.Color transientColor2 = Color.Red;
-        Drawing.Color localColor = transientColor2;
+        Drawing.Color transientColor267 = Color.Red;
+        Drawing.Color localColor = transientColor267;
         // Overrides the 'color' argument with the resolved value
         // Creates the instance using the overridden values
         Drawing.Color overriddenColor5 = localColor;
@@ -173,7 +173,7 @@ partial class Composition
         Widget localWidget = new Widget(overriddenString2, _singletonClock52, overriddenInt32, overriddenInt324, overriddenColor5);
         return localWidget;
       };
-      return new Dashboard(transientFunc1);
+      return new Dashboard(transientFunc266);
     }
   }
 }

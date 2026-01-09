@@ -122,19 +122,19 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Serilog.ILogger transientILogger3;
+      Serilog.ILogger transientILogger244;
       Serilog.ILogger localLogger2 = _argLogger;
       // Enriches the logger with the specific context of the consumer type.
       // ctx.ConsumerType represents the type into which the dependency is being injected.
       // This allows logs to be tagged with the name of the class that created them.
-      transientILogger3 = localLogger2.ForContext(typeof(Dependency));
-      Serilog.ILogger transientILogger1;
+      transientILogger244 = localLogger2.ForContext(typeof(Dependency));
+      Serilog.ILogger transientILogger242;
       Serilog.ILogger localLogger3 = _argLogger;
       // Enriches the logger with the specific context of the consumer type.
       // ctx.ConsumerType represents the type into which the dependency is being injected.
       // This allows logs to be tagged with the name of the class that created them.
-      transientILogger1 = localLogger3.ForContext(typeof(Service));
-      return new Service(transientILogger1, new Dependency(transientILogger3));
+      transientILogger242 = localLogger3.ForContext(typeof(Service));
+      return new Service(transientILogger242, new Dependency(transientILogger244));
     }
   }
 }

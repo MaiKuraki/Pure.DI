@@ -104,31 +104,31 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perBlockTelemetryRegistry1 = new TelemetryRegistry();
+      var perBlockTelemetryRegistry11 = new TelemetryRegistry();
       if (_singletonNetworkDataSource53 is null)
         lock (_lock)
           if (_singletonNetworkDataSource53 is null)
           {
             NetworkDataSource _singletonNetworkDataSource53Temp;
             _singletonNetworkDataSource53Temp = new NetworkDataSource();
-            perBlockTelemetryRegistry1.Add(_singletonNetworkDataSource53Temp);
+            perBlockTelemetryRegistry11.Add(_singletonNetworkDataSource53Temp);
             Thread.MemoryBarrier();
             _singletonNetworkDataSource53 = _singletonNetworkDataSource53Temp;
           }
 
-      var transientSqlDataSource3 = new SqlDataSource();
+      var transientSqlDataSource13 = new SqlDataSource();
       lock (_lock)
       {
-        perBlockTelemetryRegistry1.Add(transientSqlDataSource3);
+        perBlockTelemetryRegistry11.Add(transientSqlDataSource13);
       }
 
-      var transientDashboard2 = new Dashboard(transientSqlDataSource3, _singletonNetworkDataSource53, new SqlDataSource());
+      var transientDashboard12 = new Dashboard(transientSqlDataSource13, _singletonNetworkDataSource53, new SqlDataSource());
       lock (_lock)
       {
-        perBlockTelemetryRegistry1.Add(transientDashboard2);
+        perBlockTelemetryRegistry11.Add(transientDashboard12);
       }
 
-      return (transientDashboard2, perBlockTelemetryRegistry1);
+      return (transientDashboard12, perBlockTelemetryRegistry11);
     }
   }
 }

@@ -9,7 +9,7 @@ This example demonstrates the creation of a [Avalonia](https://avaloniaui.net/) 
 
 The definition of the composition is in [Composition.cs](/samples/AvaloniaApp/Composition.cs). This class setups how the composition of objects will be created for the application. You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
 
-```csharp
+```c#
 using Pure.DI;
 using static Pure.DI.Lifetime;
 using static Pure.DI.RootKinds;

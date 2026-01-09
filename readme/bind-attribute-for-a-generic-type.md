@@ -95,7 +95,7 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      IComments<Article> transientIComments1;
+      IComments<Article> transientIComments192;
       if (_singletonCommentsFactory51 is null)
         lock (_lock)
           if (_singletonCommentsFactory51 is null)
@@ -104,8 +104,8 @@ partial class Composition
           }
 
       CommentsFactory localInstance_1182D1276 = _singletonCommentsFactory51;
-      transientIComments1 = localInstance_1182D1276.Create<Article>();
-      return new ArticleService(transientIComments1);
+      transientIComments192 = localInstance_1182D1276.Create<Article>();
+      return new ArticleService(transientIComments192);
     }
   }
 }

@@ -74,7 +74,7 @@ partial class Composition
             .Root<ISettingsService>(nameof(Settings))
             .Bind().To<SettingsService>()
             .DefaultLifetime(Singleton)
-            .Bind().To(_ => new JsonSerializerOptions { WriteIndented = true })
+            .Bind().To(() => new JsonSerializerOptions { WriteIndented = true })
             .Bind(JSON).To<JsonSerializerOptions, Func<string, TT?>>(options => json => JsonSerializer.Deserialize<TT>(json, options))
             .Bind(JSON).To<JsonSerializerOptions, Func<TT, string>>(options => value => JsonSerializer.Serialize(value, options))
             .Bind().To<Storage>();
@@ -136,22 +136,22 @@ partial class Composition
             _singletonStorage55 = new Storage();
           }
 
-      if (_singletonFunc56 is null)
-        lock (_lock)
-          if (_singletonFunc56 is null)
-          {
-            EnsureJsonSerializerOptionsExists();
-            Text.Json.JsonSerializerOptions localOptions = _singletonJsonSerializerOptions52;
-            _singletonFunc56 = json => JsonSerializer.Deserialize<Settings>(json, localOptions);
-          }
-
       if (_singletonFunc57 is null)
         lock (_lock)
           if (_singletonFunc57 is null)
           {
             EnsureJsonSerializerOptionsExists();
+            Text.Json.JsonSerializerOptions localOptions = _singletonJsonSerializerOptions52;
+            _singletonFunc57 = value => JsonSerializer.Serialize(value, localOptions);
+          }
+
+      if (_singletonFunc56 is null)
+        lock (_lock)
+          if (_singletonFunc56 is null)
+          {
+            EnsureJsonSerializerOptionsExists();
             Text.Json.JsonSerializerOptions localOptions1 = _singletonJsonSerializerOptions52;
-            _singletonFunc57 = value => JsonSerializer.Serialize(value, localOptions1);
+            _singletonFunc56 = json => JsonSerializer.Deserialize<Settings>(json, localOptions1);
           }
 
       return new SettingsService(_singletonFunc56, _singletonFunc57, _singletonStorage55);

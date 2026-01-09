@@ -122,10 +122,10 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsureSmsSenderSmsExists();
+      EnsureSmsSenderSmsExists1();
       return _singletonSmsSender52;
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsureSmsSenderSmsExists()
+      void EnsureSmsSenderSmsExists1()
       {
         if (_singletonSmsSender52 is null)
           lock (_lock)

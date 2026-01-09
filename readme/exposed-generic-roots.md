@@ -7,7 +7,7 @@ public partial class CompositionInOtherProject
     private static void Setup() =>
     DI.Setup()
         .Hint(Hint.Resolve, "Off")
-        .Bind().To(_ => 99)
+        .Bind().To(() => 99)
         .Bind().As(Lifetime.Singleton).To<MyDependency>()
         .Bind().To<MyGenericService<TT>>()
         .Root<IMyGenericService<TT>>("GetMyService", kind: RootKinds.Exposed);
@@ -81,7 +81,7 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      OtherAssembly.IMyGenericService<int> transientIMyGenericService1;
+      OtherAssembly.IMyGenericService<int> transientIMyGenericService33;
       if (_singletonCompositionWithGenericRootsInOtherProject51 is null)
         lock (_lock)
           if (_singletonCompositionWithGenericRootsInOtherProject51 is null)
@@ -90,8 +90,8 @@ partial class Composition
           }
 
       OtherAssembly.CompositionWithGenericRootsInOtherProject localInstance_1182D127 = _singletonCompositionWithGenericRootsInOtherProject51;
-      transientIMyGenericService1 = localInstance_1182D127.GetMyService<int>();
-      return new Program(transientIMyGenericService1);
+      transientIMyGenericService33 = localInstance_1182D127.GetMyService<int>();
+      return new Program(transientIMyGenericService33);
     }
   }
 }

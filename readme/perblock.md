@@ -112,17 +112,17 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perBlockDatabaseConnection1 = new DatabaseConnection();
+      var perBlockDatabaseConnection528 = new DatabaseConnection();
       if (!_singletonValueTuple54Created)
         lock (_lock)
           if (!_singletonValueTuple54Created)
           {
-            _singletonValueTuple54 = (perBlockDatabaseConnection1, perBlockDatabaseConnection1);
+            _singletonValueTuple54 = (perBlockDatabaseConnection528, perBlockDatabaseConnection528);
             Thread.MemoryBarrier();
             _singletonValueTuple54Created = true;
           }
 
-      return new OrderRepository(perBlockDatabaseConnection1, perBlockDatabaseConnection1, _singletonValueTuple54);
+      return new OrderRepository(perBlockDatabaseConnection528, perBlockDatabaseConnection528, _singletonValueTuple54);
     }
   }
 }
@@ -140,6 +140,12 @@ Class diagram:
 ---
 classDiagram
 	DatabaseConnection --|> IDatabaseConnection
+	ValueTupleᐸIDatabaseConnectionˏIDatabaseConnectionᐳ --|> IStructuralComparable
+	ValueTupleᐸIDatabaseConnectionˏIDatabaseConnectionᐳ --|> IStructuralEquatable
+	ValueTupleᐸIDatabaseConnectionˏIDatabaseConnectionᐳ --|> IComparable
+	ValueTupleᐸIDatabaseConnectionˏIDatabaseConnectionᐳ --|> IComparableᐸValueTupleᐸIDatabaseConnectionˏIDatabaseConnectionᐳᐳ
+	ValueTupleᐸIDatabaseConnectionˏIDatabaseConnectionᐳ --|> IEquatableᐸValueTupleᐸIDatabaseConnectionˏIDatabaseConnectionᐳᐳ
+	ValueTupleᐸIDatabaseConnectionˏIDatabaseConnectionᐳ --|> ITuple
 	Composition ..> OrderRepository : OrderRepository Repository
 	OrderRepository o-- "2 PerBlock instances" DatabaseConnection : IDatabaseConnection
 	OrderRepository o-- "Singleton" ValueTupleᐸIDatabaseConnectionˏIDatabaseConnectionᐳ : ValueTupleᐸIDatabaseConnectionˏIDatabaseConnectionᐳ
@@ -162,9 +168,31 @@ classDiagram
 		}
 	}
 	namespace System {
+		class IComparable {
+			<<interface>>
+		}
+		class IComparableᐸValueTupleᐸIDatabaseConnectionˏIDatabaseConnectionᐳᐳ {
+			<<interface>>
+		}
+		class IEquatableᐸValueTupleᐸIDatabaseConnectionˏIDatabaseConnectionᐳᐳ {
+			<<interface>>
+		}
 		class ValueTupleᐸIDatabaseConnectionˏIDatabaseConnectionᐳ {
 				<<struct>>
 			+ValueTuple(IDatabaseConnection item1, IDatabaseConnection item2)
+		}
+	}
+	namespace System.Collections {
+		class IStructuralComparable {
+			<<interface>>
+		}
+		class IStructuralEquatable {
+			<<interface>>
+		}
+	}
+	namespace System.Runtime.CompilerServices {
+		class ITuple {
+			<<interface>>
 		}
 	}
 ```

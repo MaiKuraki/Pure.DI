@@ -8,7 +8,7 @@ using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind<IMessageSender[]>().To<IMessageSender[]>(_ =>
+    .Bind<IMessageSender[]>().To<IMessageSender[]>(() =>
         [new EmailSender(), new SmsSender(), new EmailSender()]
     )
     .Bind<INotificationService>().To<NotificationService>()
@@ -77,8 +77,8 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      IMessageSender[] transient1 = [new EmailSender(), new SmsSender(), new EmailSender()];
-      return new NotificationService(transient1);
+      IMessageSender[] transient370 = [new EmailSender(), new SmsSender(), new EmailSender()];
+      return new NotificationService(transient370);
     }
   }
 }

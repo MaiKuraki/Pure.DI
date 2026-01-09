@@ -8,7 +8,7 @@ using Pure.DI;
 
 DI.Setup(nameof(Composition))
     .Bind<IEngine>().To<ElectricEngine>()
-    .Bind<Coordinates>().To(_ => new Coordinates(10, 20))
+    .Bind<Coordinates>().To(() => new Coordinates(10, 20))
     .Bind<IVehicle>().To<Car>()
 
     // Composition root
@@ -71,8 +71,8 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Coordinates transientCoordinates2 = new Coordinates(10, 20);
-      return new Car((transientCoordinates2, new ElectricEngine()));
+      Coordinates transientCoordinates393 = new Coordinates(10, 20);
+      return new Car((transientCoordinates393, new ElectricEngine()));
     }
   }
 }

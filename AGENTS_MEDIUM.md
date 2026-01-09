@@ -319,6 +319,8 @@ Special types will not be added to bindings:
 - `System.IAsyncResult`
 - `System.AsyncCallback`
 
+If you want to add your own special type, use the `SpecialType<T>()` call.
+
 For class `OrderManager`, the `Bind().To<OrderManager>()` binding will be equivalent to the `Bind<IOrderRepository, IOrderNotification, OrderManager>().To<OrderManager>()` binding. The types `IDisposable`, `IEnumerable<string>` did not get into the binding because they are special from the list above. `ManagerBase` did not get into the binding because it is not abstract. `IManager` is not included because it is not implemented directly by class `OrderManager`.
 
 |    |                       |                                                   |
@@ -401,7 +403,7 @@ using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind("today").To(_ => DateTime.Today)
+    .Bind("today").To(() => DateTime.Today)
     // Injects FileLogger and DateTime instances
     // and performs further initialization logic
     // defined in the lambda function to set up the log file name
@@ -876,6 +878,188 @@ class MessagingService(
     public IMessageSender SmsSender { get; } = smsSender;
 
     public IMessageSender DefaultSender { get; } = defaultSender;
+}
+```
+
+To run the above code, the following NuGet packages must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+ - [Shouldly](https://www.nuget.org/packages/Shouldly)
+
+
+## Simplified lifetime-specific bindings
+
+You can use the `Transient<>()`, `Singleton<>()`, `PerResolve<>()`, etc. methods. In this case binding will be performed for the implementation type itself, and if the implementation is not an abstract type or structure, for all abstract but NOT special types that are directly implemented.
+
+```c#
+using System.Collections;
+using Pure.DI;
+
+// Specifies to create a partial class "Composition"
+DI.Setup(nameof(Composition))
+    // The equivalent of the following:
+    // .Bind<IOrderRepository, IOrderNotification, OrderManager>()
+    //   .As(Lifetime.PerBlock)
+    //   .To<OrderManager>()
+    .PerBlock<OrderManager>()
+    // The equivalent of the following:
+    // .Bind<IShop, Shop>()
+    //   .As(Lifetime.Transient)
+    //   .To<Shop>()
+    // .Bind<IOrderNameFormatter, OrderNameFormatter>()
+    //   .As(Lifetime.Transient)
+    //   .To<OrderNameFormatter>()
+    .Transient<Shop, OrderNameFormatter>()
+
+    // Specifies to create a property "MyShop"
+    .Root<IShop>("MyShop");
+
+var composition = new Composition();
+var shop = composition.MyShop;
+
+interface IManager;
+
+class ManagerBase : IManager;
+
+interface IOrderRepository;
+
+interface IOrderNotification;
+
+class OrderManager(IOrderNameFormatter orderNameFormatter) :
+    ManagerBase,
+    IOrderRepository,
+    IOrderNotification,
+    IDisposable,
+    IEnumerable<string>
+{
+    public void Dispose() {}
+
+    public IEnumerator<string> GetEnumerator() =>
+        new List<string>
+        {
+            orderNameFormatter.Format(1),
+            orderNameFormatter.Format(2)
+        }.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+interface IOrderNameFormatter
+{
+    string Format(int orderId);
+}
+
+class OrderNameFormatter : IOrderNameFormatter
+{
+    public string Format(int orderId) => $"Order #{orderId}";
+}
+
+interface IShop;
+
+class Shop(
+    OrderManager manager,
+    IOrderRepository repository,
+    IOrderNotification notification)
+    : IShop;
+```
+
+To run the above code, the following NuGet package must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+
+These methods perform the binding with appropriate lifetime:
+
+- with the implementation type itself
+- and if it is NOT an abstract type or structure
+  - with all abstract types that it directly implements
+  - exceptions are special types
+
+Special types will not be added to bindings:
+
+- `System.Object`
+- `System.Enum`
+- `System.MulticastDelegate`
+- `System.Delegate`
+- `System.Collections.IEnumerable`
+- `System.Collections.Generic.IEnumerable<T>`
+- `System.Collections.Generic.IList<T>`
+- `System.Collections.Generic.ICollection<T>`
+- `System.Collections.IEnumerator`
+- `System.Collections.Generic.IEnumerator<T>`
+- `System.Collections.Generic.IReadOnlyList<T>`
+- `System.Collections.Generic.IReadOnlyCollection<T>`
+- `System.IDisposable`
+- `System.IAsyncResult`
+- `System.AsyncCallback`
+
+If you want to add your own special type, use the `SpecialType<T>()` call.
+
+For class `OrderManager`, the `PerBlock<OrderManager>()` binding will be equivalent to the `Bind<IOrderRepository, IOrderNotification, OrderManager>().As(Lifetime.PerBlock).To<OrderManager>()` binding. The types `IDisposable`, `IEnumerable<string>` did not get into the binding because they are special from the list above. `ManagerBase` did not get into the binding because it is not abstract. `IManager` is not included because it is not implemented directly by class `OrderManager`.
+
+|    |                       |                                                   |
+|----|-----------------------|---------------------------------------------------|
+| ✅ | `OrderManager`        | implementation type itself                        |
+| ✅ | `IOrderRepository`    | directly implements                               |
+| ✅ | `IOrderNotification`  | directly implements                               |
+| ❌ | `IDisposable`         | special type                                      |
+| ❌ | `IEnumerable<string>` | special type                                      |
+| ❌ | `ManagerBase`         | non-abstract                                      |
+| ❌ | `IManager`            | is not directly implemented by class OrderManager |
+
+## Simplified lifetime-specific factory
+
+```c#
+using Shouldly;
+using Pure.DI;
+
+DI.Setup(nameof(Composition))
+    .Transient(Guid.NewGuid)
+    .Transient(() => DateTime.Today, "today")
+    // Injects FileLogger and DateTime instances
+    // and performs further initialization logic
+    // defined in the lambda function to set up the log file name
+    .Singleton<FileLogger, DateTime, IFileLogger>((
+        FileLogger logger,
+        [Tag("today")] DateTime date) => {
+        logger.Init($"app-{date:yyyy-MM-dd}.log");
+        return logger;
+    })
+    .Transient<OrderProcessingService>()
+
+    // Composition root
+    .Root<IOrderProcessingService>("OrderService");
+
+var composition = new Composition();
+var service = composition.OrderService;
+
+service.Logger.FileName.ShouldBe($"app-{DateTime.Today:yyyy-MM-dd}.log");
+
+interface IFileLogger
+{
+    string FileName { get; }
+
+    void Log(string message);
+}
+
+class FileLogger(Func<Guid> idFactory) : IFileLogger
+{
+    public string FileName { get; private set; } = "";
+
+    public void Init(string fileName) => FileName = fileName;
+
+    public void Log(string message)
+    {
+        var id = idFactory();
+        // Write to file
+    }
+}
+
+interface IOrderProcessingService
+{
+    IFileLogger Logger { get; }
+}
+
+class OrderProcessingService(IFileLogger logger) : IOrderProcessingService
+{
+    public IFileLogger Logger { get; } = logger;
 }
 ```
 
@@ -2108,7 +2292,7 @@ using Pure.DI;
 DI.Setup(nameof(Composition))
     .Hint(Hint.Resolve, "Off")
     // Overrides TaskScheduler.Default if necessary
-    .Bind<TaskScheduler>().To(_ => TaskScheduler.Current)
+    .Bind<TaskScheduler>().To(() => TaskScheduler.Current)
     // Specifies to use CancellationToken from the composition root argument,
     // if not specified, then CancellationToken.None will be used
     .RootArg<CancellationToken>("cancellationToken")
@@ -2292,9 +2476,9 @@ using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind<Point>('a').To(_ => new Point(1, 1))
-    .Bind<Point>('b').To(_ => new Point(2, 2))
-    .Bind<Point>('c').To(_ => new Point(3, 3))
+    .Bind<Point>('a').To(() => new Point(1, 1))
+    .Bind<Point>('b').To(() => new Point(2, 2))
+    .Bind<Point>('c').To(() => new Point(3, 3))
     .Bind<IPath>().To<Path>()
 
     // Composition root
@@ -2350,7 +2534,7 @@ using Pure.DI;
 
 DI.Setup(nameof(Composition))
     .Bind<IEngine>().To<ElectricEngine>()
-    .Bind<Coordinates>().To(_ => new Coordinates(10, 20))
+    .Bind<Coordinates>().To(() => new Coordinates(10, 20))
     .Bind<IVehicle>().To<Car>()
 
     // Composition root
@@ -2901,7 +3085,7 @@ using Pure.DI;
 
 DI.Setup(nameof(Composition))
     .RootArg<string>("userName")
-    .Bind().To(_ => Guid.NewGuid())
+    .Bind().To(Guid.NewGuid)
     .Bind().To(ctx => {
         // The "BuildUp" method injects dependencies into an existing object.
         // This is useful when the object is created externally (e.g., by a UI framework
@@ -3319,8 +3503,8 @@ using Pure.DI;
 
 DI.Setup(nameof(PersonComposition))
     .Arg<int>("personId")
-    .Bind<Uri>("Person Uri").To(_ => new Uri("https://github.com/DevTeam/Pure.DI"))
-    .Bind("NikName").To(_ => "Nik")
+    .Bind<Uri>("Person Uri").To(() => new Uri("https://github.com/DevTeam/Pure.DI"))
+    .Bind("NikName").To(() => "Nik")
     .Bind().To<Person>()
 
     // Composition root
@@ -3685,7 +3869,7 @@ public partial class Scope : MonoBehaviour
 
     void Setup() =>
         DI.Setup()
-        .Bind().To(_ => clockConfig)
+        .Bind().To(() => clockConfig)
         .Bind().As(Lifetime.Singleton).To<ClockService>()
         .Builders<MonoBehaviour>();
 
@@ -3819,7 +4003,7 @@ public partial class Scope : MonoBehaviour
     [SerializeField]  ClockConfig clockConfig;
 
     void Setup() => DI.Setup()
-        .Bind().To(_ => clockConfig)
+        .Bind().To(() => clockConfig)
         .Bind().As(Lifetime.Singleton).To<ClockService>()
         .Root<ClockManager>(nameof(ClockManager))
         .Builders<MonoBehaviour>();

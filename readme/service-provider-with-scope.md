@@ -156,10 +156,10 @@ partial class Composition: IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsureConfigurationExists();
+      EnsureConfigurationExists1();
       return _root._singletonConfiguration51;
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsureConfigurationExists()
+      void EnsureConfigurationExists1()
       {
         if (_root._singletonConfiguration51 is null)
           lock (_lock)

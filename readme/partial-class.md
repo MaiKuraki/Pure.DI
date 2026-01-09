@@ -53,9 +53,9 @@ public partial class Composition(string storeName)
 
         DI.Setup()
             .Bind<IOrder>().To<Order>()
-            .Bind<long>().To(_ => GenerateId())
+            .Bind<long>().To(GenerateId)
             // Binds the string with the tag "Order details"
-            .Bind<string>("Order details").To(_ => $"{storeName}_{GenerateId()}")
+            .Bind<string>("Order details").To(() => $"{storeName}_{GenerateId()}")
             .Root<OrderService>("OrderService", kind: Internal);
 }
 ```
@@ -99,10 +99,10 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      long transientInt644 = GenerateId();
-      long transientInt645 = GenerateId();
-      string transientString1 = $"{storeName}_{GenerateId()}";
-      return new OrderService(transientString1, new Order(transientInt644), new Order(transientInt645));
+      long transientInt6461 = GenerateId();
+      long transientInt6462 = GenerateId();
+      string transientString58 = $"{storeName}_{GenerateId()}";
+      return new OrderService(transientString58, new Order(transientInt6461), new Order(transientInt6462));
     }
   }
 }

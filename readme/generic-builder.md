@@ -6,7 +6,7 @@ using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind(Tag.Id).To<TT>(_ => (TT)(object)Guid.NewGuid())
+    .Bind(Tag.Id).To(() => (TT)(object)Guid.NewGuid())
     .Bind().To<Repository<TT>>()
     // Generic service builder
     // Defines a generic builder "BuildUp".
@@ -94,17 +94,17 @@ partial class Composition
 #endif
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  public ViewModel<T3, T4> BuildUp<T3, T4>(ViewModel<T3, T4> buildingInstance)
-    where T3: struct
+  public ViewModel<T4, T5> BuildUp<T4, T5>(ViewModel<T4, T5> buildingInstance)
+    where T4: struct
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    ViewModel<T3, T4> transientViewModel;
-    ViewModel<T3, T4> localBuildingInstance8 = buildingInstance;
-    T3 transientTTS3 = (T3)(object)Guid.NewGuid();
-    localBuildingInstance8.Repository = new Repository<T4>();
-    localBuildingInstance8.SetId(transientTTS3);
-    transientViewModel = localBuildingInstance8;
-    return transientViewModel;
+    ViewModel<T4, T5> transientViewModel429;
+    ViewModel<T4, T5> localBuildingInstance8 = buildingInstance;
+    T4 transientTTS432 = (T4)(object)Guid.NewGuid();
+    localBuildingInstance8.Repository = new Repository<T5>();
+    localBuildingInstance8.SetId(transientTTS432);
+    transientViewModel429 = localBuildingInstance8;
+    return transientViewModel429;
   }
 }
 ```
@@ -120,26 +120,26 @@ Class diagram:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	RepositoryᐸT4ᐳ --|> IRepositoryᐸT4ᐳ
-	Composition ..> ViewModelᐸT3ˏT4ᐳ : ViewModelᐸT3ˏT4ᐳ BuildUpᐸT3ˏT4ᐳ(Pure.DI.UsageTests.Generics.GenericBuilderScenario.ViewModel<T3, T4> buildingInstance)
-	ViewModelᐸT3ˏT4ᐳ *--  RepositoryᐸT4ᐳ : IRepositoryᐸT4ᐳ
-	ViewModelᐸT3ˏT4ᐳ *--  T3 : "Id"  T3
+	RepositoryᐸT5ᐳ --|> IRepositoryᐸT5ᐳ
+	Composition ..> ViewModelᐸT4ˏT5ᐳ : ViewModelᐸT4ˏT5ᐳ BuildUpᐸT4ˏT5ᐳ(Pure.DI.UsageTests.Generics.GenericBuilderScenario.ViewModel<T4, T5> buildingInstance)
+	ViewModelᐸT4ˏT5ᐳ *--  RepositoryᐸT5ᐳ : IRepositoryᐸT5ᐳ
+	ViewModelᐸT4ˏT5ᐳ *--  T4 : "Id"  T4
 	namespace Pure.DI.UsageTests.Generics.GenericBuilderScenario {
 		class Composition {
 		<<partial>>
-		+ViewModelᐸT3ˏT4ᐳ BuildUpᐸT3ˏT4ᐳ(Pure.DI.UsageTests.Generics.GenericBuilderScenario.ViewModel<T3, T4> buildingInstance)
+		+ViewModelᐸT4ˏT5ᐳ BuildUpᐸT4ˏT5ᐳ(Pure.DI.UsageTests.Generics.GenericBuilderScenario.ViewModel<T4, T5> buildingInstance)
 		}
-		class IRepositoryᐸT4ᐳ {
+		class IRepositoryᐸT5ᐳ {
 			<<interface>>
 		}
-		class RepositoryᐸT4ᐳ {
+		class RepositoryᐸT5ᐳ {
 				<<class>>
 			+Repository()
 		}
-		class ViewModelᐸT3ˏT4ᐳ {
+		class ViewModelᐸT4ˏT5ᐳ {
 				<<record>>
-			+IRepositoryᐸT4ᐳ Repository
-			+SetId(T3 id) : Void
+			+IRepositoryᐸT5ᐳ Repository
+			+SetId(T4 id) : Void
 		}
 	}
 ```

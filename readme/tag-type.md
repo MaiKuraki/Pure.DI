@@ -123,10 +123,10 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsurePayPalGatewayPureDIUsageTestsAdvancedTagTypeScenarioPayPalGatewayExists();
+      EnsurePayPalGatewayPureDIUsageTestsAdvancedTagTypeScenarioPayPalGatewayExists1();
       return new PaymentProcessor(new CreditCardGateway(), _singletonPayPalGateway52, new CreditCardGateway());
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsurePayPalGatewayPureDIUsageTestsAdvancedTagTypeScenarioPayPalGatewayExists()
+      void EnsurePayPalGatewayPureDIUsageTestsAdvancedTagTypeScenarioPayPalGatewayExists1()
       {
         if (_singletonPayPalGateway52 is null)
           lock (_lock)

@@ -319,6 +319,8 @@ Special types will not be added to bindings:
 - `System.IAsyncResult`
 - `System.AsyncCallback`
 
+If you want to add your own special type, use the `SpecialType<T>()` call.
+
 For class `OrderManager`, the `Bind().To<OrderManager>()` binding will be equivalent to the `Bind<IOrderRepository, IOrderNotification, OrderManager>().To<OrderManager>()` binding. The types `IDisposable`, `IEnumerable<string>` did not get into the binding because they are special from the list above. `ManagerBase` did not get into the binding because it is not abstract. `IManager` is not included because it is not implemented directly by class `OrderManager`.
 
 |    |                       |                                                   |
@@ -401,7 +403,7 @@ using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind("today").To(_ => DateTime.Today)
+    .Bind("today").To(() => DateTime.Today)
     // Injects FileLogger and DateTime instances
     // and performs further initialization logic
     // defined in the lambda function to set up the log file name

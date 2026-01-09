@@ -8,9 +8,9 @@ using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind<Point>('a').To(_ => new Point(1, 1))
-    .Bind<Point>('b').To(_ => new Point(2, 2))
-    .Bind<Point>('c').To(_ => new Point(3, 3))
+    .Bind<Point>('a').To(() => new Point(1, 1))
+    .Bind<Point>('b').To(() => new Point(2, 2))
+    .Bind<Point>('c').To(() => new Point(3, 3))
     .Bind<IPath>().To<Path>()
 
     // Composition root
@@ -90,10 +90,10 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Point transientPoint2 = new Point(1, 1);
-      Point transientPoint3 = new Point(2, 2);
-      Point transientPoint4 = new Point(3, 3);
-      return new Path(stackalloc Point[3] { transientPoint2, transientPoint3, transientPoint4 });
+      Point transientPoint379 = new Point(1, 1);
+      Point transientPoint380 = new Point(2, 2);
+      Point transientPoint381 = new Point(3, 3);
+      return new Path(stackalloc Point[3] { transientPoint379, transientPoint380, transientPoint381 });
     }
   }
 }

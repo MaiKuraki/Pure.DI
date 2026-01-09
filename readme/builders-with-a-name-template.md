@@ -8,7 +8,7 @@ using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind().To(_ => Guid.NewGuid())
+    .Bind().To(Guid.NewGuid)
     .Bind().To<WiFi>()
     // Creates a builder based on the name template
     // for each type inherited from IDevice.
@@ -109,24 +109,24 @@ partial class Composition
   public Webcam InstallWebcam(Webcam buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    Webcam transientWebcam5;
+    Webcam transientWebcam220;
     Webcam localBuildingInstance6 = buildingInstance;
-    Guid transientGuid8 = Guid.NewGuid();
+    Guid transientGuid223 = Guid.NewGuid();
     localBuildingInstance6.Network = new WiFi();
-    localBuildingInstance6.SetId(transientGuid8);
-    transientWebcam5 = localBuildingInstance6;
-    return transientWebcam5;
+    localBuildingInstance6.SetId(transientGuid223);
+    transientWebcam220 = localBuildingInstance6;
+    return transientWebcam220;
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public Thermostat InstallThermostat(Thermostat buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    Thermostat transientThermostat2;
+    Thermostat transientThermostat217;
     Thermostat localBuildingInstance5 = buildingInstance;
     localBuildingInstance5.Network = new WiFi();
-    transientThermostat2 = localBuildingInstance5;
-    return transientThermostat2;
+    transientThermostat217 = localBuildingInstance5;
+    return transientThermostat217;
   }
 
   #pragma warning disable CS0162
@@ -160,6 +160,15 @@ Class diagram:
    hideEmptyMembersBox: true
 ---
 classDiagram
+	Guid --|> IComparable
+	Guid --|> IComparableᐸGuidᐳ
+	Guid --|> IEquatableᐸGuidᐳ
+	Guid --|> IFormattable
+	Guid --|> IParsableᐸGuidᐳ
+	Guid --|> ISpanFormattable
+	Guid --|> ISpanParsableᐸGuidᐳ
+	Guid --|> IUtf8SpanFormattable
+	Guid --|> IUtf8SpanParsableᐸGuidᐳ
 	WiFi --|> INetwork
 	Composition ..> IDevice : IDevice InstallIDevice(Pure.DI.UsageTests.Basics.BuildersWithNameTemplateScenario.IDevice buildingInstance)
 	Composition ..> Thermostat : Thermostat InstallThermostat(Pure.DI.UsageTests.Basics.BuildersWithNameTemplateScenario.Thermostat buildingInstance)
@@ -197,6 +206,33 @@ classDiagram
 	namespace System {
 		class Guid {
 				<<struct>>
+		}
+		class IComparable {
+			<<interface>>
+		}
+		class IComparableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IEquatableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IFormattable {
+			<<interface>>
+		}
+		class IParsableᐸGuidᐳ {
+			<<interface>>
+		}
+		class ISpanFormattable {
+			<<interface>>
+		}
+		class ISpanParsableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IUtf8SpanFormattable {
+			<<interface>>
+		}
+		class IUtf8SpanParsableᐸGuidᐳ {
+			<<interface>>
 		}
 	}
 ```

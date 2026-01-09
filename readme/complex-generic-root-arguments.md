@@ -90,12 +90,12 @@ partial class Composition
 #endif
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  public ISource<T> GetSource<T>(SourceConfig<T> config)
+  public ISource<T1> GetSource<T1>(SourceConfig<T1> config)
   {
     if (config is null) throw new ArgumentNullException(nameof(config));
-    var transientSource = new Source<T>();
-    transientSource.Initialize(config);
-    return transientSource;
+    var transientSource401 = new Source<T1>();
+    transientSource401.Initialize(config);
+    return transientSource401;
   }
 }
 ```
@@ -111,24 +111,24 @@ Class diagram:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	SourceᐸTᐳ --|> ISourceᐸTᐳ
-	Composition ..> SourceᐸTᐳ : ISourceᐸTᐳ GetSourceᐸTᐳ(Pure.DI.UsageTests.Generics.ComplexGenericRootArgScenario.SourceConfig<T> config)
-	SourceᐸTᐳ o-- SourceConfigᐸTᐳ : Argument "config"
+	SourceᐸT1ᐳ --|> ISourceᐸT1ᐳ
+	Composition ..> SourceᐸT1ᐳ : ISourceᐸT1ᐳ GetSourceᐸT1ᐳ(Pure.DI.UsageTests.Generics.ComplexGenericRootArgScenario.SourceConfig<T1> config)
+	SourceᐸT1ᐳ o-- SourceConfigᐸT1ᐳ : Argument "config"
 	namespace Pure.DI.UsageTests.Generics.ComplexGenericRootArgScenario {
 		class Composition {
 		<<partial>>
-		+ISourceᐸTᐳ GetSourceᐸTᐳ(Pure.DI.UsageTests.Generics.ComplexGenericRootArgScenario.SourceConfig<T> config)
+		+ISourceᐸT1ᐳ GetSourceᐸT1ᐳ(Pure.DI.UsageTests.Generics.ComplexGenericRootArgScenario.SourceConfig<T1> config)
 		}
-		class ISourceᐸTᐳ {
+		class ISourceᐸT1ᐳ {
 			<<interface>>
 		}
-		class SourceConfigᐸTᐳ {
+		class SourceConfigᐸT1ᐳ {
 				<<record>>
 		}
-		class SourceᐸTᐳ {
+		class SourceᐸT1ᐳ {
 				<<class>>
 			+Source()
-			+Initialize(SourceConfigᐸTᐳ config) : Void
+			+Initialize(SourceConfigᐸT1ᐳ config) : Void
 		}
 	}
 ```

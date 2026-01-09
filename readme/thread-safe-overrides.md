@@ -7,7 +7,7 @@ using Pure.DI;
 using System.Collections.Immutable;
 
 DI.Setup(nameof(Composition))
-    .Bind("Global").To(_ => new ProcessingToken("TOKEN-123"))
+    .Bind("Global").To(() => new ProcessingToken("TOKEN-123"))
     .Bind().As(Lifetime.Singleton).To<TimeProvider>()
     .Bind().To<Func<int, int, IOrderHandler>>(ctx =>
         (orderId, customerId) => {
@@ -148,13 +148,13 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<int, int, IOrderHandler> transientFunc1 =
+      Func<int, int, IOrderHandler> transientFunc102 =
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       (localOrderId, localCustomerId) =>
       {
         // Retrieves a global processing token to be passed to the handler
-        ProcessingToken transientProcessingToken2 = new ProcessingToken("TOKEN-123");
-        ProcessingToken localToken = transientProcessingToken2;
+        ProcessingToken transientProcessingToken103 = new ProcessingToken("TOKEN-123");
+        ProcessingToken localToken = transientProcessingToken103;
         // The factory is invoked in parallel, so we must lock
         // the context to safely perform overrides for the specific graph
         lock (_lock)
@@ -179,7 +179,7 @@ partial class Composition
           return localHandler;
         }
       };
-      return new OrderBatchProcessor(transientFunc1);
+      return new OrderBatchProcessor(transientFunc102);
     }
   }
 }

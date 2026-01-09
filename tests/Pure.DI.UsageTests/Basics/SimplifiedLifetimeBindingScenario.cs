@@ -1,6 +1,6 @@
 ﻿/*
 $v=true
-$p=1
+$p=8
 $d=Simplified lifetime-specific bindings
 $h=You can use the `Transient<>()`, `Singleton<>()`, `PerResolve<>()`, etc. methods. In this case binding will be performed for the implementation type itself, and if the implementation is not an abstract type or structure, for all abstract but NOT special types that are directly implemented.
 $f=These methods perform the binding with appropriate lifetime:
@@ -27,9 +27,8 @@ $f=- `System.Collections.Generic.IReadOnlyCollection<T>`
 $f=- `System.IDisposable`
 $f=- `System.IAsyncResult`
 $f=- `System.AsyncCallback`
-$f=- `UnityEngine.MonoBehaviour`
-$f=- `UnityEngine.ScriptableObject`
-$f=- `UnityEngine.Object`
+$f=
+$f=If you want to add your own special type, use the `SpecialType<T>()` call.
 $f=
 $f=For class `OrderManager`, the `PerBlock<OrderManager>()` binding will be equivalent to the `Bind<IOrderRepository, IOrderNotification, OrderManager>().As(Lifetime.PerBlock).To<OrderManager>()` binding. The types `IDisposable`, `IEnumerable<string>` did not get into the binding because they are special from the list above. `ManagerBase` did not get into the binding because it is not abstract. `IManager` is not included because it is not implemented directly by class `OrderManager`.
 $f=

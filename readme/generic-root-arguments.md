@@ -75,12 +75,12 @@ partial class Composition
 #endif
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  public IPresenter<T1> GetPresenter<T1>(T1 model)
+  public IPresenter<T2> GetPresenter<T2>(T2 model)
   {
     if (model is null) throw new ArgumentNullException(nameof(model));
-    var transientPresenter = new Presenter<T1>();
-    transientPresenter.Present(model);
-    return transientPresenter;
+    var transientPresenter457 = new Presenter<T2>();
+    transientPresenter457.Present(model);
+    return transientPresenter457;
   }
 }
 ```
@@ -96,21 +96,21 @@ Class diagram:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	PresenterᐸT1ᐳ --|> IPresenterᐸT1ᐳ
-	Composition ..> PresenterᐸT1ᐳ : IPresenterᐸT1ᐳ GetPresenterᐸT1ᐳ(T1 model)
-	PresenterᐸT1ᐳ o-- T1 : Argument "model"
+	PresenterᐸT2ᐳ --|> IPresenterᐸT2ᐳ
+	Composition ..> PresenterᐸT2ᐳ : IPresenterᐸT2ᐳ GetPresenterᐸT2ᐳ(T2 model)
+	PresenterᐸT2ᐳ o-- T2 : Argument "model"
 	namespace Pure.DI.UsageTests.Generics.GenericRootArgScenario {
 		class Composition {
 		<<partial>>
-		+IPresenterᐸT1ᐳ GetPresenterᐸT1ᐳ(T1 model)
+		+IPresenterᐸT2ᐳ GetPresenterᐸT2ᐳ(T2 model)
 		}
-		class IPresenterᐸT1ᐳ {
+		class IPresenterᐸT2ᐳ {
 			<<interface>>
 		}
-		class PresenterᐸT1ᐳ {
+		class PresenterᐸT2ᐳ {
 				<<class>>
 			+Presenter()
-			+Present(T1 model) : Void
+			+Present(T2 model) : Void
 		}
 	}
 ```

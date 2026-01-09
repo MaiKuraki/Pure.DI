@@ -183,14 +183,14 @@ partial class Composition: IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<RequestScope> transientFunc1 = new Func<RequestScope>(
+      Func<RequestScope> transientFunc534 = new Func<RequestScope>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        RequestScope localValue33 = new RequestScope(this);
-        return localValue33;
+        RequestScope localValue34 = new RequestScope(this);
+        return localValue34;
       });
-      return new App(transientFunc1);
+      return new App(transientFunc534);
     }
   }
 

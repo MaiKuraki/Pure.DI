@@ -7,7 +7,7 @@ using Pure.DI;
 
 DI.Setup("Composition")
     // Represents a large data set or buffer
-    .Bind().To<int[]>(_ => [10, 20, 30])
+    .Bind().To<int[]>(() => [10, 20, 30])
     .Root<Service>("MyService");
 
 var composition = new Composition();
@@ -73,12 +73,12 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      int[] transient2 = [10, 20, 30];
-      int[] transient2_ref = transient2;
-      var transientService = new Service();
-      Data transientData1_ref = new Data(ref transient2_ref);
-      transientService.Initialize(ref transientData1_ref);
-      return transientService;
+      int[] transient278 = [10, 20, 30];
+      int[] transient278_ref = transient278;
+      var transientService276 = new Service();
+      Data transientData277_ref = new Data(ref transient278_ref);
+      transientService276.Initialize(ref transientData277_ref);
+      return transientService276;
     }
   }
 

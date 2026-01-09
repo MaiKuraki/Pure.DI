@@ -71,7 +71,7 @@ public partial class Scope : MonoBehaviour
 
     void Setup() =>
         DI.Setup()
-        .Bind().To(_ => clockConfig)
+        .Bind().To(() => clockConfig)
         .Bind().As(Lifetime.Singleton).To<ClockService>()
         .Builders<MonoBehaviour>();
 
@@ -126,20 +126,20 @@ partial class Scope: IDisposable
   public Clock BuildUp(Clock buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    Clock transientClock2;
+    Clock transientClock546;
     Clock localBuildingInstance13 = buildingInstance;
     if (_singletonClockService52 is null)
       lock (_lock)
         if (_singletonClockService52 is null)
         {
-          ClockConfig transientClockConfig5 = clockConfig;
-          _singletonClockService52 = new ClockService(transientClockConfig5);
+          ClockConfig transientClockConfig549 = clockConfig;
+          _singletonClockService52 = new ClockService(transientClockConfig549);
           _disposables[_disposeIndex++] = _singletonClockService52;
         }
 
     localBuildingInstance13.ClockService = _singletonClockService52;
-    transientClock2 = localBuildingInstance13;
-    return transientClock2;
+    transientClock546 = localBuildingInstance13;
+    return transientClock546;
   }
 
   #pragma warning disable CS0162

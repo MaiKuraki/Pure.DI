@@ -1,6 +1,6 @@
-#### Simplified binding
+#### Simplified lifetime-specific bindings
 
-You can use the `Bind(...)` method without type parameters. In this case binding will be performed for the implementation type itself, and if the implementation is not an abstract type or structure, for all abstract but NOT special types that are directly implemented.
+You can use the `Transient<>()`, `Singleton<>()`, `PerResolve<>()`, etc. methods. In this case binding will be performed for the implementation type itself, and if the implementation is not an abstract type or structure, for all abstract but NOT special types that are directly implemented.
 
 
 ```c#
@@ -9,15 +9,19 @@ using Pure.DI;
 
 // Specifies to create a partial class "Composition"
 DI.Setup(nameof(Composition))
-    // Begins the binding definition for the implementation type itself,
-    // and if the implementation is not an abstract class or structure,
-    // for all abstract but NOT special types that are directly implemented.
-    // So that's the equivalent of the following:
+    // The equivalent of the following:
     // .Bind<IOrderRepository, IOrderNotification, OrderManager>()
     //   .As(Lifetime.PerBlock)
     //   .To<OrderManager>()
-    .Bind().As(Lifetime.PerBlock).To<OrderManager>()
-    .Bind().To<Shop>()
+    .PerBlock<OrderManager>()
+    // The equivalent of the following:
+    // .Bind<IShop, Shop>()
+    //   .As(Lifetime.Transient)
+    //   .To<Shop>()
+    // .Bind<IOrderNameFormatter, OrderNameFormatter>()
+    //   .As(Lifetime.Transient)
+    //   .To<OrderNameFormatter>()
+    .Transient<Shop, OrderNameFormatter>()
 
     // Specifies to create a property "MyShop"
     .Root<IShop>("MyShop");
@@ -33,7 +37,7 @@ interface IOrderRepository;
 
 interface IOrderNotification;
 
-class OrderManager :
+class OrderManager(IOrderNameFormatter orderNameFormatter) :
     ManagerBase,
     IOrderRepository,
     IOrderNotification,
@@ -43,9 +47,23 @@ class OrderManager :
     public void Dispose() {}
 
     public IEnumerator<string> GetEnumerator() =>
-        new List<string> { "Order #1", "Order #2" }.GetEnumerator();
+        new List<string>
+        {
+            orderNameFormatter.Format(1),
+            orderNameFormatter.Format(2)
+        }.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+interface IOrderNameFormatter
+{
+    string Format(int orderId);
+}
+
+class OrderNameFormatter : IOrderNameFormatter
+{
+    public string Format(int orderId) => $"Order #{orderId}";
 }
 
 interface IShop;
@@ -82,7 +100,7 @@ dotnet run
 
 </details>
 
-As practice has shown, in most cases it is possible to define abstraction types in bindings automatically. That's why we added API `Bind()` method without type parameters to define abstractions in bindings. It is the `Bind()` method that performs the binding:
+These methods perform the binding with appropriate lifetime:
 
 - with the implementation type itself
 - and if it is NOT an abstract type or structure
@@ -109,7 +127,7 @@ Special types will not be added to bindings:
 
 If you want to add your own special type, use the `SpecialType<T>()` call.
 
-For class `OrderManager`, the `Bind().To<OrderManager>()` binding will be equivalent to the `Bind<IOrderRepository, IOrderNotification, OrderManager>().To<OrderManager>()` binding. The types `IDisposable`, `IEnumerable<string>` did not get into the binding because they are special from the list above. `ManagerBase` did not get into the binding because it is not abstract. `IManager` is not included because it is not implemented directly by class `OrderManager`.
+For class `OrderManager`, the `PerBlock<OrderManager>()` binding will be equivalent to the `Bind<IOrderRepository, IOrderNotification, OrderManager>().As(Lifetime.PerBlock).To<OrderManager>()` binding. The types `IDisposable`, `IEnumerable<string>` did not get into the binding because they are special from the list above. `ManagerBase` did not get into the binding because it is not abstract. `IManager` is not included because it is not implemented directly by class `OrderManager`.
 
 |    |                       |                                                   |
 |----|-----------------------|---------------------------------------------------|
@@ -131,8 +149,8 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perBlockOrderManager298 = new OrderManager();
-      return new Shop(perBlockOrderManager298, perBlockOrderManager298, perBlockOrderManager298);
+      var perBlockOrderManager304 = new OrderManager(new OrderNameFormatter());
+      return new Shop(perBlockOrderManager304, perBlockOrderManager304, perBlockOrderManager304);
     }
   }
 }
@@ -153,14 +171,19 @@ classDiagram
 	OrderManager --|> IOrderNotification
 	OrderManager --|> IEnumerableᐸStringᐳ
 	Shop --|> IShop
+	OrderNameFormatter --|> IOrderNameFormatter
 	Composition ..> Shop : IShop MyShop
+	OrderManager *--  OrderNameFormatter : IOrderNameFormatter
 	Shop o-- "PerBlock" OrderManager : OrderManager
 	Shop o-- "PerBlock" OrderManager : IOrderRepository
 	Shop o-- "PerBlock" OrderManager : IOrderNotification
-	namespace Pure.DI.UsageTests.Basics.SimplifiedBindingScenario {
+	namespace Pure.DI.UsageTests.Basics.SimplifiedLifetimeBindingScenario {
 		class Composition {
 		<<partial>>
 		+IShop MyShop
+		}
+		class IOrderNameFormatter {
+			<<interface>>
 		}
 		class IOrderNotification {
 			<<interface>>
@@ -173,7 +196,11 @@ classDiagram
 		}
 		class OrderManager {
 				<<class>>
-			+OrderManager()
+			+OrderManager(IOrderNameFormatter orderNameFormatter)
+		}
+		class OrderNameFormatter {
+				<<class>>
+			+OrderNameFormatter()
 		}
 		class Shop {
 				<<class>>

@@ -451,11 +451,8 @@ By default, Pure.DI avoids binding tospecial types during auto-inference to prev
 - `System.IDisposable`
 - `System.IAsyncResult`
 - `System.AsyncCallback`
-- `UnityEngine.MonoBehaviour`
-- `UnityEngine.ScriptableObject`
-- `UnityEngine.Object`
 
-If you want to add yout own special type, use the `SpecialType<T>()` call, for example:
+If you want to add your own special type, use the `SpecialType<T>()` call, for example:
 
 ```c#
 .SpecialType<MonoBehaviour>()

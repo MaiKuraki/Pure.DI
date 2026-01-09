@@ -103,10 +103,10 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsureConsoleLoggerExists();
+      EnsureConsoleLoggerExists1();
       return _singletonConsoleLogger51;
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsureConsoleLoggerExists()
+      void EnsureConsoleLoggerExists1()
       {
         if (_singletonConsoleLogger51 is null)
           lock (_lock)

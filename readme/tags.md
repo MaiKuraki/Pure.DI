@@ -109,10 +109,10 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsureInternalApiClientInternalExists();
+      EnsureInternalApiClientInternalExists1();
       return _singletonInternalApiClient52;
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsureInternalApiClientInternalExists()
+      void EnsureInternalApiClientInternalExists1()
       {
         if (_singletonInternalApiClient52 is null)
           lock (_lock)

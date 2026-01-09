@@ -14,8 +14,8 @@ using Pure.DI;
 
 DI.Setup(nameof(PersonComposition))
     .Arg<int>("personId")
-    .Bind<Uri>("Person Uri").To(_ => new Uri("https://github.com/DevTeam/Pure.DI"))
-    .Bind("NikName").To(_ => "Nik")
+    .Bind<Uri>("Person Uri").To(() => new Uri("https://github.com/DevTeam/Pure.DI"))
+    .Bind("NikName").To(() => "Nik")
     .Bind().To<Person>()
 
     // Composition root
@@ -102,12 +102,12 @@ partial class PersonComposition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      string transientString1 = "Nik";
-      Uri transientUri3 = new Uri("https://github.com/DevTeam/Pure.DI");
-      var transientPerson = new Person(transientString1);
-      transientPerson.Id = _argPersonId;
-      transientPerson.Initialize(transientUri3);
-      return transientPerson;
+      string transientString170 = "Nik";
+      Uri transientUri172 = new Uri("https://github.com/DevTeam/Pure.DI");
+      var transientPerson169 = new Person(transientString170);
+      transientPerson169.Id = _argPersonId;
+      transientPerson169.Initialize(transientUri172);
+      return transientPerson169;
     }
   }
 }

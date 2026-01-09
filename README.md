@@ -336,7 +336,7 @@ Creates an attribute instance.
 
 <details><summary>Buckets`1</summary><blockquote>
 
-For internal use. 
+For internal use.
             
 </blockquote></details>
 
@@ -468,16 +468,16 @@ Begins the definitions of the Dependency Injection setup chain.
 
 interface IDependency;
             
-             
+            
              class Dependency: IDependency;
             
-             
+            
              interface IService;
             
-             
+            
              class Service(IDependency dependency): IService;
             
-             
+            
              DI.Setup("Composition")
                .Bind<IDependency>().To<Dependency>()
                .Bind<IService>().To<Service>()
@@ -2110,12 +2110,12 @@ Starts binding definition for a specific dependency type.
 ```c#
 
 DI.Setup("Composition")
-                .Bind<IDependency>().To<Dependency>();
+                .Bind<IService>>().To<Service>();
             
 ```
 
-Dependency type to bind. Supports type markers like _TT_ and _TTList`1_.
- - parameter _tags_ - Optional tags to associate with this binding.
+Dependency type to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
 
  - returns Binding configuration interface for method chaining.
 
@@ -2136,9 +2136,16 @@ See also _As(Pure.DI.Lifetime)_.
 
 <details><summary>Method Bind``2(System.Object[])</summary><blockquote>
 
-Starts binding definition for multiple dependency types simultaneously.
-            See _Bind``1(System.Object[])_ for detailed usage.
-            First dependency type to bind.Second dependency type to bind.
+Starts binding definition for a specific dependency type.
+            
+```c#
+
+DI.Setup("Composition")
+                .Bind<IService, IService1>>().To<Service>();
+            
+```
+
+Dependency type to bind.Dependency type 1 to bind.
  - parameter _tags_ - Optional tags to associate with these bindings.
 
  - returns Binding configuration interface for method chaining.
@@ -2160,9 +2167,16 @@ See also _As(Pure.DI.Lifetime)_.
 
 <details><summary>Method Bind``3(System.Object[])</summary><blockquote>
 
-Starts binding definition for multiple dependency types simultaneously.
-            See _Bind``1(System.Object[])_ for detailed usage.
-            First dependency type to bind.Second dependency type to bind.Third dependency type to bind.
+Starts binding definition for a specific dependency type.
+            
+```c#
+
+DI.Setup("Composition")
+                .Bind<IService, IService1, IService2>>().To<Service>();
+            
+```
+
+Dependency type to bind.Dependency type 1 to bind.Dependency type 2 to bind.
  - parameter _tags_ - Optional tags to associate with these bindings.
 
  - returns Binding configuration interface for method chaining.
@@ -2184,9 +2198,16 @@ See also _As(Pure.DI.Lifetime)_.
 
 <details><summary>Method Bind``4(System.Object[])</summary><blockquote>
 
-Starts binding definition for multiple dependency types simultaneously.
-            See _Bind``1(System.Object[])_ for detailed usage.
-            First dependency type to bind.Second dependency type to bind.Third dependency type to bind.Fourth dependency type to bind.
+Starts binding definition for a specific dependency type.
+            
+```c#
+
+DI.Setup("Composition")
+                .Bind<IService, IService1, IService2, IService3>>().To<Service>();
+            
+```
+
+Dependency type to bind.Dependency type 1 to bind.Dependency type 2 to bind.Dependency type 3 to bind.
  - parameter _tags_ - Optional tags to associate with these bindings.
 
  - returns Binding configuration interface for method chaining.
@@ -2389,6 +2410,50 @@ This method is useful for creating and initializing an instance manually.
 </blockquote></details>
 
 
+<details><summary>Method To``1(System.Func{``0})</summary><blockquote>
+
+Specifies a context-less factory method to create the implementation instance.
+            
+```c#
+
+DI.Setup("Composition")
+                .Bind<IService>()
+                To(() =>
+                {
+                    var service = new Service("My Service");
+                    service.Initialize();
+                    return service;
+                })
+            
+```
+
+
+ - parameter _factory_ - Factory method to create and initialize the instance.
+Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(factory)_.
+
+See also _To``1_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _Tags(System.Object[])_.
+
+See also _As(Pure.DI.Lifetime)_.
+This method is useful for creating and initializing an instance manually.
+            At the compilation stage, the set of dependencies that the object to be created needs is determined.
+            In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+            But sometimes it is necessary to manually create and/or initialize an object.
+            There are scenarios where manual control over the creation process is required, such as
+            when additional initialization logic is neededwhen complex construction steps are requiredwhen specific object states need to be set during creation
+</blockquote></details>
+
+
 <details><summary>Method To``1(System.String)</summary><blockquote>
 
 Specifies a source code statement to create the implementation.
@@ -2424,7 +2489,7 @@ Specifies a simplified factory method with dependency parameters.
 ```c#
 
 DI.Setup(nameof(Composition))
-                 .Bind<IDependency>().To((
+                 .Bind<IDependency1>().To((
                      Dependency dependency) =>
                  {
                      dependency.Initialize();
@@ -2433,7 +2498,7 @@ DI.Setup(nameof(Composition))
             
              // Variant using TagAttribute:
              DI.Setup(nameof(Composition))
-                 .Bind<IDependency>().To((
+                 .Bind<IDependency1>().To((
                      [Tag("some tag")] Dependency dependency) =>
                  {
                      dependency.Initialize();
@@ -2444,7 +2509,7 @@ DI.Setup(nameof(Composition))
 
 
  - parameter _factory_ - Factory method with injected dependencies.
-Type of the first dependency parameter.Implementation type.
+Type of dependency parameter 1.Implementation type.
  - returns Configuration interface for method chaining.
 
 See also _Bind``1(System.Object[])_.
@@ -2462,27 +2527,24 @@ See also _As(Pure.DI.Lifetime)_.
 
 <details><summary>Method To``3(System.Func{``0,``1,``2})</summary><blockquote>
 
-Specifies a simplified factory method with multiple dependency parameters.
+Specifies a simplified factory method with dependency parameters.
              
 ```c#
 
 DI.Setup(nameof(Composition))
-                 .Bind<IDependency>().To((
-                     Dependency dependency,
-                     DateTimeOffset time) =>
+                 .Bind<IDependency1, IDependency2>().To((
+                     Dependency dependency) =>
                  {
-                     dependency.Initialize(time);
+                     dependency.Initialize();
                      return dependency;
                  });
             
              // Variant using TagAttribute:
              DI.Setup(nameof(Composition))
-                 .Bind("now datetime").To(_ => DateTimeOffset.Now)
-                 .Bind<IDependency>().To((
-                     Dependency dependency,
-                     [Tag("now datetime")] DateTimeOffset time) =>
+                 .Bind<IDependency1, IDependency2>().To((
+                     [Tag("some tag")] Dependency dependency) =>
                  {
-                     dependency.Initialize(time);
+                     dependency.Initialize();
                      return dependency;
                  });
              
@@ -2490,7 +2552,7 @@ DI.Setup(nameof(Composition))
 
 
  - parameter _factory_ - Factory method with injected dependencies.
-Type of the first dependency parameter.Type of second dependency parameter.Implementation type.
+Type of dependency parameter 1.Type of dependency parameter 2.Implementation type.
  - returns Configuration interface for method chaining.
 
 See also _Bind``1(System.Object[])_.
@@ -2508,10 +2570,32 @@ See also _As(Pure.DI.Lifetime)_.
 
 <details><summary>Method To``4(System.Func{``0,``1,``2,``3})</summary><blockquote>
 
-Specifies a simplified factory method with multiple dependency parameters.
+Specifies a simplified factory method with dependency parameters.
+             
+```c#
+
+DI.Setup(nameof(Composition))
+                 .Bind<IDependency1, IDependency2, IDependency3>().To((
+                     Dependency dependency) =>
+                 {
+                     dependency.Initialize();
+                     return dependency;
+                 });
             
+             // Variant using TagAttribute:
+             DI.Setup(nameof(Composition))
+                 .Bind<IDependency1, IDependency2, IDependency3>().To((
+                     [Tag("some tag")] Dependency dependency) =>
+                 {
+                     dependency.Initialize();
+                     return dependency;
+                 });
+             
+```
+
+
  - parameter _factory_ - Factory method with injected dependencies.
-Type of the first dependency parameter.Type of the second dependency parameter.Type of the third dependency parameter.Implementation type.
+Type of dependency parameter 1.Type of dependency parameter 2.Type of dependency parameter 3.Implementation type.
  - returns Configuration interface for method chaining.
 
 See also _Bind``1(System.Object[])_.
@@ -2538,9 +2622,11 @@ See also _Setup(System.String,Pure.DI.CompositionKind)_.
 
 <details><summary>Method Bind(System.Object[])</summary><blockquote>
 
-Starts binding definition for the implementation type itself. Also binds all directly implemented abstract types excluding special system interfaces.
-            Special system interfaces are excluded from binding:
+Starts binding definition for the implementation type itself (implementation binding). Also binds all directly implemented abstract types excluding special types.
+            Special types are excluded from binding by default:
             System.ObjectSystem.EnumSystem.MulticastDelegateSystem.DelegateSystem.Collections.IEnumerableSystem.Collections.Generic.IEnumerable<T>System.Collections.Generic.IList<T>System.Collections.Generic.ICollection<T>System.Collections.IEnumeratorSystem.Collections.Generic.IEnumerator<T>System.Collections.Generic.IReadOnlyList<T>System.Collections.Generic.IReadOnlyCollection<T>System.IDisposableSystem.IAsyncResultSystem.AsyncCallback
+            Use _SpecialType``1_ to add a special type.
+            
 ```c#
 
 DI.Setup("Composition")
@@ -2552,6 +2638,8 @@ DI.Setup("Composition")
  - parameter _tags_ - Optional tags to associate with the binding.
 
  - returns Binding configuration interface for method chaining.
+
+See also _SpecialType``1_.
 
 See also _To``1_.
 
@@ -2575,98 +2663,119 @@ Starts binding definition for a specific dependency type.
 ```c#
 
 DI.Setup("Composition")
-                .Bind<IService>().To<Service>();
+                .Bind<IService>>().To<Service>();
             
 ```
 
 Dependency type to bind.
- - parameter _tags_ - Optional tags to associate with the binding.
+ - parameter _tags_ - Optional tags to associate with these bindings.
 
  - returns Binding configuration interface for method chaining.
 
-See also _To``1_.
+See also _!:To<T>()_.
 
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
 
-See also _To<T1,T>()_.
+See also _!:To<T1,T>()_.
 
-See also _To<T1,T2,T>()_.
+See also _!:To<T1,T2,T>()_.
 
-See also _Tags(System.Object[])_.
+See also _!:Tags_.
 
-See also _As(Pure.DI.Lifetime)_.
+See also _!:As_.
 
 </blockquote></details>
 
 
 <details><summary>Method Bind``2(System.Object[])</summary><blockquote>
 
-Starts binding definition for multiple dependency types simultaneously.
-             See _Bind``1(System.Object[])_ for detailed usage.
-             First dependency type to bind.Second dependency type to bind.
- - parameter _tags_ - Optional tags to associate with the binding.
+Starts binding definition for a specific dependency type.
+            
+```c#
+
+DI.Setup("Composition")
+                .Bind<IService, IService1>>().To<Service>();
+            
+```
+
+Dependency type to bind.Dependency type 1 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
 
  - returns Binding configuration interface for method chaining.
 
-See also _To``1_.
+See also _!:To<T>()_.
 
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
 
-See also _To<T1,T>()_.
+See also _!:To<T1,T>()_.
 
-See also _To<T1,T2,T>()_.
+See also _!:To<T1,T2,T>()_.
 
-See also _Tags(System.Object[])_.
+See also _!:Tags_.
 
-            seealso cref="IBinding.As"/>
-        
+See also _!:As_.
+
 </blockquote></details>
 
 
 <details><summary>Method Bind``3(System.Object[])</summary><blockquote>
 
-Starts binding definition for multiple dependency types simultaneously.
-            See _Bind``1(System.Object[])_ for detailed usage.
-            First dependency type to bind.Second dependency type to bind.Third dependency type to bind.
- - parameter _tags_ - Optional tags to associate with the binding.
+Starts binding definition for a specific dependency type.
+            
+```c#
+
+DI.Setup("Composition")
+                .Bind<IService, IService1, IService2>>().To<Service>();
+            
+```
+
+Dependency type to bind.Dependency type 1 to bind.Dependency type 2 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
 
  - returns Binding configuration interface for method chaining.
 
-See also _To``1_.
+See also _!:To<T>()_.
 
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
 
-See also _To<T1,T>()_.
+See also _!:To<T1,T>()_.
 
-See also _To<T1,T2,T>()_.
+See also _!:To<T1,T2,T>()_.
 
-See also _Tags(System.Object[])_.
+See also _!:Tags_.
 
-See also _As(Pure.DI.Lifetime)_.
+See also _!:As_.
 
 </blockquote></details>
 
 
 <details><summary>Method Bind``4(System.Object[])</summary><blockquote>
 
-Starts binding definition for multiple dependency types simultaneously.
-            See _Bind``1(System.Object[])_ for detailed usage.
-            First dependency type to bind.Second dependency type to bind.Third dependency type to bind.Fourth dependency type to bind.
- - parameter _tags_ - Optional tags to associate with the binding.
+Starts binding definition for a specific dependency type.
+            
+```c#
+
+DI.Setup("Composition")
+                .Bind<IService, IService1, IService2, IService3>>().To<Service>();
+            
+```
+
+Dependency type to bind.Dependency type 1 to bind.Dependency type 2 to bind.Dependency type 3 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
 
  - returns Binding configuration interface for method chaining.
 
-See also _To``1_.
+See also _!:To<T>()_.
 
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
 
-See also _To<T1,T>()_.
+See also _!:To<T1,T>()_.
 
-See also _To<T1,T2,T>()_.
+See also _!:To<T1,T2,T>()_.
 
-See also _Tags(System.Object[])_.
+See also _!:Tags_.
 
-See also _As(Pure.DI.Lifetime)_.
+See also _!:As_.
 
 </blockquote></details>
 
@@ -2814,6 +2923,25 @@ Custom attribute type.
  - returns Configuration interface for method chaining.
 
 See also _OrdinalAttribute_.
+
+</blockquote></details>
+
+
+<details><summary>Method SpecialType``1</summary><blockquote>
+
+Adds a special type that excludes it from implementation binding.
+            
+```c#
+
+DI.Setup("Composition")
+                .SpecialType<UnityEngine.MonoBehaviour>();
+            
+```
+
+Special type.
+ - returns Configuration interface for method chaining.
+
+See also _!:Bind()_.
 
 </blockquote></details>
 
@@ -3125,6 +3253,1291 @@ Generic type marker.
  - returns Configuration interface for method chaining.
 
 See also _GenericTypeArgumentAttribute``1_.
+
+</blockquote></details>
+
+
+<details><summary>Method Transient``1(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Transient``2(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.Implementation type 1 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Transient``3(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.Implementation type 1 to bind.Implementation type 2 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Transient``4(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.Implementation type 1 to bind.Implementation type 2 to bind.Implementation type 3 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Transient``1(System.Func{Pure.DI.IContext,``0},System.Object[])</summary><blockquote>
+
+Specifies a lifetime-specific factory method to create the implementation instance.
+             
+```c#
+
+DI.Setup("Composition")
+                 .Transient<IService>(_ =>
+                 {
+                     var service = new Service("My Service");
+                     service.Initialize();
+                     return service;
+                 })
+            
+             // Another example:
+             DI.Setup("Composition")
+                 .Transient<IService>(ctx =>
+                 {
+                     ctx.Inject<IDependency>(out var dependency);
+                     return new Service(dependency);
+                 })
+            
+             // And another example:
+             DI.Setup("Composition")
+                 .Transient<IService>(ctx =>
+                 {
+                     // Builds up an instance with all necessary dependencies
+                     ctx.Inject<Service>(out var service);
+                     service.Initialize();
+                     return service;
+                 })
+             
+```
+
+
+ - parameter _factory_ - Factory method to create and initialize the instance.
+Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>()_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+This method is useful for creating and initializing an instance manually.
+             At the compilation stage, the set of dependencies that the object to be created needs is determined.
+             In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+             But sometimes it is necessary to manually create and/or initialize an object.
+             There are scenarios where manual control over the creation process is required, such as
+             when additional initialization logic is neededwhen complex construction steps are requiredwhen specific object states need to be set during creation
+</blockquote></details>
+
+
+<details><summary>Method Transient``1(System.Func{``0},System.Object[])</summary><blockquote>
+
+Specifies a lifetime-specific context-less factory method to create the implementation instance.
+            
+```c#
+
+DI.Setup("Composition")
+                .Transient<IService>(() =>
+                {
+                    var service = new Service("My Service");
+                    service.Initialize();
+                    return service;
+                })
+            
+```
+
+
+ - parameter _factory_ - Factory method to create and initialize the instance.
+Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(factory)_.
+
+See also _!:To<T>()_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+This method is useful for creating and initializing an instance manually.
+            At the compilation stage, the set of dependencies that the object to be created needs is determined.
+            In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+            But sometimes it is necessary to manually create and/or initialize an object.
+            There are scenarios where manual control over the creation process is required, such as
+            when additional initialization logic is neededwhen complex construction steps are requiredwhen specific object states need to be set during creation
+</blockquote></details>
+
+
+<details><summary>Method Transient``2(System.Func{``0,``1},System.Object[])</summary><blockquote>
+
+Specifies a simplified lifetime-specific factory method with dependency parameters.
+            
+ - parameter _factory_ - Lifetime-specific аactory method with injected dependencies.
+Type of dependency parameter 1.Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Transient``3(System.Func{``0,``1,``2},System.Object[])</summary><blockquote>
+
+Specifies a simplified lifetime-specific factory method with dependency parameters.
+            
+ - parameter _factory_ - Lifetime-specific аactory method with injected dependencies.
+Type of dependency parameter 1.Type of dependency parameter 2.Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Transient``4(System.Func{``0,``1,``2,``3},System.Object[])</summary><blockquote>
+
+Specifies a simplified lifetime-specific factory method with dependency parameters.
+            
+ - parameter _factory_ - Lifetime-specific аactory method with injected dependencies.
+Type of dependency parameter 1.Type of dependency parameter 2.Type of dependency parameter 3.Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Singleton``1(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Singleton``2(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.Implementation type 1 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Singleton``3(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.Implementation type 1 to bind.Implementation type 2 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Singleton``4(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.Implementation type 1 to bind.Implementation type 2 to bind.Implementation type 3 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Singleton``1(System.Func{Pure.DI.IContext,``0},System.Object[])</summary><blockquote>
+
+Specifies a lifetime-specific factory method to create the implementation instance.
+             
+```c#
+
+DI.Setup("Composition")
+                 .Singleton<IService>(_ =>
+                 {
+                     var service = new Service("My Service");
+                     service.Initialize();
+                     return service;
+                 })
+            
+             // Another example:
+             DI.Setup("Composition")
+                 .Singleton<IService>(ctx =>
+                 {
+                     ctx.Inject<IDependency>(out var dependency);
+                     return new Service(dependency);
+                 })
+            
+             // And another example:
+             DI.Setup("Composition")
+                 .Singleton<IService>(ctx =>
+                 {
+                     // Builds up an instance with all necessary dependencies
+                     ctx.Inject<Service>(out var service);
+                     service.Initialize();
+                     return service;
+                 })
+             
+```
+
+
+ - parameter _factory_ - Factory method to create and initialize the instance.
+Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>()_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+This method is useful for creating and initializing an instance manually.
+             At the compilation stage, the set of dependencies that the object to be created needs is determined.
+             In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+             But sometimes it is necessary to manually create and/or initialize an object.
+             There are scenarios where manual control over the creation process is required, such as
+             when additional initialization logic is neededwhen complex construction steps are requiredwhen specific object states need to be set during creation
+</blockquote></details>
+
+
+<details><summary>Method Singleton``1(System.Func{``0},System.Object[])</summary><blockquote>
+
+Specifies a lifetime-specific context-less factory method to create the implementation instance.
+            
+```c#
+
+DI.Setup("Composition")
+                .Singleton<IService>(() =>
+                {
+                    var service = new Service("My Service");
+                    service.Initialize();
+                    return service;
+                })
+            
+```
+
+
+ - parameter _factory_ - Factory method to create and initialize the instance.
+Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(factory)_.
+
+See also _!:To<T>()_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+This method is useful for creating and initializing an instance manually.
+            At the compilation stage, the set of dependencies that the object to be created needs is determined.
+            In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+            But sometimes it is necessary to manually create and/or initialize an object.
+            There are scenarios where manual control over the creation process is required, such as
+            when additional initialization logic is neededwhen complex construction steps are requiredwhen specific object states need to be set during creation
+</blockquote></details>
+
+
+<details><summary>Method Singleton``2(System.Func{``0,``1},System.Object[])</summary><blockquote>
+
+Specifies a simplified lifetime-specific factory method with dependency parameters.
+            
+ - parameter _factory_ - Lifetime-specific аactory method with injected dependencies.
+Type of dependency parameter 1.Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Singleton``3(System.Func{``0,``1,``2},System.Object[])</summary><blockquote>
+
+Specifies a simplified lifetime-specific factory method with dependency parameters.
+            
+ - parameter _factory_ - Lifetime-specific аactory method with injected dependencies.
+Type of dependency parameter 1.Type of dependency parameter 2.Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Singleton``4(System.Func{``0,``1,``2,``3},System.Object[])</summary><blockquote>
+
+Specifies a simplified lifetime-specific factory method with dependency parameters.
+            
+ - parameter _factory_ - Lifetime-specific аactory method with injected dependencies.
+Type of dependency parameter 1.Type of dependency parameter 2.Type of dependency parameter 3.Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Scoped``1(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Scoped``2(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.Implementation type 1 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Scoped``3(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.Implementation type 1 to bind.Implementation type 2 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Scoped``4(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.Implementation type 1 to bind.Implementation type 2 to bind.Implementation type 3 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Scoped``1(System.Func{Pure.DI.IContext,``0},System.Object[])</summary><blockquote>
+
+Specifies a lifetime-specific factory method to create the implementation instance.
+             
+```c#
+
+DI.Setup("Composition")
+                 .Scoped<IService>(_ =>
+                 {
+                     var service = new Service("My Service");
+                     service.Initialize();
+                     return service;
+                 })
+            
+             // Another example:
+             DI.Setup("Composition")
+                 .Scoped<IService>(ctx =>
+                 {
+                     ctx.Inject<IDependency>(out var dependency);
+                     return new Service(dependency);
+                 })
+            
+             // And another example:
+             DI.Setup("Composition")
+                 .Scoped<IService>(ctx =>
+                 {
+                     // Builds up an instance with all necessary dependencies
+                     ctx.Inject<Service>(out var service);
+                     service.Initialize();
+                     return service;
+                 })
+             
+```
+
+
+ - parameter _factory_ - Factory method to create and initialize the instance.
+Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>()_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+This method is useful for creating and initializing an instance manually.
+             At the compilation stage, the set of dependencies that the object to be created needs is determined.
+             In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+             But sometimes it is necessary to manually create and/or initialize an object.
+             There are scenarios where manual control over the creation process is required, such as
+             when additional initialization logic is neededwhen complex construction steps are requiredwhen specific object states need to be set during creation
+</blockquote></details>
+
+
+<details><summary>Method Scoped``1(System.Func{``0},System.Object[])</summary><blockquote>
+
+Specifies a lifetime-specific context-less factory method to create the implementation instance.
+            
+```c#
+
+DI.Setup("Composition")
+                .Scoped<IService>(() =>
+                {
+                    var service = new Service("My Service");
+                    service.Initialize();
+                    return service;
+                })
+            
+```
+
+
+ - parameter _factory_ - Factory method to create and initialize the instance.
+Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(factory)_.
+
+See also _!:To<T>()_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+This method is useful for creating and initializing an instance manually.
+            At the compilation stage, the set of dependencies that the object to be created needs is determined.
+            In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+            But sometimes it is necessary to manually create and/or initialize an object.
+            There are scenarios where manual control over the creation process is required, such as
+            when additional initialization logic is neededwhen complex construction steps are requiredwhen specific object states need to be set during creation
+</blockquote></details>
+
+
+<details><summary>Method Scoped``2(System.Func{``0,``1},System.Object[])</summary><blockquote>
+
+Specifies a simplified lifetime-specific factory method with dependency parameters.
+            
+ - parameter _factory_ - Lifetime-specific аactory method with injected dependencies.
+Type of dependency parameter 1.Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Scoped``3(System.Func{``0,``1,``2},System.Object[])</summary><blockquote>
+
+Specifies a simplified lifetime-specific factory method with dependency parameters.
+            
+ - parameter _factory_ - Lifetime-specific аactory method with injected dependencies.
+Type of dependency parameter 1.Type of dependency parameter 2.Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method Scoped``4(System.Func{``0,``1,``2,``3},System.Object[])</summary><blockquote>
+
+Specifies a simplified lifetime-specific factory method with dependency parameters.
+            
+ - parameter _factory_ - Lifetime-specific аactory method with injected dependencies.
+Type of dependency parameter 1.Type of dependency parameter 2.Type of dependency parameter 3.Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method PerResolve``1(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method PerResolve``2(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.Implementation type 1 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method PerResolve``3(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.Implementation type 1 to bind.Implementation type 2 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method PerResolve``4(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.Implementation type 1 to bind.Implementation type 2 to bind.Implementation type 3 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method PerResolve``1(System.Func{Pure.DI.IContext,``0},System.Object[])</summary><blockquote>
+
+Specifies a lifetime-specific factory method to create the implementation instance.
+             
+```c#
+
+DI.Setup("Composition")
+                 .PerResolve<IService>(_ =>
+                 {
+                     var service = new Service("My Service");
+                     service.Initialize();
+                     return service;
+                 })
+            
+             // Another example:
+             DI.Setup("Composition")
+                 .PerResolve<IService>(ctx =>
+                 {
+                     ctx.Inject<IDependency>(out var dependency);
+                     return new Service(dependency);
+                 })
+            
+             // And another example:
+             DI.Setup("Composition")
+                 .PerResolve<IService>(ctx =>
+                 {
+                     // Builds up an instance with all necessary dependencies
+                     ctx.Inject<Service>(out var service);
+                     service.Initialize();
+                     return service;
+                 })
+             
+```
+
+
+ - parameter _factory_ - Factory method to create and initialize the instance.
+Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>()_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+This method is useful for creating and initializing an instance manually.
+             At the compilation stage, the set of dependencies that the object to be created needs is determined.
+             In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+             But sometimes it is necessary to manually create and/or initialize an object.
+             There are scenarios where manual control over the creation process is required, such as
+             when additional initialization logic is neededwhen complex construction steps are requiredwhen specific object states need to be set during creation
+</blockquote></details>
+
+
+<details><summary>Method PerResolve``1(System.Func{``0},System.Object[])</summary><blockquote>
+
+Specifies a lifetime-specific context-less factory method to create the implementation instance.
+            
+```c#
+
+DI.Setup("Composition")
+                .PerResolve<IService>(() =>
+                {
+                    var service = new Service("My Service");
+                    service.Initialize();
+                    return service;
+                })
+            
+```
+
+
+ - parameter _factory_ - Factory method to create and initialize the instance.
+Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(factory)_.
+
+See also _!:To<T>()_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+This method is useful for creating and initializing an instance manually.
+            At the compilation stage, the set of dependencies that the object to be created needs is determined.
+            In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+            But sometimes it is necessary to manually create and/or initialize an object.
+            There are scenarios where manual control over the creation process is required, such as
+            when additional initialization logic is neededwhen complex construction steps are requiredwhen specific object states need to be set during creation
+</blockquote></details>
+
+
+<details><summary>Method PerResolve``2(System.Func{``0,``1},System.Object[])</summary><blockquote>
+
+Specifies a simplified lifetime-specific factory method with dependency parameters.
+            
+ - parameter _factory_ - Lifetime-specific аactory method with injected dependencies.
+Type of dependency parameter 1.Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method PerResolve``3(System.Func{``0,``1,``2},System.Object[])</summary><blockquote>
+
+Specifies a simplified lifetime-specific factory method with dependency parameters.
+            
+ - parameter _factory_ - Lifetime-specific аactory method with injected dependencies.
+Type of dependency parameter 1.Type of dependency parameter 2.Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method PerResolve``4(System.Func{``0,``1,``2,``3},System.Object[])</summary><blockquote>
+
+Specifies a simplified lifetime-specific factory method with dependency parameters.
+            
+ - parameter _factory_ - Lifetime-specific аactory method with injected dependencies.
+Type of dependency parameter 1.Type of dependency parameter 2.Type of dependency parameter 3.Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method PerBlock``1(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method PerBlock``2(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.Implementation type 1 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method PerBlock``3(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.Implementation type 1 to bind.Implementation type 2 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method PerBlock``4(System.Object[])</summary><blockquote>
+
+Defines simplified lifetime-specific binding.
+            Implementation type to bind.Implementation type 1 to bind.Implementation type 2 to bind.Implementation type 3 to bind.
+ - parameter _tags_ - Optional tags to associate with these bindings.
+
+ - returns Binding configuration interface for method chaining.
+
+See also _!:To<T>()_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method PerBlock``1(System.Func{Pure.DI.IContext,``0},System.Object[])</summary><blockquote>
+
+Specifies a lifetime-specific factory method to create the implementation instance.
+             
+```c#
+
+DI.Setup("Composition")
+                 .PerBlock<IService>(_ =>
+                 {
+                     var service = new Service("My Service");
+                     service.Initialize();
+                     return service;
+                 })
+            
+             // Another example:
+             DI.Setup("Composition")
+                 .PerBlock<IService>(ctx =>
+                 {
+                     ctx.Inject<IDependency>(out var dependency);
+                     return new Service(dependency);
+                 })
+            
+             // And another example:
+             DI.Setup("Composition")
+                 .PerBlock<IService>(ctx =>
+                 {
+                     // Builds up an instance with all necessary dependencies
+                     ctx.Inject<Service>(out var service);
+                     service.Initialize();
+                     return service;
+                 })
+             
+```
+
+
+ - parameter _factory_ - Factory method to create and initialize the instance.
+Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>()_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+This method is useful for creating and initializing an instance manually.
+             At the compilation stage, the set of dependencies that the object to be created needs is determined.
+             In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+             But sometimes it is necessary to manually create and/or initialize an object.
+             There are scenarios where manual control over the creation process is required, such as
+             when additional initialization logic is neededwhen complex construction steps are requiredwhen specific object states need to be set during creation
+</blockquote></details>
+
+
+<details><summary>Method PerBlock``1(System.Func{``0},System.Object[])</summary><blockquote>
+
+Specifies a lifetime-specific context-less factory method to create the implementation instance.
+            
+```c#
+
+DI.Setup("Composition")
+                .PerBlock<IService>(() =>
+                {
+                    var service = new Service("My Service");
+                    service.Initialize();
+                    return service;
+                })
+            
+```
+
+
+ - parameter _factory_ - Factory method to create and initialize the instance.
+Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(factory)_.
+
+See also _!:To<T>()_.
+
+See also _!:To<T1,T>()_.
+
+See also _!:To<T1,T2,T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+This method is useful for creating and initializing an instance manually.
+            At the compilation stage, the set of dependencies that the object to be created needs is determined.
+            In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
+            But sometimes it is necessary to manually create and/or initialize an object.
+            There are scenarios where manual control over the creation process is required, such as
+            when additional initialization logic is neededwhen complex construction steps are requiredwhen specific object states need to be set during creation
+</blockquote></details>
+
+
+<details><summary>Method PerBlock``2(System.Func{``0,``1},System.Object[])</summary><blockquote>
+
+Specifies a simplified lifetime-specific factory method with dependency parameters.
+            
+ - parameter _factory_ - Lifetime-specific аactory method with injected dependencies.
+Type of dependency parameter 1.Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method PerBlock``3(System.Func{``0,``1,``2},System.Object[])</summary><blockquote>
+
+Specifies a simplified lifetime-specific factory method with dependency parameters.
+            
+ - parameter _factory_ - Lifetime-specific аactory method with injected dependencies.
+Type of dependency parameter 1.Type of dependency parameter 2.Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
+
+</blockquote></details>
+
+
+<details><summary>Method PerBlock``4(System.Func{``0,``1,``2,``3},System.Object[])</summary><blockquote>
+
+Specifies a simplified lifetime-specific factory method with dependency parameters.
+            
+ - parameter _factory_ - Lifetime-specific аactory method with injected dependencies.
+Type of dependency parameter 1.Type of dependency parameter 2.Type of dependency parameter 3.Implementation type.
+ - returns Configuration interface for method chaining.
+
+See also _Bind``1(System.Object[])_.
+
+See also _!:To<T>(System.Func<Pure.DI.IContext,T>)_.
+
+See also _!:To<T>()_.
+
+See also _!:Tags_.
+
+See also _!:As_.
 
 </blockquote></details>
 
@@ -3936,6 +5349,15 @@ DI.Setup("Composition")
 </blockquote></details>
 
 
+<details><summary>Field CompositionClass</summary><blockquote>
+
+Atomically generated smart tag with value "CompositionClass".
+            It's used for:
+            
+            class _Generator__CodeBuilder_ <-- _IBuilder{TData, T}_(CompositionClass) -- _CompositionClassBuilder_ as _PerBlock_
+</blockquote></details>
+
+
 <details><summary>Field UsingDeclarations</summary><blockquote>
 
 Atomically generated smart tag with value "UsingDeclarations".
@@ -3950,43 +5372,7 @@ Atomically generated smart tag with value "UsingDeclarations".
 Atomically generated smart tag with value "VarName".
             It's used for:
             
-            class _Generator__VarsMap_ <-- _IIdGenerator_(VarName) -- _IdGenerator_ as _Transient_
-</blockquote></details>
-
-
-<details><summary>Field UniqueTag</summary><blockquote>
-
-Atomically generated smart tag with value "UniqueTag".
-            It's used for:
-            
-            class _Generator__ApiInvocationProcessor_ <-- _IIdGenerator_(UniqueTag) -- _IdGenerator_ as _PerResolve__BindingBuilder_ <-- _IIdGenerator_(UniqueTag) -- _IdGenerator_ as _PerResolve_
-</blockquote></details>
-
-
-<details><summary>Field CompositionClass</summary><blockquote>
-
-Atomically generated smart tag with value "CompositionClass".
-            It's used for:
-            
-            class _Generator__CodeBuilder_ <-- _IBuilder{TData, T}_(CompositionClass) -- _CompositionClassBuilder_ as _PerBlock_
-</blockquote></details>
-
-
-<details><summary>Field Override</summary><blockquote>
-
-Atomically generated smart tag with value "Override".
-            It's used for:
-            
-            class _Generator__OverrideIdProvider_ <-- _IIdGenerator_(Override) -- _IdGenerator_ as _PerResolve_
-</blockquote></details>
-
-
-<details><summary>Field SpecialBinding</summary><blockquote>
-
-Atomically generated smart tag with value "SpecialBinding".
-            It's used for:
-            
-            class _Generator__BindingBuilder_ <-- _IIdGenerator_(SpecialBinding) -- _IdGenerator_ as _PerResolve_
+            class _Generator__VarsMap_ <-- _IIdGenerator_(VarName) -- _IdGenerator_ as _Singleton_
 </blockquote></details>
 
 
@@ -4008,6 +5394,33 @@ Atomically generated smart tag with value "Cleaner".
 </blockquote></details>
 
 
+<details><summary>Field UniqueTag</summary><blockquote>
+
+Atomically generated smart tag with value "UniqueTag".
+            It's used for:
+            
+            class _Generator__ApiInvocationProcessor_ <-- _IIdGenerator_(UniqueTag) -- _IdGenerator_ as _PerResolve__BindingBuilder_ <-- _IIdGenerator_(UniqueTag) -- _IdGenerator_ as _PerResolve_
+</blockquote></details>
+
+
+<details><summary>Field Override</summary><blockquote>
+
+Atomically generated smart tag with value "Override".
+            It's used for:
+            
+            class _Generator__OverrideIdProvider_ <-- _IIdGenerator_(Override) -- _IdGenerator_ as _PerResolve_
+</blockquote></details>
+
+
+<details><summary>Field SpecialBinding</summary><blockquote>
+
+Atomically generated smart tag with value "SpecialBinding".
+            It's used for:
+            
+            class _Generator__BindingBuilder_ <-- _IIdGenerator_(SpecialBinding) -- _IdGenerator_ as _PerResolve_
+</blockquote></details>
+
+
 </blockquote></details>
 
 
@@ -4020,26 +5433,26 @@ Represents a tag attribute overriding an injection tag. The tag can be a constan
 ```c#
 
 interface IDependency { }
-             
+            
             
              class AbcDependency: IDependency { }
-             
+            
             
              class XyzDependency: IDependency { }
-             
+            
             
              class Dependency: IDependency { }
-             
+            
             
              interface IService
              {
                  IDependency Dependency1 { get; }
-             
+            
             
                  IDependency Dependency2 { get; }
              }
             
-             
+            
              class Service: IService
              {
                  public Service(
@@ -4052,11 +5465,11 @@ interface IDependency { }
             
                  public IDependency Dependency1 { get; }
             
-             
+            
                  public IDependency Dependency2 { get; }
              }
             
-             
+            
              DI.Setup("Composition")
                  .Bind<IDependency>("Abc").To<AbcDependency>()
                  .Bind<IDependency>("Xyz").To<XyzDependency>()
@@ -5437,7 +6850,7 @@ The injection type can be defined manually using the  `Type`  attribute. This at
 ```c#
 
 interface IDependency { }
-             
+            
             
              class AbcDependency: IDependency { }
             
@@ -5514,6 +6927,8 @@ Creates an attribute instance.
 - [Root arguments](readme/root-arguments.md)
 - [Tags](readme/tags.md)
 - [Smart tags](readme/smart-tags.md)
+- [Simplified lifetime-specific bindings](readme/simplified-lifetime-specific-bindings.md)
+- [Simplified lifetime-specific factory](readme/simplified-lifetime-specific-factory.md)
 - [Build up of an existing object](readme/build-up-of-an-existing-object.md)
 - [Builder](readme/builder.md)
 - [Builder with arguments](readme/builder-with-arguments.md)
@@ -5689,12 +7104,6 @@ DI.Setup("Composition")
 ```c#
 partial class Composition
 {
-    // Default constructor
-    public Composition() { }
-
-    // Scope constructor
-    internal Composition(Composition parentScope) { }
-
     // Composition root
     public IService Root
     {
@@ -5703,14 +7112,6 @@ partial class Composition
             return new Service(new Dependency());
         }
     }
-
-    public T Resolve<T>()  { ... }
-
-    public T Resolve<T>(object? tag)  { ... }
-
-    public object Resolve(Type type) { ... }
-
-    public object Resolve(Type type, object? tag) { ... }
 }
 ```
 
@@ -5798,25 +7199,21 @@ If there is at least one binding with `Lifetime.Scoped`, Pure.DI generates two c
 
 1. Public default constructor
 
-Used for creating the root scope instance.
-
-```c#
-public Composition() { /* ... */ }
-```
+> Used for creating the root scope instance.
+>  ```c#
+> public Composition() { /* ... */ }
+> ```
 
 2. Internal constructor with parent scope
 
-Used for creating child scope instances. This constructor is internal and accepts a single parameter — the parent scope.
-
-```c#
-internal Composition(Composition parentScope) { /* ... */ }
-```
-
-Important notes:
-
-- The public default constructor enables initialization of the root composition.
-- The internal constructor with parent reference enables proper scoping hierarchy for `Lifetime.Scoped` dependencies.
-- These constructors are only generated when `Lifetime.Scoped` bindings exist in the composition.
+> Used for creating child scope instances. This constructor is internal and accepts a single parameter — the parent scope.
+> ```c#
+> internal Composition(Composition parentScope) { /* ... */ }
+> ```
+> Important notes:
+> - The public default constructor enables initialization of the root composition.
+> - The internal constructor with parent reference enables proper scoping hierarchy for `Lifetime.Scoped` dependencies.
+> - These constructors are only generated when `Lifetime.Scoped` bindings exist in the composition.
 
 #### Summary of constructor generation rules
 
@@ -5947,6 +7344,244 @@ To dispose objects of other lifetimes please see [this](readme/tracking-disposab
 </details>
 
 <details>
+
+<summary>Bindings</summary>
+
+## Bindings
+
+Bindings are the core mechanism of Pure.DI, used to define how types are created and which contracts they fulfill.
+
+### Overview
+
+#### For Implementations
+
+To bind a contract to a specific implementation:
+
+```c#
+.Bind<Contract1>(tags).Bind<ContractN>(tags)
+    .Tags(tags)
+    .As(Lifetime)
+    .To<Implementation>()
+```
+
+Alternatively, you can bind multiple contracts at once:
+
+```c#
+.Bind<Contract1, Contract2>(tags)
+    .To<Implementation>()
+```
+
+Example:
+
+```c#
+.Bind<IService>().To<Service>()
+```
+
+#### For Factories
+
+To use a custom factory logic via `IContext`:
+
+```c#
+.Bind<Contract1>(tags).Bind<ContractN>(tags)
+    .Tags(tags)
+    .As(Lifetime)
+    .To(ctx => new Implementation(ctx.Resolve<Dependency>()))
+```
+
+Example:
+
+```c#
+.Bind<IService>().To(ctx => new Service(ctx.Resolve<IDependency>()))
+```
+
+#### For Simplified Factories
+
+When you only need to inject specific dependencies without accessing the full context:
+
+```c#
+.Bind<Contract1>(tags).Bind<ContractN>(tags)
+    .Tags(tags)
+    .As(Lifetime)
+    .To<Implementation>((Dependency1 dep1, Dependency2 dep2) => new Implementation(dep1, dep2))
+```
+
+Example:
+
+```c#
+.Bind<IService>().To((IDependency dep) => new Service(dep))
+```
+
+### Lifetimes
+
+Lifetimes control how long an object lives and how it is reused:
+- **Transient**: A new instance is created for every injection (default).
+- **Singleton**: A single instance is created for the entire composition.
+- **PerResolve**: A single instance is reused within a single `Resolve` (composition root).
+- **PerBlock**: Reuses instances within a code block to reduce allocations.
+- **Scoped**: A single instance is reused within a specific scope.
+
+### Default Lifetimes
+
+You can set a default lifetime for all subsequent bindings in a setup:
+
+```c#
+.DefaultLifetime(Lifetime.Singleton)
+// This will be a Singleton
+.Bind<IInterface>().To<Implementation>()
+```
+
+Alternatively, you can set a default lifetime for a specific contract type:
+
+```c#
+.DefaultLifetime<IDisposable>(Lifetime.Singleton)
+```
+
+### Tags
+
+Tags allow you to distinguish between multiple implementations of the same contract.
+
+- Use `.Bind<T>(tags)` or `.Tags(tags)` to apply tags to a binding.
+- Use the `[Tag(tag)]` attribute or `ctx.Resolve<T>(tag)` to consume a tagged dependency.
+
+Example:
+
+```c#
+.Bind<IService>("MyTag").To<Service>()
+```
+
+## Implementation Bindings
+
+Implementation bindings allow for a more concise syntax where the implementation type itself serves as the contract or where you want the binder to automatically infer suitable base types and interfaces.
+
+### For Implementations
+
+```c#
+// Infers all suitable base types and interfaces automatically
+.Bind(tags).Tags(tags).As(Lifetime).To<Implementation>()
+```
+
+Alternatively, you can use the implementation type as the contract:
+
+```c#
+.Bind().To<Implementation>()
+```
+
+Example:
+
+```c#
+.Bind().To<Service>()
+```
+
+### For Factories
+
+```c#
+.Bind(tags).Tags(tags).To(ctx => new Implementation())
+```
+
+Example:
+
+```c#
+.Bind().To(ctx => new Service())
+```
+
+### For Simplified Factories
+
+```c#
+.Bind(tags).Tags(tags).To((Dependency dep) => new Implementation(dep))
+```
+
+Example:
+
+```c#
+.Bind().To((IDependency dep) => new Service(dep))
+```
+
+## Special types will not be added to bindings
+
+By default, Pure.DI avoids binding tospecial types during auto-inference to prevent polluting the container with unintended bindings for types like `IDisposable`, `IEnumerable`, or `object`. Special types will not be added to bindings by default:
+
+- `System.Object`
+- `System.Enum`
+- `System.MulticastDelegate`
+- `System.Delegate`
+- `System.Collections.IEnumerable`
+- `System.Collections.Generic.IEnumerable<T>`
+- `System.Collections.Generic.IList<T>`
+- `System.Collections.Generic.ICollection<T>`
+- `System.Collections.IEnumerator`
+- `System.Collections.Generic.IEnumerator<T>`
+- `System.Collections.Generic.IReadOnlyList<T>`
+- `System.Collections.Generic.IReadOnlyCollection<T>`
+- `System.IDisposable`
+- `System.IAsyncResult`
+- `System.AsyncCallback`
+
+If you want to add your own special type, use the `SpecialType<T>()` call, for example:
+
+```c#
+.SpecialType<MonoBehaviour>()
+.Bind().To<MyMonoBehaviourImplementation>()
+// Now MonoBehaviour will not be added to the contracts
+```
+
+## Simplified Lifetime-Specific Bindings
+
+Pure.DI provides semantic sugar for common lifetimes. These methods combine `Bind()`, `.Tags(tags)`, `As(Lifetime)`, and `To()` into a single call.
+
+### For Implementations
+
+```c#
+// Equivalent to Bind<T, T1, ...>(tags).As(Lifetime.Transient).To<Implementation>()
+.Transient<T>(tags)
+// or multiple types at once
+.PerResolve<T, T1, ...>(tags)
+```
+
+Example:
+
+```c#
+.Transient<Service>()
+.Singleton<Service2, Service3, Service4>()
+```
+
+### For Factories
+
+```c#
+// Equivalent to Bind(tags).As(Lifetime.Singleton).To(ctx => ...)
+.Singleton<Implementation>(ctx => new Implementation(), tags)
+```
+
+Example:
+
+```c#
+.Singleton<IService>(ctx => new Service())
+```
+
+### For Simplified Factories
+
+```c#
+// Equivalent to Bind(tags).As(Lifetime.PerResolve).To((Dependency dep) => ...)
+.PerResolve((Dependency dep) => new Implementation(dep), tags)
+```
+
+Example:
+
+```c#
+.PerResolve((IDependency dep) => new Service(dep))
+```
+
+Equivalent shortcuts exist for all lifetimes:
+
+- `Transient<T>(...)`
+- `Singleton<T>(...)`
+- `Scoped<T>(...)`
+- `PerResolve<T>(...)`
+- `PerBlock<T>(...)`
+
+</details>
+
+<details>
+
 <summary>Setup hints</summary>
 
 ## Setup hints
@@ -6500,8 +8135,8 @@ AI needs to understand the situation it’s in (context). This means knowing det
 | AI context file | Size | Tokens |
 | --------------- | ---- | ------ |
 | [AGENTS_SMALL.md](AGENTS_SMALL.md) | 33KB | 8K |
-| [AGENTS_MEDIUM.md](AGENTS_MEDIUM.md) | 124KB | 31K |
-| [AGENTS.md](AGENTS.md) | 455KB | 116K |
+| [AGENTS_MEDIUM.md](AGENTS_MEDIUM.md) | 130KB | 33K |
+| [AGENTS.md](AGENTS.md) | 502KB | 128K |
 
 For different IDEs, you can use the _AGENTS.md_ file as is by simply copying it to the root directory. For use with _JetBrains Rider_ and _Junie_, please refer to [these instructions](https://www.jetbrains.com/help/junie/customize-guidelines.html). For example, you can copy any _AGENTS.md_ file into your project (using _Pure.DI_) as _.junie/guidelines.md._
 ## How to contribute to Pure.DI

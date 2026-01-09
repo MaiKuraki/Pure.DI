@@ -113,10 +113,10 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsurePayPalGatewayPayPalExists();
+      EnsurePayPalGatewayPayPalExists1();
       return _singletonPayPalGateway51;
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsurePayPalGatewayPayPalExists()
+      void EnsurePayPalGatewayPayPalExists1()
       {
         if (_singletonPayPalGateway51 is null)
           lock (_lock)

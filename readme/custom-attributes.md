@@ -17,8 +17,8 @@ DI.Setup(nameof(PersonComposition))
     .TypeAttribute<MyTypeAttribute>()
     .TypeAttribute<MyGenericTypeAttribute<TT>>()
     .Arg<int>("personId")
-    .Bind().To(_ => new Uri("https://github.com/DevTeam/Pure.DI"))
-    .Bind("NikName").To(_ => "Nik")
+    .Bind().To(() => new Uri("https://github.com/DevTeam/Pure.DI"))
+    .Bind("NikName").To(() => "Nik")
     .Bind().To<Person>()
 
     // Composition root
@@ -125,12 +125,12 @@ partial class PersonComposition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      string transientString1 = "Nik";
-      Uri transientUri3 = new Uri("https://github.com/DevTeam/Pure.DI");
-      var transientPerson = new Person(transientString1);
-      transientPerson.Id = _argPersonId;
-      transientPerson.Initialize(transientUri3);
-      return transientPerson;
+      string transientString155 = "Nik";
+      Uri transientUri157 = new Uri("https://github.com/DevTeam/Pure.DI");
+      var transientPerson154 = new Person(transientString155);
+      transientPerson154.Id = _argPersonId;
+      transientPerson154.Initialize(transientUri157);
+      return transientPerson154;
     }
   }
 }

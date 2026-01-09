@@ -108,39 +108,39 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perBlockOwned2 = new Owned();
-      Func<Owned<IDbConnection>> transientFunc1 = new Func<Owned<IDbConnection>>(
+      var perBlockOwned123 = new Owned();
+      Func<Owned<IDbConnection>> transientFunc122 = new Func<Owned<IDbConnection>>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        Owned<IDbConnection> transientOwned3;
+        Owned<IDbConnection> transientOwned124;
         // Creates the owner of an instance
-        Owned transientOwned4;
-        Owned localOwned5 = perBlockOwned2;
-        transientOwned4 = localOwned5;
+        Owned transientOwned125;
+        Owned localOwned5 = perBlockOwned123;
+        transientOwned125 = localOwned5;
         lock (_lock)
         {
-          perBlockOwned2.Add(transientOwned4);
+          perBlockOwned123.Add(transientOwned125);
         }
 
-        IOwned localOwned4 = transientOwned4;
-        var transientDbConnection5 = new DbConnection();
+        IOwned localOwned4 = transientOwned125;
+        var transientDbConnection126 = new DbConnection();
         lock (_lock)
         {
-          perBlockOwned2.Add(transientDbConnection5);
+          perBlockOwned123.Add(transientDbConnection126);
         }
 
-        IDbConnection localValue5 = transientDbConnection5;
-        transientOwned3 = new Owned<IDbConnection>(localValue5, localOwned4);
+        IDbConnection localValue5 = transientDbConnection126;
+        transientOwned124 = new Owned<IDbConnection>(localValue5, localOwned4);
         lock (_lock)
         {
-          perBlockOwned2.Add(transientOwned3);
+          perBlockOwned123.Add(transientOwned124);
         }
 
-        Owned<IDbConnection> localValue4 = transientOwned3;
+        Owned<IDbConnection> localValue4 = transientOwned124;
         return localValue4;
       });
-      return new Transaction(transientFunc1);
+      return new Transaction(transientFunc122);
     }
   }
 }

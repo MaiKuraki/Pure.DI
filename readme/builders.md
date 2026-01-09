@@ -8,7 +8,7 @@ using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind().To(_ => Guid.NewGuid())
+    .Bind().To(Guid.NewGuid)
     .Bind().To<PlutoniumBattery>()
     // Creates a builder for each type inherited from IRobot.
     // These types must be available at this point in the code.
@@ -109,24 +109,24 @@ partial class Composition
   public CleanerBot BuildUp(CleanerBot buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    CleanerBot transientCleanerBot5;
+    CleanerBot transientCleanerBot211;
     CleanerBot localBuildingInstance3 = buildingInstance;
-    Guid transientGuid8 = Guid.NewGuid();
+    Guid transientGuid214 = Guid.NewGuid();
     localBuildingInstance3.Battery = new PlutoniumBattery();
-    localBuildingInstance3.SetToken(transientGuid8);
-    transientCleanerBot5 = localBuildingInstance3;
-    return transientCleanerBot5;
+    localBuildingInstance3.SetToken(transientGuid214);
+    transientCleanerBot211 = localBuildingInstance3;
+    return transientCleanerBot211;
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public GuardBot BuildUp(GuardBot buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    GuardBot transientGuardBot2;
+    GuardBot transientGuardBot208;
     GuardBot localBuildingInstance2 = buildingInstance;
     localBuildingInstance2.Battery = new PlutoniumBattery();
-    transientGuardBot2 = localBuildingInstance2;
-    return transientGuardBot2;
+    transientGuardBot208 = localBuildingInstance2;
+    return transientGuardBot208;
   }
 
   #pragma warning disable CS0162
@@ -160,6 +160,15 @@ Class diagram:
    hideEmptyMembersBox: true
 ---
 classDiagram
+	Guid --|> IComparable
+	Guid --|> IComparableᐸGuidᐳ
+	Guid --|> IEquatableᐸGuidᐳ
+	Guid --|> IFormattable
+	Guid --|> IParsableᐸGuidᐳ
+	Guid --|> ISpanFormattable
+	Guid --|> ISpanParsableᐸGuidᐳ
+	Guid --|> IUtf8SpanFormattable
+	Guid --|> IUtf8SpanParsableᐸGuidᐳ
 	PlutoniumBattery --|> IBattery
 	Composition ..> IRobot : IRobot BuildUp(Pure.DI.UsageTests.Basics.BuildersScenario.IRobot buildingInstance)
 	Composition ..> GuardBot : GuardBot BuildUp(Pure.DI.UsageTests.Basics.BuildersScenario.GuardBot buildingInstance)
@@ -197,6 +206,33 @@ classDiagram
 	namespace System {
 		class Guid {
 				<<struct>>
+		}
+		class IComparable {
+			<<interface>>
+		}
+		class IComparableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IEquatableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IFormattable {
+			<<interface>>
+		}
+		class IParsableᐸGuidᐳ {
+			<<interface>>
+		}
+		class ISpanFormattable {
+			<<interface>>
+		}
+		class ISpanParsableᐸGuidᐳ {
+			<<interface>>
+		}
+		class IUtf8SpanFormattable {
+			<<interface>>
+		}
+		class IUtf8SpanParsableᐸGuidᐳ {
+			<<interface>>
 		}
 	}
 ```
