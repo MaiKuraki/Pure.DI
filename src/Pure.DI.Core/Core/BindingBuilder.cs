@@ -6,8 +6,8 @@ namespace Pure.DI.Core;
 using static Tag;
 
 sealed class BindingBuilder(
-    [Tag(UniqueTag)] IIdGenerator idGenerator,
-    [Tag(SpecialBinding)] IIdGenerator specialBindingIdGenerator,
+    [Tag(UniqueTagIdGenerator)] IIdGenerator idGenerator,
+    [Tag(SpecialBindingIdGenerator)] IIdGenerator specialBindingIdGenerator,
     IBaseSymbolsProvider baseSymbolsProvider,
     ILocationProvider locationProvider,
     ILifetimeProvider lifetimeProvider)

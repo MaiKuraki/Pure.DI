@@ -3,7 +3,7 @@
 using System.Collections.Concurrent;
 using static Tag;
 
-class OverrideIdProvider([Tag(Override)] IIdGenerator idGenerator) : IOverrideIdProvider
+class OverrideIdProvider([Tag(OverridesIdGenerator)] IIdGenerator idGenerator) : IOverrideIdProvider
 {
     private readonly ConcurrentDictionary<Key, int> _ids = new();
 

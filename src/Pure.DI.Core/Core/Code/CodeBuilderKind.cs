@@ -10,6 +10,6 @@ enum CodeBuilderKind
     Array,
     Span,
     Composition,
-    OnCannotResolve,
+    CannotResolve,
     ExplicitDefaultValue
 }

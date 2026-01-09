@@ -6,8 +6,8 @@ namespace Pure.DI;
 using System.Diagnostics;
 using Core.Code.Parts;
 using static System.Text.RegularExpressions.RegexOptions;
+using static CodeBuilderKind;
 using static Hint;
-using static Lifetime;
 using static Name;
 using static RootKinds;
 using static StringComparer;
@@ -46,163 +46,71 @@ public sealed partial class Generator
         .RootArg<IEnumerable<SyntaxUpdate>>(updates)
         .RootArg<CancellationToken>(cancellationToken)
 
-        .DefaultLifetime(Transient)
-            .Bind().To(_ => GetType().Assembly)
-            .Bind().To<ApiInvocationProcessor>()
-            .Bind().To<DependencyGraphBuilder>()
-            .Bind().To<TypeConstructor>()
-            .Bind<IEqualityComparer<string>>().To(_ => InvariantCultureIgnoreCase)
-            .Bind().To<BindingBuilder>()
-            .Bind().To(ctx =>
+         // Transient
+            .Transient(_ => GetType().Assembly)
+            .Transient<IEqualityComparer<string>>(_ => InvariantCultureIgnoreCase)
+            .Transient(ctx =>
             {
                 ctx.Inject<IObserversProvider>(out var observersProvider);
                 return new Logger(observersProvider, ctx.ConsumerType);
             })
-            .Bind().To(_ => Compiled | CultureInvariant | Singleline | IgnoreCase)
+            .Transient(_ => Compiled | CultureInvariant | Singleline | IgnoreCase)
+            .Transient<ApiInvocationProcessor, DependencyGraphBuilder, TypeConstructor, BindingBuilder>()
 
             // Walkers
-            .Bind<IMetadataWalker>().To<MetadataWalker>()
-            .Bind<IInjectionsWalker>().To<InjectionsWalker>()
-            .Bind<IFactoryApiWalker>().To<FactoryApiWalker>()
-            .Bind<IConstructorInjectionsCounterWalker>().To<ConstructorInjectionsCounterWalker>()
-            .Bind<IDependencyGraphLocationsWalker>().To<DependencyGraphLocationsWalker>()
-            .Bind<IFactoryValidator>().To<FactoryValidator>()
-            .Bind<ILocalVariableRenamingRewriter>().To<LocalVariableRenamingRewriter>()
-            .Bind().To<VarsMap>()
-            .Bind().To<VariablesWalker>()
-            .Bind<IInitializersWalker>().To<InitializersWalker>()
-            .Bind<IFactoryRewriter>().To<FactoryRewriter>()
+            .SpecialType<CSharpSyntaxRewriter>()
+            .SpecialType<CSharpSyntaxWalker>()
+            .Transient<MetadataWalker, InjectionsWalker, FactoryApiWalker, ConstructorInjectionsCounterWalker, DependencyGraphLocationsWalker, FactoryValidator,
+                LocalVariableRenamingRewriter, VarsMap, VariablesWalker, InitializersWalker, FactoryRewriter>()
 
-        .DefaultLifetime(Singleton)
-            .Bind().To<Cache<TT1, TT2>>()
-            .Bind().To<ObserversRegistry>()
-            .Bind().To((IBuilder<Unit, IEnumerable<Source>> api) => api.Build(Shared))
-            .Bind().To<Metadata>()
-            .Bind().To<Information>()
-            .Bind<IVariableTools>().To<VariableTools>()
-            .Bind(VarName).To<IdGenerator>()
-            .Bind<IUniqueNameProvider>().To<UniqueNameProvider>()
+        // Singleton
+            .Singleton((IBuilder<Unit, IEnumerable<Source>> api) => api.Build(Shared))
+            .Singleton<Cache<TT1, TT2>, ObserversRegistry, Metadata, Information, VariableTools, UniqueNameProvider>()
 
-        .DefaultLifetime(PerBlock)
-            .Bind().To<Arguments>()
-            .Bind().To<Comments>()
-            .Bind<IBuildTools>().To<BuildTools>()
-            .Bind().To<Resources>()
-            .Bind().To<GlobalProperties>()
-            .Bind().To<Marker>()
-            .Bind().To<Variator<TT>>()
-            .Bind().To<Profiler>()
-            .Bind().To<BaseSymbolsProvider>()
-            .Bind().To<Formatter>()
-            .Bind().To<NodeTools>()
-            .Bind().To<LocalFunctions>()
-            .Bind().To<ExceptionHandler>()
-            .Bind().To<WildcardMatcher>()
-            .Bind().To<InjectionSiteFactory>()
-            .Bind().To<Semantic>()
-            .Bind().To<Attributes>()
-            .Bind().To<Compilations>()
-            .Bind().To<GraphWalker<TT, TT1>>()
-            .Bind(Type).To<LifetimesValidatorVisitor>()
-            .Bind(Type).To<CyclicDependencyValidatorVisitor>()
-            .Bind().To<LifetimeAnalyzer>()
-            .Bind().To<InstanceDpProvider>()
-            .Bind().To<Injections>()
-            .Bind().To<NameFormatter>()
-            .Bind().To<ProcessingNode>()
-            .Bind().To<BindingsFactory>()
-            .Bind(Overrider).To<GraphOverrider>()
-            .Bind(Cleaner).To<GraphCleaner>()
-            .Bind().To<NodesFactory>()
-            .Bind().To<LocationProvider>()
-            .Bind().To<LifetimeOptimizer>()
-            .Bind().To<RootCompositionDependencyRefCounterVisitor>()
-            .Bind().To<CycleTools>()
-            .Bind().To<LifetimeProvider>()
+        // PerBlock
+            .PerBlock<Arguments, Comments, BuildTools, Resources, GlobalProperties, Marker, Variator<TT>, Profiler, BaseSymbolsProvider, Formatter,
+                NodeTools, LocalFunctions, ExceptionHandler, WildcardMatcher, InjectionSiteFactory, Semantic, Attributes, Compilations, GraphWalker<TT, TT1>,
+                LifetimeAnalyzer, InstanceDpProvider, Injections, NameFormatter, ProcessingNode, BindingsFactory, NodesFactory, LocationProvider,
+                LifetimeOptimizer, RootCompositionDependencyRefCounterVisitor, CycleTools, LifetimeProvider, VarDeclarationTools>()
+            .PerBlock<LifetimesValidatorVisitor, CyclicDependencyValidatorVisitor>(Type)
+            .PerBlock<GraphOverrider>(Overrider)
+            .PerBlock<GraphCleaner>(Cleaner)
 
             // Validators
-            .Bind(Type).To<MetadataValidator>()
-            .Bind(Type).To<DependencyGraphValidator>()
-            .Bind(Type).To<CyclicDependenciesValidator>()
-            .Bind(Type).To<RootValidator>()
-            .Bind(Type).To<TagOnSitesValidator>()
-            .Bind(Type).To<BindingsValidator>()
-            .Bind(Type).To<LifetimesValidator>()
+            .PerBlock<MetadataValidator, DependencyGraphValidator, CyclicDependenciesValidator, RootValidator, TagOnSitesValidator, BindingsValidator, LifetimesValidator>(Type)
 
             // Comments
-            .Bind(Type).To<ClassCommenter>()
-            .Bind(Type).To<ParameterizedConstructorCommenter>()
-            .Bind(Type).To<RootMethodsCommenter>()
+            .PerBlock<ClassCommenter, ParameterizedConstructorCommenter, RootMethodsCommenter>(Type)
 
             // Builders
-            .Bind().To<MetadataBuilder>()
-            .Bind().To<LogInfoBuilder>()
-            .Bind().To<ResolversBuilder>()
-            .Bind().To<ContractsBuilder>()
-            .Bind().To<ClassDiagramBuilder>()
-            .Bind().To<RootsBuilder>()
-            .Bind(Unique).To<FactoryDependencyNodeBuilder>()
-            .Bind(Unique).To<ArgDependencyNodeBuilder>()
-            .Bind(Unique).To<ConstructDependencyNodeBuilder>()
-            .Bind(Unique).To<ImplementationDependencyNodeBuilder>()
-            .Bind(Unique).To<RootDependencyNodeBuilder>()
-            .Bind().To<VariationalDependencyGraphBuilder>()
-            .Bind().To<ImplementationVariantsBuilder>()
-            .Bind().To<ApiBuilder>()
-            .Bind().To<CodeBuilder>()
-            .Bind().To<SetupsBuilder>()
-            .Bind().To<CodeGenerator>()
-            .Bind().To<FactoryTypeRewriter>()
-            .Bind().To<TagClassBuilder>()
-            .Bind().To<MermaidUrlBuilder>()
-            .Bind().To<CompositionBuilder>()
-            .Bind().To<RootBuilder>()
-            .Bind().To<RootCodeBuilder>()
-            .Bind(CodeBuilderKind.Implementation).To<ImplementationCodeBuilder>()
-            .Bind(CodeBuilderKind.Factory).To<FactoryCodeBuilder>()
-            .Bind(CodeBuilderKind.Construct).To<ConstructCodeBuilder>()
-            .Bind(CodeBuilderKind.Enumerable, CodeBuilderKind.AsyncEnumerable).To<EnumerableCodeBuilder>()
-            .Bind(CodeBuilderKind.Array).To<ArrayCodeBuilder>()
-            .Bind(CodeBuilderKind.Span).To<SpanCodeBuilder>()
-            .Bind(CodeBuilderKind.Composition).To<CompositionCodeBuilder>()
-            .Bind(CodeBuilderKind.OnCannotResolve).To<OnCannotResolveCodeBuilder>()
-            .Bind(CodeBuilderKind.ExplicitDefaultValue).To<ExplicitDefaultValueCodeBuilder>()
-            .Bind().To<VarDeclarationTools>()
+            .PerBlock<MetadataBuilder, LogInfoBuilder, ResolversBuilder, ContractsBuilder, ClassDiagramBuilder, RootsBuilder, VariationalDependencyGraphBuilder,
+                ImplementationVariantsBuilder, ApiBuilder, CodeBuilder, SetupsBuilder, CodeGenerator, FactoryTypeRewriter, TagClassBuilder, MermaidUrlBuilder,
+                CompositionBuilder, RootBuilder, RootCodeBuilder>()
+            .PerBlock<FactoryDependencyNodeBuilder, ArgDependencyNodeBuilder, ConstructDependencyNodeBuilder, ImplementationDependencyNodeBuilder, RootDependencyNodeBuilder>(Unique)
+            .PerBlock<ImplementationCodeBuilder>(Implementation)
+            .PerBlock<FactoryCodeBuilder>(Factory)
+            .PerBlock<ConstructCodeBuilder>(Construct)
+            .PerBlock<EnumerableCodeBuilder>(Enumerable, AsyncEnumerable)
+            .PerBlock<ArrayCodeBuilder>(Array)
+            .PerBlock<SpanCodeBuilder>(Span)
+            .PerBlock<CompositionCodeBuilder>(Composition)
+            .PerBlock<OnCannotResolveCodeBuilder>(CannotResolve)
+            .PerBlock<ExplicitDefaultValueCodeBuilder>(ExplicitDefaultValue)
 
             // Code builders
-            .Bind(CompositionClass).To<CompositionClassBuilder>()
-            .Bind(UsingDeclarations).To<UsingDeclarationsBuilder>()
-            .Bind(Unique).To<DisposeMethodBuilder>()
-            .Bind(Unique).To<RootMethodsBuilder>()
-            .Bind(Unique).To<ArgFieldsBuilder>()
-            .Bind(Unique).To<FieldsBuilder>()
-            .Bind(Unique).To<ScopeConstructorBuilder>()
-            .Bind(Unique).To<ParameterizedConstructorBuilder>()
-            .Bind(Unique).To<DefaultConstructorBuilder>()
-            .Bind(Unique).To<ResolverClassesBuilder>()
-            .Bind(Unique).To<StaticConstructorBuilder>()
-            .Bind(Unique).To<ApiMembersBuilder>()
-            .Bind(Unique).To<ResolversFieldsBuilder>()
-            .Bind(Unique).To<ToStringMethodBuilder>()
+            .PerBlock<CompositionClassBuilder>(CompositionClass)
+            .PerBlock<UsingDeclarationsBuilder>(UsingDeclarations)
+            .PerBlock<DisposeMethodBuilder, RootMethodsBuilder, ArgFieldsBuilder, FieldsBuilder, ScopeConstructorBuilder, ParameterizedConstructorBuilder, DefaultConstructorBuilder,
+                ResolverClassesBuilder, StaticConstructorBuilder, ApiMembersBuilder, ResolversFieldsBuilder, ToStringMethodBuilder>(Unique)
 
-        .DefaultLifetime(PerResolve)
-            .Bind().To<TypeResolver>()
-            .Bind().To<RootSignatureProvider>()
-            .Bind().To<LogObserver>()
-            .Bind().To<Types>()
-            .Bind().To<Filter>()
-            .Bind(UniqueTag).To<IdGenerator>()
-            .Bind(Tag.Override).To<IdGenerator>()
-            .Bind(SpecialBinding).To<IdGenerator>()
-            .Bind().To<Registry<TT>>()
-            .Bind().To<Locks>()
-            .Bind().To<RootAccessModifierResolver>()
-            .Bind().To<SmartTags>()
-            .Bind().To<GenericTypeArguments>()
-            .Bind().To<NameProvider>()
-            .Bind().To<OverrideIdProvider>()
-            .Bind().To<OverridesRegistry>()
-            .Bind().To<Accumulators>()
-            .Bind().To<Constructors>();
+        // PerResolve
+            .PerResolve<TypeResolver, RootSignatureProvider, LogObserver, Types, Filter, Registry<TT>, Locks, RootAccessModifierResolver, SmartTags, GenericTypeArguments,
+                NameProvider, OverrideIdProvider, OverridesRegistry, Accumulators, Constructors>()
+
+            // Id generators
+            .PerResolve<IdGenerator>(UniqueTagIdGenerator)
+            .PerResolve<IdGenerator>(OverridesIdGenerator)
+            .PerResolve<IdGenerator>(SpecialBindingIdGenerator)
+            .PerResolve<IdGenerator>(VarNameIdGenerator);
 }
-// @formatter:on
+// @formatter:

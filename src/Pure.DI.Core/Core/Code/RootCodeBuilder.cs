@@ -1,13 +1,14 @@
 namespace Pure.DI.Core.Code;
 
 using System.Collections;
+using static CodeBuilderKind;
 using static Lifetime;
 using static LinesExtensions;
 
 sealed class RootCodeBuilder(
-    [Tag(CodeBuilderKind.Implementation)] IBuilder<CodeBuilderContext, IEnumerator> implementationBuilder,
-    [Tag(CodeBuilderKind.Factory)] IBuilder<CodeBuilderContext, IEnumerator> factoryBuilder,
-    [Tag(CodeBuilderKind.Construct)] IBuilder<CodeBuilderContext, IEnumerator> constructBuilder,
+    [Tag(Implementation)] IBuilder<CodeBuilderContext, IEnumerator> implementationBuilder,
+    [Tag(Factory)] IBuilder<CodeBuilderContext, IEnumerator> factoryBuilder,
+    [Tag(Construct)] IBuilder<CodeBuilderContext, IEnumerator> constructBuilder,
     IBuildTools buildTools,
     IAccumulators accumulators,
     ILocks locks,

@@ -10,7 +10,7 @@ namespace Pure.DI.Core.Code;
 /// <param name="lifetimeOptimizer">The lifetime optimizer.</param>
 /// <param name="constructors">The constructors tools.</param>
 class VarsMap(
-    [Tag("VarName")] IIdGenerator idGenerator,
+    [Tag(Tag.VarNameIdGenerator)] IIdGenerator idGenerator,
     INameProvider nameProvider,
     ICycleTools cycleTools,
     ILifetimeOptimizer lifetimeOptimizer,
