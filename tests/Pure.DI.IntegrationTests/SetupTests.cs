@@ -731,6 +731,233 @@ public class SetupTests
         result.Success.ShouldBeTrue(result);
     }
 
+#if ROSLYN4_8_OR_GREATER
+    [Fact]
+    public async Task ShouldSupportDependentCompositionsWhenInterface()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using Pure.DI;
+                           #pragma warning disable CS9113 // Parameter is unread.
+                           
+                           namespace Sample
+                           {
+                               interface IInfrastructure
+                               {
+                                   void Setup() => DI.Setup(kind: CompositionKind.Internal)
+                                       .Bind<IDatabase>().To<SqlDatabase>();
+                               }
+                               
+                               partial class Composition: IInfrastructure
+                               {
+                                   void Setup() => DI.Setup(kind: CompositionKind.Internal)
+                                       .Bind<IUserService>().To<UserService>()
+                                       .Root<IUserService>("UserService");
+                               }
+                               
+                               partial class OtherComposition: Composition
+                               {
+                                   void Setup() => DI.Setup()
+                                       .Root<Ui>("Ui");
+                               }
+                               
+                               interface IDatabase;
+                           
+                               class SqlDatabase : IDatabase;
+                               
+                               interface IUserService;
+                               
+                               class UserService(IDatabase database) : IUserService;
+                               
+                               partial class Ui(IUserService userService)
+                               {
+                                   public IUserService UserService { get; } = userService;
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var otherComposition = new OtherComposition();
+                                       var userService = otherComposition.Ui.UserService;
+                                   }
+                               }
+                           }
+                           """.RunAsync(new Options(LanguageVersion.CSharp12));
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportDependentCompositionsWhenMultBaseTypes()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using Pure.DI;
+                           #pragma warning disable CS9113 // Parameter is unread.
+                           
+                           namespace Sample
+                           {
+                               interface IInfrastructure
+                               {
+                                   void Setup() => DI.Setup(kind: CompositionKind.Internal)
+                                       .Bind<IDatabase>().To<SqlDatabase>();
+                               }
+                               
+                               partial class Composition: IInfrastructure
+                               {
+                                   void Setup() => DI.Setup(kind: CompositionKind.Internal)
+                                       .Bind<IUserService>().To<UserService>()
+                                       .Root<IUserService>("UserService");
+                               }
+                               
+                               partial class OtherComposition: Composition
+                               {
+                                   void Setup() => DI.Setup()
+                                       .Root<Ui>("Ui");
+                               }
+                               
+                               interface IDatabase;
+                           
+                               class SqlDatabase : IDatabase;
+                               
+                               interface IUserService;
+                               
+                               class UserService(IDatabase database) : IUserService;
+                               
+                               partial class Ui(IUserService userService)
+                               {
+                                   public IUserService UserService { get; } = userService;
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var otherComposition = new OtherComposition();
+                                       var userService = otherComposition.Ui.UserService;
+                                   }
+                               }
+                           }
+                           """.RunAsync(new Options(LanguageVersion.CSharp12));
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportDeepInheritanceOfCompositions()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using Pure.DI;
+                           
+                           namespace Sample
+                           {
+                               interface IBase1 { void Setup1() => DI.Setup(kind: CompositionKind.Internal).Bind<string>().To(_ => "Base1"); }
+                               interface IBase2 : IBase1 { void Setup2() => DI.Setup(kind: CompositionKind.Internal).Bind<int>().To(_ => 1); }
+                               abstract class BaseClass : IBase2 { void Setup3() => DI.Setup(kind: CompositionKind.Internal).Bind<double>().To(_ => 2.0); }
+                               
+                               partial class Composition : BaseClass
+                               {
+                                   void Setup() => DI.Setup()
+                                       .Root<(string, int, double)>("Root");
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                   }
+                               }
+                           }
+                           """.RunAsync(new Options(LanguageVersion.CSharp12));
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportMultipleBaseInterfacesForComposition()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using Pure.DI;
+                           
+                           namespace Sample
+                           {
+                               interface IBase1 { void Setup1() => DI.Setup(kind: CompositionKind.Internal).Bind<string>().To(_ => "Base1"); }
+                               interface IBase2 { void Setup2() => DI.Setup(kind: CompositionKind.Internal).Bind<int>().To(_ => 1); }
+                               
+                               partial class Composition : IBase1, IBase2
+                               {
+                                   void Setup() => DI.Setup()
+                                       .Root<(string, int)>("Root");
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                   }
+                               }
+                           }
+                           """.RunAsync(new Options(LanguageVersion.CSharp12));
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportInheritanceWithSkippedSetup()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using Pure.DI;
+                           
+                           namespace Sample
+                           {
+                               interface IBase { void SetupBase() => DI.Setup(kind: CompositionKind.Internal).Bind<string>().To(_ => "Base"); }
+                               
+                               abstract class MiddleClass : IBase { }
+                               
+                               partial class Composition : MiddleClass
+                               {
+                                   void Setup() => DI.Setup()
+                                       .Root<string>("Root");
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                   }
+                               }
+                           }
+                           """.RunAsync(new Options(LanguageVersion.CSharp12));
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+#endif
+
     [Fact]
     public async Task ShouldSupportBindWhenHasNoTypeParamsAndEnums()
     {

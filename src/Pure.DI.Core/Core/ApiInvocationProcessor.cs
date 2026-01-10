@@ -283,12 +283,12 @@ sealed class ApiInvocationProcessor(
                         var setupArgs = arguments.GetArgs(invocation.ArgumentList, "compositionTypeName", "kind");
                         var setupCompositionTypeName = setupArgs[0] is {} compositionTypeNameArg ? semantic.GetRequiredConstantValue<string>(semanticModel, compositionTypeNameArg.Expression) : "";
                         var setupKind = setupArgs[1] is {} setupKindArg ? semantic.GetRequiredConstantValue<CompositionKind>(semanticModel, setupKindArg.Expression) : CompositionKind.Public;
-                        var baseType = invocation.Ancestors().OfType<BaseTypeDeclarationSyntax>().FirstOrDefault();
+                        var baseTypeDeclarationSyntax = invocation.Ancestors().OfType<BaseTypeDeclarationSyntax>().FirstOrDefault();
                         if (setupKind != CompositionKind.Global
                             && string.IsNullOrWhiteSpace(setupCompositionTypeName)
-                            && baseType is not null)
+                            && baseTypeDeclarationSyntax is not null)
                         {
-                            setupCompositionTypeName = baseType.Identifier.Text;
+                            setupCompositionTypeName = baseTypeDeclarationSyntax.Identifier.Text;
                         }
 
                         foreach (var hint in comments.GetHints(invocationComments))
@@ -317,19 +317,31 @@ sealed class ApiInvocationProcessor(
                                 [],
                                 comments.FilterHints(invocationComments).ToList()));
 
-                        if (baseType?.BaseList is { Types.Count: > 0 }
-                            && semanticModel.GetDeclaredSymbol(baseType) is { BaseType: {} derivedTyeSymbol })
+                        if (baseTypeDeclarationSyntax is not null && semanticModel.GetDeclaredSymbol(baseTypeDeclarationSyntax) is {} baseType)
                         {
-                            var compositionName = new CompositionName(
-                                derivedTyeSymbol.Name,
-                                derivedTyeSymbol.ContainingNamespace.IsGlobalNamespace ? "" : derivedTyeSymbol.ContainingNamespace.ToString(),
-                                baseType);
-                            metadataVisitor.VisitDependsOn(
-                                new MdDependsOn(
-                                    semanticModel,
-                                    invocation,
-                                    ImmutableArray.Create(compositionName),
-                                    false));
+                            var derivedTypes = baseType.AllInterfaces.ToList();
+                            var nestedBaseType = baseType.BaseType;
+                            while (nestedBaseType != null)
+                            {
+                                derivedTypes.Add(nestedBaseType);
+                                nestedBaseType = nestedBaseType.BaseType;
+                            }
+
+                            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+                            foreach (var derivedType in derivedTypes)
+                            {
+                                var compositionName = new CompositionName(
+                                    derivedType.Name,
+                                    derivedType.ContainingNamespace.IsGlobalNamespace ? "" : derivedType.ContainingNamespace.ToString(),
+                                    baseTypeDeclarationSyntax);
+
+                                metadataVisitor.VisitDependsOn(
+                                    new MdDependsOn(
+                                        semanticModel,
+                                        invocation,
+                                        ImmutableArray.Create(compositionName),
+                                        false));
+                            }
                         }
 
                         break;
