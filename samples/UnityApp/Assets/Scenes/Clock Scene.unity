@@ -2176,6 +2176,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fc92d50da0a48a47898467d9332c8fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  datetimeConfig: {fileID: 11400000, guid: 5699e17085328e546a60c2cae804d112, type: 2}
   clockConfig: {fileID: 11400000, guid: 5d5579a1a81f875418e0e544064481d0, type: 2}
 --- !u!4 &1653097959
 Transform:

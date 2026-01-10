@@ -1,11 +1,16 @@
 using Pure.DI;
 using UnityEngine;
-using static Pure.DI.Lifetime;
 
-public partial class ProjectScope : BaseComposition
+public partial class ProjectScope : MonoBehaviour, IDatetimeComposition, IClockComposition
 {
+    [SerializeField] public DatetimeConfig datetimeConfig;
+    [SerializeField] public ClockConfig clockConfig;
+
+    public DatetimeConfig DatetimeConfig => datetimeConfig;
+    public ClockConfig ClockConfig => clockConfig;
+
     void Setup() => DI.Setup()
-        .Bind<IClockFactory>().To<ProjectFactory>() // You can register all factories implementations here
+        .Transient<ProjectFactory>() // You can register all factories implementations here
         .Root<ProjectManager>(nameof(ProjectManager))
         .Builders<MonoBehaviour>();
 
