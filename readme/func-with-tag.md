@@ -80,14 +80,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<IDbConnection> transientFunc356 = new Func<IDbConnection>(
+      Func<IDbConnection> transientFunc346 = new Func<IDbConnection>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
         IDbConnection localValue22 = new NpgsqlConnection();
         return localValue22;
       });
-      return new ConnectionPool(transientFunc356);
+      return new ConnectionPool(transientFunc346);
     }
   }
 }

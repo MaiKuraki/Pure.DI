@@ -2,12 +2,12 @@
 
 [![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/AvaloniaApp)
 
-This example demonstrates the creation of a [Avalonia](https://avaloniaui.net/) application in the pure DI paradigm using the Pure.DI code generator.
+This example demonstrates the creation of an [Avalonia](https://avaloniaui.net/) application in the pure DI paradigm using the Pure.DI code generator.
 
 > [!NOTE]
 > [Another example](samples/SingleRootAvaloniaApp) with Avalonia shows how to create an application with a single composition root.
 
-The definition of the composition is in [Composition.cs](/samples/AvaloniaApp/Composition.cs). This class setups how the composition of objects will be created for the application. You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
+The definition of the composition is in [Composition.cs](/samples/AvaloniaApp/Composition.cs). This class sets up how the composition of objects will be created for the application. You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
 
 ```c#
 using Pure.DI;
@@ -74,7 +74,7 @@ This markup fragment
 
 creates a shared resource of type `Composition` with key _"Composition"_, which will be further used as a data context in the views.
 
-The associated application [App.axaml.cs](/samples/AvaloniaApp/App.axaml.cs) class is looking like:
+The associated application [App.axaml.cs](/samples/AvaloniaApp/App.axaml.cs) class looks like:
 
 ```c#
 public class App : Application

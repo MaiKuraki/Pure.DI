@@ -109,24 +109,24 @@ partial class Composition
   public Webcam InstallWebcam(Webcam buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    Webcam transientWebcam220;
+    Webcam transientWebcam210;
     Webcam localBuildingInstance6 = buildingInstance;
-    Guid transientGuid223 = Guid.NewGuid();
+    Guid transientGuid213 = Guid.NewGuid();
     localBuildingInstance6.Network = new WiFi();
-    localBuildingInstance6.SetId(transientGuid223);
-    transientWebcam220 = localBuildingInstance6;
-    return transientWebcam220;
+    localBuildingInstance6.SetId(transientGuid213);
+    transientWebcam210 = localBuildingInstance6;
+    return transientWebcam210;
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public Thermostat InstallThermostat(Thermostat buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    Thermostat transientThermostat217;
+    Thermostat transientThermostat207;
     Thermostat localBuildingInstance5 = buildingInstance;
     localBuildingInstance5.Network = new WiFi();
-    transientThermostat217 = localBuildingInstance5;
-    return transientThermostat217;
+    transientThermostat207 = localBuildingInstance5;
+    return transientThermostat207;
   }
 
   #pragma warning disable CS0162

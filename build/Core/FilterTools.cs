@@ -13,7 +13,7 @@ class FilterTools
             case AIContextSize.Small
                 when priority < 4 && groupName is "Basics" or "Lifetimes":
             case AIContextSize.Medium
-                when priority <= 8 && groupName is not "Advanced" and not "Hints" and not "UseCases":
+                when priority <= 7 && groupName is not "Advanced" and not "Hints" and not "UseCases":
             case AIContextSize.Large:
                 return true;
 

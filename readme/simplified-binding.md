@@ -131,8 +131,8 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perBlockOrderManager298 = new OrderManager();
-      return new Shop(perBlockOrderManager298, perBlockOrderManager298, perBlockOrderManager298);
+      var perBlockOrderManager288 = new OrderManager();
+      return new Shop(perBlockOrderManager288, perBlockOrderManager288, perBlockOrderManager288);
     }
   }
 }

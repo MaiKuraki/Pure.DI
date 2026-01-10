@@ -96,8 +96,8 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Queue transientQueue67 = new Queue("Audit");
-      return transientQueue67;
+      Queue transientQueue57 = new Queue("Audit");
+      return transientQueue57;
     }
   }
 
@@ -106,17 +106,17 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Queue transientQueue69 = new Queue("WorkItems");
-      Queue transientQueue71 = new Queue(null);
-      Func<IQueue> transientFunc70 = new Func<IQueue>(
+      Queue transientQueue59 = new Queue("WorkItems");
+      Queue transientQueue61 = new Queue(null);
+      Func<IQueue> transientFunc60 = new Func<IQueue>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        Queue transientQueue72 = new Queue(42);
-        IQueue localValue = transientQueue72;
+        Queue transientQueue62 = new Queue(42);
+        IQueue localValue = transientQueue62;
         return localValue;
       });
-      return new QueueService(transientQueue69, transientFunc70, transientQueue71);
+      return new QueueService(transientQueue59, transientFunc60, transientQueue61);
     }
   }
 }

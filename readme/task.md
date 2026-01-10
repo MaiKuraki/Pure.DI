@@ -106,30 +106,30 @@ partial class Composition
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public ICommand GetCommand(CancellationToken cancellationToken)
   {
-    Task<IDataService> transientTask383;
+    Task<IDataService> transientTask373;
     // Injects an instance factory
-    Func<IDataService> transientFunc384 = new Func<IDataService>(
+    Func<IDataService> transientFunc374 = new Func<IDataService>(
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
       IDataService localValue25 = new DataService();
       return localValue25;
     });
-    Func<IDataService> localFactory5 = transientFunc384;
+    Func<IDataService> localFactory5 = transientFunc374;
     // Injects a task factory creating and scheduling task objects
-    TaskFactory<IDataService> transientTaskFactory385;
+    TaskFactory<IDataService> transientTaskFactory375;
     CancellationToken localCancellationToken2 = cancellationToken;
-    TaskCreationOptions transientTaskCreationOptions388 = TaskCreationOptions.None;
-    TaskCreationOptions localTaskCreationOptions1 = transientTaskCreationOptions388;
-    TaskContinuationOptions transientTaskContinuationOptions389 = TaskContinuationOptions.None;
-    TaskContinuationOptions localTaskContinuationOptions1 = transientTaskContinuationOptions389;
-    TaskScheduler transientTaskScheduler390 = TaskScheduler.Current;
-    TaskScheduler localTaskScheduler1 = transientTaskScheduler390;
-    transientTaskFactory385 = new TaskFactory<IDataService>(localCancellationToken2, localTaskCreationOptions1, localTaskContinuationOptions1, localTaskScheduler1);
-    TaskFactory<IDataService> localTaskFactory1 = transientTaskFactory385;
+    TaskCreationOptions transientTaskCreationOptions378 = TaskCreationOptions.None;
+    TaskCreationOptions localTaskCreationOptions1 = transientTaskCreationOptions378;
+    TaskContinuationOptions transientTaskContinuationOptions379 = TaskContinuationOptions.None;
+    TaskContinuationOptions localTaskContinuationOptions1 = transientTaskContinuationOptions379;
+    TaskScheduler transientTaskScheduler380 = TaskScheduler.Current;
+    TaskScheduler localTaskScheduler1 = transientTaskScheduler380;
+    transientTaskFactory375 = new TaskFactory<IDataService>(localCancellationToken2, localTaskCreationOptions1, localTaskContinuationOptions1, localTaskScheduler1);
+    TaskFactory<IDataService> localTaskFactory1 = transientTaskFactory375;
     // Creates and starts a task using the instance factory
-    transientTask383 = localTaskFactory1.StartNew(localFactory5);
-    return new LoadDataCommand(transientTask383);
+    transientTask373 = localTaskFactory1.StartNew(localFactory5);
+    return new LoadDataCommand(transientTask373);
   }
 }
 ```

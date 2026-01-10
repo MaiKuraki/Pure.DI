@@ -79,9 +79,9 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var transientService274 = new Service();
-      transientService274.Logger = new ConsoleLogger();
-      return transientService274;
+      var transientService264 = new Service();
+      transientService264.Logger = new ConsoleLogger();
+      return transientService264;
     }
   }
 }

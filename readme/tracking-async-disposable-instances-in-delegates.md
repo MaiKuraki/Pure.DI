@@ -119,39 +119,39 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perBlockOwned112 = new Owned();
-      Func<Owned<IConnection>> transientFunc111 = new Func<Owned<IConnection>>(
+      var perBlockOwned102 = new Owned();
+      Func<Owned<IConnection>> transientFunc101 = new Func<Owned<IConnection>>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        Owned<IConnection> transientOwned113;
+        Owned<IConnection> transientOwned103;
         // Creates the owner of an instance
-        Owned transientOwned114;
-        Owned localOwned1 = perBlockOwned112;
-        transientOwned114 = localOwned1;
+        Owned transientOwned104;
+        Owned localOwned1 = perBlockOwned102;
+        transientOwned104 = localOwned1;
         lock (_lock)
         {
-          perBlockOwned112.Add(transientOwned114);
+          perBlockOwned102.Add(transientOwned104);
         }
 
-        IOwned localOwned = transientOwned114;
-        var transientDbConnection115 = new DbConnection();
+        IOwned localOwned = transientOwned104;
+        var transientDbConnection105 = new DbConnection();
         lock (_lock)
         {
-          perBlockOwned112.Add(transientDbConnection115);
+          perBlockOwned102.Add(transientDbConnection105);
         }
 
-        IConnection localValue2 = transientDbConnection115;
-        transientOwned113 = new Owned<IConnection>(localValue2, localOwned);
+        IConnection localValue2 = transientDbConnection105;
+        transientOwned103 = new Owned<IConnection>(localValue2, localOwned);
         lock (_lock)
         {
-          perBlockOwned112.Add(transientOwned113);
+          perBlockOwned102.Add(transientOwned103);
         }
 
-        Owned<IConnection> localValue1 = transientOwned113;
+        Owned<IConnection> localValue1 = transientOwned103;
         return localValue1;
       });
-      return new QueryService(transientFunc111);
+      return new QueryService(transientFunc101);
     }
   }
 }

@@ -163,38 +163,38 @@ partial class Composition: IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perBlockOwn135 = new Abstractions.Own();
-      Func<Abstractions.Own<IDbConnection>> transientFunc133 = new Func<Abstractions.Own<IDbConnection>>(
+      var perBlockOwn125 = new Abstractions.Own();
+      Func<Abstractions.Own<IDbConnection>> transientFunc123 = new Func<Abstractions.Own<IDbConnection>>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        Abstractions.Own<IDbConnection> transientOwn136;
+        Abstractions.Own<IDbConnection> transientOwn126;
         // Creates the owner of an instance
-        Abstractions.Own localOwn = perBlockOwn135;
-        var transientDbConnection137 = new DbConnection();
+        Abstractions.Own localOwn = perBlockOwn125;
+        var transientDbConnection127 = new DbConnection();
         lock (_lock)
         {
-          perBlockOwn135.Add(transientDbConnection137);
+          perBlockOwn125.Add(transientDbConnection127);
         }
 
-        IDbConnection localValue8 = transientDbConnection137;
-        transientOwn136 = new Abstractions.Own<IDbConnection>(localValue8, localOwn);
+        IDbConnection localValue8 = transientDbConnection127;
+        transientOwn126 = new Abstractions.Own<IDbConnection>(localValue8, localOwn);
         lock (_lock)
         {
-          perBlockOwn135.Add(transientOwn136);
+          perBlockOwn125.Add(transientOwn126);
         }
 
-        Abstractions.Own<IDbConnection> localValue7 = transientOwn136;
+        Abstractions.Own<IDbConnection> localValue7 = transientOwn126;
         return localValue7;
       });
-      var perBlockOwn138 = new Abstractions.Own();
-      Func<Abstractions.Own<IDbConnection>> transientFunc134 = new Func<Abstractions.Own<IDbConnection>>(
+      var perBlockOwn128 = new Abstractions.Own();
+      Func<Abstractions.Own<IDbConnection>> transientFunc124 = new Func<Abstractions.Own<IDbConnection>>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        Abstractions.Own<IDbConnection> transientOwn139;
+        Abstractions.Own<IDbConnection> transientOwn129;
         // Creates the owner of an instance
-        Abstractions.Own localOwn1 = perBlockOwn138;
+        Abstractions.Own localOwn1 = perBlockOwn128;
         if (_singletonDbConnection52 is null)
           lock (_lock)
             if (_singletonDbConnection52 is null)
@@ -204,16 +204,16 @@ partial class Composition: IDisposable
             }
 
         IDbConnection localValue10 = _singletonDbConnection52;
-        transientOwn139 = new Abstractions.Own<IDbConnection>(localValue10, localOwn1);
+        transientOwn129 = new Abstractions.Own<IDbConnection>(localValue10, localOwn1);
         lock (_lock)
         {
-          perBlockOwn138.Add(transientOwn139);
+          perBlockOwn128.Add(transientOwn129);
         }
 
-        Abstractions.Own<IDbConnection> localValue9 = transientOwn139;
+        Abstractions.Own<IDbConnection> localValue9 = transientOwn129;
         return localValue9;
       });
-      return new DataService(transientFunc133, transientFunc134);
+      return new DataService(transientFunc123, transientFunc124);
     }
   }
 

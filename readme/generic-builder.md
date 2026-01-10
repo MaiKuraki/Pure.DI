@@ -98,13 +98,13 @@ partial class Composition
     where T4: struct
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    ViewModel<T4, T5> transientViewModel429;
+    ViewModel<T4, T5> transientViewModel419;
     ViewModel<T4, T5> localBuildingInstance8 = buildingInstance;
-    T4 transientTTS432 = (T4)(object)Guid.NewGuid();
+    T4 transientTTS422 = (T4)(object)Guid.NewGuid();
     localBuildingInstance8.Repository = new Repository<T5>();
-    localBuildingInstance8.SetId(transientTTS432);
-    transientViewModel429 = localBuildingInstance8;
-    return transientViewModel429;
+    localBuildingInstance8.SetId(transientTTS422);
+    transientViewModel419 = localBuildingInstance8;
+    return transientViewModel419;
   }
 }
 ```

@@ -88,14 +88,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<IEnemy> transientFunc254 = new Func<IEnemy>(
+      Func<IEnemy> transientFunc244 = new Func<IEnemy>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
         IEnemy localValue17 = new Enemy();
         return localValue17;
       });
-      return new GameLevel(transientFunc254);
+      return new GameLevel(transientFunc244);
     }
   }
 }

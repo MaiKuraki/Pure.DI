@@ -6,7 +6,7 @@ This example demonstrates the creation of a [Unity](https://unity.com/) applicat
 
 ![Unity](https://cdn.sanity.io/images/fuvbjjlp/production/01c082f3046cc45548249c31406aeffd0a9a738e-296x100.png)
 
-The definition of the composition is in [Scope.cs](/samples/UnityApp/Assets/Scripts/Scope.cs). This class setups how the composition of objects will be created for the application. Remember to define builders for types inherited from `MonoBehaviour`:
+The definition of the composition is in [Scope.cs](/samples/UnityApp/Assets/Scripts/Scope.cs). This class sets up how the composition of objects will be created for the application. Remember to define builders for types inherited from `MonoBehaviour`:
 
 ```c#
 public partial class Scope : MonoBehaviour

@@ -5349,12 +5349,21 @@ DI.Setup("Composition")
 </blockquote></details>
 
 
-<details><summary>Field CompositionClass</summary><blockquote>
+<details><summary>Field Overrider</summary><blockquote>
 
-Atomically generated smart tag with value "CompositionClass".
+Atomically generated smart tag with value "Overrider".
             It's used for:
             
-            class _Generator__CodeBuilder_ <-- _IBuilder{TData, T}_(CompositionClass) -- _CompositionClassBuilder_ as _PerBlock_
+            class _Generator__DependencyGraphBuilder_ <-- _IGraphRewriter_(Overrider) -- _GraphOverrider_ as _PerBlock_
+</blockquote></details>
+
+
+<details><summary>Field OverridesIdGenerator</summary><blockquote>
+
+Atomically generated smart tag with value "OverridesIdGenerator".
+            It's used for:
+            
+            class _Generator__OverrideIdProvider_ <-- _IIdGenerator_(OverridesIdGenerator) -- _IdGenerator_ as _PerResolve_
 </blockquote></details>
 
 
@@ -5367,24 +5376,6 @@ Atomically generated smart tag with value "UsingDeclarations".
 </blockquote></details>
 
 
-<details><summary>Field VarName</summary><blockquote>
-
-Atomically generated smart tag with value "VarName".
-            It's used for:
-            
-            class _Generator__VarsMap_ <-- _IIdGenerator_(VarName) -- _IdGenerator_ as _Singleton_
-</blockquote></details>
-
-
-<details><summary>Field Overrider</summary><blockquote>
-
-Atomically generated smart tag with value "Overrider".
-            It's used for:
-            
-            class _Generator__DependencyGraphBuilder_ <-- _IGraphRewriter_(Overrider) -- _GraphOverrider_ as _PerBlock_
-</blockquote></details>
-
-
 <details><summary>Field Cleaner</summary><blockquote>
 
 Atomically generated smart tag with value "Cleaner".
@@ -5394,30 +5385,39 @@ Atomically generated smart tag with value "Cleaner".
 </blockquote></details>
 
 
-<details><summary>Field UniqueTag</summary><blockquote>
+<details><summary>Field CompositionClass</summary><blockquote>
 
-Atomically generated smart tag with value "UniqueTag".
+Atomically generated smart tag with value "CompositionClass".
             It's used for:
             
-            class _Generator__ApiInvocationProcessor_ <-- _IIdGenerator_(UniqueTag) -- _IdGenerator_ as _PerResolve__BindingBuilder_ <-- _IIdGenerator_(UniqueTag) -- _IdGenerator_ as _PerResolve_
+            class _Generator__CodeBuilder_ <-- _IBuilder{TData, T}_(CompositionClass) -- _CompositionClassBuilder_ as _PerBlock_
 </blockquote></details>
 
 
-<details><summary>Field Override</summary><blockquote>
+<details><summary>Field SpecialBindingIdGenerator</summary><blockquote>
 
-Atomically generated smart tag with value "Override".
+Atomically generated smart tag with value "SpecialBindingIdGenerator".
             It's used for:
             
-            class _Generator__OverrideIdProvider_ <-- _IIdGenerator_(Override) -- _IdGenerator_ as _PerResolve_
+            class _Generator__BindingBuilder_ <-- _IIdGenerator_(SpecialBindingIdGenerator) -- _IdGenerator_ as _PerResolve_
 </blockquote></details>
 
 
-<details><summary>Field SpecialBinding</summary><blockquote>
+<details><summary>Field UniqueTagIdGenerator</summary><blockquote>
 
-Atomically generated smart tag with value "SpecialBinding".
+Atomically generated smart tag with value "UniqueTagIdGenerator".
             It's used for:
             
-            class _Generator__BindingBuilder_ <-- _IIdGenerator_(SpecialBinding) -- _IdGenerator_ as _PerResolve_
+            class _Generator__ApiInvocationProcessor_ <-- _IIdGenerator_(UniqueTagIdGenerator) -- _IdGenerator_ as _PerResolve__BindingBuilder_ <-- _IIdGenerator_(UniqueTagIdGenerator) -- _IdGenerator_ as _PerResolve_
+</blockquote></details>
+
+
+<details><summary>Field VarNameIdGenerator</summary><blockquote>
+
+Atomically generated smart tag with value "VarNameIdGenerator".
+            It's used for:
+            
+            class _Generator__VarsMap_ <-- _IIdGenerator_(VarNameIdGenerator) -- _IdGenerator_ as _PerResolve_
 </blockquote></details>
 
 
@@ -7155,7 +7155,7 @@ DI.Setup("Composition").DependsOn("BaseComposition")
     .Bind().To<Service>();    
 ```
 
-If the _CompositionKind.Public_ flag is set in the composition setup, it can also be the base for other compositions, as in the example above.
+If the _CompositionKind.Public_ flag is set in the composition setup, it can also serve as the base for other compositions, as in the example above.
 
 ### CompositionKind.Global
 
@@ -7969,7 +7969,7 @@ Then documentation for the composition root:
 
 ```mermaid
 flowchart TD
-    start@{ shape: circle, label: "Start" }
+    start@{ shape: circle, label: Start }
     setups[fa:fa-search DI setups analysis]
     types["`fa:fa-search Types analysis
     constructors/methods/properties/fields`"] 
@@ -7980,8 +7980,8 @@ flowchart TD
     end
     codeGeneration[fa:fa-code Code generation]
     compilation[fa:fa-cog Compilation]
-    failed@{ shape: dbl-circ, label: "fa:fa-thumbs-down Compilation failed" }
-    success@{ shape: dbl-circ, label: "fa:fa-thumbs-up Success" }
+    failed@{ shape: dbl-circ, label: Compilation failed }
+    success@{ shape: dbl-circ, label: Success }
 
     start ==> setups
     setups -.->|Has problems| failed
@@ -8135,7 +8135,7 @@ AI needs to understand the situation it’s in (context). This means knowing det
 | AI context file | Size | Tokens |
 | --------------- | ---- | ------ |
 | [AGENTS_SMALL.md](AGENTS_SMALL.md) | 33KB | 8K |
-| [AGENTS_MEDIUM.md](AGENTS_MEDIUM.md) | 130KB | 33K |
+| [AGENTS_MEDIUM.md](AGENTS_MEDIUM.md) | 121KB | 30K |
 | [AGENTS.md](AGENTS.md) | 502KB | 128K |
 
 For different IDEs, you can use the _AGENTS.md_ file as is by simply copying it to the root directory. For use with _JetBrains Rider_ and _Junie_, please refer to [these instructions](https://www.jetbrains.com/help/junie/customize-guidelines.html). For example, you can copy any _AGENTS.md_ file into your project (using _Pure.DI_) as _.junie/guidelines.md._

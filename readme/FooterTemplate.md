@@ -91,7 +91,7 @@ DI.Setup("Composition").DependsOn("BaseComposition")
     .Bind().To<Service>();    
 ```
 
-If the _CompositionKind.Public_ flag is set in the composition setup, it can also be the base for other compositions, as in the example above.
+If the _CompositionKind.Public_ flag is set in the composition setup, it can also serve as the base for other compositions, as in the example above.
 
 ### CompositionKind.Global
 
@@ -905,7 +905,7 @@ Then documentation for the composition root:
 
 ```mermaid
 flowchart TD
-    start@{ shape: circle, label: "Start" }
+    start@{ shape: circle, label: Start }
     setups[fa:fa-search DI setups analysis]
     types["`fa:fa-search Types analysis
     constructors/methods/properties/fields`"] 
@@ -916,8 +916,8 @@ flowchart TD
     end
     codeGeneration[fa:fa-code Code generation]
     compilation[fa:fa-cog Compilation]
-    failed@{ shape: dbl-circ, label: "fa:fa-thumbs-down Compilation failed" }
-    success@{ shape: dbl-circ, label: "fa:fa-thumbs-up Success" }
+    failed@{ shape: dbl-circ, label: Compilation failed }
+    success@{ shape: dbl-circ, label: Success }
 
     start ==> setups
     setups -.->|Has problems| failed

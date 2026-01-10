@@ -112,9 +112,9 @@ partial class Composition
             _singletonGlobalCache51 = _singletonGlobalCache51Temp;
           }
 
-      var transientOrderProcessor485 = new OrderProcessor(_singletonGlobalCache51);
-      OnNewInstance<OrderProcessor>(ref transientOrderProcessor485, null, Lifetime.PerBlock);
-      return transientOrderProcessor485;
+      var transientOrderProcessor475 = new OrderProcessor(_singletonGlobalCache51);
+      OnNewInstance<OrderProcessor>(ref transientOrderProcessor475, null, Lifetime.PerBlock);
+      return transientOrderProcessor475;
     }
   }
 

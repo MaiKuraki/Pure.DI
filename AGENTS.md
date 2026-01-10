@@ -9051,12 +9051,12 @@ To run the above code, the following NuGet package must be added:
 
 [![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/AvaloniaApp)
 
-This example demonstrates the creation of a [Avalonia](https://avaloniaui.net/) application in the pure DI paradigm using the Pure.DI code generator.
+This example demonstrates the creation of an [Avalonia](https://avaloniaui.net/) application in the pure DI paradigm using the Pure.DI code generator.
 
 > [!NOTE]
 > [Another example](samples/SingleRootAvaloniaApp) with Avalonia shows how to create an application with a single composition root.
 
-The definition of the composition is in [Composition.cs](/samples/AvaloniaApp/Composition.cs). This class setups how the composition of objects will be created for the application. You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
+The definition of the composition is in [Composition.cs](/samples/AvaloniaApp/Composition.cs). This class sets up how the composition of objects will be created for the application. You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
 
 ```c#
 using Pure.DI;
@@ -9123,7 +9123,7 @@ This markup fragment
 
 creates a shared resource of type `Composition` with key _"Composition"_, which will be further used as a data context in the views.
 
-The associated application [App.axaml.cs](/samples/AvaloniaApp/App.axaml.cs) class is looking like:
+The associated application [App.axaml.cs](/samples/AvaloniaApp/App.axaml.cs) class looks like:
 
 ```c#
 public class App : Application
@@ -9224,7 +9224,7 @@ The [project file](/samples/AvaloniaApp/AvaloniaApp.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -9288,11 +9288,11 @@ The [project file](/samples/BlazorServerApp/BlazorServerApp.csproj) looks like t
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -9356,11 +9356,11 @@ The [project file](/samples/BlazorWebAssemblyApp/BlazorWebAssemblyApp.csproj) lo
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -9385,7 +9385,7 @@ The [project file](/samples/ShroedingersCatNativeAOT/ShroedingersCatNativeAOT.cs
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -9486,7 +9486,7 @@ The [project file](/samples/ShroedingersCat/ShroedingersCat.csproj) looks like t
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -9572,7 +9572,7 @@ The [project file](/samples/ShroedingersCatTopLevelStatements/ShroedingersCatTop
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -9674,11 +9674,11 @@ The [project file](/samples/EF/EF.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -9742,11 +9742,11 @@ The [project file](/samples/GrpcService/GrpcService.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -9907,11 +9907,11 @@ The [project file](/samples/MAUIApp/MAUIApp.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -9999,11 +9999,11 @@ The [project file](/samples/WebAPI/WebAPI.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -10024,7 +10024,7 @@ This example demonstrates the creation of a [Unity](https://unity.com/) applicat
 
 ![Unity](https://cdn.sanity.io/images/fuvbjjlp/production/01c082f3046cc45548249c31406aeffd0a9a738e-296x100.png)
 
-The definition of the composition is in [Scope.cs](/samples/UnityApp/Assets/Scripts/Scope.cs). This class setups how the composition of objects will be created for the application. Remember to define builders for types inherited from `MonoBehaviour`:
+The definition of the composition is in [Scope.cs](/samples/UnityApp/Assets/Scripts/Scope.cs). This class sets up how the composition of objects will be created for the application. Remember to define builders for types inherited from `MonoBehaviour`:
 
 ```c#
 public partial class Scope : MonoBehaviour
@@ -10170,11 +10170,11 @@ The [project file](/samples/WebAPI/WebAPI.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -10239,11 +10239,11 @@ The [project file](/samples/WebApp/WebApp.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -10311,7 +10311,7 @@ The [project file](/samples/WinFormsAppNetCore/WinFormsAppNetCore.csproj) looks 
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -10384,7 +10384,7 @@ The [project file](/samples/WinFormsApp/WinFormsApp.csproj) looks like this:
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -10405,7 +10405,7 @@ It contains an additional reference to the NuGet package:
 
 This example demonstrates the creation of a WPF application in the pure DI paradigm using the Pure.DI code generator.
 
-The definition of the composition is in [Composition.cs](/samples/WpfAppNetCore/Composition.cs). This class setups how the composition of objects will be created for the application. You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
+The definition of the composition is in [Composition.cs](/samples/WpfAppNetCore/Composition.cs). This class sets up how the composition of objects will be created for the application. You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
 
 ```c#
 using Pure.DI;
@@ -10512,7 +10512,7 @@ The [project file](/samples/WpfAppNetCore/WpfAppNetCore.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk">
    ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -15598,12 +15598,21 @@ DI.Setup("Composition")
 </blockquote></details>
 
 
-<details><summary>Field CompositionClass</summary><blockquote>
+<details><summary>Field Overrider</summary><blockquote>
 
-Atomically generated smart tag with value "CompositionClass".
+Atomically generated smart tag with value "Overrider".
             It's used for:
             
-            class _Generator__CodeBuilder_ <-- _IBuilder{TData, T}_(CompositionClass) -- _CompositionClassBuilder_ as _PerBlock_
+            class _Generator__DependencyGraphBuilder_ <-- _IGraphRewriter_(Overrider) -- _GraphOverrider_ as _PerBlock_
+</blockquote></details>
+
+
+<details><summary>Field OverridesIdGenerator</summary><blockquote>
+
+Atomically generated smart tag with value "OverridesIdGenerator".
+            It's used for:
+            
+            class _Generator__OverrideIdProvider_ <-- _IIdGenerator_(OverridesIdGenerator) -- _IdGenerator_ as _PerResolve_
 </blockquote></details>
 
 
@@ -15616,24 +15625,6 @@ Atomically generated smart tag with value "UsingDeclarations".
 </blockquote></details>
 
 
-<details><summary>Field VarName</summary><blockquote>
-
-Atomically generated smart tag with value "VarName".
-            It's used for:
-            
-            class _Generator__VarsMap_ <-- _IIdGenerator_(VarName) -- _IdGenerator_ as _Singleton_
-</blockquote></details>
-
-
-<details><summary>Field Overrider</summary><blockquote>
-
-Atomically generated smart tag with value "Overrider".
-            It's used for:
-            
-            class _Generator__DependencyGraphBuilder_ <-- _IGraphRewriter_(Overrider) -- _GraphOverrider_ as _PerBlock_
-</blockquote></details>
-
-
 <details><summary>Field Cleaner</summary><blockquote>
 
 Atomically generated smart tag with value "Cleaner".
@@ -15643,30 +15634,39 @@ Atomically generated smart tag with value "Cleaner".
 </blockquote></details>
 
 
-<details><summary>Field UniqueTag</summary><blockquote>
+<details><summary>Field CompositionClass</summary><blockquote>
 
-Atomically generated smart tag with value "UniqueTag".
+Atomically generated smart tag with value "CompositionClass".
             It's used for:
             
-            class _Generator__ApiInvocationProcessor_ <-- _IIdGenerator_(UniqueTag) -- _IdGenerator_ as _PerResolve__BindingBuilder_ <-- _IIdGenerator_(UniqueTag) -- _IdGenerator_ as _PerResolve_
+            class _Generator__CodeBuilder_ <-- _IBuilder{TData, T}_(CompositionClass) -- _CompositionClassBuilder_ as _PerBlock_
 </blockquote></details>
 
 
-<details><summary>Field Override</summary><blockquote>
+<details><summary>Field SpecialBindingIdGenerator</summary><blockquote>
 
-Atomically generated smart tag with value "Override".
+Atomically generated smart tag with value "SpecialBindingIdGenerator".
             It's used for:
             
-            class _Generator__OverrideIdProvider_ <-- _IIdGenerator_(Override) -- _IdGenerator_ as _PerResolve_
+            class _Generator__BindingBuilder_ <-- _IIdGenerator_(SpecialBindingIdGenerator) -- _IdGenerator_ as _PerResolve_
 </blockquote></details>
 
 
-<details><summary>Field SpecialBinding</summary><blockquote>
+<details><summary>Field UniqueTagIdGenerator</summary><blockquote>
 
-Atomically generated smart tag with value "SpecialBinding".
+Atomically generated smart tag with value "UniqueTagIdGenerator".
             It's used for:
             
-            class _Generator__BindingBuilder_ <-- _IIdGenerator_(SpecialBinding) -- _IdGenerator_ as _PerResolve_
+            class _Generator__ApiInvocationProcessor_ <-- _IIdGenerator_(UniqueTagIdGenerator) -- _IdGenerator_ as _PerResolve__BindingBuilder_ <-- _IIdGenerator_(UniqueTagIdGenerator) -- _IdGenerator_ as _PerResolve_
+</blockquote></details>
+
+
+<details><summary>Field VarNameIdGenerator</summary><blockquote>
+
+Atomically generated smart tag with value "VarNameIdGenerator".
+            It's used for:
+            
+            class _Generator__VarsMap_ <-- _IIdGenerator_(VarNameIdGenerator) -- _IdGenerator_ as _PerResolve_
 </blockquote></details>
 
 
