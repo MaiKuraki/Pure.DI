@@ -2,11 +2,11 @@ using Pure.DI;
 using UnityEngine;
 using static Pure.DI.Lifetime;
 
-public partial class DatetimeComposition
+public partial class BaseComposition
 {
     [SerializeField] public DatetimeConfig datetimeConfig;
 
-    void Setup() => DI.Setup(kind: CompositionKind.Global)
+    void SetupDatetime() => DI.Setup(kind: CompositionKind.Internal)
                         .DefaultLifetime(Singleton)
                         .Bind().To(_ => datetimeConfig)
                         .Bind().To<DatetimeService>();
