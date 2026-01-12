@@ -21,7 +21,7 @@ sealed class Semantic(
     {
         var typeInfo = semanticModel.GetTypeInfo(node, cancellationToken);
         var typeSymbol = typeInfo.Type ?? typeInfo.ConvertedType;
-        if (typeSymbol is T symbol)
+        if (typeSymbol is T symbol and not IErrorTypeSymbol)
         {
             return (T)symbol.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
         }

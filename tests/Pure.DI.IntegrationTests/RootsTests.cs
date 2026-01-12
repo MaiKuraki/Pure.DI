@@ -1763,4 +1763,99 @@ public class RootsTests
         result.Success.ShouldBeTrue(result);
         result.StdOut.ShouldBe(["2"], result);
     }
+
+    [Fact]
+    public async Task ShouldSupportTypeAliasInRoot()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+                           
+                           namespace Abc
+                           {
+                              interface IDependency {}
+                              class Dependency: IDependency {}
+                           }
+
+                           namespace Sample
+                           {
+                              using DepAlias = Abc.IDependency;
+                           
+                              static class Setup
+                              {
+                                  private static void SetupComposition()
+                                  {
+                                      DI.Setup("Composition")
+                                          .Bind<DepAlias>().To<Abc.Dependency>()
+                                          .Root<DepAlias>("Root");
+                                  }
+                              }
+                           
+                              public class Program
+                              {
+                                  public static void Main()
+                                  {
+                                      var composition = new Composition();
+                                      var root = composition.Root;
+                                      Console.WriteLine(root is Abc.Dependency);
+                                  }
+                              }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportTypeAliasInRoots()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+                           
+                           namespace Abc
+                           {
+                              public interface IBaseService {}
+                              public class Service: IBaseService {}
+                           }
+
+                           namespace Sample
+                           {
+                              using Abc;
+                              using IBaseServiceAlias = Abc.IBaseService;
+                           
+                              static class Setup
+                              {
+                                  private static void SetupComposition()
+                                  {
+                                      DI.Setup("Composition")
+                                          .Bind<Service>().To<Service>()
+                                          .Roots<IBaseServiceAlias>("Get{type}");
+                                  }
+                              }
+                           
+                              public class Program
+                              {
+                                  public static void Main()
+                                  {
+                                      var composition = new Composition();
+                                      var service = composition.GetService;
+                                      Console.WriteLine(service is Service);
+                                  }
+                              }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
 }

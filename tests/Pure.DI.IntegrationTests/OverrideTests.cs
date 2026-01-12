@@ -4493,4 +4493,75 @@ public class OverrideTests
         result.Success.ShouldBeTrue(result);
         result.StdOut.ShouldBe(["3.14"], result);
     }
+
+    [Fact]
+    public async Task ShouldSupportTypeAliasInOverride()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+                           
+                           namespace Abc
+                           {
+                              interface ILogger {}
+                              class LoggerA: ILogger {}
+                              class LoggerB: ILogger {}
+                           }
+
+                           namespace Sample
+                           {
+                               using ILog = Abc.ILogger;
+                               
+                               interface IService
+                               {
+                                   ILog Logger { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   public Service(ILog logger)
+                                   {
+                                        Logger = logger;
+                                   }
+                           
+                                   public ILog Logger { get; }
+                               }
+                               
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind<ILog>().To<Abc.LoggerA>()
+                                           .Bind<IService>().To(ctx => 
+                                           {
+                                                ctx.Override<ILog>(new Abc.LoggerB());
+                                                ctx.Inject(out Service service);
+                                                return service;
+                                           })
+                                           .Root<IService>("Root")
+                                           .Root<ILog>("OriginalLog");
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                       Console.WriteLine(root.Logger is Abc.LoggerB);
+                                       Console.WriteLine(composition.OriginalLog is Abc.LoggerA);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True", "True"], result);
+    }
 }

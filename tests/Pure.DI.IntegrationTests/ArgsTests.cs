@@ -895,4 +895,114 @@ public class ArgsTests
         result.Success.ShouldBeTrue(result);
         result.StdOut.ShouldBe(["99"], result);
     }
+
+    [Fact]
+    public async Task ShouldSupportTypeAliasInArg()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+                           
+                           namespace Abc
+                           {
+                              public class User
+                              {
+                                  public User(int id, string name)
+                                  {
+                                      Id = id;
+                                      Name = name;
+                                  }
+
+                                  public int Id { get; }
+                                  public string Name { get; }
+                              }
+                           }
+
+                           namespace Sample
+                           {
+                              using UserAlias = Abc.User;
+                           
+                              static class Setup
+                              {
+                                  private static void SetupComposition()
+                                  {
+                                      DI.Setup("Composition")
+                                          .Arg<UserAlias>("user")
+                                          .Root<UserAlias>("User");
+                                  }
+                              }
+                           
+                              public class Program
+                              {
+                                  public static void Main()
+                                  {
+                                      var user = new UserAlias(1, "Abc");
+                                      var composition = new Composition(user);
+                                      Console.WriteLine(composition.User.Name);
+                                  }
+                              }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Abc"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportTypeAliasInRootArg()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+                           
+                           namespace Abc
+                           {
+                              public class Config
+                              {
+                                  public string Value { get; set; } = "";
+                              }
+                           }
+
+                           namespace Sample
+                           {
+                              using ConfigAlias = Abc.Config;
+                           
+                              static class Setup
+                              {
+                                  private static void SetupComposition()
+                                  {
+                                      DI.Setup("Composition")
+                                          .Hint(Hint.Resolve, "Off")
+                                          .RootArg<ConfigAlias>("config")
+                                          .Bind<string>().To(ctx => {
+                                              ctx.Inject(out ConfigAlias c);
+                                              return c.Value;
+                                          })
+                                          .Root<string>("Value");
+                                  }
+                              }
+                              
+                              public class Program
+                              {
+                                  public static void Main()
+                                  {
+                                      var config = new ConfigAlias { Value = "Abc" };
+                                      var composition = new Composition();
+                                      Console.WriteLine(composition.Value(config));
+                                  }
+                              }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Abc"], result);
+    }
 }

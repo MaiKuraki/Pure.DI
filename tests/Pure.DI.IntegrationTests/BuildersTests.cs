@@ -1357,4 +1357,109 @@ public class BuildersTests
         result.StdOut.ShouldBe(["2"], result);
         result.GeneratedCode.Contains("case global::Sample.Composition").ShouldBeFalse(result);
     }
+
+    [Fact]
+    public async Task ShouldSupportTypeAliasInBuilder()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+                           
+                           namespace Abc
+                           {
+                              class Service
+                              {
+                                  [Ordinal(0)]
+                                  public string Name { get; set; } = "";
+                              }
+                           }
+
+                           namespace Sample
+                           {
+                              using ServiceAlias = Abc.Service;
+                           
+                              static class Setup
+                              {
+                                  private static void SetupComposition()
+                                  {
+                                      DI.Setup("Composition")
+                                          .Bind<string>().To(_ => "Abc")
+                                          .Builder<ServiceAlias>("BuildUpService");
+                                  }
+                              }
+                           
+                              public class Program
+                              {
+                                  public static void Main()
+                                  {
+                                      var composition = new Composition();
+                                      var service = new ServiceAlias();
+                                      composition.BuildUpService(service);
+                                      Console.WriteLine(service.Name);
+                                  }
+                              }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Abc"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportTypeAliasInBuilders()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+                           
+                           namespace Abc
+                           {
+                              public class BaseService
+                              {
+                                  [Ordinal(0)]
+                                  public string Name { get; set; } = "";
+                              }
+                              
+                              public class Service: BaseService {}
+                           }
+
+                           namespace Sample
+                           {
+                              using Abc;
+                              using BaseServiceAlias = Abc.BaseService;
+                           
+                              static class Setup
+                              {
+                                  private static void SetupComposition()
+                                  {
+                                      DI.Setup("Composition")
+                                          .Bind<string>().To(_ => "Abc")
+                                          .Builders<BaseServiceAlias>("BuildUpService");
+                                  }
+                              }
+                           
+                              public class Program
+                              {
+                                  public static void Main()
+                                  {
+                                      var composition = new Composition();
+                                      var service = new Service();
+                                      composition.BuildUpService(service);
+                                      Console.WriteLine(service.Name);
+                                  }
+                              }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Abc"], result);
+    }
 }

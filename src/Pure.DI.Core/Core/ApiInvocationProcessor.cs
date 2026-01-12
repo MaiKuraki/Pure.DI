@@ -1308,7 +1308,7 @@ sealed class ApiInvocationProcessor(
         && memberAccessExpression.Expression is IdentifierNameSyntax identifierName
         && identifierName.Identifier.Text == contextParameter.Identifier.Text;
 
-    private static ITypeSymbol? GetArgSymbol(SemanticModel semanticModel, ArgumentSyntax argumentSyntax)
+    private ITypeSymbol? GetArgSymbol(SemanticModel semanticModel, ArgumentSyntax argumentSyntax)
     {
         if (argumentSyntax.SyntaxTree != semanticModel.SyntaxTree)
         {
@@ -1319,6 +1319,12 @@ sealed class ApiInvocationProcessor(
             };
 
             return typeSyntax is not null ? semanticModel.Compilation.GetTypeByMetadataName(typeSyntax.ToString()) : null;
+        }
+
+        var type = semantic.TryGetTypeSymbol<ITypeSymbol>(semanticModel, argumentSyntax.Expression);
+        if (type is not null)
+        {
+            return type;
         }
 
         if (semanticModel.GetOperation(argumentSyntax) is IArgumentOperation { Value.Type: {} valueType })

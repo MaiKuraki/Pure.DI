@@ -1146,4 +1146,128 @@ public class GenericsTests
         result.Success.ShouldBeTrue(result);
         result.StdOut.ShouldBe(["True"], result);
     }
+
+    [Fact]
+    public async Task ShouldSupportTypeAliasForGenericType()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+                           
+                           namespace Abc
+                           {
+                              interface IDependency<T> {}
+                              class Dependency<T>: IDependency<T> {}
+                           }
+
+                           namespace Sample
+                           {
+                               using IDep = Abc.IDependency<int>;
+                               
+                               interface IService
+                               {
+                                   IDep Dep { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   public Service(IDep dep)
+                                   {
+                                        Dep = dep;
+                                   }
+                           
+                                   public IDep Dep { get; }
+                               }
+                               
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind<IDep>().To<Abc.Dependency<int>>()
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Root");
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                       Console.WriteLine(root.Dep is Abc.Dependency<int>);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportTypeAliasForGenericTypeArgument()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+                           
+                           namespace Sample
+                           {
+                               using TTAlias = Pure.DI.TT;
+
+                               interface IDependency<T> {}
+                               class Dependency<T>: IDependency<T> {}
+                           
+                               interface IService
+                               {
+                                   IDependency<int> Dep { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   public Service(IDependency<int> dep)
+                                   {
+                                        Dep = dep;
+                                   }
+                           
+                                   public IDependency<int> Dep { get; }
+                               }
+                               
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .GenericTypeArgument<TTAlias>()
+                                           .Bind<IDependency<TTAlias>>().To<Dependency<TTAlias>>()
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Root");
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                       Console.WriteLine(root.Dep is Dependency<int>);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
 }
