@@ -16,7 +16,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Update="Castle.Core" Version="5.2.1" />
-        <PackageReference Update="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+        <PackageReference Update="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
         <PackageReference Update="AutoMapper" Version="16.0.0" />
     </ItemGroup>
 
