@@ -67,7 +67,7 @@ sealed class MetadataBuilder(
 
             MergeSetups(setupsChain, out var mergedSetup, true);
             var setupFinalizer = setupFinalizerFactory();
-            yield return setupFinalizer.Finalize(mergedSetup);
+            yield return setupFinalizer.Finalize(mergedSetup, setupMap);
         }
     }
 

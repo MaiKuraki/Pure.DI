@@ -2,5 +2,5 @@
 
 interface ISetupFinalizer
 {
-    MdSetup Finalize(MdSetup setup);
+    MdSetup Finalize(MdSetup setup, IReadOnlyDictionary<CompositionName, MdSetup> setupMap);
 }

@@ -1,5 +1,6 @@
 ﻿namespace Pure.DI.IntegrationTests;
 
+using System.Text;
 using Core;
 
 /// <summary>
@@ -3866,5 +3867,102 @@ public class SetupTests
         // Then
         result.Success.ShouldBeTrue(result);
         result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportComplexSetupWithLargeNumberOfBindings()
+    {
+        // Given
+        var code = new StringBuilder();
+        code.AppendLine("using System;");
+        code.AppendLine("using Pure.DI;");
+        code.AppendLine("using System.Collections.Generic;");
+        code.AppendLine("namespace Sample {");
+
+        // Many dependencies
+        const int count = 100;
+        for (var i = 0; i < count; i++)
+        {
+            code.AppendLine($"    interface IDependency{i} {{ }}");
+            code.AppendLine($"    class Dependency{i} : IDependency{i} {{ }}");
+        }
+
+        // Diverse mechanisms
+        code.AppendLine("    interface IGeneric<T> { T Value { get; } }");
+        code.AppendLine("    class GenericImpl<T> : IGeneric<T> { public GenericImpl(T value) => Value = value; public T Value { get; } }");
+        code.AppendLine("    interface IAlpha { }");
+        code.AppendLine("    interface IBeta { }");
+        code.AppendLine("    class AlphaBeta : IAlpha, IBeta { }");
+        code.AppendLine("    interface IFactoryGenerated { string Name { get; } }");
+        code.AppendLine("    class FactoryGenerated : IFactoryGenerated { public FactoryGenerated(string name) => Name = name; public string Name { get; } }");
+        code.AppendLine("    class DependencyWithOrdinal {");
+        code.AppendLine("        [Ordinal(1)] public DependencyWithOrdinal([Tag(\"MyTag\")] string s) { }");
+        code.AppendLine("        [Ordinal(0)] public DependencyWithOrdinal() { }");
+        code.AppendLine("    }");
+
+        // Service depending on everything
+        code.AppendLine("    interface IService { void Do(); }");
+        code.AppendLine("    class Service : IService {");
+        code.Append("        public Service(");
+        for (var i = 0; i < count; i++)
+        {
+            code.Append($"IDependency{i} dep{i}, ");
+        }
+        code.Append("IGeneric<int> genericInt, IAlpha alpha, IBeta beta, IFactoryGenerated factoryGen, [Tag(\"MyTag\")] string taggedStr, DependencyWithOrdinal depOrdinal");
+        code.AppendLine(") { }");
+        code.AppendLine("        public void Do() => Console.WriteLine(\"Done\");");
+        code.AppendLine("    }");
+
+        code.AppendLine("    static class BaseSetup {");
+        code.AppendLine("        private static void SetupBase() {");
+        code.AppendLine("            DI.Setup(\"BaseComposition\", CompositionKind.Internal)");
+        code.AppendLine("                .Bind<IAlpha, IBeta>().As(Lifetime.Singleton).To<AlphaBeta>();");
+        code.AppendLine("        }");
+        code.AppendLine("    }");
+
+        code.AppendLine("    static class Setup {");
+        code.AppendLine("        private static void SetupComposition() {");
+        code.AppendLine("            DI.Setup(\"Composition\")");
+        code.AppendLine("                .DependsOn(\"BaseComposition\")");
+
+        for (var i = 0; i < count; i++)
+        {
+            var lifetime = (i % 5) switch
+            {
+                0 => "Lifetime.Transient",
+                1 => "Lifetime.Singleton",
+                2 => "Lifetime.PerResolve",
+                3 => "Lifetime.Scoped",
+                4 => "Lifetime.PerBlock",
+                _ => "Lifetime.Transient"
+            };
+            code.AppendLine($"                .Bind<IDependency{i}>().As({lifetime}).To<Dependency{i}>()");
+        }
+
+        code.AppendLine("                .Bind<IGeneric<TT>>().To<GenericImpl<TT>>()");
+        code.AppendLine("                .Bind<int>().To(_ => 10)");
+        code.AppendLine("                .Bind<IFactoryGenerated>().To(ctx => new FactoryGenerated(\"Generated\"))");
+        code.AppendLine("                .Bind<string>(\"MyTag\").To(_ => \"TaggedValue\")");
+        code.AppendLine("                .Bind<DependencyWithOrdinal>().To<DependencyWithOrdinal>()");
+        code.AppendLine("                .Bind<IService>().To<Service>()");
+        code.AppendLine("                .Root<IService>(\"Root\");");
+        code.AppendLine("        }");
+        code.AppendLine("    }");
+
+        code.AppendLine("    public class Program {");
+        code.AppendLine("        public static void Main() {");
+        code.AppendLine("            var composition = new Composition();");
+        code.AppendLine("            var root = composition.Root;");
+        code.AppendLine("            root.Do();");
+        code.AppendLine("        }");
+        code.AppendLine("    }");
+        code.AppendLine("}");
+
+        // When
+        var result = await code.ToString().RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Done"], result);
     }
 }

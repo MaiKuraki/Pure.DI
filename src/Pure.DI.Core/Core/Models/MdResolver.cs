@@ -15,7 +15,8 @@ readonly record struct MdResolver(
     ParameterSyntax? Parameter = null,
     ImmutableArray<AttributeSyntax> Attributes = default,
     ISymbol? Member = null,
-    ITypeConstructor? TypeConstructor = null)
+    ITypeConstructor? TypeConstructor = null,
+    string MemberName = "")
 {
     public override string ToString() => $"<=={ContractType}({Tag?.ToString()})";
 }

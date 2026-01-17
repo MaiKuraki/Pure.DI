@@ -71,7 +71,7 @@ public sealed partial class Generator
             .PerBlock<Arguments, Comments, BuildTools, Resources, GlobalProperties, Marker, Variator<TT>, Profiler, BaseSymbolsProvider, Formatter,
                 NodeTools, LocalFunctions, ExceptionHandler, WildcardMatcher, InjectionSiteFactory, Semantic, Attributes, Compilations, GraphWalker<TT, TT1>,
                 LifetimeAnalyzer, InstanceDpProvider, Injections, NameFormatter, ProcessingNode, BindingsFactory, NodesFactory, LocationProvider,
-                LifetimeOptimizer, RootCompositionDependencyRefCounterVisitor, CycleTools, LifetimeProvider, VarDeclarationTools>()
+                LifetimeOptimizer, RootCompositionDependencyRefCounterVisitor, CycleTools, LifetimeProvider, VarDeclarationTools, ContractTagComparer>()
             .PerBlock<LifetimesValidatorVisitor, CyclicDependencyValidatorVisitor>(Type)
             .PerBlock<GraphOverrider>(Overrider)
             .PerBlock<GraphCleaner>(Cleaner)
