@@ -11,6 +11,7 @@ record Var(
     DependencyGraph graph,
     IConstructors constructors,
     VarDeclaration Declaration,
+    // ReSharper disable once NotAccessedPositionalProperty.Global
     ImmutableArray<string> Trace)
 {
     private string? _codeExpression;
@@ -55,6 +56,7 @@ record Var(
     /// <summary>
     /// Gets or sets the lines of code for the local function.
     /// </summary>
+    // ReSharper disable once MemberCanBePrivate.Global
     public Lines LocalFunction { get; set; } = new();
 
     /// <summary>
@@ -71,6 +73,7 @@ record Var(
     /// Resets the variable to its default state, including generated code.
     /// </summary>
     /// <returns>True if the state has changed.</returns>
+    // ReSharper disable once UnusedMethodReturnValue.Global
     public bool ResetToDefaults()
     {
         var changed = false;
@@ -99,6 +102,7 @@ record Var(
             changed = true;
         }
 
+        // ReSharper disable once InvertIf
         if (HasCycle != null)
         {
             HasCycle = null;
@@ -122,6 +126,7 @@ record Var(
             changed = true;
         }
 
+        // ReSharper disable once InvertIf
         if (_codeExpression != null)
         {
             _codeExpression = null;

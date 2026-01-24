@@ -72,7 +72,7 @@ sealed class Lines: IEnumerable<Line>
         clone._lines.AddRange(_lines);
         if (_sb.Length > 0)
         {
-            clone._sb.Append(_sb.ToString());
+            clone._sb.Append(_sb);
         }
 
         return clone;

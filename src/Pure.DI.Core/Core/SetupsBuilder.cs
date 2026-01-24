@@ -29,7 +29,6 @@ sealed class SetupsBuilder(
     private readonly List<MdUsingDirectives> _usingDirectives = [];
     private readonly List<IBindingBuilder> _bindingBuilders = [];
     private IBindingBuilder _bindingBuilder = bindingBuilderFactory();
-    private readonly IEqualityComparer<(ITypeSymbol ContractType, object? Tag)> _contractTagComparer = contractTagComparer;
     private Hints _hints = new();
     private MdSetup? _setup;
     private MdDefaultLifetime? _defaultLifetime;
@@ -260,7 +259,7 @@ sealed class SetupsBuilder(
 
         bindingsRegistryManager.Register(setup, binding.Id);
         var typeConstructor = typeConstructorFactory();
-        var boundMemberContracts = new HashSet<(ITypeSymbol ContractType, object? Tag)>(_contractTagComparer);
+        var boundMemberContracts = new HashSet<(ITypeSymbol ContractType, object? Tag)>(contractTagComparer);
         foreach (var (member, constructorArguments, namedArguments) in membersToBind)
         {
             var values = arguments.GetArgs(constructorArguments, namedArguments, "type", "lifetime", "tags");
@@ -384,15 +383,14 @@ sealed class SetupsBuilder(
             var memberResolver = CreateResolver(typeConstructor, Names.DefaultInstanceValueName, contract.ContractType!, valueTag, ref position);
             memberResolver = memberResolver with { Member = member };
 
-            var factoryExpression = (LambdaExpressionSyntax)RootBuilder.DefaultBindAttrParenthesizedLambda;
+            LambdaExpressionSyntax factoryExpression;
             if (!member.IsStatic)
             {
-                var parameterName = Names.DefaultInstanceValueName;
                 factoryExpression = SyntaxFactory.SimpleLambdaExpression(
-                    SyntaxFactory.Parameter(SyntaxFactory.Identifier(parameterName)),
+                    SyntaxFactory.Parameter(SyntaxFactory.Identifier(Names.DefaultInstanceValueName)),
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        SyntaxFactory.IdentifierName(parameterName),
+                        SyntaxFactory.IdentifierName(Names.DefaultInstanceValueName),
                         SyntaxFactory.IdentifierName(member.Name)));
             }
             else
@@ -421,7 +419,7 @@ sealed class SetupsBuilder(
             VisitUsingDirectives(new MdUsingDirectives(namespaces, [], []));
             continue;
 
-            MdResolver CreateResolver(ITypeConstructor constructor, string name, ITypeSymbol injectedType, object? tag, ref int curPosition)
+            MdResolver CreateResolver(ITypeConstructor constructor, string paramName, ITypeSymbol injectedType, object? tag, ref int curPosition)
             {
                 var typeSyntax = SyntaxFactory.ParseTypeName(symbolNames.GetGlobalName(injectedType));
                 var injectedNamespace = injectedType.ContainingNamespace;
@@ -437,7 +435,7 @@ sealed class SetupsBuilder(
                     ContractType = injectedType,
                     Tag = new MdTag(curPosition, tag),
                     ArgumentType = typeSyntax,
-                    Parameter = SyntaxFactory.Parameter(SyntaxFactory.Identifier(name)).WithType(typeSyntax),
+                    Parameter = SyntaxFactory.Parameter(SyntaxFactory.Identifier(paramName)).WithType(typeSyntax),
                     Position = curPosition++,
                     TypeConstructor = constructor
                 };
@@ -446,144 +444,139 @@ sealed class SetupsBuilder(
 
         // Adds bindings for exposed roots from related compositions.
         // At this stage, exposed root members may not exist in semantic model yet, so we bind by member name.
-        if (exposedRoots.Length > 0)
+        foreach (var root in exposedRoots)
         {
-            foreach (var root in exposedRoots)
+            if (string.IsNullOrWhiteSpace(root.Name))
             {
-                if (string.IsNullOrWhiteSpace(root.Name))
-                {
-                    continue;
-                }
-
-                var rootTagValue = root.Tag?.Value;
-                if (rootTagValue == MdTag.ContextTag)
-                {
-                    rootTagValue = null;
-                }
-
-                if (boundMemberContracts.Contains((root.RootContractType, rootTagValue)))
-                {
-                    continue;
-                }
-
-                var contractType = root.RootContractType;
-                var lifetime = Lifetime.Transient;
-                var tags = new List<object?>();
-                if (root.Tag is { } rootTag && rootTag.Value != MdTag.ContextTag)
-                {
-                    tags.Add(rootTag.Value);
-                }
-
-                object? valueTag = null;
-                if (!contract.Tags.IsDefaultOrEmpty)
-                {
-                    valueTag = contract.Tags.First().Value;
-                }
-
-                var compositionContractType = contract.ContractType;
-                if (compositionContractType is null)
-                {
-                    continue;
-                }
-
-                var position = 0;
-                var namespaces = new List<string>();
-                var resolvers = new List<MdResolver>();
-
-                var isStatic = (root.Kind & RootKinds.Static) == RootKinds.Static;
-                if (!isStatic)
-                {
-                    resolvers.Add(CreateExposedResolver(typeConstructor, Names.DefaultInstanceValueName, compositionContractType, valueTag, ref position, namespaces));
-                }
-
-                VisitContract(
-                    new MdContract(
-                        semanticModel,
-                        source,
-                        contractType,
-                        ContractKind.Explicit,
-                        ImmutableArray<MdTag>.Empty));
-
-                if (lifetime != Lifetime.Transient)
-                {
-                    VisitLifetime(new MdLifetime(semanticModel, source, lifetime));
-                }
-
-                var tagPosition = 0;
-                foreach (var tag in tags)
-                {
-                    VisitTag(new MdTag(tagPosition++, tag));
-                }
-
-                if (tags.Count == 0)
-                {
-                    VisitTag(new MdTag(tagPosition, null));
-                }
-
-                var instanceExpr = isStatic 
-                    ? (ExpressionSyntax)SyntaxFactory.ParseTypeName(symbolNames.GetGlobalName(compositionContractType)) 
-                    : SyntaxFactory.IdentifierName(Names.DefaultInstanceValueName);
-
-                var factoryExpr = SyntaxFactory.MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    instanceExpr,
-                    SyntaxFactory.IdentifierName(root.Name));
-
-                LambdaExpressionSyntax factoryLambda = SyntaxFactory.ParenthesizedLambdaExpression(factoryExpr);
-                if (!isStatic)
-                {
-                    factoryLambda = SyntaxFactory.SimpleLambdaExpression(
-                        SyntaxFactory.Parameter(SyntaxFactory.Identifier(Names.DefaultInstanceValueName)),
-                        factoryExpr);
-                }
-
-                var memberResolver = CreateExposedResolver(typeConstructor, Names.DefaultInstanceValueName, compositionContractType, valueTag, ref position, namespaces);
-                memberResolver = memberResolver with { MemberName = root.Name };
-
-                VisitFactory(
-                    new MdFactory(
-                        semanticModel,
-                        source,
-                        contractType,
-                        localVariableRenamingRewriterFactory(),
-                        factoryLambda,
-                        true,
-                        RootBuilder.DefaultCtxParameter,
-                        resolvers.ToImmutableArray(),
-                        ImmutableArray<MdInitializer>.Empty,
-                        false,
-                        memberResolver));
-
-                VisitUsingDirectives(new MdUsingDirectives(namespaces, [], []));
+                continue;
             }
 
-            MdResolver CreateExposedResolver(
-                ITypeConstructor constructor,
-                string name,
-                ITypeSymbol injectedType,
-                object? tag,
-                ref int curPosition,
-                List<string> namespaces)
+            var rootTagValue = root.Tag?.Value;
+            if (rootTagValue == MdTag.ContextTag)
             {
-                var typeSyntax = SyntaxFactory.ParseTypeName(symbolNames.GetGlobalName(injectedType));
-                var injectedNamespace = injectedType.ContainingNamespace;
-                if (injectedNamespace is { IsGlobalNamespace: false } && semantic.IsValidNamespace(injectedNamespace))
-                {
-                    namespaces.Add(injectedNamespace.ToString());
-                }
-
-                return new MdResolver
-                {
-                    SemanticModel = semanticModel,
-                    Source = source,
-                    ContractType = injectedType,
-                    Tag = new MdTag(curPosition, tag),
-                    ArgumentType = typeSyntax,
-                    Parameter = SyntaxFactory.Parameter(SyntaxFactory.Identifier(name)).WithType(typeSyntax),
-                    Position = curPosition++,
-                    TypeConstructor = constructor
-                };
+                rootTagValue = null;
             }
+
+            if (boundMemberContracts.Contains((root.RootContractType, rootTagValue)))
+            {
+                continue;
+            }
+
+            var contractType = root.RootContractType;
+            var tags = new List<object?>();
+            if (root.Tag is { } rootTag && rootTag.Value != MdTag.ContextTag)
+            {
+                tags.Add(rootTag.Value);
+            }
+
+            object? valueTag = null;
+            if (!contract.Tags.IsDefaultOrEmpty)
+            {
+                valueTag = contract.Tags.First().Value;
+            }
+
+            var compositionContractType = contract.ContractType;
+            if (compositionContractType is null)
+            {
+                continue;
+            }
+
+            var position = 0;
+            var namespaces = new List<string>();
+            var resolvers = new List<MdResolver>();
+
+            var isStatic = (root.Kind & RootKinds.Static) == RootKinds.Static;
+            if (!isStatic)
+            {
+                resolvers.Add(CreateExposedResolver(typeConstructor, Names.DefaultInstanceValueName, compositionContractType, valueTag, ref position, namespaces));
+            }
+
+            VisitContract(
+                new MdContract(
+                    semanticModel,
+                    source,
+                    contractType,
+                    ContractKind.Explicit,
+                    ImmutableArray<MdTag>.Empty));
+
+            VisitLifetime(new MdLifetime(semanticModel, source, Lifetime.Transient));
+
+            var tagPosition = 0;
+            foreach (var tag in tags)
+            {
+                VisitTag(new MdTag(tagPosition++, tag));
+            }
+
+            if (tags.Count == 0)
+            {
+                VisitTag(new MdTag(tagPosition, null));
+            }
+
+            ExpressionSyntax instanceExpr = isStatic
+                ? SyntaxFactory.ParseTypeName(symbolNames.GetGlobalName(compositionContractType))
+                : SyntaxFactory.IdentifierName(Names.DefaultInstanceValueName);
+
+            var factoryExpr = SyntaxFactory.MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                instanceExpr,
+                SyntaxFactory.IdentifierName(root.Name));
+
+            LambdaExpressionSyntax factoryLambda = SyntaxFactory.ParenthesizedLambdaExpression(factoryExpr);
+            if (!isStatic)
+            {
+                factoryLambda = SyntaxFactory.SimpleLambdaExpression(
+                    SyntaxFactory.Parameter(SyntaxFactory.Identifier(Names.DefaultInstanceValueName)),
+                    factoryExpr);
+            }
+
+            var memberResolver = CreateExposedResolver(typeConstructor, Names.DefaultInstanceValueName, compositionContractType, valueTag, ref position, namespaces);
+            memberResolver = memberResolver with { MemberName = root.Name };
+
+            VisitFactory(
+                new MdFactory(
+                    semanticModel,
+                    source,
+                    contractType,
+                    localVariableRenamingRewriterFactory(),
+                    factoryLambda,
+                    true,
+                    RootBuilder.DefaultCtxParameter,
+                    resolvers.ToImmutableArray(),
+                    ImmutableArray<MdInitializer>.Empty,
+                    false,
+                    memberResolver));
+
+            VisitUsingDirectives(new MdUsingDirectives(namespaces, [], []));
+        }
+
+        return;
+
+        MdResolver CreateExposedResolver(
+            ITypeConstructor constructor,
+            string paramName,
+            ITypeSymbol injectedType,
+            object? tag,
+            ref int curPosition,
+            List<string> namespaces)
+        {
+            var typeSyntax = SyntaxFactory.ParseTypeName(symbolNames.GetGlobalName(injectedType));
+            var injectedNamespace = injectedType.ContainingNamespace;
+            if (injectedNamespace is { IsGlobalNamespace: false } && semantic.IsValidNamespace(injectedNamespace))
+            {
+                namespaces.Add(injectedNamespace.ToString());
+            }
+
+            return new MdResolver
+            {
+                SemanticModel = semanticModel,
+                Source = source,
+                ContractType = injectedType,
+                Tag = new MdTag(curPosition, tag),
+                ArgumentType = typeSyntax,
+                Parameter = SyntaxFactory.Parameter(SyntaxFactory.Identifier(paramName)).WithType(typeSyntax),
+                Position = curPosition++,
+                TypeConstructor = constructor
+            };
         }
 
         void TrackMemberBindings(ITypeSymbol? memberContractType, List<object?> memberTags)
@@ -599,9 +592,8 @@ sealed class SetupsBuilder(
                 return;
             }
 
-            foreach (var tag in memberTags)
+            foreach (var normalizedTag in memberTags.Select(tag => tag == MdTag.ContextTag ? null : tag))
             {
-                var normalizedTag = tag == MdTag.ContextTag ? null : tag;
                 boundMemberContracts.Add((memberContractType, normalizedTag));
             }
         }

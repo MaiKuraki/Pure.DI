@@ -67,9 +67,7 @@ sealed class FactoryCodeBuilder(
                 block.Add(SyntaxFactory.ExpressionStatement(injection));
             }
 
-            if (factory.Source.MemberResolver is {} memberResolver
-                && memberResolver.Member is {} member
-                && memberResolver.TypeConstructor is {} typeConstructor)
+            if (factory.Source.MemberResolver is { Member: {} member, TypeConstructor: {} typeConstructor } memberResolver)
             {
                 ExpressionSyntax? value = null;
                 var type = memberResolver.ContractType;
@@ -97,6 +95,7 @@ sealed class FactoryCodeBuilder(
                             var binding = var.AbstractNode.Binding;
                             var typeArgs = new List<TypeSyntax>();
                             // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+                            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
                             foreach (var typeArg in methodSymbol.TypeArguments)
                             {
                                 var argType = typeConstructor.ConstructReversed(typeArg);
@@ -207,9 +206,8 @@ sealed class FactoryCodeBuilder(
                 var.Declaration.IsDeclared = true;
             }
 
-            foreach (var statement in curBlock.Statements)
+            foreach (var text in curBlock.Statements.Select(statement => statement.GetText()))
             {
-                var text = statement.GetText();
                 textLines.AddRange(text.Lines);
             }
         }
@@ -281,9 +279,8 @@ sealed class FactoryCodeBuilder(
         var initsIdx = 0;
         var initializationArgsIdx = new StrongBox<int>(0);
         var linePrefixes = new List<LinePrefix>();
-        foreach (var textLine in textLines)
+        foreach (var line in textLines.Select(textLine => textLine.ToString()))
         {
-            var line = textLine.ToString();
             var lineSpan = line.AsSpan();
             var length = 0;
             while (length < lineSpan.Length && char.IsWhiteSpace(lineSpan[length]))
@@ -399,6 +396,7 @@ sealed class FactoryCodeBuilder(
 
         lines.AppendLines(buildTools.OnCreated(ctx, varInjection));
 
+        // ReSharper disable once InvertIf
         if (hasOverridesLock)
         {
             lines.DecIndent();
@@ -425,13 +423,14 @@ sealed class FactoryCodeBuilder(
     {
         public bool MoveNext()
         {
-            if (index.Value < args.Count)
+            if (index.Value >= args.Count)
             {
-                Current = args[index.Value++];
-                return true;
+                return false;
             }
 
-            return false;
+            Current = args[index.Value++];
+            return true;
+
         }
 
         public void Reset() => throw new NotSupportedException();

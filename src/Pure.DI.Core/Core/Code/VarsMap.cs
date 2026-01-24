@@ -217,8 +217,7 @@ class VarsMap(
         var restored = new HashSet<int>();
         foreach (var stateItem in state)
         {
-            var varState = stateItem.Value;
-            var varToRestore = varState.Var;
+            var (varToRestore, isDeclared, isCreated, codeExpression) = stateItem.Value;
             if (varToRestore.Declaration.Node.BindingId == var.Declaration.Node.BindingId)
             {
                 continue;
@@ -228,19 +227,19 @@ class VarsMap(
             
             // Only restore path-specific state. 
             // Global state (like LocalFunction) should persist even after exiting a nested scope.
-            if (varToRestore.Declaration.IsDeclared == varState.IsDeclared 
-                && varToRestore.IsCreated == varState.IsCreated
-                && varToRestore.CodeExpression == varState.CodeExpression)
+            if (varToRestore.Declaration.IsDeclared == isDeclared
+                && varToRestore.IsCreated == isCreated
+                && varToRestore.CodeExpression == codeExpression)
             {
                 continue;
             }
 
 #if DEBUG
-            lines.AppendLine($"//   {varState.Var.Declaration.Name}");
+            lines.AppendLine($"//   {varToRestore.Declaration.Name}");
 #endif
-            varToRestore.Declaration.IsDeclared = varState.IsDeclared;
-            varToRestore.IsCreated = varState.IsCreated;
-            varToRestore.CodeExpression = varState.CodeExpression;
+            varToRestore.Declaration.IsDeclared = isDeclared;
+            varToRestore.IsCreated = isCreated;
+            varToRestore.CodeExpression = codeExpression;
         }
 
         // For variables that were NOT in the snapshot (newly discovered in the nested scope),

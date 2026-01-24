@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace Pure.DI.Core.Code;
+﻿namespace Pure.DI.Core.Code;
 
 interface IInitializersWalker
 {

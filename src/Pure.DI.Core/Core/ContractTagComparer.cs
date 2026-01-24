@@ -11,7 +11,7 @@ sealed class ContractTagComparer : IEqualityComparer<(ITypeSymbol ContractType, 
         unchecked
         {
             var hash = SymbolEqualityComparer.Default.GetHashCode(obj.ContractType);
-            hash = (hash * 397) ^ (obj.Tag?.GetHashCode() ?? 0);
+            hash = hash * 397 ^ (obj.Tag?.GetHashCode() ?? 0);
             return hash;
         }
     }

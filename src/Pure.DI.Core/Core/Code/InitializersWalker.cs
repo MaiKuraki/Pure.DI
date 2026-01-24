@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-// ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
+﻿// ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
 namespace Pure.DI.Core.Code;
 
 sealed class InitializersWalker(
@@ -9,47 +7,35 @@ sealed class InitializersWalker(
     : IInitializersWalker
 {
     private readonly List<(Action Run, int? Ordinal)> _actions = [];
-    private readonly List<VarInjection> _varInjections = [];
 
     public IEnumerator VisitInitializer(CodeContext codeCtx, DpInitializer initializer)
     {
         _actions.Clear();
-        _varInjections.Clear();
-
-        foreach (var field in initializer.Fields)
+        foreach (var field in initializer.Fields.Where(_ => ctx.VarInjections.MoveNext()))
         {
-            if (ctx.VarInjections.MoveNext())
-            {
-                yield return ctx.BuildVarInjection(ctx.VarInjections.Current);
-                var curVariable = ctx.VarInjections.Current;
-                var curField = field;
-                var curCtx = codeCtx;
-                _actions.Add(new(() => injections.FieldInjection(ctx.VariableName, curCtx, curField, curVariable), curField.Ordinal));
-            }
+            yield return ctx.BuildVarInjection(ctx.VarInjections.Current);
+            var curVariable = ctx.VarInjections.Current!;
+            var curField = field;
+            var curCtx = codeCtx;
+            _actions.Add(new(() => injections.FieldInjection(ctx.VariableName, curCtx, curField, curVariable), curField.Ordinal));
         }
 
-        foreach (var property in initializer.Properties)
+        foreach (var property in initializer.Properties.Where(_ => ctx.VarInjections.MoveNext()))
         {
-            if (ctx.VarInjections.MoveNext())
-            {
-                yield return ctx.BuildVarInjection(ctx.VarInjections.Current);
-                var curVariable = ctx.VarInjections.Current;
-                var curProperty = property;
-                var curCtx = codeCtx;
-                _actions.Add(new(() => injections.PropertyInjection(ctx.VariableName, curCtx, curProperty, curVariable), curProperty.Ordinal));
-            }
+            yield return ctx.BuildVarInjection(ctx.VarInjections.Current);
+            var curVariable = ctx.VarInjections.Current!;
+            var curProperty = property;
+            var curCtx = codeCtx;
+            _actions.Add(new(() => injections.PropertyInjection(ctx.VariableName, curCtx, curProperty, curVariable), curProperty.Ordinal));
         }
 
         foreach (var method in initializer.Methods)
         {
             var curVariables = new List<VarInjection>();
-            foreach (var parameter in method.Parameters)
+            foreach (var unused in method.Parameters.Where(_ => ctx.VarInjections.MoveNext()))
             {
-                if (ctx.VarInjections.MoveNext())
-                {
-                    yield return ctx.BuildVarInjection(ctx.VarInjections.Current);
-                    curVariables.Add(ctx.VarInjections.Current);
-                }
+                yield return ctx.BuildVarInjection(ctx.VarInjections.Current);
+                curVariables.Add(ctx.VarInjections.Current);
             }
 
             var curMethod = method;

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace Pure.DI.Core.Models;
+﻿namespace Pure.DI.Core.Models;
 
 record InitializersWalkerContext(
     Func<VarInjection, IEnumerator> BuildVarInjection,

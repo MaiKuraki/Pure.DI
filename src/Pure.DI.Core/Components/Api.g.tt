@@ -3295,7 +3295,6 @@ var typeArgs = string.Join(", ", GetSuffixes(0, i).Select(suffix => $"T{suffix}"
 for (var i = 0; i < baseCount; i++)
 {
 var typeArgs = string.Join(", ", GetSuffixes(1, i + 1).Select(suffix => $"T{suffix}"));
-var comments = string.Join(Environment.NewLine, GetSuffixes(1, i + 1).Select(suffix => $"        /// <typeparam name=\"T{suffix}\">Type of dependency parameter{(suffix == "" ? "" : " " + suffix)}.</typeparam>"));
 #>
 
             /// <inheritdoc />

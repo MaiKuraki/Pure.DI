@@ -16,7 +16,6 @@ class RootBuilder(
     Func<IBuilder<CodeContext, IEnumerator>> variablesCodeBuilderFactory)
     : IBuilder<RootContext, VarInjection>
 {
-    public static readonly ParenthesizedLambdaExpressionSyntax DefaultBindAttrParenthesizedLambda = SyntaxFactory.ParenthesizedLambdaExpression();
     public static readonly ParameterSyntax DefaultCtxParameter = SyntaxFactory.Parameter(SyntaxFactory.Identifier("ctx_1182D127"));
 
     public VarInjection Build(RootContext rootContext)
