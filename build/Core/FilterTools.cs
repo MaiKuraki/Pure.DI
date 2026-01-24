@@ -1,8 +1,6 @@
 ﻿// ReSharper disable MemberCanBeMadeStatic.Global
 namespace Build.Core;
 
-using Doc;
-
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
 class FilterTools
 {
@@ -20,22 +18,5 @@ class FilterTools
             default:
                 return false;
         }
-    }
-
-    public bool DocumentPartFilter(AIContextSize size, DocumentPart part)
-    {
-        if (part.NamespaceName != "Pure.DI" || part.TypeName == "Generator")
-        {
-            return false;
-        }
-
-        return size switch
-        {
-            AIContextSize.Small => false,
-            AIContextSize.Medium => false,
-            _ =>
-                part.TypeName is not "Buckets`2" and not "IResolver`2" and not "Pair`2" and not "Strings"
-                && !Enumerable.Range(5, 10).Any(i => part.MemberName.Contains(i.ToString()))
-        };
     }
 }

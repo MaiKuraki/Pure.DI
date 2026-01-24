@@ -1,5 +1,4 @@
 ﻿using Build.Core;
-using Build.Core.Doc;
 using Build.Core.Targets;
 
 DI.Setup(nameof(Composition))
@@ -11,7 +10,6 @@ DI.Setup(nameof(Composition))
     .PerResolve<RootCommand, Settings>()
     .Bind<ITeamCityArtifactsWriter>().To(_ => GetService<ITeamCityWriter>())
     .Transient(_ => GetService<INuGet>())
-    .PerBlock<DotNetEnv, DotNetXmlDocumentWalker<TT>, MarkdownWriterVisitor>()
 
     // Targets
     .Singleton<

@@ -4,16 +4,11 @@
 // ReSharper disable InconsistentNaming
 namespace Build.Core.Targets;
 
-using System.Xml.Linq;
-using Doc;
 using Enum=Enum;
 
 class AIContextTarget(
     Commands commands,
-    Env env,
     Settings settings,
-    Markdown markdown,
-    XDocumentTools xDocumentTools,
     FilterTools filterTools,
     [Tag(typeof(CreateExamplesTarget))] ITarget<IReadOnlyCollection<ExampleGroup>> createExamplesTarget)
     : IInitializable, ITarget<AIContext>
@@ -117,18 +112,6 @@ class AIContextTarget(
                         }
                     }
                 }
-            }
-
-            if (size >= AIContextSize.Large)
-            {
-                await writer.WriteLineAsync();
-                await writer.WriteLineAsync("# Pure.DI API");
-                await writer.WriteLineAsync();
-                var sourceDirectory = env.GetPath(PathType.SourceDirectory);
-                var xmlDocFile = Path.Combine(sourceDirectory, "Pure.DI.Core", "bin", settings.Configuration, "netstandard2.0", "Pure.DI.xml");
-                using var xmlDocReader = File.OpenText(xmlDocFile);
-                var xmlDoc = await xDocumentTools.LoadAsync(xmlDocReader, LoadOptions.None, CancellationToken.None);
-                await markdown.ConvertAsync(xmlDoc, writer, part => filterTools.DocumentPartFilter(size, part), CancellationToken.None);
             }
 
             await writer.FlushAsync(cancellationToken);

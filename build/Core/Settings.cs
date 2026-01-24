@@ -25,7 +25,7 @@ class Settings
         _versions = versions;
         _env = env;
         _buildPropsDoc = new Lazy<XDocument>(GetBuildPropsDoc);
-        _versionRange = new Lazy<VersionRange>(() => VersionRange.Parse(TryGetBuildProperty("VersionRange") ?? "*"));
+        _versionRange = new Lazy<VersionRange>(() => VersionRange.Parse(TryGetBuildProperty(nameof(VersionRange)) ?? "*"));
         _currentVersion = new Lazy<NuGetVersion>(GetCurrentVersion);
         _nextVersion = new Lazy<NuGetVersion>(GetNextVersion);
         _baseDotNetFrameworkMajorVersion =new Lazy<int>(GetBaseTargetFrameworkMajorVersion);
