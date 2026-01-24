@@ -179,12 +179,12 @@ partial class Scope: IDisposable
   public Clock BuildUp(Clock buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    Clock transientClock546;
+    Clock transientClock551;
     Clock localBuildingInstance16 = buildingInstance;
     EnsureClockServiceExists1();
     localBuildingInstance16.ClockService = _singletonClockService52;
-    transientClock546 = localBuildingInstance16;
-    return transientClock546;
+    transientClock551 = localBuildingInstance16;
+    return transientClock551;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void EnsureClockServiceExists1()
     {
@@ -192,8 +192,8 @@ partial class Scope: IDisposable
         lock (_lock)
           if (_singletonClockService52 is null)
           {
-            ClockConfig transientClockConfig548 = clockConfig;
-            _singletonClockService52 = new ClockService(transientClockConfig548);
+            ClockConfig transientClockConfig553 = clockConfig;
+            _singletonClockService52 = new ClockService(transientClockConfig553);
             _disposables[_disposeIndex++] = _singletonClockService52;
           }
     }
@@ -203,12 +203,12 @@ partial class Scope: IDisposable
   public ClockDigital BuildUp(ClockDigital buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    ClockDigital transientClockDigital542;
+    ClockDigital transientClockDigital547;
     ClockDigital localBuildingInstance15 = buildingInstance;
     EnsureClockServiceExists();
     localBuildingInstance15.ClockService = _singletonClockService52;
-    transientClockDigital542 = localBuildingInstance15;
-    return transientClockDigital542;
+    transientClockDigital547 = localBuildingInstance15;
+    return transientClockDigital547;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void EnsureClockServiceExists()
     {
@@ -216,8 +216,8 @@ partial class Scope: IDisposable
         lock (_lock)
           if (_singletonClockService52 is null)
           {
-            ClockConfig transientClockConfig545 = clockConfig;
-            _singletonClockService52 = new ClockService(transientClockConfig545);
+            ClockConfig transientClockConfig550 = clockConfig;
+            _singletonClockService52 = new ClockService(transientClockConfig550);
             _disposables[_disposeIndex++] = _singletonClockService52;
           }
     }
@@ -246,8 +246,8 @@ partial class Scope: IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      ClockConfig transientClockConfig551 = clockConfig;
-      return new ClockManager(this, transientClockConfig551);
+      ClockConfig transientClockConfig556 = clockConfig;
+      return new ClockManager(this, transientClockConfig556);
     }
   }
 
