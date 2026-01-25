@@ -1,6 +1,6 @@
 #### Interception
 
-Interception allows you to enrich or change the behavior of a certain set of objects from the object graph being created without changing the code of the corresponding types.
+Interception lets you enrich or change the behavior of a certain set of objects from the object graph being created without changing the code of the corresponding types.
 
 
 ```c#
@@ -75,7 +75,7 @@ partial class Composition : IInterceptor
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -83,7 +83,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add references to NuGet packages
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
   - [Shouldly](https://www.nuget.org/packages/Shouldly)
   - [Castle.DynamicProxy](https://www.nuget.org/packages/Castle.DynamicProxy)

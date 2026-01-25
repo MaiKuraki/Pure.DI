@@ -9,9 +9,9 @@ using Pure.DI;
 using static Pure.DI.Hint;
 
 DI.Setup(nameof(Composition))
-    // Отключение потокобезопасности в композиции может повысить производительность.
-    // Это безопасно, если граф объектов разрешается в одном потоке,
-    // например, при запуске приложения.
+    // Disabling thread-safety can improve performance.
+    // This is safe when the object graph is resolved on a single thread,
+    // for example at application startup.
     .Hint(ThreadSafe, "Off")
     .Bind().To<SqlDatabaseConnection>()
     .Bind().As(Lifetime.Singleton).To<ReportGenerator>()
@@ -32,7 +32,7 @@ class ReportGenerator(Func<IDatabaseConnection> connectionFactory) : IReportGene
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -40,7 +40,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add reference to NuGet package
+- Add a reference to the NuGet package
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 ```bash
 dotnet add package Pure.DI

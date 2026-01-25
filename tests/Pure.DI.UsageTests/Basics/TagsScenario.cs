@@ -2,7 +2,7 @@
 $v=true
 $p=6
 $d=Tags
-$h=Sometimes it's important to take control of building a dependency graph. For example, when there are different implementations of the same interface. In this case, _tags_ will help:
+$h=Tags let you control dependency selection when multiple implementations exist:
 $f=The example shows how to:
 $f=- Define multiple bindings for the same interface
 $f=- Use tags to differentiate between implementations
@@ -34,12 +34,11 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))
-            // The `default` tag is used to resolve dependencies
-            // when the tag was not specified by the consumer
+            // The `default` tag is used when the consumer does not specify a tag
             .Bind<IApiClient>("Public", default).To<RestApiClient>()
             .Bind<IApiClient>("Internal").As(Lifetime.Singleton).To<InternalApiClient>()
             .Bind<IApiFacade>().To<ApiFacade>()

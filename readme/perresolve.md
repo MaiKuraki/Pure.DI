@@ -64,7 +64,7 @@ class TrainTripPlanner(
 
     public IRoutePlanningSession SessionForReturn { get; } = sessionForReturn;
 
-    // These come from a singleton tuple — effectively "global cached" instances.
+    // These come from a singleton tuple - effectively "global cached" instances.
     public IRoutePlanningSession CapturedSessionA { get; } = capturedSessions.capturedA;
 
     public IRoutePlanningSession CapturedSessionB { get; } = capturedSessions.capturedB;
@@ -74,7 +74,7 @@ class TrainTripPlanner(
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -82,7 +82,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add references to NuGet packages
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
   - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash

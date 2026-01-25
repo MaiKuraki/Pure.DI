@@ -46,7 +46,7 @@ partial class App(IUserManager userManager)
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -54,7 +54,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add reference to NuGet package
+- Add a reference to the NuGet package
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 ```bash
 dotnet add package Pure.DI

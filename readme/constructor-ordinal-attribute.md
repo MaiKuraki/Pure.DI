@@ -1,6 +1,6 @@
 #### Constructor ordinal attribute
 
-When applied to any constructor in a type, automatic injection constructor selection is disabled. The selection will only focus on constructors marked with this attribute, in the appropriate order from smallest value to largest.
+Applying this attribute disables automatic constructor selection. Only constructors marked with this attribute are considered, ordered by ordinal (ascending).
 
 
 ```c#
@@ -56,7 +56,7 @@ class SqlDatabaseClient : IDatabaseClient
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -64,7 +64,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add references to NuGet packages
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
   - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash
@@ -80,7 +80,7 @@ dotnet run
 
 </details>
 
-The attribute `Ordinal` is part of the API, but you can use your own attribute at any time, and this allows you to define them in the assembly and namespace you want.
+The `Ordinal` attribute is part of the API, but you can define your own in any assembly or namespace.
 
 The following partial class will be generated:
 

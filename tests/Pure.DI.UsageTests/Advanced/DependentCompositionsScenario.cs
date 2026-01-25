@@ -1,4 +1,4 @@
-﻿/*
+/*
 $v=true
 $p=7
 $d=Dependent compositions
@@ -34,7 +34,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
         // {
         // This setup does not generate code, but can be used as a dependency

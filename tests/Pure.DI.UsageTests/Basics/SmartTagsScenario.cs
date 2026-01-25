@@ -2,9 +2,9 @@
 $v=true
 $p=7
 $d=Smart tags
-$h=When you have a large graph of objects, you may need a lot of tags to neatly define all the dependencies in it. Strings or other constant values are not always convenient to use, because they have too much variability. And there are often cases when you specify one tag in the binding, but the same tag in the dependency, but with a typo, which leads to a compilation error when checking the dependency graph. The solution to this problem is to create an `Enum` type and use its values as tags. Pure.DI makes it easier to solve this problem.
+$h=Large object graphs often need many tags. String tags are error-prone and easy to mistype. Prefer `Enum` values as tags, and Pure.DI helps make this safe.
 $h=
-$h=When you specify a tag in a binding and the compiler can't determine what that value is, Pure.DI will automatically create a constant for it inside the `Pure.DI.Tag` type. For the example below, the set of constants would look like this:
+$h=When the compiler cannot determine a tag value, Pure.DI generates a constant inside `Pure.DI.Tag`. For the example below, the generated constants would look like this:
 $h=
 $h=```c#
 $h=namespace Pure.DI
@@ -16,7 +16,7 @@ $h=    public const string Xyz = "Xyz";
 $h=  }
 $h=}
 $h=```
-$h=So you can apply refactoring in the development environment. And also tag changes in bindings will be automatically checked by the compiler. This will reduce the number of errors.
+$h=This enables safe refactoring and compiler-checked tag usage, reducing errors.
 $h=
 $h=![](smart_tags.gif)
 $h=
@@ -48,7 +48,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         //# using static Pure.DI.Tag;

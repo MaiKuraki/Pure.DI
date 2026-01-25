@@ -1,9 +1,9 @@
-﻿/*
+/*
 $v=true
 $p=5
 $d=Generic async composition roots with constraints
 $h=> [!IMPORTANT]
-$h=> `Resolve' methods cannot be used to resolve generic composition roots.
+$h=> ``Resolve` methods cannot be used to resolve generic composition roots.
 $f=> [!IMPORTANT]
 $f=> The method `Inject()`cannot be used outside of the binding setup.
 */
@@ -31,11 +31,11 @@ public class Scenario
     [Fact]
     public async Task Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))
-            // This hint indicates to not generate methods such as Resolve
+            // Disable Resolve methods to keep the public API minimal
             .Hint(Hint.Resolve, "Off")
             .Bind().To<ConnectionProvider<TTDisposable>>()
             .Bind().To<DataQuery<TTDisposable, TTS>>()

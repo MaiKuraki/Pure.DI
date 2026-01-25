@@ -72,7 +72,7 @@ class Team(Func<int, string, IPerson> personFactory) : ITeam
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -80,7 +80,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add references to NuGet packages
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
   - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash
@@ -115,12 +115,12 @@ partial class Composition
     get
     {
       Func<int, string, IPerson> transientFunc340;
-      Func<int, string, IPerson> localFactory2 = new Func<int, string, IPerson>((int localArg112, string localArg211) =>
+      Func<int, string, IPerson> localFactory2 = new Func<int, string, IPerson>((int localArg112, string localArg212) =>
       {
         lock (_lock)
         {
           int overriddenInt32 = localArg112;
-          string overriddenString2 = localArg211;
+          string overriddenString2 = localArg212;
           if (_singletonClock51 is null)
             lock (_lock)
               if (_singletonClock51 is null)

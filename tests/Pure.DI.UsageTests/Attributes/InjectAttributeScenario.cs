@@ -1,12 +1,12 @@
-﻿/*
+/*
 $v=true
 $p=5
 $d=Inject attribute
-$h=If you want to use attributes in your libraries but don't want to create your own, you can add this package to your projects:
+$h=If you want attributes without defining your own, add this package:
 $h=
 $h=[![NuGet](https://img.shields.io/nuget/v/Pure.DI.Abstractions)](https://www.nuget.org/packages/Pure.DI.Abstractions)
 $h=
-$h=It contains attributes like `Inject` and `Inject<T>` that work for constructors and their arguments, methods and their arguments, properties and fields. They allow you to setup all injection parameters.
+$h=It provides `Inject` and `Inject<T>` for constructors, methods, properties, and fields, letting you configure injection metadata.
 $f=This package should also be included in a project:
 $f=
 $f=[![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)
@@ -39,7 +39,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(PersonComposition))

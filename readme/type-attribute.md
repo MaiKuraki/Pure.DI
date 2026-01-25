@@ -1,6 +1,6 @@
 #### Type attribute
 
-The injection type can be defined manually using the `Type` attribute. This attribute explicitly overrides an injected type, otherwise it would be determined automatically based on the type of the constructor/method, property, or field parameter.
+Use the `Type` attribute to force a specific injected type, overriding the inferred type from the parameter or member.
 
 
 ```c#
@@ -47,7 +47,7 @@ class NotificationService(
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -55,7 +55,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add references to NuGet packages
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
   - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash
@@ -71,7 +71,7 @@ dotnet run
 
 </details>
 
-This attribute is part of the API, but you can use your own attribute at any time, and this allows you to define them in the assembly and namespace you want.
+The `Type` attribute is part of the API, but you can define your own in any assembly or namespace.
 
 The following partial class will be generated:
 

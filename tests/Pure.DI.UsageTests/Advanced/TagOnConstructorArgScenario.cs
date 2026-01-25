@@ -1,8 +1,8 @@
-﻿/*
+/*
 $v=true
 $p=6
 $d=Tag on a constructor argument
-$h=The wildcards ‘*’ and ‘?’ are supported.
+$h=The wildcards `*` and `?` are supported.
 $f=> [!WARNING]
 $f=> Each potentially injectable argument, property, or field contains an additional tag. This tag can be used to specify what can be injected there. This will only work if the binding type and the tag match. So while this approach can be useful for specifying what to enter, it can be more expensive to maintain and less reliable, so it is recommended to use attributes like `[Tag(...)]` instead.
 $r=Shouldly
@@ -32,7 +32,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))

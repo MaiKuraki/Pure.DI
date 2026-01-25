@@ -1,8 +1,8 @@
-﻿/*
+/*
 $v=true
 $p=9
 $d=Build up of an existing object
-$h=This example demonstrates the Build-Up pattern in dependency injection, where an existing object is injected with necessary dependencies through its properties, methods, or fields.
+$h=This example shows the Build-Up pattern in dependency injection, where an existing object is injected with necessary dependencies through its properties, methods, or fields.
 $f=Key Concepts:
 $f=**Build-Up** - injecting dependencies into an already created object
 $f=**Dependency Attribute** - marker for identifying injectable members
@@ -28,7 +28,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))

@@ -1,4 +1,4 @@
-﻿/*
+/*
 $v=true
 $p=10
 $d=Partial class
@@ -82,7 +82,7 @@ public partial class Composition(string storeName)
     [Conditional("DI")]
     void Setup() =>
 // }
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup()

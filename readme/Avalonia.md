@@ -7,7 +7,7 @@ This example demonstrates the creation of an [Avalonia](https://avaloniaui.net/)
 > [!NOTE]
 > [Another example](samples/SingleRootAvaloniaApp) with Avalonia shows how to create an application with a single composition root.
 
-The definition of the composition is in [Composition.cs](/samples/AvaloniaApp/Composition.cs). This class sets up how the composition of objects will be created for the application. You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
+The definition of the composition is in [Composition.cs](/samples/AvaloniaApp/Composition.cs). This class sets up how the object graphs will be created for the application. Do not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
 
 ```c#
 using Pure.DI;
@@ -35,12 +35,12 @@ partial class Composition
 ```
 
 Advantages over classical DI container libraries:
-- No performance impact or side effects when creating composition of objects.
+- No performance impact or side effects when creating object graphs.
 - All logic for analyzing the graph of objects, constructors and methods takes place at compile time. Pure.DI notifies the developer at compile time of missing or cyclic dependencies, cases when some dependencies are not suitable for injection, etc.
-- Does not add dependencies to any additional assembly.
-- Since the generated code uses primitive language constructs to create object compositions and does not use any libraries, you can easily debug the object composition code as regular code in your application.
+- Does not add dependencies to additional assemblies.
+- Since the generated code uses primitive language constructs to create object graphs and does not use any libraries, you can easily debug the object graph code as regular code in your application.
 
-A single instance of the _Composition_ class is defined as a static resource in [App.xaml](/samples/AvaloniaApp/App.axaml) for later use within the _xaml_ markup everywhere:
+A single instance of the _Composition_ class is defined as a static resource in [App.xaml](/samples/AvaloniaApp/App.axaml) for later use within the _XAML_ markup everywhere:
 
 ```xml
 <Application xmlns="https://github.com/avaloniaui"
@@ -110,11 +110,11 @@ public class App : Application
 ```
 
 Advantages over classical DI container libraries:
-- No explicit initialisation of data contexts is required. Data contexts are configured directly in `.axaml` files according to the MVVM approach.
+- No explicit initialization of data contexts is required. Data contexts are configured directly in `.axaml` files according to the MVVM approach.
 - The code is simpler, more compact, and requires less maintenance effort.
 - The main window is created in a pure DI paradigm, and it can be easily supplied with all necessary dependencies via DI as regular types.
 
-You can now use bindings and use the code-behind file-less approach. All previously defined composition roots are now available from [markup](/samples/AvaloniaApp/Views/MainWindow.xaml) without any effort, e.g. _Clock_:
+You can now use bindings and the code-behind-free approach. All previously defined composition roots are now available from [markup](/samples/AvaloniaApp/Views/MainWindow.xaml) without any effort, e.g. _Clock_:
 
 ```xml
 <Window xmlns="https://github.com/avaloniaui"

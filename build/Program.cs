@@ -10,6 +10,7 @@ DI.Setup(nameof(Composition))
     .PerResolve<RootCommand, Settings>()
     .Bind<ITeamCityArtifactsWriter>().To(_ => GetService<ITeamCityWriter>())
     .Transient(_ => GetService<INuGet>())
+    .PerBlock<DotNetEnv>()
 
     // Targets
     .Singleton<

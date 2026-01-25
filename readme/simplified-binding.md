@@ -1,6 +1,6 @@
 #### Simplified binding
 
-You can use the `Bind(...)` method without type parameters. In this case binding will be performed for the implementation type itself, and if the implementation is not an abstract type or structure, for all abstract but NOT special types that are directly implemented.
+You can call `Bind()` without type parameters. It binds the implementation type itself, and if it is not abstract, all directly implemented abstract types except special ones.
 
 
 ```c#
@@ -12,7 +12,7 @@ DI.Setup(nameof(Composition))
     // Begins the binding definition for the implementation type itself,
     // and if the implementation is not an abstract class or structure,
     // for all abstract but NOT special types that are directly implemented.
-    // So that's the equivalent of the following:
+    // Equivalent to:
     // .Bind<IOrderRepository, IOrderNotification, OrderManager>()
     //   .As(Lifetime.PerBlock)
     //   .To<OrderManager>()
@@ -60,7 +60,7 @@ class Shop(
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -68,7 +68,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add reference to NuGet package
+- Add a reference to the NuGet package
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 ```bash
 dotnet add package Pure.DI
@@ -82,12 +82,12 @@ dotnet run
 
 </details>
 
-As practice has shown, in most cases it is possible to define abstraction types in bindings automatically. That's why we added API `Bind()` method without type parameters to define abstractions in bindings. It is the `Bind()` method that performs the binding:
+In practice, most abstraction types can be inferred. The parameterless `Bind()` binds:
 
-- with the implementation type itself
-- and if it is NOT an abstract type or structure
-  - with all abstract types that it directly implements
-  - exceptions are special types
+- the implementation type itself
+- and, if it is NOT abstract,
+  - all abstract types it directly implements
+  - except special types
 
 Special types will not be added to bindings:
 
@@ -109,7 +109,7 @@ Special types will not be added to bindings:
 
 If you want to add your own special type, use the `SpecialType<T>()` call.
 
-For class `OrderManager`, the `Bind().To<OrderManager>()` binding will be equivalent to the `Bind<IOrderRepository, IOrderNotification, OrderManager>().To<OrderManager>()` binding. The types `IDisposable`, `IEnumerable<string>` did not get into the binding because they are special from the list above. `ManagerBase` did not get into the binding because it is not abstract. `IManager` is not included because it is not implemented directly by class `OrderManager`.
+For class `OrderManager`, `Bind().To<OrderManager>()` is equivalent to `Bind<IOrderRepository, IOrderNotification, OrderManager>().To<OrderManager>()`. The types `IDisposable` and `IEnumerable<string>` are excluded because they are special. `ManagerBase` is excluded because it is not abstract. `IManager` is excluded because it is not implemented directly by `OrderManager`.
 
 |    |                       |                                                   |
 |----|-----------------------|---------------------------------------------------|

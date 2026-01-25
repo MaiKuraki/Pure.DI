@@ -1,6 +1,6 @@
 #### Bind attribute
 
-`BindAttribute` allows you to perform automatic binding to properties, fields or methods that belong to the type of the binding involved.
+`BindAttribute` lets you bind properties, fields, or methods declared on the bound type.
 
 
 ```c#
@@ -63,7 +63,7 @@ class PhotoService(IGps gps, Func<ICamera> cameraFactory) : IPhotoService
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -71,7 +71,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add reference to NuGet package
+- Add a reference to the NuGet package
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 ```bash
 dotnet add package Pure.DI
@@ -85,7 +85,7 @@ dotnet run
 
 </details>
 
-This attribute `BindAttribute` applies to field properties and methods, to regular, static, and even returning generalized types.
+It applies to instance or static members, including members that return generic types.
 
 The following partial class will be generated:
 

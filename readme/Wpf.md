@@ -4,7 +4,7 @@
 
 This example demonstrates the creation of a WPF application in the pure DI paradigm using the Pure.DI code generator.
 
-The definition of the composition is in [Composition.cs](/samples/WpfAppNetCore/Composition.cs). This class sets up how the composition of objects will be created for the application. You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
+The definition of the composition is in [Composition.cs](/samples/WpfAppNetCore/Composition.cs). This class sets up how the object graphs will be created for the application. Do not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
 
 ```c#
 using Pure.DI;
@@ -29,12 +29,12 @@ partial class Composition
 ```
 
 Advantages over classical DI container libraries:
-- No performance impact or side effects when creating composition of objects.
+- No performance impact or side effects when creating object graphs.
 - All logic for analyzing the graph of objects, constructors and methods takes place at compile time. Pure.DI notifies the developer at compile time of missing or cyclic dependencies, cases when some dependencies are not suitable for injection, etc.
 - Does not add dependencies to any additional assembly.
-- Since the generated code uses primitive language constructs to create object compositions and does not use any libraries, you can easily debug the object composition code as regular code in your application.
+- Since the generated code uses primitive language constructs to create object graphs and does not use any libraries, you can easily debug the object graph code as regular code in your application.
 
-A single instance of the _Composition_ class is defined as a static resource in [App.xaml](/samples/WpfAppNetCore/App.xaml) for later use within the _xaml_ markup everywhere:
+A single instance of the _Composition_ class is defined as a static resource in [App.xaml](/samples/WpfAppNetCore/App.xaml) for later use within the _XAML_ markup everywhere:
 
 ```xaml
 <Application x:Class="WpfAppNetCore.App" x:ClassModifier="internal"
@@ -64,7 +64,7 @@ This markup fragment
 creates a shared resource of type `Composition` and with key _"Composition"_, which will be further used as a data context in the views.
 
 Advantages over classical DI container libraries:
-- No explicit initialisation of data contexts is required. Data contexts are configured directly in `.axaml` files according to the MVVM approach.
+- No explicit initialization of data contexts is required. Data contexts are configured directly in `\.xaml` files according to the MVVM approach.
 - The code is simpler, more compact, and requires less maintenance effort.
 - The main window is created in a pure DI paradigm, and it can be easily supplied with all necessary dependencies via DI as regular types.
 

@@ -1,5 +1,7 @@
 #### Enumerable generics
 
+Shows how generic middleware pipelines collect all matching implementations.
+
 
 ```c#
 using Shouldly;
@@ -7,49 +9,49 @@ using Pure.DI;
 using System.Collections.Immutable;
 
 DI.Setup(nameof(Composition))
-    // Регистрируем обобщенные компоненты middleware.
-    // LoggingMiddleware<T> регистрируется как стандартная реализация.
+    // Register generic middleware components.
+    // LoggingMiddleware<T> is registered as the default implementation.
     .Bind<IMiddleware<TT>>().To<LoggingMiddleware<TT>>()
-    // MetricsMiddleware<T> регистрируется с тегом "Metrics".
+    // MetricsMiddleware<T> is registered with the "Metrics" tag.
     .Bind<IMiddleware<TT>>("Metrics").To<MetricsMiddleware<TT>>()
 
-    // Регистрируем сам конвейер, который будет принимать коллекцию всех middleware.
+    // Register the pipeline that takes the collection of all middleware.
     .Bind<IPipeline<TT>>().To<Pipeline<TT>>()
 
-    // Корни композиции для разных типов данных (int и string)
+    // Composition roots for different data types (int and string)
     .Root<IPipeline<int>>("IntPipeline")
     .Root<IPipeline<string>>("StringPipeline");
 
 var composition = new Composition();
 
-// Проверяем конвейер для обработки int
+// Validate the pipeline for int
 var intPipeline = composition.IntPipeline;
 intPipeline.Middlewares.Length.ShouldBe(2);
 intPipeline.Middlewares[0].ShouldBeOfType<LoggingMiddleware<int>>();
 intPipeline.Middlewares[1].ShouldBeOfType<MetricsMiddleware<int>>();
 
-// Проверяем конвейер для обработки string
+// Validate the pipeline for string
 var stringPipeline = composition.StringPipeline;
 stringPipeline.Middlewares.Length.ShouldBe(2);
 stringPipeline.Middlewares[0].ShouldBeOfType<LoggingMiddleware<string>>();
 stringPipeline.Middlewares[1].ShouldBeOfType<MetricsMiddleware<string>>();
 
-// Интерфейс для промежуточного ПО (middleware)
+// Middleware interface
 interface IMiddleware<T>;
 
-// Реализация для логирования
+// Logging implementation
 class LoggingMiddleware<T> : IMiddleware<T>;
 
-// Реализация для сбора метрик
+// Metrics implementation
 class MetricsMiddleware<T> : IMiddleware<T>;
 
-// Интерфейс конвейера обработки
+// Pipeline interface
 interface IPipeline<T>
 {
     ImmutableArray<IMiddleware<T>> Middlewares { get; }
 }
 
-// Реализация конвейера, собирающая все доступные middleware
+// Pipeline implementation that aggregates all available middleware
 class Pipeline<T>(IEnumerable<IMiddleware<T>> middlewares) : IPipeline<T>
 {
     public ImmutableArray<IMiddleware<T>> Middlewares { get; }
@@ -60,7 +62,7 @@ class Pipeline<T>(IEnumerable<IMiddleware<T>> middlewares) : IPipeline<T>
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -68,7 +70,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add references to NuGet packages
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
   - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash

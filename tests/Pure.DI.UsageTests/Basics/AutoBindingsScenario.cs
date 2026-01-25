@@ -2,11 +2,11 @@
 $v=true
 $p=0
 $d=Auto-bindings
-$h=Injection of non-abstract types is possible without any additional effort.
+$h=Non-abstract types can be injected without any additional bindings.
 $f=> [!WARNING]
-$f=> But this approach cannot be recommended if you follow the dependency inversion principle and want your types to depend only on abstractions. Or you want to precisely control the lifetime of a dependency.
+$f=> This approach is not recommended if you follow the dependency inversion principle or need precise lifetime control.
 $f=
-$f=It is better to inject abstract dependencies, for example, in the form of interfaces. Use bindings to map abstract types to their implementations as in almost all [other examples](injections-of-abstractions.md).
+$f=Prefer injecting abstractions (for example, interfaces) and map them to implementations as in most [other examples](injections-of-abstractions.md).
 */
 
 // ReSharper disable CheckNamespace
@@ -29,10 +29,10 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
-        // Specifies to create a partial class with name "Composition"
+        // Specifies to create a partial class named "Composition"
         DI.Setup("Composition")
             // with the root "Orders"
             .Root<OrderService>("Orders");

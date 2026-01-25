@@ -1,4 +1,4 @@
-﻿/*
+/*
 $v=true
 $p=8
 $d=Simplified lifetime-specific bindings
@@ -34,13 +34,13 @@ $f=For class `OrderManager`, the `PerBlock<OrderManager>()` binding will be equi
 $f=
 $f=|    |                       |                                                   |
 $f=|----|-----------------------|---------------------------------------------------|
-$f=| ✅ | `OrderManager`        | implementation type itself                        |
-$f=| ✅ | `IOrderRepository`    | directly implements                               |
-$f=| ✅ | `IOrderNotification`  | directly implements                               |
-$f=| ❌ | `IDisposable`         | special type                                      |
-$f=| ❌ | `IEnumerable<string>` | special type                                      |
-$f=| ❌ | `ManagerBase`         | non-abstract                                      |
-$f=| ❌ | `IManager`            | is not directly implemented by class OrderManager |
+$f=| ? | `OrderManager`        | implementation type itself                        |
+$f=| ? | `IOrderRepository`    | directly implements                               |
+$f=| ? | `IOrderNotification`  | directly implements                               |
+$f=| ? | `IDisposable`         | special type                                      |
+$f=| ? | `IEnumerable<string>` | special type                                      |
+$f=| ? | `ManagerBase`         | non-abstract                                      |
+$f=| ? | `IManager`            | is not directly implemented by class OrderManager |
 */
 
 // ReSharper disable CheckNamespace
@@ -66,7 +66,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         // Specifies to create a partial class "Composition"

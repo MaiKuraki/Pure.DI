@@ -1,6 +1,6 @@
 #### Injections on demand with arguments
 
-This example illustrates dependency injection with parameterized factory functions using Pure.DI, where dependencies are created with runtime-provided arguments. The scenario features a service that generates dependencies with specific IDs passed during instantiation.
+This example uses a parameterized factory so dependencies can be created with runtime arguments. The service creates sensors with specific IDs at instantiation time.
 
 
 ```c#
@@ -42,10 +42,10 @@ class SmartHome(Func<int, ISensor> sensorFactory) : ISmartHome
 {
     public IReadOnlyList<ISensor> Sensors { get; } =
     [
-        // Use the injected factory to create a sensor with ID 101 (e.g., Kitchen Temperature)
+        // Use the injected factory to create a sensor with ID 101
         sensorFactory(101),
 
-        // Create another sensor with ID 102 (e.g., Living Room Humidity)
+        // Create another sensor with ID 102
         sensorFactory(102)
     ];
 }
@@ -54,7 +54,7 @@ class SmartHome(Func<int, ISensor> sensorFactory) : ISmartHome
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -62,7 +62,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add references to NuGet packages
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
   - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash
@@ -100,11 +100,11 @@ partial class Composition
     get
     {
       Func<int, ISensor> transientFunc247;
-      Func<int, ISensor> localFactory1 = new Func<int, ISensor>((int localArg111) =>
+      Func<int, ISensor> localFactory1 = new Func<int, ISensor>((int localArg18) =>
       {
         lock (_lock)
         {
-          int overriddenInt32 = localArg111;
+          int overriddenInt32 = localArg18;
           ISensor localValue18 = new Sensor(overriddenInt32);
           return localValue18;
         }

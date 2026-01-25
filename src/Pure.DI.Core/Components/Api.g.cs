@@ -27,7 +27,7 @@ namespace Pure.DI
     using System;
 
     /// <summary>
-    /// Defines binding lifetimes for dependencies.
+    /// Defines how instances are created and reused within a composition.
     /// <example>
     /// Binding as Singleton:
     /// <code>
@@ -43,7 +43,7 @@ namespace Pure.DI
     internal enum Lifetime
     {
         /// <summary>
-        /// Creates a new dependency instance for each injection (default behavior). Default behavior can be changed by <see cref="IConfiguration.DefaultLifetime"/> and <see cref="IConfiguration.DefaultLifetime{T}"/>.
+        /// Creates a new instance for each injection (default behavior). Default behavior can be changed by <see cref="IConfiguration.DefaultLifetime"/> and <see cref="IConfiguration.DefaultLifetime{T}"/>.
         /// <example>
         /// Explicit transient binding:
         /// <code>
@@ -62,7 +62,7 @@ namespace Pure.DI
         Transient,
 
         /// <summary>
-        /// Maintains a single instance per composition.
+        /// Maintains a single instance per composition instance (singleton within the composition).
         /// <example>
         /// Singleton binding:
         /// <code>
@@ -74,7 +74,7 @@ namespace Pure.DI
         Singleton,
 
         /// <summary>
-        /// Single instance per composition root.
+        /// Single instance per composition root resolution.
         /// <example>
         /// Per-resolve binding:
         /// <code>
@@ -86,7 +86,7 @@ namespace Pure.DI
         PerResolve,
 
         /// <summary>
-        /// Reuses instances within code blocks to reduce allocations.
+        /// Reuses instances within generated code blocks to reduce allocations.
         /// <example>
         /// Per-block binding:
         /// <code>
@@ -98,7 +98,7 @@ namespace Pure.DI
         PerBlock,
 
         /// <summary>
-        /// Single instance per dependency scope.
+        /// Single instance per scope.
         /// <example>
         /// Scoped binding:
         /// <code>
@@ -130,7 +130,7 @@ namespace Pure.DI
     internal enum Hint
     {
         /// <summary>
-        /// Enables/disables generation of Resolve methods. Default: <c>On</c>.
+        /// Enables or disables generation of <see cref="IResolver{TComposite,T}.Resolve"/> and <see cref="IResolver{TComposite,T}.ResolveByTag"/> methods. Default: <c>On</c>.
         /// <example>
         /// <code>
         /// // Resolve = Off
@@ -149,7 +149,7 @@ namespace Pure.DI
         Resolve,
 
         /// <summary>
-        /// Enables/disables generation of OnNewInstance hooks. Default: <c>Off</c>.
+        /// Enables or disables OnNewInstance hooks for instance creation. Default: <c>Off</c>.
         /// <example>
         /// <code>
         /// // OnNewInstance = On
@@ -168,7 +168,7 @@ namespace Pure.DI
         OnNewInstance,
 
         /// <summary>
-        /// Enables/disables partial method generation for OnNewInstance. Default: <c>On</c>.
+        /// Enables or disables partial method generation for OnNewInstance hooks. Default: <c>On</c>.
         /// <example>
         /// <code>
         /// // OnNewInstancePartial = On
@@ -187,7 +187,7 @@ namespace Pure.DI
         OnNewInstancePartial,
 
         /// <summary>
-        /// Regex filter for instance types in OnNewInstance hooks. Default: <c>.+</c>.
+        /// Regular expression filter for instance types in OnNewInstance hooks. Default: <c>.+</c>.
         /// <example>
         /// <code>
         /// // OnNewInstanceImplementationTypeNameRegularExpression = Dependency
@@ -225,7 +225,7 @@ namespace Pure.DI
         OnNewInstanceImplementationTypeNameWildcard,
 
         /// <summary>
-        /// Regex filter for tags in OnNewInstance hooks. Default: <c>.+</c>.
+        /// Regular expression filter for tags in OnNewInstance hooks. Default: <c>.+</c>.
         /// <example>
         /// <code>
         /// // OnNewInstanceTagRegularExpression = IDependency
@@ -263,7 +263,7 @@ namespace Pure.DI
         OnNewInstanceTagWildcard,
 
         /// <summary>
-        /// Regex filter for lifetimes in OnNewInstance hooks. Default: <c>.+</c>.
+        /// Regular expression filter for lifetimes in OnNewInstance hooks. Default: <c>.+</c>.
         /// <example>
         /// <code>
         /// // OnNewInstanceLifetimeRegularExpression = Singleton
@@ -301,7 +301,7 @@ namespace Pure.DI
         OnNewInstanceLifetimeWildcard,
 
         /// <summary>
-        /// Enables/disables dependency injection interception hooks. Default: <c>Off</c>.
+        /// Enables or disables dependency injection interception hooks. Default: <c>Off</c>.
         /// <example>
         /// <code>
         /// // OnDependencyInjection = On
@@ -320,7 +320,7 @@ namespace Pure.DI
         OnDependencyInjection,
 
         /// <summary>
-        /// Enables/disables partial method generation for dependency injection hooks. Default: <c>On</c>.
+        /// Enables or disables partial method generation for dependency injection hooks. Default: <c>On</c>.
         /// <example>
         /// <code>
         /// // OnDependencyInjectionPartial = On
@@ -339,7 +339,7 @@ namespace Pure.DI
         OnDependencyInjectionPartial,
 
         /// <summary>
-        /// Regex filter for implementation types in dependency injection hooks. Default: <c>.+</c>.
+        /// Regular expression filter for implementation types in dependency injection hooks. Default: <c>.+</c>.
         /// <example>
         /// <code>
         /// // OnDependencyInjectionImplementationTypeNameRegularExpression = Dependency
@@ -377,7 +377,7 @@ namespace Pure.DI
         OnDependencyInjectionImplementationTypeNameWildcard,
 
         /// <summary>
-        /// Regex filter for contract types in dependency injection hooks. Default: <c>.+</c>.
+        /// Regular expression filter for contract types in dependency injection hooks. Default: <c>.+</c>.
         /// <example>
         /// <code>
         /// // OnDependencyInjectionContractTypeNameRegularExpression = IDependency
@@ -415,7 +415,7 @@ namespace Pure.DI
         OnDependencyInjectionContractTypeNameWildcard,
 
         /// <summary>
-        /// Regex filter for tags in dependency injection hooks. Default: <c>.+</c>.
+        /// Regular expression filter for tags in dependency injection hooks. Default: <c>.+</c>.
         /// <example>
         /// <code>
         /// // OnDependencyInjectionTagRegularExpression = MyTag
@@ -453,7 +453,7 @@ namespace Pure.DI
         OnDependencyInjectionTagWildcard,
 
         /// <summary>
-        /// Regex filter for lifetimes in dependency injection hooks. Default: <c>.+</c>.
+        /// Regular expression filter for lifetimes in dependency injection hooks. Default: <c>.+</c>.
         /// <example>
         /// <code>
         /// // OnDependencyInjectionLifetimeRegularExpression = Singleton
@@ -491,7 +491,7 @@ namespace Pure.DI
         OnDependencyInjectionLifetimeWildcard,
 
         /// <summary>
-        /// Enables/disables unresolved dependency handlers. Default: <c>Off</c>.
+        /// Enables or disables unresolved dependency handlers. Default: <c>Off</c>.
         /// <example>
         /// <code>
         /// // OnCannotResolve = On
@@ -510,7 +510,7 @@ namespace Pure.DI
         OnCannotResolve,
 
         /// <summary>
-        /// Enables/disables partial method generation for unresolved dependency handlers. Default: <c>On</c>.
+        /// Enables or disables partial method generation for unresolved dependency handlers. Default: <c>On</c>.
         /// <example>
         /// <code>
         /// // OnCannotResolvePartial = On
@@ -529,7 +529,7 @@ namespace Pure.DI
         OnCannotResolvePartial,
 
         /// <summary>
-        /// Regex filter for contract types in unresolved dependency handlers. Default: <c>.+</c>.
+        /// Regular expression filter for contract types in unresolved dependency handlers. Default: <c>.+</c>.
         /// <example>
         /// <code>
         /// // OnCannotResolveContractTypeNameRegularExpression = OtherType
@@ -567,7 +567,7 @@ namespace Pure.DI
         OnCannotResolveContractTypeNameWildcard,
 
         /// <summary>
-        /// Regex filter for tags in unresolved dependency handlers. Default: <c>.+</c>.
+        /// Regular expression filter for tags in unresolved dependency handlers. Default: <c>.+</c>.
         /// <example>
         /// <code>
         /// // OnCannotResolveTagRegularExpression = MyTag
@@ -605,7 +605,7 @@ namespace Pure.DI
         OnCannotResolveTagWildcard,
 
         /// <summary>
-        /// Regex filter for lifetimes in unresolved dependency handlers. Default: <c>.+</c>.
+        /// Regular expression filter for lifetimes in unresolved dependency handlers. Default: <c>.+</c>.
         /// <example>
         /// <code>
         /// // OnCannotResolveLifetimeRegularExpression = Singleton
@@ -643,7 +643,7 @@ namespace Pure.DI
         OnCannotResolveLifetimeWildcard,
 
         /// <summary>
-        /// Enables/disables composition root registration event handlers. Default: <c>Off</c>.
+        /// Enables or disables composition root registration handlers. Default: <c>Off</c>.
         /// <example>
         /// <code>
         /// // OnNewRoot = On
@@ -662,7 +662,7 @@ namespace Pure.DI
         OnNewRoot,
 
         /// <summary>
-        /// Enables/disables partial method generation for composition root events. Default: <c>Off</c>.
+        /// Enables or disables partial method generation for composition root registration handlers. Default: <c>Off</c>.
         /// <example>
         /// <code>
         /// // OnNewRootPartial = On
@@ -681,7 +681,7 @@ namespace Pure.DI
         OnNewRootPartial,
 
         /// <summary>
-        /// Enables/disables generation of mermaid-format class diagram via ToString(). Default: <c>Off</c>.
+        /// Enables or disables generation of a Mermaid class diagram via ToString(). Default: <c>Off</c>.
         /// <example>
         /// <code>
         /// // ToString = On
@@ -700,7 +700,7 @@ namespace Pure.DI
         ToString,
 
         /// <summary>
-        /// Enables/disables thread-safe composition object creation. Default: <c>On</c>.
+        /// Enables or disables thread-safe composition object creation. Default: <c>On</c>.
         /// <example>
         /// <code>
         /// // ThreadSafe = Off
@@ -719,7 +719,7 @@ namespace Pure.DI
         ThreadSafe,
 
         /// <summary>
-        /// Modifier override for Resolve&lt;T&gt;() method. Default: <c>public</c>.
+        /// Controls the access modifier for <see cref="IResolver{TComposite,T}.Resolve"/>. Default: <c>public</c>.
         /// <example>
         /// <code>
         /// // ResolveMethodModifiers = internal
@@ -738,7 +738,7 @@ namespace Pure.DI
         ResolveMethodModifiers,
 
         /// <summary>
-        /// Name override for Resolve&lt;T&gt;() method. Default: <c>Resolve</c>.
+        /// Controls the method name for <see cref="IResolver{TComposite,T}.Resolve"/>. Default: <c>Resolve</c>.
         /// <example>
         /// <code>
         /// // ResolveMethodName = GetService
@@ -757,7 +757,7 @@ namespace Pure.DI
         ResolveMethodName,
 
         /// <summary>
-        /// Modifier override for Resolve&lt;T&gt;(tag) method. Default: <c>public</c>.
+        /// Controls the access modifier for <see cref="IResolver{TComposite,T}.ResolveByTag"/>. Default: <c>public</c>.
         /// <example>
         /// <code>
         /// // ResolveByTagMethodModifiers = internal
@@ -776,9 +776,8 @@ namespace Pure.DI
         ResolveByTagMethodModifiers,
 
         /// <summary>
-        /// Name override for Resolve&lt;T&gt;(tag) method. Default: <c>Resolve</c>.
+        /// Controls the method name for <see cref="IResolver{TComposite,T}.ResolveByTag"/>. Default: <c>Resolve</c>.
         /// <example>
-        /// For example
         /// <code>
         /// // ResolveByTagMethodName = GetService
         /// DI.Setup("Composition")
@@ -796,7 +795,7 @@ namespace Pure.DI
         ResolveByTagMethodName,
 
         /// <summary>
-        /// Modifier override for Resolve(Type) method. Default: <c>public</c>.
+        /// Controls the access modifier for Resolve(<see cref="System.Type"/>) method. Default: <c>public</c>.
         /// <example>
         /// <code>
         /// // ObjectResolveMethodModifiers = internal
@@ -815,7 +814,7 @@ namespace Pure.DI
         ObjectResolveMethodModifiers,
 
         /// <summary>
-        /// Name override for Resolve(Type) method. Default: <c>Resolve</c>.
+        /// Controls the method name for Resolve(<see cref="System.Type"/>) method. Default: <c>Resolve</c>.
         /// <example>
         /// <code>
         /// // ObjectResolveMethodName = GetService
@@ -834,7 +833,7 @@ namespace Pure.DI
         ObjectResolveMethodName,
 
         /// <summary>
-        /// Modifier override for Resolve(Type, tag) method. Default: <c>public</c>.
+        /// Controls the access modifier for Resolve(<see cref="System.Type"/>, <see cref="System.Object"/>) method. Default: <c>public</c>.
         /// <example>
         /// <code>
         /// // ObjectResolveByTagMethodModifiers = internal
@@ -853,7 +852,7 @@ namespace Pure.DI
         ObjectResolveByTagMethodModifiers,
 
         /// <summary>
-        /// Name override for Resolve(Type, tag) method. Default: <c>Resolve</c>.
+        /// Controls the method name for Resolve(<see cref="System.Type"/>, <see cref="System.Object"/>) method. Default: <c>Resolve</c>.
         /// <example>
         /// <code>
         /// // ObjectResolveByTagMethodName = GetService
@@ -872,7 +871,7 @@ namespace Pure.DI
         ObjectResolveByTagMethodName,
 
         /// <summary>
-        /// Modifier override for Dispose() method. Default: <c>public</c>.
+        /// Controls the access modifier for Dispose(). Default: <c>public</c>.
         /// <example>
         /// <code>
         /// // DisposeMethodModifiers = internal
@@ -891,7 +890,7 @@ namespace Pure.DI
         DisposeMethodModifiers,
 
         /// <summary>
-        /// Modifier override for DisposeAsync() method. Default: <c>public</c>.
+        /// Controls the access modifier for DisposeAsync(). Default: <c>public</c>.
         /// <example>
         /// <code>
         /// // DisposeAsyncMethodModifiers = internal
@@ -910,7 +909,7 @@ namespace Pure.DI
         DisposeAsyncMethodModifiers,
 
         /// <summary>
-        /// Enables/disables code formatting (CPU intensive). Default: <c>Off</c>.
+        /// Enables or disables code formatting (CPU intensive). Default: <c>Off</c>.
         /// <example>
         /// <code>
         /// // FormatCode = On
@@ -929,7 +928,7 @@ namespace Pure.DI
         FormatCode,
 
         /// <summary>
-        /// Severity level for unimplemented contract errors. Default: <c>Error</c>.
+        /// Diagnostic severity for unimplemented contract bindings. Default: <c>Error</c>.
         /// <example>
         /// <code>
         /// // SeverityOfNotImplementedContract = Warning
@@ -948,7 +947,7 @@ namespace Pure.DI
         SeverityOfNotImplementedContract,
 
         /// <summary>
-        /// Enables/disables generated code comments. Default: <c>On</c>.
+        /// Enables or disables generated code comments. Default: <c>On</c>.
         /// <example>
         /// <code>
         /// // Comments = Off
@@ -967,7 +966,7 @@ namespace Pure.DI
         Comments,
 
         /// <summary>
-        /// Enables/disables skipping the default constructor. Default: <c>Off</c> (meaning the default constructor is used when available).
+        /// Enables or disables skipping the default constructor when available. Default: <c>Off</c>. When Off, the default constructor is used when available.
         /// <example>
         /// <code>
         /// // SkipDefaultConstructor = On
@@ -986,7 +985,7 @@ namespace Pure.DI
         SkipDefaultConstructor,
 
         /// <summary>
-        /// Regex filter for types to skip default constructors. Default: <c>.+</c>.
+        /// Regular expression filter for types to skip default constructors. Default: <c>.+</c>.
         /// <example>
         /// <code>
         /// // SkipDefaultConstructorImplementationTypeNameRegularExpression = Dependency
@@ -1024,7 +1023,7 @@ namespace Pure.DI
         SkipDefaultConstructorImplementationTypeNameWildcard,
 
         /// <summary>
-        /// Regex filter for lifetimes to skip default constructors. Default: <c>.+</c>.
+        /// Regular expression filter for lifetimes to skip default constructors. Default: <c>.+</c>.
         /// <example>
         /// <code>
         /// // SkipDefaultConstructorLifetimeRegularExpression = Singleton
@@ -1081,7 +1080,7 @@ namespace Pure.DI
         DisableAutoBinding,
 
         /// <summary>
-        /// Regex filter for implementation types to disable auto-binding. Default: <c>.+</c>.
+        /// Regular expression filter for implementation types to disable auto-binding. Default: <c>.+</c>.
         /// <example>
         /// <code>
         /// // DisableAutoBindingImplementationTypeNameRegularExpression = Dependency
@@ -1123,7 +1122,7 @@ namespace Pure.DI
         DisableAutoBindingImplementationTypeNameWildcard,
 
         /// <summary>
-        /// Regex filter for lifetimes to disable auto-binding. Default: <c>.+</c>.
+        /// Regular expression filter for lifetimes to disable auto-binding. Default: <c>.+</c>.
         /// <example>
         /// <code>
         /// // DisableAutoBindingLifetimeRegularExpression = Singleton
@@ -1186,7 +1185,7 @@ namespace Pure.DI
     /// Specifies injection order priority for constructors, methods, properties, and fields.
     /// While this attribute is part of the DI API, you can implement custom ordering attributes in any namespace.
     /// <example>
-    /// For constructors, it defines the sequence of attempts to use a particular constructor to create an object:
+    /// For constructors, it defines the order in which constructors are considered:
     /// <code>
     /// class Service: IService
     /// {
@@ -1201,7 +1200,7 @@ namespace Pure.DI
     /// }
     /// </code>
     ///
-    /// For fields, properties and methods, it specifies to perform dependency injection and defines the sequence:
+    /// For fields, properties, and methods, it defines the order of injection:
     /// <code>
     /// class Person: IPerson
     /// {
@@ -1240,13 +1239,13 @@ namespace Pure.DI
         /// <summary>
         /// Initializes an attribute instance with the specified injection priority.
         /// </summary>
-        /// <param name="ordinal">Lower values indicate higher priority (0 executes before 1). Default: 0.</param>
+        /// <param name="ordinal">Lower values indicate higher priority. Default: 0.</param>
         public OrdinalAttribute(int ordinal = 0) { }
     }
 
     /// <summary>
-    /// Represents a tag attribute overriding an injection tag. The tag can be a constant, a type, or a value of an enumerated type.
-    /// This attribute is part of the API, but you can use your own attribute at any time, and this allows you to define them in the assembly and namespace you want.
+    /// Represents a tag attribute that overrides an injection tag. The tag can be a constant, a type, or an enum value.
+    /// This attribute is part of the API, but you can use your own attribute and define it in any assembly or namespace.
     /// <example>
     /// Sometimes it's important to take control of building a dependency graph. For example, when there are multiple implementations of the same contract. In this case, tags will help:
     /// <code>
@@ -1307,13 +1306,13 @@ namespace Pure.DI
         /// <summary>
         /// Creates an attribute instance.
         /// </summary>
-        /// <param name="tag">The injection tag. See also <see cref="IBinding.Tags"/></param>.
+        /// <param name="tag">The injection tag. See also <see cref="IBinding.Tags"/></param>
         public TagAttribute(object tag) { }
     }
 
     /// <summary>
-    /// The injection type can be defined manually using the <c>Type</c> attribute. This attribute explicitly overrides an injected type, otherwise it would be determined automatically based on the type of the constructor/method, property, or field parameter.
-    /// This attribute is part of the API, but you can use your own attribute at any time, and this allows you to define them in the assembly and namespace you want.
+    /// The injection type can be defined manually using the <c>Type</c> attribute. This attribute explicitly overrides an injected type; otherwise it is determined automatically based on the type of the constructor/method parameter, property, or field.
+    /// This attribute is part of the API, but you can use your own attribute and define it in any assembly or namespace.
     /// <example>
     /// <code>
     /// interface IDependency { }
@@ -1373,7 +1372,7 @@ namespace Pure.DI
     }
 
     /// <summary>
-    /// Combines injection tagging and ordering capabilities in a single attribute.
+    /// Combines injection tagging and ordering in a single attribute.
     /// Allows simultaneous specification of both tag and ordinal for dependency injection points.
     /// </summary>
     /// <param name="tag">Identifies the specific dependency variation to inject. See also <see cref="IBinding.Tags"/>.</param>
@@ -1390,7 +1389,7 @@ namespace Pure.DI
         /// Initializes an attribute instance with optional tag and priority.
         /// </summary>
         /// <param name="tag">Identifies a specific dependency variation. See also <see cref="IBinding.Tags"/>.</param>
-        /// <param name="ordinal">Injection execution priority (0 = highest priority). Default: 0.</param>
+        /// <param name="ordinal">Injection execution priority. Default: 0.</param>
         public DependencyAttribute(object? tag = null, int ordinal = 0) { }
     };
 
@@ -1434,7 +1433,7 @@ namespace Pure.DI
     }
 
     /// <summary>
-    /// Determines how the partial class will be generated. The <see cref="DI.Setup"/> method has an additional argument <c>kind</c>, which defines the type of composition:
+    /// Determines how the partial class is generated. The <see cref="DI.Setup"/> method accepts a <c>kind</c> argument that defines the setup scope:
     /// <example>
     /// <code>
     /// DI.Setup("BaseComposition", CompositionKind.Internal);
@@ -1445,24 +1444,24 @@ namespace Pure.DI
     internal enum CompositionKind
     {
         /// <summary>
-        /// This value is used by default. If this value is specified, a normal partial class will be generated.
+        /// Default. Generates a public partial composition class.
         /// </summary>
         Public,
 
         /// <summary>
-        /// If this value is specified, the class will not be generated, but this setting can be used by other users as a baseline. The API call <see cref="IConfiguration.DependsOn"/> is mandatory.
+        /// Does not generate a class, but can be referenced by other setups as a baseline. <see cref="IConfiguration.DependsOn"/> is required.
         /// </summary>
         Internal,
 
         /// <summary>
-        /// No partial classes will be created when this value is specified, but this setting is the baseline for all installations in the current project, and the API call <see cref="IConfiguration.DependsOn"/> is not required.
+        /// Does not generate a class and becomes the baseline for all setups in the current project. <see cref="IConfiguration.DependsOn"/> is not required.
         /// </summary>
         Global
     }
 
     /// <summary>
-    /// Specifies configuration flags for composition root members, controlling their access level, modifiers, and representation.
-    /// Flags can be combined to define complex root behaviors.
+    /// Specifies flags for composition root members, including access level, modifiers, and representation.
+    /// Flags can be combined.
     /// </summary>
     /// <seealso cref="IConfiguration.Root{T}"/>
     /// <seealso cref="IConfiguration.RootBind{T}"/>
@@ -1473,22 +1472,22 @@ namespace Pure.DI
     internal enum RootKinds
     {
         /// <summary>
-        /// Default configuration: Public access modifier and property representation.
+        /// Default configuration: public access modifier and property representation.
         /// </summary>
         Default = RootKinds.Public | RootKinds.Property,
 
         /// <summary>
-        /// Public access modifier for the composition root.
+        /// Specifies public access for the composition root.
         /// </summary>
         Public = 1,
 
         /// <summary>
-        /// Internal access modifier for the composition root.
+        /// Specifies internal access for the composition root.
         /// </summary>
         Internal = 1 << 1,
 
         /// <summary>
-        /// Private access modifier for the composition root.
+        /// Specifies private access for the composition root.
         /// </summary>
         Private = 1 << 2,
 
@@ -1497,19 +1496,18 @@ namespace Pure.DI
         /// </summary>
         Property = 1 << 3,
 
-        ///
         /// <summary>
         /// Represents the composition root as a method.
         /// </summary>
         Method = 1 << 4,
 
         /// <summary>
-        /// Defines the composition root as static.
+        /// Marks the composition root as static.
         /// </summary>
         Static = 1 << 5,
 
         /// <summary>
-        /// Defines the composition root as partial.
+        /// Marks the composition root as partial.
         /// </summary>
         Partial = 1 << 6,
 
@@ -1520,23 +1518,23 @@ namespace Pure.DI
         Exposed = 1 << 7,
 
         /// <summary>
-        /// Protected access modifier for the composition root.
+        /// Specifies protected access for the composition root.
         /// </summary>
         Protected = 1 << 8,
 
         /// <summary>
-        /// Applies virtual modifier to enable overriding in derived classes.
+        /// Applies the virtual modifier to enable overriding in derived classes.
         /// </summary>
         Virtual = 1 << 9,
 
         /// <summary>
-        /// Applies override modifier to redefine a base implementation.
+        /// Applies the override modifier to redefine a base implementation.
         /// </summary>
         Override = 1 << 10,
     }
 
-        /// <summary>
-    /// Provides standardized tags for dependency binding scenarios, including special tags for unique bindings, type-based identification, and injection targeting.
+    /// <summary>
+    /// Provides standardized tags for special binding scenarios (e.g., unique, type-based, or any-tag).
     /// </summary>
     /// <seealso cref="IConfiguration.Bind{T}"/>
     /// <seealso cref="IBinding.Tags"/>
@@ -1548,12 +1546,12 @@ namespace Pure.DI
         private static readonly Tag Shared = new Tag();
 
         /// <summary>
-        /// Enables multiple distinct bindings for the same instance type. Used for collection injection.
+        /// Enables multiple distinct bindings for the same contract type. Used for collection injection.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
         ///     .Bind&lt;IService&gt;(Tag.Unique).To&lt;Service1&gt;()
-        ///     .Bind&lt;IService&gt;(Tag.Unique).To&lt;Service1&gt;()
+        ///     .Bind&lt;IService&gt;(Tag.Unique).To&lt;Service2&gt;()
         ///     .Root&lt;IEnumerable&lt;IService&gt;&gt;("Root");
         /// </code>
         /// </example>
@@ -1561,7 +1559,7 @@ namespace Pure.DI
         public static readonly Tag Unique = new Tag();
 
         /// <summary>
-        /// Tags bindings by their implementation type for explicit injection.
+        /// Tags bindings by implementation type for explicit injection.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -1573,13 +1571,12 @@ namespace Pure.DI
         public static readonly Tag Type = new Tag();
 
         /// <summary>
-        /// Matches any tag during resolution. Used for conditional bindings that accept any tag.
+        /// Matches any tag during resolution. Useful for conditional bindings that accept any tag.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
-        ///  DI.Setup(nameof(Composition))
-        ///      .Bind&lt;IDependency&gt;(Tag.Any).To(ctx =&gt; new Dependency(ctx.Tag))
-        ///      .Bind&lt;IService&gt;().To&lt;Service&gt;()
+        ///     .Bind&lt;IDependency&gt;(Tag.Any).To(ctx =&gt; new Dependency(ctx.Tag))
+        ///     .Bind&lt;IService&gt;().To&lt;Service&gt;()
         /// </code>
         /// </example>
         /// </summary>
@@ -1593,11 +1590,11 @@ namespace Pure.DI
         ///     .Bind(Tag.On("MyNamespace.Service.Service:dep"))
         ///         .To&lt;Dependency&gt;()
         ///     .Bind().To&lt;Service&gt;()
-        ///     .Root&lt;&lt;IService&gt;("Root");
+        ///     .Root&lt;IService&gt;("Root");
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="injectionSites">Member identifiers in format: [namespace].[type].[member][:argument]. Case-sensitive. Wildcards (*, ?) supported. Omit 'global::'.</param>
+        /// <param name="injectionSites">Member identifiers in format [namespace].[type].[member][:argument]. Case-sensitive. Wildcards (*, ?) supported. Omit 'global::'.</param>
         public static Tag On(params string[] injectionSites) => Shared;
 
         /// <summary>
@@ -1612,7 +1609,7 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="argName">Constructor parameter name</param>
+        /// <param name="argName">Constructor parameter name.</param>
         public static Tag OnConstructorArg<T>(string argName) => Shared;
 
         /// <summary>
@@ -1627,7 +1624,7 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="memberName">Field or property name</param>
+        /// <param name="memberName">Field or property name.</param>
         public static Tag OnMember<T>(string memberName) => Shared;
 
         /// <summary>
@@ -1642,8 +1639,8 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="methodName">Method name</param>
-        /// <param name="argName">Argument name</param>
+        /// <param name="methodName">Method name.</param>
+        /// <param name="argName">Argument name.</param>
         public static Tag OnMethodArg<T>(string methodName, string argName) => Shared;
     }
 
@@ -1825,7 +1822,7 @@ namespace Pure.DI
 
     /// <summary>
     /// Represents an owned resource of type <typeparamref name="T"/> that combines a value with its disposal mechanism.
-    /// Provides deterministic lifetime management through both synchronous and asynchronous disposal patterns.
+    /// Provides deterministic lifetime management through synchronous and asynchronous disposal.
     /// </summary>
     /// <typeparam name="T">The type of the owned value.</typeparam>
     /// <seealso cref="IOwned"/>
@@ -1836,7 +1833,7 @@ namespace Pure.DI
     internal readonly struct Owned<T>: global::Pure.DI.IOwned
     {
         /// <summary>
-        /// The owned value instance.
+        /// The owned value.
         /// </summary>
         public readonly T Value;
 
@@ -1846,7 +1843,7 @@ namespace Pure.DI
         /// Initializes a new owned value with its associated disposal mechanism.
         /// </summary>
         /// <param name="value">The value to be owned and managed.</param>
-        /// <param name="owned">The disposal mechanism responsible for cleaning up the owned value.</param>
+        /// <param name="owned">The disposal mechanism that cleans up the owned value.</param>
         public Owned(T value, global::Pure.DI.IOwned owned)
         {
             Value = value;
@@ -1880,7 +1877,7 @@ namespace Pure.DI
             }
 
             /// <summary>
-            /// The owned value visible in debugger.
+            /// The owned value visible in the debugger.
             /// </summary>
             public T Value
             {
@@ -1889,7 +1886,7 @@ namespace Pure.DI
 
             [global::System.Diagnostics.DebuggerBrowsable(global::System.Diagnostics.DebuggerBrowsableState.Collapsed)]
             /// <summary>
-            /// The disposal mechanism for the owned value (collapsed in debugger by default).
+            /// The disposal mechanism for the owned value (collapsed in the debugger by default).
             /// </summary>
             public global::Pure.DI.IOwned Owned
             {
@@ -1899,14 +1896,15 @@ namespace Pure.DI
     }
 
     /// <summary>
-    /// Defines an API for configuring Dependency Injection bindings.
+    /// Fluent API for defining a composition setup: bindings, roots, hints, and arguments.
     /// </summary>
     /// <seealso cref="DI.Setup"/>
     internal interface IConfiguration
     {
         /// <summary>
-        /// Starts binding definition for the implementation type itself. Also binds all directly implemented abstract types excluding special types.
-        /// Special types are excluded from binding by default:
+        /// Starts binding definition for the implementation type itself.
+        /// Also binds all directly implemented abstract types, excluding special types.
+        /// Special types are excluded by default:
         /// <list type="bullet">
         /// <item>System.Object</item>
         /// <item>System.Enum</item>
@@ -1932,8 +1930,8 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="tags">Optional tags to associate with the binding.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with the binding.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="SpecialType{T}()"/>
         /// <seealso cref="IBinding.To{T}()"/>
         /// <seealso cref="IBinding.To{T}(System.Func{Pure.DI.IContext,T})"/>
@@ -1944,7 +1942,7 @@ namespace Pure.DI
         IBinding Bind(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -1953,8 +1951,8 @@ namespace Pure.DI
         /// </example>
         /// </summary>
         /// <typeparam name="T">Dependency type to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -1964,7 +1962,7 @@ namespace Pure.DI
         IBinding Bind<T>(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -1974,8 +1972,8 @@ namespace Pure.DI
         /// </summary>
         /// <typeparam name="T">Dependency type to bind.</typeparam>
         /// <typeparam name="T1">Dependency type 1 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -1985,7 +1983,7 @@ namespace Pure.DI
         IBinding Bind<T, T1>(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -1996,8 +1994,8 @@ namespace Pure.DI
         /// <typeparam name="T">Dependency type to bind.</typeparam>
         /// <typeparam name="T1">Dependency type 1 to bind.</typeparam>
         /// <typeparam name="T2">Dependency type 2 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -2007,7 +2005,7 @@ namespace Pure.DI
         IBinding Bind<T, T1, T2>(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -2019,8 +2017,8 @@ namespace Pure.DI
         /// <typeparam name="T1">Dependency type 1 to bind.</typeparam>
         /// <typeparam name="T2">Dependency type 2 to bind.</typeparam>
         /// <typeparam name="T3">Dependency type 3 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -2030,7 +2028,7 @@ namespace Pure.DI
         IBinding Bind<T, T1, T2, T3>(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -2043,8 +2041,8 @@ namespace Pure.DI
         /// <typeparam name="T2">Dependency type 2 to bind.</typeparam>
         /// <typeparam name="T3">Dependency type 3 to bind.</typeparam>
         /// <typeparam name="T4">Dependency type 4 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -2054,7 +2052,7 @@ namespace Pure.DI
         IBinding Bind<T, T1, T2, T3, T4>(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -2068,8 +2066,8 @@ namespace Pure.DI
         /// <typeparam name="T3">Dependency type 3 to bind.</typeparam>
         /// <typeparam name="T4">Dependency type 4 to bind.</typeparam>
         /// <typeparam name="T5">Dependency type 5 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -2079,7 +2077,7 @@ namespace Pure.DI
         IBinding Bind<T, T1, T2, T3, T4, T5>(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -2094,8 +2092,8 @@ namespace Pure.DI
         /// <typeparam name="T4">Dependency type 4 to bind.</typeparam>
         /// <typeparam name="T5">Dependency type 5 to bind.</typeparam>
         /// <typeparam name="T6">Dependency type 6 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -2105,7 +2103,7 @@ namespace Pure.DI
         IBinding Bind<T, T1, T2, T3, T4, T5, T6>(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -2121,8 +2119,8 @@ namespace Pure.DI
         /// <typeparam name="T5">Dependency type 5 to bind.</typeparam>
         /// <typeparam name="T6">Dependency type 6 to bind.</typeparam>
         /// <typeparam name="T7">Dependency type 7 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -2140,15 +2138,26 @@ namespace Pure.DI
         ///     .RootBind&lt;IService&gt;();
         /// </code>
         /// </example>
+        /// <example>
+        /// <code>
+        /// DI.Setup("Composition")
+        ///     .RootBind&lt;IService&gt;("ServiceRoot")
+        ///     .To&lt;Service&gt;();
+        /// </code>
+        /// </example>
         /// </summary>
-        /// <typeparam name="T">Dependency type to bind and expose as root.</typeparam>
+        /// <typeparam name="T">Dependency type to bind and expose as a root.</typeparam>
         /// <param name="name">
-        /// Root name template (supports {type}, {TYPE}, {tag} placeholders).
-        /// Empty name creates a private root accessible only via Resolve methods.
+        /// Root name template (supports {type}, {TYPE}, {tag}).
+        /// Empty name creates a private root accessible only via <see cref="IResolver{TComposite,T}.Resolve"/> and <see cref="IResolver{TComposite,T}.ResolveByTag"/>.
         /// </param>
-        /// <param name="kind">Specifies root accessibility and creation method.</param>
-        /// <param name="tags">Tags for binding (first tag used for {tag} placeholder).</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="kind">Specifies root accessibility and representation.</param>
+        /// <param name="tags">Tags for binding (first tag used for the {tag} placeholder).</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
+        /// <seealso cref="Root{T}"/>
+        /// <seealso cref="Roots{T}"/>
+        /// <seealso cref="Builder{T}"/>
+        /// <seealso cref="Builders{T}"/>
         /// <seealso cref="IBinding.To{T}()"/>
         /// <seealso cref="IBinding.To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="IBinding.To{T1,T}()"/>
@@ -2161,18 +2170,23 @@ namespace Pure.DI
         /// Specifies base setups to inherit bindings from.
         /// <example>
         /// <code>
+        /// DI.Setup("CompositionBase")
+        ///     .Bind&lt;IService&gt;().To&lt;Service&gt;();
+        ///
         /// DI.Setup("Composition")
-        ///     .DependsOn(nameof(CompositionBase));
+        ///     .DependsOn(nameof(CompositionBase))
+        ///     .Root&lt;IService&gt;("Service");
         /// </code>
         /// </example>
         /// </summary>
         /// <param name="setupNames">Names of base composition setups.</param>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="DI.Setup"/>
+        /// <seealso cref="CompositionKind"/>
         IConfiguration DependsOn(params string[] setupNames);
 
         /// <summary>
-        /// Registers custom generic type markers.
+        /// Registers custom generic type markers based on attribute usage.
         /// <example>
         /// <code>
         /// [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Struct)]
@@ -2182,77 +2196,107 @@ namespace Pure.DI
         /// interface TTMy;
         ///
         /// DI.Setup("Composition")
-        ///     .GenericTypeAttribute&lt;MyGenericTypeArgumentAttribute&gt;()
+        ///     .GenericTypeArgumentAttribute&lt;MyGenericTypeArgumentAttribute&gt;()
         ///     .Bind&lt;IDependency&lt;TTMy&gt;&gt;().To&lt;Dependency&lt;TTMy&gt;&gt;();
         /// </code>
         /// </example>
         /// </summary>
         /// <typeparam name="T">Custom attribute type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="GenericTypeArgumentAttribute"/>
+        /// <seealso cref="GenericTypeArgument{T}"/>
         IConfiguration GenericTypeArgumentAttribute<T>() where T: global::System.Attribute;
 
         /// <summary>
         /// Registers a custom attribute to override injection types.
         /// <example>
         /// <code>
+        /// [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field)]
+        /// class MyTypeAttribute: Attribute
+        /// {
+        ///     public MyTypeAttribute(Type type) { }
+        /// }
+        ///
         /// DI.Setup("Composition")
         ///     .TypeAttribute&lt;MyTypeAttribute&gt;();
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="typeArgumentPosition">Position of type parameter in attribute constructor (default: 0).</param>
+        /// <param name="typeArgumentPosition">Position of the type parameter in the attribute constructor. Default: 0.</param>
         /// <typeparam name="T">Custom attribute type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="Pure.DI.TypeAttribute"/>
+        /// <seealso cref="TagAttribute{T}"/>
+        /// <seealso cref="OrdinalAttribute{T}"/>
         IConfiguration TypeAttribute<T>(int typeArgumentPosition = 0) where T: global::System.Attribute;
 
         /// <summary>
         /// Registers a custom attribute to override injection tags.
         /// <example>
         /// <code>
+        /// [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field)]
+        /// class MyTagAttribute: Attribute
+        /// {
+        ///     public MyTagAttribute(object tag) { }
+        /// }
+        ///
         /// DI.Setup("Composition")
         ///     .TagAttribute&lt;MyTagAttribute&gt;();
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="tagArgumentPosition">Position of tag parameter in attribute constructor (default: 0).</param>
+        /// <param name="tagArgumentPosition">Position of the tag parameter in the attribute constructor. Default: 0.</param>
         /// <typeparam name="T">Custom attribute type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="Pure.DI.TagAttribute"/>
+        /// <seealso cref="IBinding.Tags"/>
         IConfiguration TagAttribute<T>(int tagArgumentPosition = 0) where T: global::System.Attribute;
 
         /// <summary>
         /// Registers a custom attribute to override injection priority.
         /// <example>
         /// <code>
+        /// [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field)]
+        /// class MyOrdinalAttribute: Attribute
+        /// {
+        ///     public MyOrdinalAttribute(int ordinal) { }
+        /// }
+        ///
         /// DI.Setup("Composition")
         ///     .OrdinalAttribute&lt;MyOrdinalAttribute&gt;();
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="ordinalArgumentPosition">Position of ordinal parameter in attribute constructor (default: 0).</param>
+        /// <param name="ordinalArgumentPosition">Position of the ordinal parameter in the attribute constructor. Default: 0.</param>
         /// <typeparam name="T">Custom attribute type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="Pure.DI.OrdinalAttribute"/>
+        /// <seealso cref="TypeAttribute{T}"/>
+        /// <seealso cref="TagAttribute{T}"/>
         IConfiguration OrdinalAttribute<T>(int ordinalArgumentPosition = 0) where T: global::System.Attribute;
 
         /// <summary>
         /// Adds a special type that excludes it from implementation binding.
         /// <example>
         /// <code>
+        /// class BaseService;
+        ///
+        /// class Service: BaseService, IService;
+        ///
         /// DI.Setup("Composition")
-        ///     .SpecialType&lt;UnityEngine.MonoBehaviour&gt;();
+        ///     .SpecialType&lt;BaseService&gt;()
+        ///     .Bind().To&lt;Service&gt;()
+        ///     .Root&lt;IService&gt;("Service");
         /// </code>
         /// </example>
         /// </summary>
         /// <typeparam name="T">Special type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
-        /// <seealso cref="Bind()"/>
+        /// <returns>Configuration interface for fluent chaining.</returns>
+        /// <seealso cref="IBinding.Bind()"/>
         IConfiguration SpecialType<T>();
 
         /// <summary>
-        /// Sets the default lifetime for the following bindings.
+        /// Sets the default lifetime for subsequent bindings in the setup chain.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -2260,14 +2304,14 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="lifetime">Default lifetime to apply.</param>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <param name="lifetime">Default lifetime to apply to subsequent bindings.</param>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="Lifetime"/>
         /// <seealso cref="IBinding.As"/>
         IConfiguration DefaultLifetime(Pure.DI.Lifetime lifetime);
 
         /// <summary>
-        /// Sets the default lifetime for bindings of specific types for the following bindings.
+        /// Sets the default lifetime for subsequent bindings that match the specified type (and tags).
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -2279,16 +2323,16 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="lifetime">Default lifetime to apply.</param>
+        /// <param name="lifetime">Default lifetime to apply to subsequent bindings.</param>
         /// <param name="tags">Tags specifying which bindings to apply this lifetime to.</param>
         /// <typeparam name="T">Type filter for applicable bindings.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="Lifetime"/>
         /// <seealso cref="IBinding.As"/>
         IConfiguration DefaultLifetime<T>(Pure.DI.Lifetime lifetime, params object[] tags);
 
         /// <summary>
-        /// Adds a composition argument to be injected.
+        /// Adds a composition argument that can be injected into the object graph.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -2297,16 +2341,14 @@ namespace Pure.DI
         /// </example>
         /// </summary>
         /// <typeparam name="T">Argument type.</typeparam>
-        /// <param name="name">
-        /// Argument name template (supports {type}, {TYPE}, {tag} placeholders).
-        /// </param>
-        /// <param name="tags">Tags to associate with the argument.</param>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <param name="name">Argument name template (supports {type}, {TYPE}, {tag}).</param>
+        /// <param name="tags">Tags used to distinguish arguments of the same type.</param>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="RootArg{T}"/>
         IConfiguration Arg<T>(string name, params object[] tags);
 
         /// <summary>
-        /// Adds a root argument to be injected.
+        /// Adds a root argument that must be supplied when calling the root method.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -2315,16 +2357,14 @@ namespace Pure.DI
         /// </example>
         /// </summary>
         /// <typeparam name="T">Argument type.</typeparam>
-        /// <param name="name">
-        /// Argument name template (supports {type}, {TYPE}, {tag} placeholders).
-        /// </param>
-        /// <param name="tags">Tags to associate with the argument.</param>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <param name="name">Argument name template (supports {type}, {TYPE}, {tag}).</param>
+        /// <param name="tags">Tags used to distinguish arguments of the same type.</param>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="Arg{T}"/>
         IConfiguration RootArg<T>(string name, params object[] tags);
 
         /// <summary>
-        /// Defines the composition root.
+        /// Defines a composition root and generates a property or method based on <see cref="RootKinds"/>.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -2337,25 +2377,35 @@ namespace Pure.DI
         ///     .Root&lt;Service&gt;("My{type}");
         /// </code>
         /// </example>
-        /// </summary>
-        /// <typeparam name="T">Root type to expose.</typeparam>
-        /// <param name="name">
-        /// Root name template (supports {type}, {TYPE}, {tag} placeholders).
-        /// Empty name creates the private root accessible only via <c>Resolve</c> methods.
-        /// </param>
-        /// <param name="tag">Tag to associate with the root.</param>
-        /// <param name="kind">Specifies root accessibility and creation method.</param>
-        /// <returns>Configuration interface for method chaining.</returns>
-        /// <seealso cref="RootBind{T}"/>
-        /// <seealso cref="Roots{T}"/>
-        IConfiguration Root<T>(string name = "", object tag = null, RootKinds kind = RootKinds.Default);
-
-        /// <summary>
-        /// Automatically creates roots for all base type implementations found at the time the method is called.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
-        ///     .Roots&lt;IService&gt;();
+        ///     .Bind&lt;IService&gt;().To&lt;Service&gt;()
+        ///     .Root&lt;IService&gt;("ServiceRoot", "Main");
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <typeparam name="T">Root type to expose.</typeparam>
+        /// <param name="name">
+        /// Root name template (supports {type}, {TYPE}, {tag}).
+        /// Empty name creates the private root accessible only via <see cref="IResolver{TComposite,T}.Resolve"/> and <see cref="IResolver{TComposite,T}.ResolveByTag"/> methods.
+        /// </param>
+        /// <param name="tag">Tag used to select the binding for this root.</param>
+        /// <param name="kind">Specifies root accessibility and representation.</param>
+        /// <returns>Configuration interface for fluent chaining.</returns>
+        /// <seealso cref="RootBind{T}"/>
+        /// <seealso cref="Roots{T}"/>
+        /// <seealso cref="RootArg{T}"/>
+        IConfiguration Root<T>(string name = "", object tag = null, RootKinds kind = RootKinds.Default);
+
+        /// <summary>
+        /// Automatically creates roots for all discovered implementations of the base type.
+        /// <example>
+        /// <code>
+        /// DI.Setup("Composition")
+        ///     .Bind&lt;IService&gt;().To&lt;ServiceA&gt;()
+        ///     .Bind&lt;IService&gt;().To&lt;ServiceB&gt;()
+        ///     .Roots&lt;IService&gt;("Root{type}");
         /// </code>
         /// </example>
         /// <example>
@@ -2367,36 +2417,42 @@ namespace Pure.DI
         /// </summary>
         /// <typeparam name="T">Base type for auto-root discovery.</typeparam>
         /// <param name="name">
-        /// Root name template (supports {type}, {TYPE} placeholders).
-        /// Empty name creates private roots accessible only via Resolve methods.
+        /// Root name template (supports {type}, {TYPE}).
+        /// Empty name creates private roots accessible only via <see cref="IResolver{TComposite,T}.Resolve"/> and <see cref="IResolver{TComposite,T}.ResolveByTag"/> methods.
         /// </param>
-        /// <param name="kind">Specifies root accessibility and creation method.</param>
+        /// <param name="kind">Specifies root accessibility and representation.</param>
         /// <param name="filter">Wildcard pattern to filter types by full name.</param>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="Root{T}"/>
+        /// <seealso cref="RootBind{T}"/>
         IConfiguration Roots<T>(string name = "", RootKinds kind = RootKinds.Default, string filter = "*");
 
         /// <summary>
-        /// Defines a builder method for initializing instances post-creation.
+        /// Defines a builder method that injects into an existing instance.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
         ///     .Builder&lt;Service&gt;("BuildUpMyService");
         /// </code>
         /// </example>
+        /// <example>
+        /// <code>
+        /// var composition = new Composition();
+        /// var service = new Service();
+        ///
+        /// composition.BuildUpMyService(service);
+        /// </code>
+        /// </example>
         /// </summary>
         /// <typeparam name="T">Type the builder method applies to.</typeparam>
-        /// <param name="name">
-        /// Builder method name template (supports {type}, {TYPE} placeholders).
-        /// Default: "BuildUp".
-        /// </param>
+        /// <param name="name">Builder method name template (supports {type}, {TYPE}). Default: "BuildUp".</param>
         /// <param name="kind">Specifies builder accessibility.</param>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="Builders{T}"/>
         IConfiguration Builder<T>(string name = "BuildUp", RootKinds kind = RootKinds.Default);
 
         /// <summary>
-        /// Automatically creates builders for all discoverable implementations of a base type found at the time the method is called.
+        /// Automatically creates builders for all discovered implementations of a base type.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -2406,63 +2462,67 @@ namespace Pure.DI
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
-        ///     .Builder&lt;Service&gt;("BuildUp");
+        ///     .Builders&lt;Service&gt;("BuildUp");
         /// </code>
         /// </example>
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
-        ///     .Builder&lt;Service&gt;("BuildUp{type}", filter: "*MyService");
+        ///     .Builders&lt;Service&gt;("BuildUp{type}", filter: "*MyService");
         /// </code>
         /// </example>
         /// </summary>
         /// <typeparam name="T">Base type for builder discovery.</typeparam>
-        /// <param name="name">
-        /// Builder method name template (supports {type}, {TYPE} placeholders).
-        /// Default: "BuildUp".
-        /// </param>
+        /// <param name="name">Builder method name template (supports {type}, {TYPE}). Default: "BuildUp".</param>
         /// <param name="kind">Specifies builder accessibility.</param>
         /// <param name="filter">Wildcard pattern to filter types by full name.</param>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="Builder{T}"/>
         IConfiguration Builders<T>(string name = "BuildUp", RootKinds kind = RootKinds.Default, string filter = "*");
 
         /// <summary>
-        /// Configures code generation options.
+        /// Configures code generation options for the setup.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
-        ///     .Hint(Resolve, "Off");
+        ///     .Hint(Hint.Resolve, "Off");
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="hint">Hint type to configure.</param>
-        /// <param name="value">Value to set for the hint.</param>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <param name="hint">Hint to configure.</param>
+        /// <param name="value">Hint value.</param>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="Pure.DI.Hint"/>
+        /// <seealso cref="Hint"/>
         IConfiguration Hint(Hint hint, string value);
 
         /// <summary>
-        /// Registers an accumulator for collecting instances of specific lifetimes. If no lifetime is specified, it works for all.
+        /// Registers an accumulator that collects resolved instances. If no lifetime is specified, it applies to all.
         /// <example>
         /// <code>
+        /// class MyAccumulator
+        /// {
+        ///     public void Add(IDisposable value) { }
+        /// }
+        ///
         /// DI.Setup("Composition")
         ///     .Accumulate&lt;IDisposable, MyAccumulator&gt;(Lifetime.Transient);
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="lifetimes">Lifetimes of instances to accumulate.</param>
+        /// <param name="lifetimes">Lifetimes of instances to accumulate. Empty means all lifetimes.</param>
         /// <typeparam name="T">Type of instances to collect.</typeparam>
         /// <typeparam name="TAccumulator">
         /// Accumulator type (requires parameterless constructor and Add(T) method).
         /// </typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="Pure.DI.Lifetime"/>
+        /// <seealso cref="IBinding.As"/>
         IConfiguration Accumulate<T, TAccumulator>(params Lifetime[] lifetimes)
             where TAccumulator: new();
 
         /// <summary>
-        /// Defines a generic type marker for generic bindings.
+        /// Defines a generic type marker used in bindings for open generic arguments.
         /// <example>
         /// <code>
         /// interface TTMy;
@@ -2474,7 +2534,7 @@ namespace Pure.DI
         /// </example>
         /// </summary>
         /// <typeparam name="T">Generic type marker.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="GenericTypeArgumentAttribute{T}"/>
         IConfiguration GenericTypeArgument<T>();
 
@@ -2482,8 +2542,8 @@ namespace Pure.DI
         /// Defines simplified lifetime-specific binding.
         /// </summary>
         /// <typeparam name="T">Implementation type to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -2497,8 +2557,8 @@ namespace Pure.DI
         /// </summary>
         /// <typeparam name="T">Implementation type to bind.</typeparam>
         /// <typeparam name="T1">Implementation type 1 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -2513,8 +2573,8 @@ namespace Pure.DI
         /// <typeparam name="T">Implementation type to bind.</typeparam>
         /// <typeparam name="T1">Implementation type 1 to bind.</typeparam>
         /// <typeparam name="T2">Implementation type 2 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -2530,8 +2590,8 @@ namespace Pure.DI
         /// <typeparam name="T1">Implementation type 1 to bind.</typeparam>
         /// <typeparam name="T2">Implementation type 2 to bind.</typeparam>
         /// <typeparam name="T3">Implementation type 3 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -2661,7 +2721,7 @@ namespace Pure.DI
         IConfiguration Transient<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63>(params object[] tags);
 
         /// <summary>
-        /// Specifies a lifetime-specific factory method to create the implementation instance.
+        /// Binds to a lifetime-specific factory delegate that creates the implementation instance.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -2680,7 +2740,7 @@ namespace Pure.DI
         ///         return new Service(dependency);
         ///     })
         ///
-        /// // And another example:
+        /// // Another example:
         /// DI.Setup("Composition")
         ///     .Transient&lt;IService&gt;(ctx =&gt;
         ///     {
@@ -2692,9 +2752,9 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <param name="factory">Factory delegate that creates and initializes the instance.</param>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -2702,21 +2762,21 @@ namespace Pure.DI
         /// <seealso cref="Tags"/>
         /// <seealso cref="As"/>
         /// <remarks>
-        /// This method is useful for creating and initializing an instance manually.
+        /// Use this overload when you need manual construction or initialization.
         /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
-        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
-        /// But sometimes it is necessary to manually create and/or initialize an object.
-        /// There are scenarios where manual control over the creation process is required, such as
+        /// In most cases, this is handled automatically based on available constructors and parameters.
+        /// Manual creation is only necessary when you need custom logic.
+        /// Typical scenarios include:
         /// <list type="bullet">
-        /// <item>when additional initialization logic is needed</item>
-        /// <item>when complex construction steps are required</item>
-        /// <item>when specific object states need to be set during creation</item>
+        /// <item>When additional initialization logic is needed</item>
+        /// <item>When complex construction steps are required</item>
+        /// <item>When specific object states need to be set during creation</item>
         /// </list>
         /// </remarks>
         IConfiguration Transient<T>(global::System.Func<IContext, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a lifetime-specific context-less factory method to create the implementation instance.
+        /// Binds to a lifetime-specific context-free factory delegate that creates the implementation instance.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -2729,9 +2789,9 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <param name="factory">Factory delegate that creates and initializes the instance.</param>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(factory)"/>
         /// <seealso cref="To{T}()"/>
@@ -2740,26 +2800,26 @@ namespace Pure.DI
         /// <seealso cref="Tags"/>
         /// <seealso cref="As"/>
         /// <remarks>
-        /// This method is useful for creating and initializing an instance manually.
+        /// Use this overload when you need manual construction or initialization.
         /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
-        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
-        /// But sometimes it is necessary to manually create and/or initialize an object.
-        /// There are scenarios where manual control over the creation process is required, such as
+        /// In most cases, this is handled automatically based on available constructors and parameters.
+        /// Manual creation is only necessary when you need custom logic.
+        /// Typical scenarios include:
         /// <list type="bullet">
-        /// <item>when additional initialization logic is needed</item>
-        /// <item>when complex construction steps are required</item>
-        /// <item>when specific object states need to be set during creation</item>
+        /// <item>When additional initialization logic is needed</item>
+        /// <item>When complex construction steps are required</item>
+        /// <item>When specific object states need to be set during creation</item>
         /// </list>
         /// </remarks>
         IConfiguration Transient<T>(global::System.Func<T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -2768,13 +2828,13 @@ namespace Pure.DI
         IConfiguration Transient<T1, T>(global::System.Func<T1, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -2783,14 +2843,14 @@ namespace Pure.DI
         IConfiguration Transient<T1, T2, T>(global::System.Func<T1, T2, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -2799,15 +2859,15 @@ namespace Pure.DI
         IConfiguration Transient<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -2816,16 +2876,16 @@ namespace Pure.DI
         IConfiguration Transient<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
         /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -2834,9 +2894,9 @@ namespace Pure.DI
         IConfiguration Transient<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -2844,7 +2904,7 @@ namespace Pure.DI
         /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
         /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -2853,9 +2913,9 @@ namespace Pure.DI
         IConfiguration Transient<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -2864,7 +2924,7 @@ namespace Pure.DI
         /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
         /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -2873,9 +2933,9 @@ namespace Pure.DI
         IConfiguration Transient<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -2885,7 +2945,7 @@ namespace Pure.DI
         /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
         /// <typeparam name="T8">Type of dependency parameter 8.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -2897,8 +2957,8 @@ namespace Pure.DI
         /// Defines simplified lifetime-specific binding.
         /// </summary>
         /// <typeparam name="T">Implementation type to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -2912,8 +2972,8 @@ namespace Pure.DI
         /// </summary>
         /// <typeparam name="T">Implementation type to bind.</typeparam>
         /// <typeparam name="T1">Implementation type 1 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -2928,8 +2988,8 @@ namespace Pure.DI
         /// <typeparam name="T">Implementation type to bind.</typeparam>
         /// <typeparam name="T1">Implementation type 1 to bind.</typeparam>
         /// <typeparam name="T2">Implementation type 2 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -2945,8 +3005,8 @@ namespace Pure.DI
         /// <typeparam name="T1">Implementation type 1 to bind.</typeparam>
         /// <typeparam name="T2">Implementation type 2 to bind.</typeparam>
         /// <typeparam name="T3">Implementation type 3 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -3076,7 +3136,7 @@ namespace Pure.DI
         IConfiguration Singleton<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63>(params object[] tags);
 
         /// <summary>
-        /// Specifies a lifetime-specific factory method to create the implementation instance.
+        /// Binds to a lifetime-specific factory delegate that creates the implementation instance.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -3095,7 +3155,7 @@ namespace Pure.DI
         ///         return new Service(dependency);
         ///     })
         ///
-        /// // And another example:
+        /// // Another example:
         /// DI.Setup("Composition")
         ///     .Singleton&lt;IService&gt;(ctx =&gt;
         ///     {
@@ -3107,9 +3167,9 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <param name="factory">Factory delegate that creates and initializes the instance.</param>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -3117,21 +3177,21 @@ namespace Pure.DI
         /// <seealso cref="Tags"/>
         /// <seealso cref="As"/>
         /// <remarks>
-        /// This method is useful for creating and initializing an instance manually.
+        /// Use this overload when you need manual construction or initialization.
         /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
-        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
-        /// But sometimes it is necessary to manually create and/or initialize an object.
-        /// There are scenarios where manual control over the creation process is required, such as
+        /// In most cases, this is handled automatically based on available constructors and parameters.
+        /// Manual creation is only necessary when you need custom logic.
+        /// Typical scenarios include:
         /// <list type="bullet">
-        /// <item>when additional initialization logic is needed</item>
-        /// <item>when complex construction steps are required</item>
-        /// <item>when specific object states need to be set during creation</item>
+        /// <item>When additional initialization logic is needed</item>
+        /// <item>When complex construction steps are required</item>
+        /// <item>When specific object states need to be set during creation</item>
         /// </list>
         /// </remarks>
         IConfiguration Singleton<T>(global::System.Func<IContext, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a lifetime-specific context-less factory method to create the implementation instance.
+        /// Binds to a lifetime-specific context-free factory delegate that creates the implementation instance.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -3144,9 +3204,9 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <param name="factory">Factory delegate that creates and initializes the instance.</param>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(factory)"/>
         /// <seealso cref="To{T}()"/>
@@ -3155,26 +3215,26 @@ namespace Pure.DI
         /// <seealso cref="Tags"/>
         /// <seealso cref="As"/>
         /// <remarks>
-        /// This method is useful for creating and initializing an instance manually.
+        /// Use this overload when you need manual construction or initialization.
         /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
-        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
-        /// But sometimes it is necessary to manually create and/or initialize an object.
-        /// There are scenarios where manual control over the creation process is required, such as
+        /// In most cases, this is handled automatically based on available constructors and parameters.
+        /// Manual creation is only necessary when you need custom logic.
+        /// Typical scenarios include:
         /// <list type="bullet">
-        /// <item>when additional initialization logic is needed</item>
-        /// <item>when complex construction steps are required</item>
-        /// <item>when specific object states need to be set during creation</item>
+        /// <item>When additional initialization logic is needed</item>
+        /// <item>When complex construction steps are required</item>
+        /// <item>When specific object states need to be set during creation</item>
         /// </list>
         /// </remarks>
         IConfiguration Singleton<T>(global::System.Func<T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3183,13 +3243,13 @@ namespace Pure.DI
         IConfiguration Singleton<T1, T>(global::System.Func<T1, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3198,14 +3258,14 @@ namespace Pure.DI
         IConfiguration Singleton<T1, T2, T>(global::System.Func<T1, T2, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3214,15 +3274,15 @@ namespace Pure.DI
         IConfiguration Singleton<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3231,16 +3291,16 @@ namespace Pure.DI
         IConfiguration Singleton<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
         /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3249,9 +3309,9 @@ namespace Pure.DI
         IConfiguration Singleton<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -3259,7 +3319,7 @@ namespace Pure.DI
         /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
         /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3268,9 +3328,9 @@ namespace Pure.DI
         IConfiguration Singleton<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -3279,7 +3339,7 @@ namespace Pure.DI
         /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
         /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3288,9 +3348,9 @@ namespace Pure.DI
         IConfiguration Singleton<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -3300,7 +3360,7 @@ namespace Pure.DI
         /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
         /// <typeparam name="T8">Type of dependency parameter 8.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3312,8 +3372,8 @@ namespace Pure.DI
         /// Defines simplified lifetime-specific binding.
         /// </summary>
         /// <typeparam name="T">Implementation type to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -3327,8 +3387,8 @@ namespace Pure.DI
         /// </summary>
         /// <typeparam name="T">Implementation type to bind.</typeparam>
         /// <typeparam name="T1">Implementation type 1 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -3343,8 +3403,8 @@ namespace Pure.DI
         /// <typeparam name="T">Implementation type to bind.</typeparam>
         /// <typeparam name="T1">Implementation type 1 to bind.</typeparam>
         /// <typeparam name="T2">Implementation type 2 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -3360,8 +3420,8 @@ namespace Pure.DI
         /// <typeparam name="T1">Implementation type 1 to bind.</typeparam>
         /// <typeparam name="T2">Implementation type 2 to bind.</typeparam>
         /// <typeparam name="T3">Implementation type 3 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -3491,7 +3551,7 @@ namespace Pure.DI
         IConfiguration Scoped<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63>(params object[] tags);
 
         /// <summary>
-        /// Specifies a lifetime-specific factory method to create the implementation instance.
+        /// Binds to a lifetime-specific factory delegate that creates the implementation instance.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -3510,7 +3570,7 @@ namespace Pure.DI
         ///         return new Service(dependency);
         ///     })
         ///
-        /// // And another example:
+        /// // Another example:
         /// DI.Setup("Composition")
         ///     .Scoped&lt;IService&gt;(ctx =&gt;
         ///     {
@@ -3522,9 +3582,9 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <param name="factory">Factory delegate that creates and initializes the instance.</param>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -3532,21 +3592,21 @@ namespace Pure.DI
         /// <seealso cref="Tags"/>
         /// <seealso cref="As"/>
         /// <remarks>
-        /// This method is useful for creating and initializing an instance manually.
+        /// Use this overload when you need manual construction or initialization.
         /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
-        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
-        /// But sometimes it is necessary to manually create and/or initialize an object.
-        /// There are scenarios where manual control over the creation process is required, such as
+        /// In most cases, this is handled automatically based on available constructors and parameters.
+        /// Manual creation is only necessary when you need custom logic.
+        /// Typical scenarios include:
         /// <list type="bullet">
-        /// <item>when additional initialization logic is needed</item>
-        /// <item>when complex construction steps are required</item>
-        /// <item>when specific object states need to be set during creation</item>
+        /// <item>When additional initialization logic is needed</item>
+        /// <item>When complex construction steps are required</item>
+        /// <item>When specific object states need to be set during creation</item>
         /// </list>
         /// </remarks>
         IConfiguration Scoped<T>(global::System.Func<IContext, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a lifetime-specific context-less factory method to create the implementation instance.
+        /// Binds to a lifetime-specific context-free factory delegate that creates the implementation instance.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -3559,9 +3619,9 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <param name="factory">Factory delegate that creates and initializes the instance.</param>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(factory)"/>
         /// <seealso cref="To{T}()"/>
@@ -3570,26 +3630,26 @@ namespace Pure.DI
         /// <seealso cref="Tags"/>
         /// <seealso cref="As"/>
         /// <remarks>
-        /// This method is useful for creating and initializing an instance manually.
+        /// Use this overload when you need manual construction or initialization.
         /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
-        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
-        /// But sometimes it is necessary to manually create and/or initialize an object.
-        /// There are scenarios where manual control over the creation process is required, such as
+        /// In most cases, this is handled automatically based on available constructors and parameters.
+        /// Manual creation is only necessary when you need custom logic.
+        /// Typical scenarios include:
         /// <list type="bullet">
-        /// <item>when additional initialization logic is needed</item>
-        /// <item>when complex construction steps are required</item>
-        /// <item>when specific object states need to be set during creation</item>
+        /// <item>When additional initialization logic is needed</item>
+        /// <item>When complex construction steps are required</item>
+        /// <item>When specific object states need to be set during creation</item>
         /// </list>
         /// </remarks>
         IConfiguration Scoped<T>(global::System.Func<T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3598,13 +3658,13 @@ namespace Pure.DI
         IConfiguration Scoped<T1, T>(global::System.Func<T1, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3613,14 +3673,14 @@ namespace Pure.DI
         IConfiguration Scoped<T1, T2, T>(global::System.Func<T1, T2, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3629,15 +3689,15 @@ namespace Pure.DI
         IConfiguration Scoped<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3646,16 +3706,16 @@ namespace Pure.DI
         IConfiguration Scoped<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
         /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3664,9 +3724,9 @@ namespace Pure.DI
         IConfiguration Scoped<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -3674,7 +3734,7 @@ namespace Pure.DI
         /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
         /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3683,9 +3743,9 @@ namespace Pure.DI
         IConfiguration Scoped<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -3694,7 +3754,7 @@ namespace Pure.DI
         /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
         /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3703,9 +3763,9 @@ namespace Pure.DI
         IConfiguration Scoped<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -3715,7 +3775,7 @@ namespace Pure.DI
         /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
         /// <typeparam name="T8">Type of dependency parameter 8.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -3727,8 +3787,8 @@ namespace Pure.DI
         /// Defines simplified lifetime-specific binding.
         /// </summary>
         /// <typeparam name="T">Implementation type to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -3742,8 +3802,8 @@ namespace Pure.DI
         /// </summary>
         /// <typeparam name="T">Implementation type to bind.</typeparam>
         /// <typeparam name="T1">Implementation type 1 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -3758,8 +3818,8 @@ namespace Pure.DI
         /// <typeparam name="T">Implementation type to bind.</typeparam>
         /// <typeparam name="T1">Implementation type 1 to bind.</typeparam>
         /// <typeparam name="T2">Implementation type 2 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -3775,8 +3835,8 @@ namespace Pure.DI
         /// <typeparam name="T1">Implementation type 1 to bind.</typeparam>
         /// <typeparam name="T2">Implementation type 2 to bind.</typeparam>
         /// <typeparam name="T3">Implementation type 3 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -3906,7 +3966,7 @@ namespace Pure.DI
         IConfiguration PerResolve<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63>(params object[] tags);
 
         /// <summary>
-        /// Specifies a lifetime-specific factory method to create the implementation instance.
+        /// Binds to a lifetime-specific factory delegate that creates the implementation instance.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -3925,7 +3985,7 @@ namespace Pure.DI
         ///         return new Service(dependency);
         ///     })
         ///
-        /// // And another example:
+        /// // Another example:
         /// DI.Setup("Composition")
         ///     .PerResolve&lt;IService&gt;(ctx =&gt;
         ///     {
@@ -3937,9 +3997,9 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <param name="factory">Factory delegate that creates and initializes the instance.</param>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -3947,21 +4007,21 @@ namespace Pure.DI
         /// <seealso cref="Tags"/>
         /// <seealso cref="As"/>
         /// <remarks>
-        /// This method is useful for creating and initializing an instance manually.
+        /// Use this overload when you need manual construction or initialization.
         /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
-        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
-        /// But sometimes it is necessary to manually create and/or initialize an object.
-        /// There are scenarios where manual control over the creation process is required, such as
+        /// In most cases, this is handled automatically based on available constructors and parameters.
+        /// Manual creation is only necessary when you need custom logic.
+        /// Typical scenarios include:
         /// <list type="bullet">
-        /// <item>when additional initialization logic is needed</item>
-        /// <item>when complex construction steps are required</item>
-        /// <item>when specific object states need to be set during creation</item>
+        /// <item>When additional initialization logic is needed</item>
+        /// <item>When complex construction steps are required</item>
+        /// <item>When specific object states need to be set during creation</item>
         /// </list>
         /// </remarks>
         IConfiguration PerResolve<T>(global::System.Func<IContext, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a lifetime-specific context-less factory method to create the implementation instance.
+        /// Binds to a lifetime-specific context-free factory delegate that creates the implementation instance.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -3974,9 +4034,9 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <param name="factory">Factory delegate that creates and initializes the instance.</param>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(factory)"/>
         /// <seealso cref="To{T}()"/>
@@ -3985,26 +4045,26 @@ namespace Pure.DI
         /// <seealso cref="Tags"/>
         /// <seealso cref="As"/>
         /// <remarks>
-        /// This method is useful for creating and initializing an instance manually.
+        /// Use this overload when you need manual construction or initialization.
         /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
-        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
-        /// But sometimes it is necessary to manually create and/or initialize an object.
-        /// There are scenarios where manual control over the creation process is required, such as
+        /// In most cases, this is handled automatically based on available constructors and parameters.
+        /// Manual creation is only necessary when you need custom logic.
+        /// Typical scenarios include:
         /// <list type="bullet">
-        /// <item>when additional initialization logic is needed</item>
-        /// <item>when complex construction steps are required</item>
-        /// <item>when specific object states need to be set during creation</item>
+        /// <item>When additional initialization logic is needed</item>
+        /// <item>When complex construction steps are required</item>
+        /// <item>When specific object states need to be set during creation</item>
         /// </list>
         /// </remarks>
         IConfiguration PerResolve<T>(global::System.Func<T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4013,13 +4073,13 @@ namespace Pure.DI
         IConfiguration PerResolve<T1, T>(global::System.Func<T1, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4028,14 +4088,14 @@ namespace Pure.DI
         IConfiguration PerResolve<T1, T2, T>(global::System.Func<T1, T2, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4044,15 +4104,15 @@ namespace Pure.DI
         IConfiguration PerResolve<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4061,16 +4121,16 @@ namespace Pure.DI
         IConfiguration PerResolve<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
         /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4079,9 +4139,9 @@ namespace Pure.DI
         IConfiguration PerResolve<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -4089,7 +4149,7 @@ namespace Pure.DI
         /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
         /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4098,9 +4158,9 @@ namespace Pure.DI
         IConfiguration PerResolve<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -4109,7 +4169,7 @@ namespace Pure.DI
         /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
         /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4118,9 +4178,9 @@ namespace Pure.DI
         IConfiguration PerResolve<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -4130,7 +4190,7 @@ namespace Pure.DI
         /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
         /// <typeparam name="T8">Type of dependency parameter 8.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4142,8 +4202,8 @@ namespace Pure.DI
         /// Defines simplified lifetime-specific binding.
         /// </summary>
         /// <typeparam name="T">Implementation type to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4157,8 +4217,8 @@ namespace Pure.DI
         /// </summary>
         /// <typeparam name="T">Implementation type to bind.</typeparam>
         /// <typeparam name="T1">Implementation type 1 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4173,8 +4233,8 @@ namespace Pure.DI
         /// <typeparam name="T">Implementation type to bind.</typeparam>
         /// <typeparam name="T1">Implementation type 1 to bind.</typeparam>
         /// <typeparam name="T2">Implementation type 2 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4190,8 +4250,8 @@ namespace Pure.DI
         /// <typeparam name="T1">Implementation type 1 to bind.</typeparam>
         /// <typeparam name="T2">Implementation type 2 to bind.</typeparam>
         /// <typeparam name="T3">Implementation type 3 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4321,7 +4381,7 @@ namespace Pure.DI
         IConfiguration PerBlock<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63>(params object[] tags);
 
         /// <summary>
-        /// Specifies a lifetime-specific factory method to create the implementation instance.
+        /// Binds to a lifetime-specific factory delegate that creates the implementation instance.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -4340,7 +4400,7 @@ namespace Pure.DI
         ///         return new Service(dependency);
         ///     })
         ///
-        /// // And another example:
+        /// // Another example:
         /// DI.Setup("Composition")
         ///     .PerBlock&lt;IService&gt;(ctx =&gt;
         ///     {
@@ -4352,9 +4412,9 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <param name="factory">Factory delegate that creates and initializes the instance.</param>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4362,21 +4422,21 @@ namespace Pure.DI
         /// <seealso cref="Tags"/>
         /// <seealso cref="As"/>
         /// <remarks>
-        /// This method is useful for creating and initializing an instance manually.
+        /// Use this overload when you need manual construction or initialization.
         /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
-        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
-        /// But sometimes it is necessary to manually create and/or initialize an object.
-        /// There are scenarios where manual control over the creation process is required, such as
+        /// In most cases, this is handled automatically based on available constructors and parameters.
+        /// Manual creation is only necessary when you need custom logic.
+        /// Typical scenarios include:
         /// <list type="bullet">
-        /// <item>when additional initialization logic is needed</item>
-        /// <item>when complex construction steps are required</item>
-        /// <item>when specific object states need to be set during creation</item>
+        /// <item>When additional initialization logic is needed</item>
+        /// <item>When complex construction steps are required</item>
+        /// <item>When specific object states need to be set during creation</item>
         /// </list>
         /// </remarks>
         IConfiguration PerBlock<T>(global::System.Func<IContext, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a lifetime-specific context-less factory method to create the implementation instance.
+        /// Binds to a lifetime-specific context-free factory delegate that creates the implementation instance.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -4389,9 +4449,9 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <param name="factory">Factory delegate that creates and initializes the instance.</param>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(factory)"/>
         /// <seealso cref="To{T}()"/>
@@ -4400,26 +4460,26 @@ namespace Pure.DI
         /// <seealso cref="Tags"/>
         /// <seealso cref="As"/>
         /// <remarks>
-        /// This method is useful for creating and initializing an instance manually.
+        /// Use this overload when you need manual construction or initialization.
         /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
-        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
-        /// But sometimes it is necessary to manually create and/or initialize an object.
-        /// There are scenarios where manual control over the creation process is required, such as
+        /// In most cases, this is handled automatically based on available constructors and parameters.
+        /// Manual creation is only necessary when you need custom logic.
+        /// Typical scenarios include:
         /// <list type="bullet">
-        /// <item>when additional initialization logic is needed</item>
-        /// <item>when complex construction steps are required</item>
-        /// <item>when specific object states need to be set during creation</item>
+        /// <item>When additional initialization logic is needed</item>
+        /// <item>When complex construction steps are required</item>
+        /// <item>When specific object states need to be set during creation</item>
         /// </list>
         /// </remarks>
         IConfiguration PerBlock<T>(global::System.Func<T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4428,13 +4488,13 @@ namespace Pure.DI
         IConfiguration PerBlock<T1, T>(global::System.Func<T1, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4443,14 +4503,14 @@ namespace Pure.DI
         IConfiguration PerBlock<T1, T2, T>(global::System.Func<T1, T2, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4459,15 +4519,15 @@ namespace Pure.DI
         IConfiguration PerBlock<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4476,16 +4536,16 @@ namespace Pure.DI
         IConfiguration PerBlock<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
         /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4494,9 +4554,9 @@ namespace Pure.DI
         IConfiguration PerBlock<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -4504,7 +4564,7 @@ namespace Pure.DI
         /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
         /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4513,9 +4573,9 @@ namespace Pure.DI
         IConfiguration PerBlock<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -4524,7 +4584,7 @@ namespace Pure.DI
         /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
         /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4533,9 +4593,9 @@ namespace Pure.DI
         IConfiguration PerBlock<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory, params object[] tags);
 
         /// <summary>
-        /// Specifies a simplified lifetime-specific factory method with dependency parameters.
+        /// Binds to a lifetime-specific factory delegate whose parameters are resolved as dependencies.
         /// </summary>
-        /// <param name="factory">Lifetime-specific аactory method with injected dependencies.</param>
+        /// <param name="factory">Lifetime-specific factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -4545,7 +4605,7 @@ namespace Pure.DI
         /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
         /// <typeparam name="T8">Type of dependency parameter 8.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -4555,13 +4615,13 @@ namespace Pure.DI
     }
 
     /// <summary>
-    /// Defines the API for configuring dependency bindings in the composition.
+    /// Fluent API for configuring a single binding in a setup chain.
     /// </summary>
     internal interface IBinding
     {
         /// <summary>
-        /// Starts binding definition for the implementation type itself. Also binds all directly implemented abstract types excluding special system interfaces.
-        /// Special system interfaces are excluded from binding:
+        /// Starts binding definition for the implementation type itself. Also binds all directly implemented abstract types, excluding special system interfaces.
+        /// Special system interfaces are excluded by default:
         /// <list type="bullet">
         /// <item>System.Object</item>
         /// <item>System.Enum</item>
@@ -4586,8 +4646,8 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="tags">Optional tags to associate with this binding.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with this binding.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4597,7 +4657,7 @@ namespace Pure.DI
         IBinding Bind(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -4606,8 +4666,8 @@ namespace Pure.DI
         /// </example>
         /// </summary>
         /// <typeparam name="T">Dependency type to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4617,7 +4677,7 @@ namespace Pure.DI
         IBinding Bind<T>(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -4627,8 +4687,8 @@ namespace Pure.DI
         /// </summary>
         /// <typeparam name="T">Dependency type to bind.</typeparam>
         /// <typeparam name="T1">Dependency type 1 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4638,7 +4698,7 @@ namespace Pure.DI
         IBinding Bind<T, T1>(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -4649,8 +4709,8 @@ namespace Pure.DI
         /// <typeparam name="T">Dependency type to bind.</typeparam>
         /// <typeparam name="T1">Dependency type 1 to bind.</typeparam>
         /// <typeparam name="T2">Dependency type 2 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4660,7 +4720,7 @@ namespace Pure.DI
         IBinding Bind<T, T1, T2>(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -4672,8 +4732,8 @@ namespace Pure.DI
         /// <typeparam name="T1">Dependency type 1 to bind.</typeparam>
         /// <typeparam name="T2">Dependency type 2 to bind.</typeparam>
         /// <typeparam name="T3">Dependency type 3 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4683,7 +4743,7 @@ namespace Pure.DI
         IBinding Bind<T, T1, T2, T3>(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -4696,8 +4756,8 @@ namespace Pure.DI
         /// <typeparam name="T2">Dependency type 2 to bind.</typeparam>
         /// <typeparam name="T3">Dependency type 3 to bind.</typeparam>
         /// <typeparam name="T4">Dependency type 4 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4707,7 +4767,7 @@ namespace Pure.DI
         IBinding Bind<T, T1, T2, T3, T4>(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -4721,8 +4781,8 @@ namespace Pure.DI
         /// <typeparam name="T3">Dependency type 3 to bind.</typeparam>
         /// <typeparam name="T4">Dependency type 4 to bind.</typeparam>
         /// <typeparam name="T5">Dependency type 5 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4732,7 +4792,7 @@ namespace Pure.DI
         IBinding Bind<T, T1, T2, T3, T4, T5>(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -4747,8 +4807,8 @@ namespace Pure.DI
         /// <typeparam name="T4">Dependency type 4 to bind.</typeparam>
         /// <typeparam name="T5">Dependency type 5 to bind.</typeparam>
         /// <typeparam name="T6">Dependency type 6 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4758,7 +4818,7 @@ namespace Pure.DI
         IBinding Bind<T, T1, T2, T3, T4, T5, T6>(params object[] tags);
 
         /// <summary>
-        /// Starts binding definition for a specific dependency type.
+        /// Starts binding definition for explicit contract types.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -4774,8 +4834,8 @@ namespace Pure.DI
         /// <typeparam name="T5">Dependency type 5 to bind.</typeparam>
         /// <typeparam name="T6">Dependency type 6 to bind.</typeparam>
         /// <typeparam name="T7">Dependency type 7 to bind.</typeparam>
-        /// <param name="tags">Optional tags to associate with these bindings.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Optional tags associated with these bindings.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4785,7 +4845,7 @@ namespace Pure.DI
         IBinding Bind<T, T1, T2, T3, T4, T5, T6, T7>(params object[] tags);
 
         /// <summary>
-        /// Specifies the lifetime scope for the binding.
+        /// Sets the lifetime for this binding.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -4793,8 +4853,8 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="lifetime">Lifetime scope for the binding.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="lifetime">Lifetime to apply.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
@@ -4804,7 +4864,7 @@ namespace Pure.DI
         IBinding As(Pure.DI.Lifetime lifetime);
 
         /// <summary>
-        /// Specifies binding tags to differentiate between multiple implementations of the same interface.
+        /// Sets tags to differentiate between multiple implementations of the same contract during resolution.
         /// <example>
         /// <code>
         /// interface IDependency { }
@@ -4842,8 +4902,8 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="tags">Tags to associate with this binding.</param>
-        /// <returns>Binding configuration interface for method chaining.</returns>
+        /// <param name="tags">Tags associated with this binding.</param>
+        /// <returns>Fluent binding interface for chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
@@ -4853,7 +4913,7 @@ namespace Pure.DI
         IBinding Tags(params object[] tags);
 
         /// <summary>
-        /// Specifies the implementation type for the binding.
+        /// Binds the current contract(s) to an implementation type.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -4862,7 +4922,7 @@ namespace Pure.DI
         /// </example>
         /// </summary>
         /// <typeparam name="T">Implementation type. Supports generic type markers.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4872,12 +4932,12 @@ namespace Pure.DI
         IConfiguration To<T>();
 
         /// <summary>
-        /// Specifies a factory method to create the implementation instance.
+        /// Binds to a factory delegate; dependencies can be resolved via <see cref="IContext"/>.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
         ///     .Bind&lt;IService&gt;()
-        ///     To(_ =&gt;
+        ///     .To(_ =&gt;
         ///     {
         ///         var service = new Service("My Service");
         ///         service.Initialize();
@@ -4887,16 +4947,16 @@ namespace Pure.DI
         /// // Another example:
         /// DI.Setup("Composition")
         ///     .Bind&lt;IService&gt;()
-        ///     To(ctx =&gt;
+        ///     .To(ctx =&gt;
         ///     {
         ///         ctx.Inject&lt;IDependency&gt;(out var dependency);
         ///         return new Service(dependency);
         ///     })
         ///
-        /// // And another example:
+        /// // Another example:
         /// DI.Setup("Composition")
         ///     .Bind&lt;IService&gt;()
-        ///     To(ctx =&gt;
+        ///     .To(ctx =&gt;
         ///     {
         ///         // Builds up an instance with all necessary dependencies
         ///         ctx.Inject&lt;Service&gt;(out var service);
@@ -4906,9 +4966,9 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <param name="factory">Factory delegate that creates and initializes the instance.</param>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}()"/>
         /// <seealso cref="To{T1,T}()"/>
@@ -4916,26 +4976,26 @@ namespace Pure.DI
         /// <seealso cref="Tags"/>
         /// <seealso cref="As"/>
         /// <remarks>
-        /// This method is useful for creating and initializing an instance manually.
+        /// Use this overload when you need manual construction or initialization.
         /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
-        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
-        /// But sometimes it is necessary to manually create and/or initialize an object.
-        /// There are scenarios where manual control over the creation process is required, such as
+        /// In most cases, this is handled automatically based on available constructors and parameters.
+        /// Manual creation is only necessary when you need custom logic.
+        /// Typical scenarios include:
         /// <list type="bullet">
-        /// <item>when additional initialization logic is needed</item>
-        /// <item>when complex construction steps are required</item>
-        /// <item>when specific object states need to be set during creation</item>
+        /// <item>When additional initialization logic is needed</item>
+        /// <item>When complex construction steps are required</item>
+        /// <item>When specific object states need to be set during creation</item>
         /// </list>
         /// </remarks>
         IConfiguration To<T>(global::System.Func<IContext, T> factory);
 
         /// <summary>
-        /// Specifies a context-less factory method to create the implementation instance.
+        /// Binds to a context-free factory delegate that creates the implementation instance.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
         ///     .Bind&lt;IService&gt;()
-        ///     To(() =&gt;
+        ///     .To(() =&gt;
         ///     {
         ///         var service = new Service("My Service");
         ///         service.Initialize();
@@ -4944,9 +5004,9 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method to create and initialize the instance.</param>
+        /// <param name="factory">Factory delegate that creates and initializes the instance.</param>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(factory)"/>
         /// <seealso cref="To{T}()"/>
@@ -4955,21 +5015,21 @@ namespace Pure.DI
         /// <seealso cref="Tags"/>
         /// <seealso cref="As"/>
         /// <remarks>
-        /// This method is useful for creating and initializing an instance manually.
+        /// Use this overload when you need manual construction or initialization.
         /// At the compilation stage, the set of dependencies that the object to be created needs is determined.
-        /// In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
-        /// But sometimes it is necessary to manually create and/or initialize an object.
-        /// There are scenarios where manual control over the creation process is required, such as
+        /// In most cases, this is handled automatically based on available constructors and parameters.
+        /// Manual creation is only necessary when you need custom logic.
+        /// Typical scenarios include:
         /// <list type="bullet">
-        /// <item>when additional initialization logic is needed</item>
-        /// <item>when complex construction steps are required</item>
-        /// <item>when specific object states need to be set during creation</item>
+        /// <item>When additional initialization logic is needed</item>
+        /// <item>When complex construction steps are required</item>
+        /// <item>When specific object states need to be set during creation</item>
         /// </list>
         /// </remarks>
         IConfiguration To<T>(global::System.Func<T> factory);
 
         /// <summary>
-        /// Specifies a source code statement to create the implementation.
+        /// Binds to a C# expression inserted into the generated code.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -4984,14 +5044,14 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="sourceCodeStatement">Source code expression to create the instance.</param>
+        /// <param name="sourceCodeStatement">C# expression that creates the instance.</param>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         IConfiguration To<T>(string sourceCodeStatement);
 
         /// <summary>
-        /// Specifies a simplified factory method with dependency parameters.
+        /// Binds to a factory delegate whose parameters are resolved as dependencies.
         /// <example>
         /// <code>
         /// DI.Setup(nameof(Composition))
@@ -5013,10 +5073,10 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method with injected dependencies.</param>
+        /// <param name="factory">Factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -5025,7 +5085,7 @@ namespace Pure.DI
         IConfiguration To<T1, T>(global::System.Func<T1, T> factory);
 
         /// <summary>
-        /// Specifies a simplified factory method with dependency parameters.
+        /// Binds to a factory delegate whose parameters are resolved as dependencies.
         /// <example>
         /// <code>
         /// DI.Setup(nameof(Composition))
@@ -5047,11 +5107,11 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method with injected dependencies.</param>
+        /// <param name="factory">Factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -5060,7 +5120,7 @@ namespace Pure.DI
         IConfiguration To<T1, T2, T>(global::System.Func<T1, T2, T> factory);
 
         /// <summary>
-        /// Specifies a simplified factory method with dependency parameters.
+        /// Binds to a factory delegate whose parameters are resolved as dependencies.
         /// <example>
         /// <code>
         /// DI.Setup(nameof(Composition))
@@ -5082,12 +5142,12 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method with injected dependencies.</param>
+        /// <param name="factory">Factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -5096,7 +5156,7 @@ namespace Pure.DI
         IConfiguration To<T1, T2, T3, T>(global::System.Func<T1, T2, T3, T> factory);
 
         /// <summary>
-        /// Specifies a simplified factory method with dependency parameters.
+        /// Binds to a factory delegate whose parameters are resolved as dependencies.
         /// <example>
         /// <code>
         /// DI.Setup(nameof(Composition))
@@ -5118,13 +5178,13 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method with injected dependencies.</param>
+        /// <param name="factory">Factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -5133,7 +5193,7 @@ namespace Pure.DI
         IConfiguration To<T1, T2, T3, T4, T>(global::System.Func<T1, T2, T3, T4, T> factory);
 
         /// <summary>
-        /// Specifies a simplified factory method with dependency parameters.
+        /// Binds to a factory delegate whose parameters are resolved as dependencies.
         /// <example>
         /// <code>
         /// DI.Setup(nameof(Composition))
@@ -5155,14 +5215,14 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method with injected dependencies.</param>
+        /// <param name="factory">Factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
         /// <typeparam name="T4">Type of dependency parameter 4.</typeparam>
         /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -5171,7 +5231,7 @@ namespace Pure.DI
         IConfiguration To<T1, T2, T3, T4, T5, T>(global::System.Func<T1, T2, T3, T4, T5, T> factory);
 
         /// <summary>
-        /// Specifies a simplified factory method with dependency parameters.
+        /// Binds to a factory delegate whose parameters are resolved as dependencies.
         /// <example>
         /// <code>
         /// DI.Setup(nameof(Composition))
@@ -5193,7 +5253,7 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method with injected dependencies.</param>
+        /// <param name="factory">Factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -5201,7 +5261,7 @@ namespace Pure.DI
         /// <typeparam name="T5">Type of dependency parameter 5.</typeparam>
         /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -5210,7 +5270,7 @@ namespace Pure.DI
         IConfiguration To<T1, T2, T3, T4, T5, T6, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T> factory);
 
         /// <summary>
-        /// Specifies a simplified factory method with dependency parameters.
+        /// Binds to a factory delegate whose parameters are resolved as dependencies.
         /// <example>
         /// <code>
         /// DI.Setup(nameof(Composition))
@@ -5232,7 +5292,7 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method with injected dependencies.</param>
+        /// <param name="factory">Factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -5241,7 +5301,7 @@ namespace Pure.DI
         /// <typeparam name="T6">Type of dependency parameter 6.</typeparam>
         /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -5250,7 +5310,7 @@ namespace Pure.DI
         IConfiguration To<T1, T2, T3, T4, T5, T6, T7, T>(global::System.Func<T1, T2, T3, T4, T5, T6, T7, T> factory);
 
         /// <summary>
-        /// Specifies a simplified factory method with dependency parameters.
+        /// Binds to a factory delegate whose parameters are resolved as dependencies.
         /// <example>
         /// <code>
         /// DI.Setup(nameof(Composition))
@@ -5272,7 +5332,7 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="factory">Factory method with injected dependencies.</param>
+        /// <param name="factory">Factory delegate with injected dependencies.</param>
         /// <typeparam name="T1">Type of dependency parameter 1.</typeparam>
         /// <typeparam name="T2">Type of dependency parameter 2.</typeparam>
         /// <typeparam name="T3">Type of dependency parameter 3.</typeparam>
@@ -5282,7 +5342,7 @@ namespace Pure.DI
         /// <typeparam name="T7">Type of dependency parameter 7.</typeparam>
         /// <typeparam name="T8">Type of dependency parameter 8.</typeparam>
         /// <typeparam name="T">Implementation type.</typeparam>
-        /// <returns>Configuration interface for method chaining.</returns>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="IConfiguration.Bind{T}"/>
         /// <seealso cref="To{T}(System.Func{Pure.DI.IContext,T})"/>
         /// <seealso cref="To{T}()"/>
@@ -5292,12 +5352,14 @@ namespace Pure.DI
     }
 
     /// <summary>
-    /// Injection context. Cannot be used outside the binding setup.
+    /// Provides contextual information and helper methods during binding factory execution.
+    /// Cannot be used outside the binding setup.
     /// </summary>
     internal interface IContext
     {
         /// <summary>
-        /// The tag that was used to inject the current object in the object graph. Cannot be used outside the binding setup. See also <see cref="IBinding.Tags"/>
+        /// The tag used for the current injection. Can be <see langword="null"/> when no tag is specified.
+        /// Cannot be used outside the binding setup. See also <see cref="IBinding.Tags"/>
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
@@ -5306,7 +5368,7 @@ namespace Pure.DI
         ///     {
         ///         ctx.Inject&lt;Func&lt;TT&gt;&gt;(ctx.Tag, out var func);
         ///         return new Lazy&lt;TT&gt;(func, false);
-        ///     };
+        ///     });
         /// </code>
         /// </example>
         /// </summary>
@@ -5315,9 +5377,12 @@ namespace Pure.DI
         object Tag { get; }
 
         /// <summary>
-        /// The chain of consumer types for which an instance is created, from the immediate consumer down to the composition type. Cannot be used outside the binding setup. Guaranteed to contain at least one element.
+        /// The chain of consumer types for which an instance is created, ordered from the immediate consumer down to the composition type.
+        /// Cannot be used outside the binding setup. Guaranteed to contain at least one element.
         /// <example>
         /// <code>
+        /// using System.Linq;
+        ///
         /// var box = new Composition().Box;
         /// // Output: ShroedingersCat, CardboardBox`1, Composition
         ///
@@ -5376,11 +5441,11 @@ namespace Pure.DI
 
         /// <summary>
         /// Gets the synchronization object used to control thread-safe access during composition.
-        /// Used to prevent race conditions during dependency resolution and override operations.
+        /// Use it to guard manual construction/override logic in factory delegates.
         /// <example>
         /// <code>
         /// DI.Setup(nameof(Composition))
-        ///     .Bind&lt;IDependency&gt;().To&lt;IDependency&gt;(ctx =&gt;
+        ///     .Bind&lt;IDependency&gt;().To(ctx =&gt;
         ///     {
         ///         lock (ctx.Lock)
         ///         {
@@ -5395,23 +5460,23 @@ namespace Pure.DI
         object Lock { get; }
 
         /// <summary>
-        /// Injects an instance of type <c>T</c>. Cannot be used outside the binding setup.
+        /// Injects an instance of type <c>T</c> into the current factory. Cannot be used outside the binding setup.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
         ///     .Bind&lt;IService&gt;()
-        ///     To(ctx =&gt;
+        ///     .To(ctx =&gt;
         ///     {
         ///         ctx.Inject&lt;IDependency&gt;(out var dependency);
         ///         return new Service(dependency);
         ///     })
         /// </code>
         /// <br/>
-        /// and another example:<br/>
+        /// Another example:<br/>
         /// <code>
         /// DI.Setup("Composition")
         ///     .Bind&lt;IService&gt;()
-        ///     To(ctx =&gt;
+        ///     .To(ctx =&gt;
         ///     {
         ///         // Builds up an instance with all necessary dependencies
         ///         ctx.Inject&lt;Service&gt;(out var service);
@@ -5422,7 +5487,7 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="value">Injectable instance.</param>.
+        /// <param name="value">Resolved instance.</param>
         /// <typeparam name="T">Instance type.</typeparam>
         /// <seealso cref="IBinding.To{T}(System.Func{Pure.DI.IContext,T})"/>
         void Inject<T>(out T value);
@@ -5433,7 +5498,7 @@ namespace Pure.DI
         /// <code>
         /// DI.Setup("Composition")
         ///     .Bind&lt;IService&gt;()
-        ///     To(ctx =&gt;
+        ///     .To(ctx =&gt;
         ///     {
         ///         ctx.Inject&lt;IDependency&gt;("MyTag", out var dependency);
         ///         return new Service(dependency);
@@ -5441,19 +5506,20 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="tag">The injection tag. See also <see cref="IBinding.Tags"/></param>.
-        /// <param name="value">Injectable instance.</param>.
+        /// <param name="tag">The injection tag to resolve. See also <see cref="IBinding.Tags"/></param>
+        /// <param name="value">Resolved instance.</param>
         /// <typeparam name="T">Instance type.</typeparam>
         /// <seealso cref="IBinding.To{T}(System.Func{Pure.DI.IContext,T})"/>
         void Inject<T>(object tag, out T value);
 
         /// <summary>
-        /// Builds up of an existing object. In other words, injects the necessary dependencies via methods, properties, or fields into an existing object. Cannot be used outside the binding setup.
+        /// Builds up an existing object by injecting dependencies into methods, properties, or fields.
+        /// Cannot be used outside the binding setup.
         /// <example>
         /// <code>
         /// DI.Setup("Composition")
         ///     .Bind&lt;IService&gt;()
-        ///     To(ctx =&gt;
+        ///     .To(ctx =&gt;
         ///     {
         ///         var service = new Service();
         ///         // Initialize an instance with all necessary dependencies
@@ -5463,13 +5529,13 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="value">An existing object for which the injection(s) is to be performed.</param>
+        /// <param name="value">An existing object to inject into.</param>
         /// <typeparam name="T">Object type.</typeparam>
         /// <seealso cref="IBinding.To{T}(System.Func{Pure.DI.IContext,T})"/>
         void BuildUp<T>(T value);
 
         /// <summary>
-        /// Overrides the binding with the specified value. Cannot be used outside the binding setup.
+        /// Overrides the binding with the specified value for the current factory invocation. Cannot be used outside the binding setup.
         /// <code>
         /// DI.Setup("Composition")
         ///     .Bind().To&lt;Func&lt;int, int, IDependency&gt;&gt;(ctx =&gt;
@@ -5488,7 +5554,7 @@ namespace Pure.DI
         ///             return dependency;
         ///         })
         /// </code>
-        /// Overrides uses a shared state to override values. And if this code is supposed to run in multiple threads at once, then you need to ensure their synchronization, for example
+        /// Overrides uses a shared state to override values. If this code is supposed to run in multiple threads at once, then you need to ensure synchronization, for example
         /// <code>
         /// DI.Setup("Composition")
         ///     .Bind().To&lt;Func&lt;int, int, IDependency&gt;&gt;(ctx =&gt;
@@ -5510,17 +5576,17 @@ namespace Pure.DI
         ///             }
         ///         })
         /// </code>
-        /// An alternative to synchronizing thread yourself is to use types like <see cref="Func{TArg1,TArg2,TResult}">this</see>. There, threads synchronization is performed automatically.
+        /// An alternative to synchronizing threads yourself is to use types like <see cref="Func{TArg1,TArg2,TResult}">this</see>. There, thread synchronization is performed automatically.
         /// </summary>
-        /// <param name="value">The object that will be used to override a binding.</param>
+        /// <param name="value">The value used to override a binding.</param>
         /// <typeparam name="T">Object type that will be used to override a binding.</typeparam>
-        /// <param name="tags">Injection tags that will be used to override a binding. See also <see cref="IBinding.Tags"/></param>.
+        /// <param name="tags">Injection tags that will be used to override a binding. See also <see cref="IBinding.Tags"/></param>
         /// <seealso cref="IBinding.To{T}(System.Func{TArg1,T})"/>
         void Override<T>(T value, params object[] tags);
     }
 
     /// <summary>
-    /// An API for a Dependency Injection setup.
+    /// Entry point for defining a composition setup.
     /// </summary>
     /// <seealso cref="Setup"/>
 #if !NET20 && !NET35 && !NETSTANDARD1_0 && !NETSTANDARD1_1 && !NETSTANDARD1_2 && !NETSTANDARD1_3 && !NETSTANDARD1_4 && !NETSTANDARD1_5 && !NETSTANDARD1_6 && !NETCOREAPP1_0 && !NETCOREAPP1_1
@@ -5531,7 +5597,7 @@ namespace Pure.DI
         private static readonly Configuration SharedConfiguration = new Configuration();
 
         /// <summary>
-        /// Begins the definitions of the Dependency Injection setup chain.
+        /// Begins the definition of a composition setup chain.
         /// <example>
         /// <code>
         /// interface IDependency;
@@ -5553,9 +5619,9 @@ namespace Pure.DI
         /// </code>
         /// </example>
         /// </summary>
-        /// <param name="compositionTypeName">An optional argument specifying the partial class name to generate.</param>
-        /// <param name="kind">An optional argument specifying the kind of setup. Please <see cref="Pure.DI.CompositionKind"/> for details. It defaults to <c>Public</c>.</param>
-        /// <returns>Reference to the setup continuation chain.</returns>
+        /// <param name="compositionTypeName">Optional name of the generated partial composition class.</param>
+        /// <param name="kind">Optional setup kind. See <see cref="Pure.DI.CompositionKind"/>. Default is <c>Public</c>.</param>
+        /// <returns>Configuration interface for fluent chaining.</returns>
         internal static IConfiguration Setup(string compositionTypeName = "", CompositionKind kind = CompositionKind.Public)
         {
             return SharedConfiguration;
@@ -8115,7 +8181,8 @@ namespace Pure.DI
     }
 
     /// <summary>
-    /// Represents an abstract dependency resolver interface responsible for resolving composition roots from composite objects. The resolver is designed to handle both generic resolution and tagged resolution, allowing for flexible dependency management in complex applications.
+    /// Resolves composition roots from a composition instance.
+    /// Supports both default and tagged resolution.
     /// </summary>
     /// <typeparam name="TComposite">
     /// The type of the composite object that contains the dependencies to be resolved.
@@ -8128,17 +8195,14 @@ namespace Pure.DI
     internal interface IResolver<TComposite, out T>
     {
         /// <summary>
-        /// Resolves the composition root from the provided composite object using
-        /// the default resolution strategy.
-        ///
-        /// This method is used for straightforward dependency resolution where a
-        /// single implementation of the composition root is expected.
+        /// Resolves the composition root from the provided composition instance
+        /// using the default resolution strategy.
         /// </summary>
         /// <param name="composite">
-        /// The composite object containing the dependencies required for resolution.
+        /// The composition instance containing the object graph.
         /// </param>
         /// <returns>
-        /// The resolved composition root of type <typeparamref name="T"/>. If the resolution fails, an <see cref="CannotResolveException"/> exception should be thrown.
+        /// The resolved composition root of type <typeparamref name="T"/>.
         /// </returns>
         /// <exception cref="CannotResolveException">
         /// Thrown when the composition root cannot be resolved from the provided composite.
@@ -8147,14 +8211,11 @@ namespace Pure.DI
         T Resolve(TComposite composite);
 
         /// <summary>
-        /// Resolves the composition root from the provided composite object using
-        /// a specific tag to identify the desired implementation.
-        ///
-        /// This method is useful when multiple implementations of the same composition
-        /// root exist and need to be differentiated by a tag.
+        /// Resolves the composition root from the provided composition instance
+        /// using a specific tag to identify the desired implementation.
         /// </summary>
         /// <param name="composite">
-        /// The composite object containing the dependencies required for resolution.
+        /// The composition instance containing the object graph.
         /// </param>
         /// <param name="tag">
         /// The tag used to identify the specific implementation of the composition root.
@@ -8171,8 +8232,11 @@ namespace Pure.DI
     }
 
     /// <summary>
-    /// Represents an exception thrown when a required composition root cannot be resolved.
+    /// Represents an exception thrown when a composition root cannot be resolved.
     /// </summary>
+#if !NETSTANDARD1_0 && !NETSTANDARD1_1 && !NETSTANDARD1_2 && !NETSTANDARD1_3 && !NETSTANDARD1_4 && !NETSTANDARD1_5 && !NETSTANDARD1_6 && !NETCOREAPP1_0 && !NETCOREAPP1_1
+    [global::System.Serializable]
+#endif
     internal class CannotResolveException: global::System.InvalidOperationException
     {
         /// <summary>
@@ -8183,12 +8247,8 @@ namespace Pure.DI
         /// resolution process. The message should be clear and informative, providing
         /// enough context to understand the nature of the failure.
         /// </param>
-        /// <param name="type">
-        /// The <see cref="Type"/> used to resolve a composition root.
-        /// </param>
-        /// <param name="tag">
-        /// The tag used to resolve a composition root.
-        /// </param>
+        /// <param name="type">The <see cref="Type"/> used to resolve a composition root.</param>
+        /// <param name="tag">The tag used to resolve a composition root.</param>
         public CannotResolveException(string message, global::System.Type type, object? tag)
             : base(message)
         {
@@ -8203,6 +8263,18 @@ namespace Pure.DI
         protected CannotResolveException(global::System.Runtime.Serialization.SerializationInfo info, global::System.Runtime.Serialization.StreamingContext context)
             : base(info, context)
         {
+            Type = (global::System.Type?)info.GetValue(nameof(Type), typeof(global::System.Type)) ?? typeof(object);
+            Tag = info.GetValue(nameof(Tag), typeof(object));
+        }
+
+        /// <summary>Populates a <see cref="global::System.Runtime.Serialization.SerializationInfo"></see> with the data needed to serialize the exception.</summary>
+        /// <param name="info">The object to populate with data.</param>
+        /// <param name="context">The destination for this serialization.</param>
+        public override void GetObjectData(global::System.Runtime.Serialization.SerializationInfo info, global::System.Runtime.Serialization.StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue(nameof(Type), Type, typeof(global::System.Type));
+            info.AddValue(nameof(Tag), Tag, typeof(object));
         }
 #endif
 

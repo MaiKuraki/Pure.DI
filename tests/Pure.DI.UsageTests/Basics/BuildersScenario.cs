@@ -2,7 +2,7 @@
 $v=true
 $p=9
 $d=Builders
-$h=Sometimes you need builders for all types inherited from <see cref=“T”/> available at compile time at the point where the method is called.
+$h=Sometimes you need builders for all types derived from `T` that are known at compile time.
 $f=Important Notes:
 $f=- The default builder method name is `BuildUp`
 $f=- The first argument to the builder method is always the instance to be built
@@ -32,7 +32,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))

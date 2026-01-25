@@ -1,4 +1,4 @@
-﻿/*
+/*
 $v=true
 $p=2
 $d=Array
@@ -49,7 +49,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))

@@ -1,8 +1,8 @@
-#### Top level statements console application
+#### Top-level statements console application
 
 [![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/ShroedingersCatTopLevelStatements)
 
-This example is very similar to [simple console application](ConsoleTemplate.md), except that the composition is [defined](/samples/ShroedingersCatTopLevelStatements/Program.cs) as top-level statements and looks a little less verbose:
+This example is very similar to the [simple console application](ConsoleTemplate.md), except that the composition is [defined](/samples/ShroedingersCatTopLevelStatements/Program.cs) as top-level statements and looks a little less verbose:
 
 ```c#
 using Pure.DI;
@@ -18,7 +18,7 @@ DI.Setup("Composition")
     .Bind().As(Singleton).To<Random>()
     // Represents a quantum superposition of 2 states: Alive or Dead
     .Bind().To((Random random) => (State)random.Next(2))
-    // Represents schrodinger's cat
+    // Represents Schrodinger's cat
     .Bind().To<ShroedingersCat>()
     // Represents a cardboard box with any content
     .Bind().To<CardboardBox<TT>>()

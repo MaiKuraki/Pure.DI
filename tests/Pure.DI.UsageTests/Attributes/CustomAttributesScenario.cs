@@ -1,12 +1,12 @@
-﻿/*
+/*
 $v=true
 $p=10
 $d=Custom attributes
-$h=It's very easy to use your attributes. To do this, you need to create a descendant of the `System.Attribute` class and register it using one of the appropriate methods:
+$h=To use custom attributes, derive from `System.Attribute` and register them with the setup API:
 $h=- `TagAttribute`
 $h=- `OrdinalAttribute`
-$h=- `TagAttribute`
-$h=You can also use combined attributes, and each method in the list above has an optional parameter that defines the argument number (the default is 0) from where to get the appropriate metadata for _tag_, _ordinal_, or _type_.
+$h=- `TypeAttribute`
+$h=You can also use combined attributes. Each registration method can take an optional argument index (default is 0) that specifies where to read _tag_, _ordinal_, or _type_ metadata.
 $r=Shouldly
 */
 
@@ -32,7 +32,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(PersonComposition))

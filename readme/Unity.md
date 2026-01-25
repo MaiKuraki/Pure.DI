@@ -6,7 +6,7 @@ This example demonstrates the creation of a [Unity](https://unity.com/) applicat
 
 ![Unity](https://cdn.sanity.io/images/fuvbjjlp/production/01c082f3046cc45548249c31406aeffd0a9a738e-296x100.png)
 
-The definition of the composition is in [Scope.cs](/samples/UnityApp/Assets/Scripts/Scope.cs). This class sets up how the composition of objects will be created for the application. Remember to define builders for types inherited from `MonoBehaviour`:
+The definition of the composition is in [Scope.cs](/samples/UnityApp/Assets/Scripts/Scope.cs). This class sets up how the object graphs will be created for the application. Remember to define builders for types derived from `MonoBehaviour`:
 
 ```c#
 public partial class Scope : MonoBehaviour
@@ -32,12 +32,12 @@ public partial class Scope : MonoBehaviour
 ```
 
 Advantages over classical DI container libraries:
-- No performance impact or side effects when creating composition of objects.
+- No performance impact or side effects when creating object graphs.
 - All logic for analyzing the graph of objects, constructors and methods takes place at compile time. Pure.DI notifies the developer at compile time of missing or cyclic dependencies, cases when some dependencies are not suitable for injection, etc.
-- Does not add dependencies to any additional assembly.
-- Since the generated code uses primitive language constructs to create object compositions and does not use any libraries, you can debug the object composition code as regular code in your application.
+- Does not add dependencies to additional assemblies.
+- Since the generated code uses primitive language constructs to create object graphs and does not use any libraries, you can debug the object graph code as regular code in your application.
 
-For types inherited from `MonoBehaviour`, a `BuildUp` composition method will be generated. This method will look as follows:
+For types derived from `MonoBehaviour`, a `BuildUp` composition method will be generated. This method looks like:
 
 ```c#
 public Clock BuildUp(Clock buildingInstance)

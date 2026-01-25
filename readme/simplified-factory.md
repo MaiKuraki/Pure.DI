@@ -1,6 +1,6 @@
 #### Simplified factory
 
-This example shows how to create and initialize an instance manually in a simplified form. When you use a lambda function to specify custom instance initialization logic, each parameter of that function represents an injection of a dependency. Starting with C# 10, you can also put the `Tag(...)` attribute in front of the parameter to specify the tag of the injected dependency.
+This example shows a simplified manual factory. Each lambda parameter represents an injected dependency, and starting with C# 10 you can add `Tag(...)` to specify a tagged dependency.
 
 
 ```c#
@@ -9,9 +9,8 @@ using Pure.DI;
 
 DI.Setup(nameof(Composition))
     .Bind("today").To(() => DateTime.Today)
-    // Injects FileLogger and DateTime instances
-    // and performs further initialization logic
-    // defined in the lambda function to set up the log file name
+    // Injects FileLogger and DateTime
+    // and applies additional initialization logic
     .Bind<IFileLogger>().To((
         FileLogger logger,
         [Tag("today")] DateTime date) => {
@@ -61,7 +60,7 @@ class OrderProcessingService(IFileLogger logger) : IOrderProcessingService
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -69,7 +68,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add references to NuGet packages
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
   - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash
@@ -85,7 +84,7 @@ dotnet run
 
 </details>
 
-The example creates a `service` that depends on a `logger` initialized with a specific file name based on the current date. The `Tag` attribute allows specifying named dependencies for more complex scenarios.
+The example creates a service that depends on a logger initialized with a date-based file name. The `Tag` attribute enables named dependencies for more complex setups.
 
 The following partial class will be generated:
 

@@ -1,6 +1,6 @@
 #### Resolve methods
 
-This example shows how to resolve the roots of a composition using `Resolve` methods to use the composition as a _Service Locator_. The `Resolve` methods are generated automatically without additional effort.
+This example shows how to resolve composition roots via `Resolve` methods, using the composition as a _Service Locator_. The `Resolve` methods are generated automatically.
 
 
 ```c#
@@ -30,7 +30,7 @@ var sensor3 = composition.Resolve(typeof(ISensor), null);
 // The next 3 lines of code do the same thing too:
 var humiditySensor1 = composition.Resolve<ISensor>("Humidity");
 var humiditySensor2 = composition.Resolve(typeof(ISensor), "Humidity");
-var humiditySensor3 = composition.HumiditySensor; // Gets the composition through the public root
+var humiditySensor3 = composition.HumiditySensor; // Resolve via the public root
 
 interface IDevice;
 
@@ -46,7 +46,7 @@ class HumiditySensor : ISensor;
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -54,7 +54,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add reference to NuGet package
+- Add a reference to the NuGet package
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 ```bash
 dotnet add package Pure.DI
@@ -68,10 +68,10 @@ dotnet run
 
 </details>
 
-_Resolve_ methods are similar to calls to composition roots. Composition roots are properties (or methods). Their use is efficient and does not cause exceptions. This is why they are recommended to be used. In contrast, _Resolve_ methods have a number of disadvantages:
+_Resolve_ methods are similar to calling composition roots, which are properties (or methods). Roots are efficient and do not throw, so they are preferred. In contrast, _Resolve_ methods have drawbacks:
 - They provide access to an unlimited set of dependencies (_Service Locator_).
 - Their use can potentially lead to runtime exceptions. For example, when the corresponding root has not been defined.
-- Sometimes cannot be used directly, e.g., for MAUI/WPF/Avalonia binding.
+- They are awkward for some UI binding scenarios (e.g., MAUI/WPF/Avalonia).
 
 The following partial class will be generated:
 

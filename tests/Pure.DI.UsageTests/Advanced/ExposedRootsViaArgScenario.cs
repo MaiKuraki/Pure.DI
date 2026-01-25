@@ -1,4 +1,4 @@
-﻿/*
+/*
 $v=true
 $p=202
 $d=Exposed roots via arg
@@ -39,7 +39,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))

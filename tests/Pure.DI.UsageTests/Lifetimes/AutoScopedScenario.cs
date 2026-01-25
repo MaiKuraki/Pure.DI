@@ -1,4 +1,4 @@
-﻿/*
+/*
 $v=true
 $p=5
 $d=Auto scoped
@@ -98,7 +98,7 @@ partial class Composition
 {
     static void Setup() =>
 // }
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup()

@@ -2,13 +2,13 @@
 $v=true
 $p=1
 $d=Simplified binding
-$h=You can use the `Bind(...)` method without type parameters. In this case binding will be performed for the implementation type itself, and if the implementation is not an abstract type or structure, for all abstract but NOT special types that are directly implemented.
-$f=As practice has shown, in most cases it is possible to define abstraction types in bindings automatically. That's why we added API `Bind()` method without type parameters to define abstractions in bindings. It is the `Bind()` method that performs the binding:
+$h=You can call `Bind()` without type parameters. It binds the implementation type itself, and if it is not abstract, all directly implemented abstract types except special ones.
+$f=In practice, most abstraction types can be inferred. The parameterless `Bind()` binds:
 $f=
-$f=- with the implementation type itself
-$f=- and if it is NOT an abstract type or structure
-$f=  - with all abstract types that it directly implements
-$f=  - exceptions are special types
+$f=- the implementation type itself
+$f=- and, if it is NOT abstract,
+$f=  - all abstract types it directly implements
+$f=  - except special types
 $f=
 $f=Special types will not be added to bindings:
 $f=
@@ -30,7 +30,7 @@ $f=- `System.AsyncCallback`
 $f=
 $f=If you want to add your own special type, use the `SpecialType<T>()` call.
 $f=
-$f=For class `OrderManager`, the `Bind().To<OrderManager>()` binding will be equivalent to the `Bind<IOrderRepository, IOrderNotification, OrderManager>().To<OrderManager>()` binding. The types `IDisposable`, `IEnumerable<string>` did not get into the binding because they are special from the list above. `ManagerBase` did not get into the binding because it is not abstract. `IManager` is not included because it is not implemented directly by class `OrderManager`.
+$f=For class `OrderManager`, `Bind().To<OrderManager>()` is equivalent to `Bind<IOrderRepository, IOrderNotification, OrderManager>().To<OrderManager>()`. The types `IDisposable` and `IEnumerable<string>` are excluded because they are special. `ManagerBase` is excluded because it is not abstract. `IManager` is excluded because it is not implemented directly by `OrderManager`.
 $f=
 $f=|    |                       |                                                   |
 $f=|----|-----------------------|---------------------------------------------------|
@@ -66,7 +66,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {        
         // Specifies to create a partial class "Composition"
@@ -74,7 +74,7 @@ public class Scenario
             // Begins the binding definition for the implementation type itself,
             // and if the implementation is not an abstract class or structure,
             // for all abstract but NOT special types that are directly implemented.
-            // So that's the equivalent of the following:
+            // Equivalent to:
             // .Bind<IOrderRepository, IOrderNotification, OrderManager>()
             //   .As(Lifetime.PerBlock)
             //   .To<OrderManager>()

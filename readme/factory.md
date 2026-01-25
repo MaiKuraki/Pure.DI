@@ -1,6 +1,6 @@
 #### Factory
 
-This example demonstrates how to create and initialize an instance manually. At the compilation stage, the set of dependencies that the object to be created needs is determined. In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts. But sometimes it is necessary to manually create and/or initialize an object, as in lines of code:
+This example shows manual creation and initialization. The generator usually infers dependencies from constructors, but sometimes you need custom creation or setup logic.
 
 
 ```c#
@@ -51,7 +51,7 @@ class UserRegistry(IDatabaseService database) : IUserRegistry
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -59,7 +59,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add references to NuGet packages
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
   - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash
@@ -81,7 +81,7 @@ There are scenarios where manual control over the creation process is required, 
 - When specific object states need to be set during creation
 
 > [!IMPORTANT]
-> The method `Inject()`cannot be used outside of the binding setup.
+> The method `Inject()` cannot be used outside of the binding setup.
 
 The following partial class will be generated:
 

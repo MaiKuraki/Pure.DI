@@ -1,4 +1,4 @@
-﻿/*
+/*
 $v=true
 $p=99
 $d=Func with arguments
@@ -30,7 +30,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
         // FormatCode = On
 // {    

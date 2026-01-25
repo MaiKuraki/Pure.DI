@@ -4,12 +4,12 @@ This Markdown-formatted document contains information about working with Pure.DI
 
 ## Auto-bindings
 
-Injection of non-abstract types is possible without any additional effort.
+Non-abstract types can be injected without any additional bindings.
 
 ```c#
 using Pure.DI;
 
-// Specifies to create a partial class with name "Composition"
+// Specifies to create a partial class named "Composition"
 DI.Setup("Composition")
     // with the root "Orders"
     .Root<OrderService>("Orders");
@@ -28,13 +28,13 @@ To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
 > [!WARNING]
-> But this approach cannot be recommended if you follow the dependency inversion principle and want your types to depend only on abstractions. Or you want to precisely control the lifetime of a dependency.
+> This approach is not recommended if you follow the dependency inversion principle or need precise lifetime control.
 
-It is better to inject abstract dependencies, for example, in the form of interfaces. Use bindings to map abstract types to their implementations as in almost all [other examples](injections-of-abstractions.md).
+Prefer injecting abstractions (for example, interfaces) and map them to implementations as in most [other examples](injections-of-abstractions.md).
 
 ## Injections of abstractions
 
-This example demonstrates the recommended approach of using abstractions instead of implementations when injecting dependencies.
+This example shows the recommended approach: depend on abstractions and bind them to implementations.
 
 ```c#
 using Pure.DI;
@@ -89,18 +89,18 @@ partial class VehicleComputer(INavigationSystem navigationSystem)
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
-Usually the biggest block in the setup is the chain of bindings, which describes which implementation corresponds to which abstraction. This is necessary so that the code generator can build a composition of objects using only NOT abstract types. This is true because the cornerstone of DI technology implementation is the principle of abstraction-based programming rather than concrete class-based programming. Thanks to it, it is possible to replace one concrete implementation by another. And each implementation can correspond to an arbitrary number of abstractions.
+The binding chain maps abstractions to concrete types so the generator can build a fully concrete object graph. This keeps consumers decoupled and allows swapping implementations. A single implementation can satisfy multiple abstractions.
 > [!TIP]
-> Even if the binding is not defined, there is no problem with the injection, but obviously under the condition that the consumer requests an injection NOT of abstract type.
+> If a binding is missing, injection still works when the consumer requests a concrete type (not an abstraction).
 
 
 ## Composition roots
 
-This example demonstrates several ways to create a composition root.
+This example shows several ways to create a composition root.
 > [!TIP]
-> There is no limit to the number of roots, but you should consider limiting the number of roots. Ideally, an application should have a single composition root.
+> There is no hard limit on roots, but prefer a small number. Ideally, an application has a single composition root.
 
-If you use classic DI containers, the composition is resolved dynamically every time you call a method similar to `T Resolve<T>()` or `object GetService(Type type)`. The root of the composition there is simply the root type of the composition of objects in memory `T` or `Type` type. There can be as many of these as you like. In the case of Pure.DI, the number of composition roots is limited because for each composition root a separate property or method is created at compile time. Therefore, each root is defined explicitly by calling the `Root(string rootName)` method.
+In classic DI containers, the composition is resolved dynamically via calls like `T Resolve<T>()` or `object GetService(Type type)`. The root is simply the requested type, and you can have as many as you like. In Pure.DI, each root generates a property or method at compile time, so roots are explicit and defined via `Root(string rootName)`.
 
 ```c#
 using Pure.DI;
@@ -183,7 +183,7 @@ This can be done if these methods are not needed, in case only certain compositi
 
 ## Resolve methods
 
-This example shows how to resolve the roots of a composition using `Resolve` methods to use the composition as a _Service Locator_. The `Resolve` methods are generated automatically without additional effort.
+This example shows how to resolve composition roots via `Resolve` methods, using the composition as a _Service Locator_. The `Resolve` methods are generated automatically.
 
 ```c#
 using Pure.DI;
@@ -212,7 +212,7 @@ var sensor3 = composition.Resolve(typeof(ISensor), null);
 // The next 3 lines of code do the same thing too:
 var humiditySensor1 = composition.Resolve<ISensor>("Humidity");
 var humiditySensor2 = composition.Resolve(typeof(ISensor), "Humidity");
-var humiditySensor3 = composition.HumiditySensor; // Gets the composition through the public root
+var humiditySensor3 = composition.HumiditySensor; // Resolve via the public root
 
 interface IDevice;
 
@@ -228,14 +228,14 @@ class HumiditySensor : ISensor;
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
-_Resolve_ methods are similar to calls to composition roots. Composition roots are properties (or methods). Their use is efficient and does not cause exceptions. This is why they are recommended to be used. In contrast, _Resolve_ methods have a number of disadvantages:
+_Resolve_ methods are similar to calling composition roots, which are properties (or methods). Roots are efficient and do not throw, so they are preferred. In contrast, _Resolve_ methods have drawbacks:
 - They provide access to an unlimited set of dependencies (_Service Locator_).
 - Their use can potentially lead to runtime exceptions. For example, when the corresponding root has not been defined.
-- Sometimes cannot be used directly, e.g., for MAUI/WPF/Avalonia binding.
+- They are awkward for some UI binding scenarios (e.g., MAUI/WPF/Avalonia).
 
 ## Simplified binding
 
-You can use the `Bind(...)` method without type parameters. In this case binding will be performed for the implementation type itself, and if the implementation is not an abstract type or structure, for all abstract but NOT special types that are directly implemented.
+You can call `Bind()` without type parameters. It binds the implementation type itself, and if it is not abstract, all directly implemented abstract types except special ones.
 
 ```c#
 using System.Collections;
@@ -246,7 +246,7 @@ DI.Setup(nameof(Composition))
     // Begins the binding definition for the implementation type itself,
     // and if the implementation is not an abstract class or structure,
     // for all abstract but NOT special types that are directly implemented.
-    // So that's the equivalent of the following:
+    // Equivalent to:
     // .Bind<IOrderRepository, IOrderNotification, OrderManager>()
     //   .As(Lifetime.PerBlock)
     //   .To<OrderManager>()
@@ -294,12 +294,12 @@ class Shop(
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
-As practice has shown, in most cases it is possible to define abstraction types in bindings automatically. That's why we added API `Bind()` method without type parameters to define abstractions in bindings. It is the `Bind()` method that performs the binding:
+In practice, most abstraction types can be inferred. The parameterless `Bind()` binds:
 
-- with the implementation type itself
-- and if it is NOT an abstract type or structure
-  - with all abstract types that it directly implements
-  - exceptions are special types
+- the implementation type itself
+- and, if it is NOT abstract,
+  - all abstract types it directly implements
+  - except special types
 
 Special types will not be added to bindings:
 
@@ -321,7 +321,7 @@ Special types will not be added to bindings:
 
 If you want to add your own special type, use the `SpecialType<T>()` call.
 
-For class `OrderManager`, the `Bind().To<OrderManager>()` binding will be equivalent to the `Bind<IOrderRepository, IOrderNotification, OrderManager>().To<OrderManager>()` binding. The types `IDisposable`, `IEnumerable<string>` did not get into the binding because they are special from the list above. `ManagerBase` did not get into the binding because it is not abstract. `IManager` is not included because it is not implemented directly by class `OrderManager`.
+For class `OrderManager`, `Bind().To<OrderManager>()` is equivalent to `Bind<IOrderRepository, IOrderNotification, OrderManager>().To<OrderManager>()`. The types `IDisposable` and `IEnumerable<string>` are excluded because they are special. `ManagerBase` is excluded because it is not abstract. `IManager` is excluded because it is not implemented directly by `OrderManager`.
 
 |    |                       |                                                   |
 |----|-----------------------|---------------------------------------------------|
@@ -335,7 +335,7 @@ For class `OrderManager`, the `Bind().To<OrderManager>()` binding will be equiva
 
 ## Factory
 
-This example demonstrates how to create and initialize an instance manually. At the compilation stage, the set of dependencies that the object to be created needs is determined. In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts. But sometimes it is necessary to manually create and/or initialize an object, as in lines of code:
+This example shows manual creation and initialization. The generator usually infers dependencies from constructors, but sometimes you need custom creation or setup logic.
 
 ```c#
 using Shouldly;
@@ -392,11 +392,11 @@ There are scenarios where manual control over the creation process is required, 
 - When specific object states need to be set during creation
 
 > [!IMPORTANT]
-> The method `Inject()`cannot be used outside of the binding setup.
+> The method `Inject()` cannot be used outside of the binding setup.
 
 ## Simplified factory
 
-This example shows how to create and initialize an instance manually in a simplified form. When you use a lambda function to specify custom instance initialization logic, each parameter of that function represents an injection of a dependency. Starting with C# 10, you can also put the `Tag(...)` attribute in front of the parameter to specify the tag of the injected dependency.
+This example shows a simplified manual factory. Each lambda parameter represents an injected dependency, and starting with C# 10 you can add `Tag(...)` to specify a tagged dependency.
 
 ```c#
 using Shouldly;
@@ -404,9 +404,8 @@ using Pure.DI;
 
 DI.Setup(nameof(Composition))
     .Bind("today").To(() => DateTime.Today)
-    // Injects FileLogger and DateTime instances
-    // and performs further initialization logic
-    // defined in the lambda function to set up the log file name
+    // Injects FileLogger and DateTime
+    // and applies additional initialization logic
     .Bind<IFileLogger>().To((
         FileLogger logger,
         [Tag("today")] DateTime date) => {
@@ -457,11 +456,11 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-The example creates a `service` that depends on a `logger` initialized with a specific file name based on the current date. The `Tag` attribute allows specifying named dependencies for more complex scenarios.
+The example creates a service that depends on a logger initialized with a date-based file name. The `Tag` attribute enables named dependencies for more complex setups.
 
 ## Injection on demand
 
-This example demonstrates using dependency injection with Pure.DI to dynamically create dependencies as needed via a factory function. The code defines a service (`GameLevel`) that requires multiple instances of a dependency (`Enemy`). Instead of injecting pre-created instances, the service receives a `Func<IEnemy>` factory delegate, allowing it to generate entities on demand.
+This example creates dependencies on demand using a factory delegate. The service (`GameLevel`) needs multiple instances of `IEnemy`, so it receives a `Func<IEnemy>` that can create new instances when needed.
 
 ```c#
 using Shouldly;
@@ -494,8 +493,7 @@ interface IGameLevel
 
 class GameLevel(Func<IEnemy> enemySpawner) : IGameLevel
 {
-    // The factory acts as a "spawner" to create new enemy instances on demand.
-    // Calling 'enemySpawner()' creates a fresh instance of Enemy each time.
+    // The factory spawns a fresh enemy instance on each call.
     public IReadOnlyList<IEnemy> Enemies { get; } =
     [
         enemySpawner(),
@@ -513,11 +511,11 @@ Key elements:
 - The `GameLevel` constructor accepts `Func<IEnemy>`, enabling deferred creation of entities.
 - The `GameLevel` calls the factory twice, resulting in two distinct `Enemy` instances stored in its `Enemies` collection.
 
-This approach showcases how factories can control dependency lifetime and instance creation timing in a DI container. The Pure.DI configuration ensures the factory resolves new `IEnemy` instances each time it's invoked, achieving "injections as required" functionality.
+This approach lets factories control lifetime and instantiation timing. Pure.DI resolves a new `IEnemy` each time the factory is invoked.
 
 ## Injections on demand with arguments
 
-This example illustrates dependency injection with parameterized factory functions using Pure.DI, where dependencies are created with runtime-provided arguments. The scenario features a service that generates dependencies with specific IDs passed during instantiation.
+This example uses a parameterized factory so dependencies can be created with runtime arguments. The service creates sensors with specific IDs at instantiation time.
 
 ```c#
 using Shouldly;
@@ -558,10 +556,10 @@ class SmartHome(Func<int, ISensor> sensorFactory) : ISmartHome
 {
     public IReadOnlyList<ISensor> Sensors { get; } =
     [
-        // Use the injected factory to create a sensor with ID 101 (e.g., Kitchen Temperature)
+        // Use the injected factory to create a sensor with ID 101
         sensorFactory(101),
 
-        // Create another sensor with ID 102 (e.g., Living Room Humidity)
+        // Create another sensor with ID 102
         sensorFactory(102)
     ];
 }
@@ -793,7 +791,7 @@ class TrainTripPlanner(
 
     public IRoutePlanningSession SessionForReturn { get; } = sessionForReturn;
 
-    // These come from a singleton tuple — effectively "global cached" instances.
+    // These come from a singleton tuple - effectively "global cached" instances.
     public IRoutePlanningSession CapturedSessionA { get; } = capturedSessions.capturedA;
 
     public IRoutePlanningSession CapturedSessionB { get; } = capturedSessions.capturedB;
@@ -807,7 +805,7 @@ To run the above code, the following NuGet packages must be added:
 
 ## PerBlock
 
-The _PreBlock_ lifetime does not guarantee that there will be a single dependency instance for each instance of the composition root (as for the _PreResolve_ lifetime), but is useful for reducing the number of instances of a type.
+The _PerBlock_ lifetime does not guarantee that there will be a single dependency instance for each instance of the composition root (as for the _PerResolve_ lifetime), but is useful for reducing the number of instances of a type.
 
 ```c#
 using Shouldly;

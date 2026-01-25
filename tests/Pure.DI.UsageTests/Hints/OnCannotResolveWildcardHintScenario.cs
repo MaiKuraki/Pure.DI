@@ -1,4 +1,4 @@
-﻿/*
+/*
 $v=true
 $p=3
 $d=OnCannotResolve wildcard hint
@@ -31,7 +31,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         // OnCannotResolveContractTypeNameWildcard = string

@@ -2,14 +2,14 @@
 
 Sometimes you want to be able to create composition roots with type parameters. In this case, the composition root can only be represented by a method.
 > [!IMPORTANT]
-> `Resolve()' methods cannot be used to resolve generic composition roots.
+> ``Resolve()` methods cannot be used to resolve generic composition roots.
 
 
 ```c#
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    // This hint indicates to not generate methods such as Resolve
+    // Disable Resolve methods to keep the public API minimal
     .Hint(Hint.Resolve, "Off")
     .Bind().To<Repository<TT>>()
     .Bind().To<CreateCommandHandler<TT>>()
@@ -53,7 +53,7 @@ class UpdateCommandHandler<T>(IRepository<T> repository) : ICommandHandler<T>;
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -61,7 +61,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add reference to NuGet package
+- Add a reference to the NuGet package
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 ```bash
 dotnet add package Pure.DI

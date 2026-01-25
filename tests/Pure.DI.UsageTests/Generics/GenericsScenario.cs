@@ -1,4 +1,4 @@
-﻿/*
+/*
 $v=true
 $p=1
 $d=Generics
@@ -71,11 +71,11 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))
-            // This hint indicates to not generate methods such as Resolve
+            // Disable Resolve methods to keep the public API minimal
             .Hint(Hint.Resolve, "Off")
             // Binding a generic interface to a generic implementation
             // using the marker type TT. This allows Pure.DI to match

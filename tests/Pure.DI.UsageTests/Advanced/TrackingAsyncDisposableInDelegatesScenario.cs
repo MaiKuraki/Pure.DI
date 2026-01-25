@@ -1,4 +1,4 @@
-﻿/*
+/*
 $v=true
 $p=103
 $d=Tracking async disposable instances in delegates
@@ -75,7 +75,7 @@ interface IQueryService
 class QueryService(Func<Owned<IConnection>> connectionFactory)
     : IQueryService, IAsyncDisposable
 {
-    // The Owned<T> generic type allows you to manage the lifetime of a dependency
+    // The Owned<T> generic type lets you manage the lifetime of a dependency
     // explicitly. In this case, the QueryService creates the connection
     // using a factory and takes ownership of it.
     private readonly Owned<IConnection> _connection = connectionFactory();
@@ -93,7 +93,7 @@ partial class Composition
 {
     static void Setup() =>
 // }
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup()

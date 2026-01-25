@@ -1,4 +1,4 @@
-﻿/*
+/*
 $v=true
 $p=8
 $d=Async disposable singleton
@@ -27,7 +27,7 @@ public class Scenario
     [Fact]
     public async Task Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))

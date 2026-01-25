@@ -1,12 +1,12 @@
 #### Auto-bindings
 
-Injection of non-abstract types is possible without any additional effort.
+Non-abstract types can be injected without any additional bindings.
 
 
 ```c#
 using Pure.DI;
 
-// Specifies to create a partial class with name "Composition"
+// Specifies to create a partial class named "Composition"
 DI.Setup("Composition")
     // with the root "Orders"
     .Root<OrderService>("Orders");
@@ -24,7 +24,7 @@ class OrderService(Database database);
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -32,7 +32,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add reference to NuGet package
+- Add a reference to the NuGet package
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 ```bash
 dotnet add package Pure.DI
@@ -47,9 +47,9 @@ dotnet run
 </details>
 
 > [!WARNING]
-> But this approach cannot be recommended if you follow the dependency inversion principle and want your types to depend only on abstractions. Or you want to precisely control the lifetime of a dependency.
+> This approach is not recommended if you follow the dependency inversion principle or need precise lifetime control.
 
-It is better to inject abstract dependencies, for example, in the form of interfaces. Use bindings to map abstract types to their implementations as in almost all [other examples](injections-of-abstractions.md).
+Prefer injecting abstractions (for example, interfaces) and map them to implementations as in most [other examples](injections-of-abstractions.md).
 
 The following partial class will be generated:
 

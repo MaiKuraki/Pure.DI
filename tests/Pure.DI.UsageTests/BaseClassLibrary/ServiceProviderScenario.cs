@@ -1,4 +1,4 @@
-﻿/*
+/*
 $v=true
 $p=99
 $d=Service provider
@@ -6,7 +6,7 @@ $h=The `// ObjectResolveMethodName = GetService` hint overriding the `object Res
 $h=> [!IMPORTANT]
 $h=> Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface. These roots must be registered using `Root(...)` or `RootBind()` calls.
 $h=
-$h=This example demonstrates how to implement a custom `IServiceProvider` using a partial class, utilizing a specific hint to override the default `Resolve()` method name:
+$h=This example shows how to implement a custom `IServiceProvider` using a partial class, utilizing a specific hint to override the default `Resolve()` method name:
 $f=Important Notes:
 $f=- Hint Overriding: The `ObjectResolveMethodName = GetService` hint overrides the default object `Resolve(Type type)` method name to implement `IServiceProvider` interface
 $f=- Roots: Only roots can be resolved. Use `Root(...)` or `RootBind()` calls for registration

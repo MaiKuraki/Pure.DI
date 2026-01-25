@@ -1,6 +1,6 @@
 #### Default values
 
-This example demonstrates how to use default values in dependency injection when explicit injection is not possible.
+This example shows how to use default values in dependency injection when explicit injection is not possible.
 
 
 ```c#
@@ -46,7 +46,7 @@ class SecuritySystem(string systemName = "Home Guard") : ISecuritySystem
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -54,7 +54,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add references to NuGet packages
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
   - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash
@@ -74,7 +74,7 @@ The key points are:
 - Default constructor arguments can be used for simple values
 - The DI container will use these defaults if no explicit bindings are provided
 
-This example illustrates how to handle default values in a dependency injection scenario:
+This example shows how to handle default values in a dependency injection scenario:
 - **Constructor Default Argument**: The `SecuritySystem` class has a constructor with a default value for the name parameter. If no value is provided, "Home Guard" will be used.
 - **Required Property with Default**: The `Sensor` property is marked as required but has a default instantiation. This ensures that:
   - The property must be set

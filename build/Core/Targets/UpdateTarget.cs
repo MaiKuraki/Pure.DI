@@ -44,6 +44,7 @@ class UpdateTarget(
         var projectDir = Path.Combine(solutionDirectory, "src", "Pure.DI.Core");
         var files =
             Directory.EnumerateFiles(projectDir, "*.cs", SearchOption.AllDirectories)
+                .Concat(Directory.EnumerateFiles(projectDir, "*.tt", SearchOption.AllDirectories))
                 .Concat(Enumerable.Repeat(Path.Combine(projectDir, "Pure.DI.Core.csproj"), 1));
 
         foreach (var file in files)

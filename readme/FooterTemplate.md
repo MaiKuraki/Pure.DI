@@ -1,7 +1,7 @@
-### Applications
+﻿### Applications
 - Console
   - [Schrödinger's cat](readme/Console.md)
-  - [Top level statements](readme/ConsoleTopLevelStatements.md)
+  - [Top-level statements](readme/ConsoleTopLevelStatements.md)
   - [Native AOT](readme/ConsoleNativeAOT.md)
   - [Entity Framework](readme/EntityFramework.md)
 - [Unity](readme/Unity.md) 
@@ -19,13 +19,13 @@
   - [Blazor Server](readme/BlazorServerApp.md)
   - [Blazor WebAssembly](readme/BlazorWebAssemblyApp.md)
     - [https://devteam.github.io/Pure.DI/](https://devteam.github.io/Pure.DI/)
-- Git repo with examples
+- GitHub repos with examples
   - [Schrödinger's cat](https://github.com/DevTeam/Pure.DI.Example) 
   - [How to use Pure.DI to create and test libraries](https://github.com/DevTeam/Pure.DI.Solution) 
 
 ## Generated Code
 
-Each generated class, hereafter called a _composition_, must be customized. Setup starts with a call to the `Setup(string compositionTypeName)` method:
+Each generated class (a _composition_) is configured via `Setup(string compositionTypeName)`:
 
 ```c#
 DI.Setup("Composition")
@@ -51,10 +51,10 @@ partial class Composition
 }
 ```
 
-The _compositionTypeName_ parameter can be omitted
+The _compositionTypeName_ parameter can be omitted:
 
-- if the setup is performed inside a partial class, then the composition will be created for this partial class
-- for the case of a class with composition kind `CompositionKind.Global`, see [this example](readme/global-compositions.md)
+- If the setup is performed inside a partial class, the composition will be created for that partial class.
+- For a class with composition kind `CompositionKind.Global`, see [this example](readme/global-compositions.md).
 
 </details>
 
@@ -164,7 +164,7 @@ If there is at least one binding with `Lifetime.Scoped`, Pure.DI generates two c
 
 ### Regular Composition Roots
 
-To create an object graph quickly and conveniently, a set of properties (or a methods) is formed. These properties/methods are here called roots of compositions. The type of a property/method is the type of the root object created by the composition. Accordingly, each invocation of a property/method leads to the creation of a composition with a root element of this type.
+To create an object graph quickly and conveniently, a set of properties (or methods) is formed. These properties/methods are here called composition roots. The type of a property/method is the type of the root object created by the composition. Accordingly, each invocation of a property/method leads to the creation of an object graph with a root element of this type.
 
 ```c#
 DI.Setup("Composition")
@@ -177,7 +177,7 @@ service = composition.Resolve<IService>();
 service = composition.Resolve(typeof(IService));
 ```
 
-In this case, the property for the _IService_ type will be named _MyService_ and will be available for direct use. The result of its use will be the creation of a composition of objects with the root of _IService_ type:
+In this case, the property for the _IService_ type will be named _MyService_ and will be available for direct use. The result of its use will be the creation of an object graph with the root of _IService_ type:
 
 ```c#
 public IService MyService
@@ -190,19 +190,19 @@ public IService MyService
 }
 ```
 
-This is [recommended way](https://blog.ploeh.dk/2011/07/28/CompositionRoot/) to create a composition root. A composition class can contain any number of roots.
+This is the [recommended way](https://blog.ploeh.dk/2011/07/28/CompositionRoot/) to create a composition root. A composition class can contain any number of roots.
 
-In addition, the composition  roots can be resolved using the `Resolve()` methods:
+In addition, the composition roots can be resolved using the `Resolve`/`ResolveByTag` methods:
 
 ```c#
 service = composition.Resolve<IService>();
 service = composition.Resolve(typeof(IService));
 ```
 
->![TIP]
->- There is no limit to the number of roots, but you should consider limiting the number of roots. Ideally, an application should have a single composition root
->- The name of the composition root is arbitrarily chosen depending on its purpose, but should be restricted by the property naming conventions in C# since it is the same name as a property in the composition class
->- It is recommended that composition roots be resolved using normal properties or methods instead of methods of type `Resolve()`.
+> [!TIP]
+>- There is no limit to the number of roots, but you should consider limiting the number of roots. Ideally, an application should have a single composition root.
+>- The name of the composition root is arbitrarily chosen depending on its purpose, but should follow C# property naming conventions since it becomes a property name in the composition class.
+>- It is recommended that composition roots be resolved using normal properties or methods instead of `Resolve`/`ResolveByTag` methods.
 
 ### Anonymous Composition Roots
 
@@ -215,7 +215,7 @@ private IService RootM07D16di_0001
 }
 ```
 
-These properties (or methods) have an arbitrary name and access modifier `private` and cannot be used directly from the code. Do not attempt to use them, as their names are arbitrarily changed. Anonymous composition roots can be resolved by `Resolve` methods:
+These properties (or methods) have an arbitrary name and access modifier `private` and cannot be used directly from the code. Do not attempt to use them, as their names can change between builds. Anonymous composition roots can be resolved by `Resolve`/`ResolveByTag` methods:
 
 ```c#
 DI.Setup("Composition")
@@ -230,11 +230,11 @@ service = composition.Resolve(typeof(IService));
 </details>
 
 <details>
-<summary>Methods "Resolve"</summary>
+<summary>Resolve/ResolveByTag methods</summary>
 
-### Methods "Resolve"
+### Resolve/ResolveByTag methods
 
-By default, a set of four _Resolve_ methods is generated:
+By default, a set of four _Resolve_/_ResolveByTag_ methods is generated:
 
 ```c#
 public T Resolve<T>() { ... }
@@ -246,7 +246,7 @@ public object Resolve(Type type) { ... }
 public object Resolve(Type type, object? tag) { ... }
 ```
 
-These methods can resolve both public and anonymous composition roots that do not depend on any arguments of the composition roots. They are useful when using the [Service Locator](https://martinfowler.com/articles/injection.html) approach, where the code resolves composition roots in place:
+These methods can resolve both public and anonymous composition roots that do not depend on root arguments. They are useful when using the [Service Locator](https://martinfowler.com/articles/injection.html) approach, where the code resolves composition roots in place:
 
 ```c#
 var composition = new Composition();
@@ -254,16 +254,16 @@ var composition = new Composition();
 composition.Resolve<IService>();
 ```
 
-This is a [not recommended](https://blog.ploeh.dk/2010/02/03/ServiceLocatorisanAnti-Pattern/) way to create composition roots because _Resolve_ methods have a number of disadvantages:
+This is [not recommended](https://blog.ploeh.dk/2010/02/03/ServiceLocatorisanAnti-Pattern/) because _Resolve_/_ResolveByTag_ methods have a number of disadvantages:
 - They provide access to an unlimited set of dependencies.
 - Their use can potentially lead to runtime exceptions, for example, when the corresponding root has not been defined.
-- Lead to performance degradation because they search for the root of a composition based on its type.
+- Can be slower because they perform a lookup by type and tag.
 
 To control the generation of these methods, see the [Resolve](#resolve-hint) hint.
 
 ### Dispose and DisposeAsync
 
-Provides a mechanism to release unmanaged resources. These methods are generated only if the composition contains at least one singleton/scoped instance that implements either the [IDisposable](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable) and/or [DisposeAsync](https://learn.microsoft.com/en-us/dotnet/api/system.iasyncdisposable.disposeasync) interface. The `Dispose()` or `DisposeAsync()` method of the composition should be called to dispose of all created singleton/scoped objects:
+Provides a mechanism to release unmanaged resources. These methods are generated only if the composition contains at least one singleton/scoped instance that implements either [IDisposable](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable) or [IAsyncDisposable](https://learn.microsoft.com/en-us/dotnet/api/system.iasyncdisposable). The `Dispose()` or `DisposeAsync()` method of the composition should be called to dispose of all created singleton/scoped objects:
 
 ```c#
 using var composition = new Composition();
@@ -275,7 +275,7 @@ or
 await using var composition = new Composition();
 ```
 
-To dispose objects of other lifetimes please see [this](readme/tracking-disposable-instances-per-a-composition-root.md) or [this](readme/tracking-disposable-instances-in-delegates.md) examples.
+To dispose objects of other lifetimes, see [this](readme/tracking-disposable-instances-per-a-composition-root.md) or [this](readme/tracking-disposable-instances-in-delegates.md) example.
 
 </details>
 
@@ -352,7 +352,7 @@ Example:
 Lifetimes control how long an object lives and how it is reused:
 - **Transient**: A new instance is created for every injection (default).
 - **Singleton**: A single instance is created for the entire composition.
-- **PerResolve**: A single instance is reused within a single `Resolve` (composition root).
+- **PerResolve**: A single instance is reused within a single composition root (or a `Resolve`/`ResolveByTag` call).
 - **PerBlock**: Reuses instances within a code block to reduce allocations.
 - **Scoped**: A single instance is reused within a specific scope.
 
@@ -434,7 +434,7 @@ Example:
 
 ## Special types will not be added to bindings
 
-By default, Pure.DI avoids binding tospecial types during auto-inference to prevent polluting the container with unintended bindings for types like `IDisposable`, `IEnumerable`, or `object`. Special types will not be added to bindings by default:
+By default, Pure.DI avoids binding to special types during auto-inference to prevent polluting the container with unintended bindings for types like `IDisposable`, `IEnumerable`, or `object`. Special types will not be added to bindings by default:
 
 - `System.Object`
 - `System.Enum`
@@ -462,7 +462,7 @@ If you want to add your own special type, use the `SpecialType<T>()` call, for e
 
 ## Simplified Lifetime-Specific Bindings
 
-Pure.DI provides semantic sugar for common lifetimes. These methods combine `Bind()`, `.Tags(tags)`, `As(Lifetime)`, and `To()` into a single call.
+Pure.DI provides syntactic sugar for common lifetimes. These methods combine `Bind()`, `.Tags(tags)`, `As(Lifetime)`, and `To()` into a single call.
 
 ### For Implementations
 
@@ -563,22 +563,22 @@ DI.Setup("Composition")
 | [OnNewInstanceLifetimeWildcard](#onnewinstancelifetimewildcard-hint)                                                               | Wildcard                                   |            | *         |
 | [OnDependencyInjection](#ondependencyinjection-hint)                                                                               | _On_ or _Off_                              | 9.0        | _Off_     | 
 | [OnDependencyInjectionPartial](#ondependencyinjectionpartial-hint)                                                                 | _On_ or _Off_                              |            | _On_      |
-| [OnDependencyInjectionImplementationTypeNameRegularExpression](#OnDependencyInjectionImplementationTypeNameRegularExpression-Hint) | Regular expression                         |            | .+        |
-| [OnDependencyInjectionImplementationTypeNameWildcard](#OnDependencyInjectionImplementationTypeNameWildcard-Hint)                   | Wildcard                                   |            | *         |
+| [OnDependencyInjectionImplementationTypeNameRegularExpression](#ondependencyinjectionimplementationtypenameregularexpression-hint) | Regular expression                         |            | .+        |
+| [OnDependencyInjectionImplementationTypeNameWildcard](#ondependencyinjectionimplementationtypenamewildcard-hint)                   | Wildcard                                   |            | *         |
 | [OnDependencyInjectionContractTypeNameRegularExpression](#ondependencyinjectioncontracttypenameregularexpression-hint)             | Regular expression                         |            | .+        |
-| [OnDependencyInjectionContractTypeNameWildcard](#ondependencyinjectioncontracttypenameWildcard-hint)                               | Wildcard                                   |            | *         |
+| [OnDependencyInjectionContractTypeNameWildcard](#ondependencyinjectioncontracttypenamewildcard-hint)                               | Wildcard                                   |            | *         |
 | [OnDependencyInjectionTagRegularExpression](#ondependencyinjectiontagregularexpression-hint)                                       | Regular expression                         |            | .+        |
-| [OnDependencyInjectionTagWildcard](#ondependencyinjectiontagWildcard-hint)                                                         | Wildcard                                   |            | *         |
+| [OnDependencyInjectionTagWildcard](#ondependencyinjectiontagwildcard-hint)                                                         | Wildcard                                   |            | *         |
 | [OnDependencyInjectionLifetimeRegularExpression](#ondependencyinjectionlifetimeregularexpression-hint)                             | Regular expression                         |            | .+        |
-| [OnDependencyInjectionLifetimeWildcard](#ondependencyinjectionlifetimeWildcard-hint)                                               | Wildcard                                   |            | *         |
+| [OnDependencyInjectionLifetimeWildcard](#ondependencyinjectionlifetimewildcard-hint)                                               | Wildcard                                   |            | *         |
 | [OnCannotResolve](#oncannotresolve-hint)                                                                                           | _On_ or _Off_                              | 9.0        | _Off_     |
 | [OnCannotResolvePartial](#oncannotresolvepartial-hint)                                                                             | _On_ or _Off_                              |            | _On_      |
 | [OnCannotResolveContractTypeNameRegularExpression](#oncannotresolvecontracttypenameregularexpression-hint)                         | Regular expression                         |            | .+        |
-| [OnCannotResolveContractTypeNameWildcard](#oncannotresolvecontracttypenameцildcard-hint)                                           | Wildcard                                   |            | *         |
+| [OnCannotResolveContractTypeNameWildcard](#oncannotresolvecontracttypenamewildcard-hint)                                           | Wildcard                                   |            | *         |
 | [OnCannotResolveTagRegularExpression](#oncannotresolvetagregularexpression-hint)                                                   | Regular expression                         |            | .+        |
-| [OnCannotResolveTagWildcard](#oncannotresolvetagWildcard-hint)                                                                     | Wildcard                                   |            | *         |
+| [OnCannotResolveTagWildcard](#oncannotresolvetagwildcard-hint)                                                                     | Wildcard                                   |            | *         |
 | [OnCannotResolveLifetimeRegularExpression](#oncannotresolvelifetimeregularexpression-hint)                                         | Regular expression                         |            | .+        |
-| [OnCannotResolveLifetimeWildcard](#oncannotresolvelifetimeWildcard-hint)                                                           | Wildcard                                   |            | *         |
+| [OnCannotResolveLifetimeWildcard](#oncannotresolvelifetimewildcard-hint)                                                           | Wildcard                                   |            | *         |
 | [OnNewRoot](#onnewroot-hint)                                                                                                       | _On_ or _Off_                              |            | _Off_     |
 | [OnNewRootPartial](#onnewrootpartial-hint)                                                                                         | _On_ or _Off_                              |            | _On_      |
 | [ToString](#tostring-hint)                                                                                                         | _On_ or _Off_                              |            | _Off_     |
@@ -611,7 +611,7 @@ The list of hints will be gradually expanded to meet the needs and desires for f
 
 ### Resolve Hint
 
-Determines whether to generate [_Resolve_ methods](#resolve). By default, a set of four _Resolve_ methods are generated. Set this hint to _Off_ to disable the generation of resolve methods. This will reduce the generation time of the class composition, and in this case no [anonymous composition roots](#private-composition-roots) will be generated. The class composition will be smaller and will only have [public roots](#public-composition-roots). When the _Resolve_ hint is disabled, only the public roots properties are available, so be sure to explicitly define them using the `Root<T>(string name)` method with an explicit composition root name.
+Determines whether to generate [_Resolve_/_ResolveByTag_ methods](#resolve). By default, a set of four _Resolve_/_ResolveByTag_ methods are generated. Set this hint to _Off_ to disable the generation of Resolve/ResolveByTag methods. This will reduce the generation time of the class composition, and in this case no [anonymous composition roots](#private-composition-roots) will be generated. The class composition will be smaller and will only have [public roots](#public-composition-roots). When the _Resolve_ hint is disabled, only the public roots properties are available, so be sure to explicitly define them using the `Root<T>(string name)` method with an explicit composition root name.
 
 ### OnNewInstance Hint
 
@@ -649,15 +649,15 @@ This is a wildcard for filtering by _tag_. This hint is also useful when _OnNewI
 
 ### OnNewInstanceLifetimeRegularExpression Hint
 
-This is a regular expression for filtering by _lifetime_. This hint is also useful when _OnNewInstance_ is in _On_ state and it is necessary to restrict the set of _life_ times for which the _OnNewInstance_ method will be called.
+This is a regular expression for filtering by _lifetime_. This hint is also useful when _OnNewInstance_ is in _On_ state and it is necessary to restrict the set of _lifetimes_ for which the _OnNewInstance_ method will be called.
 
 ### OnNewInstanceLifetimeWildcard Hint
 
-This is a wildcard for filtering by _lifetime_. This hint is also useful when _OnNewInstance_ is in _On_ state and it is necessary to restrict the set of _life_ times for which the _OnNewInstance_ method will be called.
+This is a wildcard for filtering by _lifetime_. This hint is also useful when _OnNewInstance_ is in _On_ state and it is necessary to restrict the set of _lifetimes_ for which the _OnNewInstance_ method will be called.
 
 ### OnDependencyInjection Hint
 
-Determines whether to use the _OnDependencyInjection_ partial method when the _OnDependencyInjection_ hint is ```On``` to control dependency injection. By default it is ```On```.
+Determines whether to use the _OnDependencyInjection_ partial method when the _OnDependencyInjection_ hint is ```On``` to control dependency injection. By default it is ```Off```.
 
 ```c#
 // OnDependencyInjection = On
@@ -783,15 +783,15 @@ This is a wildcard for filtering by _tag_. This hint is also useful when _OnCann
 
 ### OnCannotResolveLifetimeRegularExpression Hint
 
-This is a regular expression for filtering by _lifetime_. This hint is also useful when _OnCannotResolve_ is in the _On_ state and it is necessary to restrict the set of _lives_ for which the _OnCannotResolve_ method will be called.
+This is a regular expression for filtering by _lifetime_. This hint is also useful when _OnCannotResolve_ is in the _On_ state and it is necessary to restrict the set of _lifetimes_ for which the _OnCannotResolve_ method will be called.
 
 ### OnCannotResolveLifetimeWildcard Hint
 
-This is a wildcard for filtering by _lifetime_. This hint is also useful when _OnCannotResolve_ is in the _On_ state and it is necessary to restrict the set of _lives_ for which the _OnCannotResolve_ method will be called.
+This is a wildcard for filtering by _lifetime_. This hint is also useful when _OnCannotResolve_ is in the _On_ state and it is necessary to restrict the set of _lifetimes_ for which the _OnCannotResolve_ method will be called.
 
 ### ToString Hint
 
-Determines whether to generate the _ToString()_ method. This method provides a class diagram in [mermaid](https://mermaid.js.org/) format. To see this diagram, just call the ToString method and copy the text to [this site](https://mermaid.live/).
+Determines whether to generate the _ToString()_ method. This method provides a class diagram in [Mermaid](https://mermaid.js.org/) format. To see this diagram, just call the ToString method and copy the text to [this site](https://mermaid.live/).
 
 ```c#
 // ToString = On
@@ -805,7 +805,7 @@ string classDiagram = composition.ToString();
 
 ### ThreadSafe Hint
 
-This hint determines whether the composition of objects will be created in a thread-safe way. The default value of this hint is _On_. It is a good practice not to use threads when creating an object graph, in this case the hint can be disabled, which will result in a small performance gain. For example:
+This hint determines whether the object graph will be created in a thread-safe way. The default value of this hint is _On_. It is a good practice not to use threads when creating an object graph; in this case the hint can be disabled, which will result in a small performance gain. For example:
 
 ```c#
 // ThreadSafe = Off
@@ -862,10 +862,10 @@ Specifies whether the generated code should be formatted. This option consumes a
 
 Indicates the severity level of the situation when, in the binding, an implementation does not implement a contract. Possible values:
 
-- _"Error"_, it is default value.
+- _"Error"_ - this is the default value.
 - _"Warning"_ - something suspicious but allowed.
 - _"Info"_ - information that does not indicate a problem.
-- _"Hidden"_ - what's not a problem.
+- _"Hidden"_ - not a problem.
 
 ### Comments Hint
 
@@ -883,7 +883,7 @@ Appropriate comments will be added to the generated ```Composition``` class and 
 
 ### SystemThreadingLock Hint
 
-Indicates whether `System.Threading.Lock` should be used whenever possible instead of the classic approach of synchronizing object access using `System.Threading.Monitor1. `On` by default.
+Indicates whether `System.Threading.Lock` should be used whenever possible instead of the classic approach of synchronizing object access using `System.Threading.Monitor`. `On` by default.
 
 ```c#
 DI.Setup(nameof(Composition))
@@ -944,13 +944,13 @@ Install the DI template [Pure.DI.Templates](https://www.nuget.org/packages/Pure.
 dotnet new install Pure.DI.Templates
 ```
 
-Create a "Sample" console application from the template *__di__*
+Create a "Sample" console application from the __di__ template
 
 ```shell
 dotnet new di -o ./Sample
 ```
 
-And run it
+Run it
 
 ```shell
 dotnet run --project Sample
@@ -966,7 +966,7 @@ For more information about the template, please see [this page](https://github.c
 When updating the version, it is possible that the previous version of the code generator remains active and is used by compilation services. In this case, the old and new versions of the generator may conflict. For a project where the code generator is used, it is recommended to do the following:
 - After updating the version, close the IDE if it is open
 - Delete the _obj_ and _bin_ directories
-- Execute the following commands one by one
+- Run the following commands one by one
 
 ```shell
 dotnet build-server shutdown
@@ -1038,9 +1038,9 @@ Or make sure it is installed. Add the following sections to the project:
 </Project>
 ```
 
-Replace the path like *c:\profiling* with the path where the profiling results will be saved.
+Replace a path like *c:\profiling* with the path where the profiling results will be saved.
 
-Start the project build and wait until a file like *c:\profiling\pure_di_????.dtt* appears in the directory.
+Start a build and wait until a file like *c:\profiling\pure_di_????.dtt* appears in the directory.
 
 </details>
 

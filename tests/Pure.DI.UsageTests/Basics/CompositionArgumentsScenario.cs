@@ -2,7 +2,7 @@
 $v=true
 $p=5
 $d=Composition arguments
-$h=Sometimes you need to pass some state to a composition class to use it when resolving dependencies. To do this, just use the `Arg<T>(string argName)` method, specify the type of argument and its name. You can also specify a tag for each argument. You can then use them as dependencies when building the object graph. If you have multiple arguments of the same type, just use tags to distinguish them. The values of the arguments are manipulated when you create a composition class by calling its constructor. It is important to remember that only those arguments that are used in the object graph will appear in the constructor. Arguments that are not involved will not be added to the constructor arguments.
+$h=Use composition arguments when you need to pass state into the composition. Define them with `Arg<T>(string argName)` (optionally with tags) and use them like any other dependency. Only arguments that are used in the object graph become constructor parameters.
 $h=> [!NOTE]
 $h=> Actually, composition arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
 $h=
@@ -28,7 +28,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))
@@ -47,7 +47,7 @@ public class Scenario
             // Composition argument: Bank gateway address
             .Arg<string>("gatewayUrl");
 
-        // Create the composition, passing real settings from "outside"
+        // Create the composition, passing real settings from outside
         var composition = new Composition(
             timeoutSeconds: 30,
             authToken: "secret_token_123",

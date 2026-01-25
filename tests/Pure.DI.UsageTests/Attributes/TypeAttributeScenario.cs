@@ -1,9 +1,9 @@
-﻿/*
+/*
 $v=true
 $p=4
 $d=Type attribute
-$h=The injection type can be defined manually using the `Type` attribute. This attribute explicitly overrides an injected type, otherwise it would be determined automatically based on the type of the constructor/method, property, or field parameter.
-$f=This attribute is part of the API, but you can use your own attribute at any time, and this allows you to define them in the assembly and namespace you want.
+$h=Use the `Type` attribute to force a specific injected type, overriding the inferred type from the parameter or member.
+$f=The `Type` attribute is part of the API, but you can define your own in any assembly or namespace.
 $r=Shouldly
 */
 
@@ -28,7 +28,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))

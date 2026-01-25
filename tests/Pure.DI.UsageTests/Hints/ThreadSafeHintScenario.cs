@@ -30,13 +30,13 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))
-            // Отключение потокобезопасности в композиции может повысить производительность.
-            // Это безопасно, если граф объектов разрешается в одном потоке,
-            // например, при запуске приложения.
+            // Disabling thread-safety can improve performance.
+            // This is safe when the object graph is resolved on a single thread,
+            // for example at application startup.
             .Hint(ThreadSafe, "Off")
             .Bind().To<SqlDatabaseConnection>()
             .Bind().As(Lifetime.Singleton).To<ReportGenerator>()

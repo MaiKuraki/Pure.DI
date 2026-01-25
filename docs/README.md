@@ -42,5 +42,5 @@ Its high performance, zero memory consumption/preparation overhead, and lack of 
 | [Pure.DI](https://www.nuget.org/packages/Pure.DI)                           | DI source code generator                                            |
 | [Pure.DI.Abstractions](https://www.nuget.org/packages/Pure.DI.Abstractions) | Abstractions for Pure.DI                                            |
 | [Pure.DI.Templates](https://www.nuget.org/packages/Pure.DI.Templates)       | Template package, for creating projects from the shell/command line |
-| [Pure.DI.MS](https://www.nuget.org/packages/Pure.DI.MS)                     | Add-ons on Pure.DI to work with Microsoft DI                        |
+| [Pure.DI.MS](https://www.nuget.org/packages/Pure.DI.MS)                     | Add-ons for Pure.DI to work with Microsoft DI                       |
 

@@ -78,7 +78,7 @@ class Shop(
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -86,7 +86,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add reference to NuGet package
+- Add a reference to the NuGet package
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 ```bash
 dotnet add package Pure.DI
@@ -131,13 +131,13 @@ For class `OrderManager`, the `PerBlock<OrderManager>()` binding will be equival
 
 |    |                       |                                                   |
 |----|-----------------------|---------------------------------------------------|
-| ✅ | `OrderManager`        | implementation type itself                        |
-| ✅ | `IOrderRepository`    | directly implements                               |
-| ✅ | `IOrderNotification`  | directly implements                               |
-| ❌ | `IDisposable`         | special type                                      |
-| ❌ | `IEnumerable<string>` | special type                                      |
-| ❌ | `ManagerBase`         | non-abstract                                      |
-| ❌ | `IManager`            | is not directly implemented by class OrderManager |
+| ? | `OrderManager`        | implementation type itself                        |
+| ? | `IOrderRepository`    | directly implements                               |
+| ? | `IOrderNotification`  | directly implements                               |
+| ? | `IDisposable`         | special type                                      |
+| ? | `IEnumerable<string>` | special type                                      |
+| ? | `ManagerBase`         | non-abstract                                      |
+| ? | `IManager`            | is not directly implemented by class OrderManager |
 
 The following partial class will be generated:
 

@@ -49,7 +49,7 @@ interface IQueryService
 class QueryService(Func<Owned<IConnection>> connectionFactory)
     : IQueryService, IAsyncDisposable
 {
-    // The Owned<T> generic type allows you to manage the lifetime of a dependency
+    // The Owned<T> generic type lets you manage the lifetime of a dependency
     // explicitly. In this case, the QueryService creates the connection
     // using a factory and takes ownership of it.
     private readonly Owned<IConnection> _connection = connectionFactory();
@@ -79,7 +79,7 @@ partial class Composition
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -87,7 +87,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add references to NuGet packages
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
   - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash

@@ -4,7 +4,7 @@
 
 This example demonstrates the creation of a [MAUI application](https://learn.microsoft.com/en-us/dotnet/maui/what-is-maui) in the pure DI paradigm using the Pure.DI code generator.
 
-The definition of the composition is in [Composition.cs](/samples/MAUIApp/Composition.cs). You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
+The definition of the composition is in [Composition.cs](/samples/MAUIApp/Composition.cs). Do not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
 
 ```c#
 using Pure.DI;
@@ -13,7 +13,7 @@ using static Pure.DI.Lifetime;
 
 namespace MAUIApp;
 
-partial class Composition: ServiceProviderFactory<Composition>
+partial class Composition : ServiceProviderFactory<Composition>
 {
     private void Setup() => DI.Setup()
         .Root<IAppViewModel>(nameof(App))
@@ -29,9 +29,9 @@ partial class Composition: ServiceProviderFactory<Composition>
 }
 ```
 
-The composition class inherits from the `ServiceProviderFactory<T>` class, where T is the composition class itself.
+The composition class inherits from `ServiceProviderFactory<T>`, where `T` is the composition class itself.
 
-The web application entry point is in the [MauiProgram.cs](/samples/MAUIApp/MauiProgram.cs) file:
+The application entry point is in the [MauiProgram.cs](/samples/MAUIApp/MauiProgram.cs) file:
 
 ```c#
 namespace MAUIApp;
@@ -79,7 +79,7 @@ public static class MauiProgram
 }
 ```
 
-A single instance of the _Composition_ class is defined as a static resource in [App.xaml](/samples/MAUIApp/App.xaml) for later use within the _xaml_ markup everywhere:
+A single instance of the _Composition_ class is defined as a static resource in [App.xaml](/samples/MAUIApp/App.xaml) for later use within the _XAML_ markup everywhere:
 
 ```xaml
 <?xml version="1.0" encoding="UTF-8"?>

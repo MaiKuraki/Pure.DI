@@ -1,10 +1,10 @@
 #### Inject attribute
 
-If you want to use attributes in your libraries but don't want to create your own, you can add this package to your projects:
+If you want attributes without defining your own, add this package:
 
 [![NuGet](https://img.shields.io/nuget/v/Pure.DI.Abstractions)](https://www.nuget.org/packages/Pure.DI.Abstractions)
 
-It contains attributes like `Inject` and `Inject<T>` that work for constructors and their arguments, methods and their arguments, properties and fields. They allow you to setup all injection parameters.
+It provides `Inject` and `Inject<T>` for constructors, methods, properties, and fields, letting you configure injection metadata.
 
 
 ```c#
@@ -43,7 +43,7 @@ class Person([Inject("NikName")] string name) : IPerson
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -51,7 +51,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add references to NuGet packages
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
   - [Shouldly](https://www.nuget.org/packages/Shouldly)
   - [Pure.DI.Abstractions](https://www.nuget.org/packages/Pure.DI.Abstractions)

@@ -1,6 +1,6 @@
 #### Injection on demand
 
-This example demonstrates using dependency injection with Pure.DI to dynamically create dependencies as needed via a factory function. The code defines a service (`GameLevel`) that requires multiple instances of a dependency (`Enemy`). Instead of injecting pre-created instances, the service receives a `Func<IEnemy>` factory delegate, allowing it to generate entities on demand.
+This example creates dependencies on demand using a factory delegate. The service (`GameLevel`) needs multiple instances of `IEnemy`, so it receives a `Func<IEnemy>` that can create new instances when needed.
 
 
 ```c#
@@ -34,8 +34,7 @@ interface IGameLevel
 
 class GameLevel(Func<IEnemy> enemySpawner) : IGameLevel
 {
-    // The factory acts as a "spawner" to create new enemy instances on demand.
-    // Calling 'enemySpawner()' creates a fresh instance of Enemy each time.
+    // The factory spawns a fresh enemy instance on each call.
     public IReadOnlyList<IEnemy> Enemies { get; } =
     [
         enemySpawner(),
@@ -47,7 +46,7 @@ class GameLevel(Func<IEnemy> enemySpawner) : IGameLevel
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -55,7 +54,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add references to NuGet packages
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
   - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash
@@ -76,7 +75,7 @@ Key elements:
 - The `GameLevel` constructor accepts `Func<IEnemy>`, enabling deferred creation of entities.
 - The `GameLevel` calls the factory twice, resulting in two distinct `Enemy` instances stored in its `Enemies` collection.
 
-This approach showcases how factories can control dependency lifetime and instance creation timing in a DI container. The Pure.DI configuration ensures the factory resolves new `IEnemy` instances each time it's invoked, achieving "injections as required" functionality.
+This approach lets factories control lifetime and instantiation timing. Pure.DI resolves a new `IEnemy` each time the factory is invoked.
 
 The following partial class will be generated:
 

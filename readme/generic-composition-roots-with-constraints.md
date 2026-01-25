@@ -1,14 +1,14 @@
 #### Generic composition roots with constraints
 
 > [!IMPORTANT]
-> `Resolve' methods cannot be used to resolve generic composition roots.
+> ``Resolve` methods cannot be used to resolve generic composition roots.
 
 
 ```c#
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    // This hint indicates to not generate methods such as Resolve
+    // Disable Resolve methods to keep the public API minimal
     .Hint(Hint.Resolve, "Off")
     .Bind().To<StreamSource<TTDisposable>>()
     .Bind().To<DataProcessor<TTDisposable, TTS>>()
@@ -62,7 +62,7 @@ class SpecializedDataProcessor<T>(IStreamSource<T> source) : IDataProcessor<T, b
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -70,7 +70,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add reference to NuGet package
+- Add a reference to the NuGet package
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 ```bash
 dotnet add package Pure.DI

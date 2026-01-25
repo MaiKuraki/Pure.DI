@@ -1,15 +1,15 @@
-﻿/*
+/*
 $v=true
 $p=2
 $d=Factory
-$h=This example demonstrates how to create and initialize an instance manually. At the compilation stage, the set of dependencies that the object to be created needs is determined. In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts. But sometimes it is necessary to manually create and/or initialize an object, as in lines of code:
+$h=This example shows manual creation and initialization. The generator usually infers dependencies from constructors, but sometimes you need custom creation or setup logic.
 $f=There are scenarios where manual control over the creation process is required, such as
 $f=- When additional initialization logic is needed
 $f=- When complex construction steps are required
 $f=- When specific object states need to be set during creation
 $f=
 $f=> [!IMPORTANT]
-$f=> The method `Inject()`cannot be used outside of the binding setup.
+$f=> The method `Inject()` cannot be used outside of the binding setup.
 $r=Shouldly
 */
 
@@ -33,7 +33,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))

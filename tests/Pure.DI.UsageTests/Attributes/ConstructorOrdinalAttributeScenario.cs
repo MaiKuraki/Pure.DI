@@ -1,9 +1,9 @@
-﻿/*
+/*
 $v=true
 $p=0
 $d=Constructor ordinal attribute
-$h=When applied to any constructor in a type, automatic injection constructor selection is disabled. The selection will only focus on constructors marked with this attribute, in the appropriate order from smallest value to largest.
-$f=The attribute `Ordinal` is part of the API, but you can use your own attribute at any time, and this allows you to define them in the assembly and namespace you want.
+$h=Applying this attribute disables automatic constructor selection. Only constructors marked with this attribute are considered, ordered by ordinal (ascending).
+$f=The `Ordinal` attribute is part of the API, but you can define your own in any assembly or namespace.
 $r=Shouldly
 */
 
@@ -31,7 +31,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))

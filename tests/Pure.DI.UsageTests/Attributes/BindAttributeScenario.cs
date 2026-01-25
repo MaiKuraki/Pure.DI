@@ -1,9 +1,9 @@
-﻿/*
+/*
 $v=true
 $p=13
 $d=Bind attribute
-$h=`BindAttribute` allows you to perform automatic binding to properties, fields or methods that belong to the type of the binding involved.
-$f=This attribute `BindAttribute` applies to field properties and methods, to regular, static, and even returning generalized types.
+$h=`BindAttribute` lets you bind properties, fields, or methods declared on the bound type.
+$f=It applies to instance or static members, including members that return generic types.
 */
 
 // ReSharper disable ClassNeverInstantiated.Local
@@ -24,7 +24,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
         // {
         DI.Setup(nameof(Composition))

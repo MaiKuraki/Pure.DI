@@ -26,7 +26,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))
@@ -90,7 +90,7 @@ class TrainTripPlanner(
 
     public IRoutePlanningSession SessionForReturn { get; } = sessionForReturn;
 
-    // These come from a singleton tuple — effectively "global cached" instances.
+    // These come from a singleton tuple - effectively "global cached" instances.
     public IRoutePlanningSession CapturedSessionA { get; } = capturedSessions.capturedA;
 
     public IRoutePlanningSession CapturedSessionB { get; } = capturedSessions.capturedB;

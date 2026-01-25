@@ -1,8 +1,8 @@
-﻿/*
+/*
 $v=true
 $p=1
 $d=Interception
-$h=Interception allows you to enrich or change the behavior of a certain set of objects from the object graph being created without changing the code of the corresponding types.
+$h=Interception lets you enrich or change the behavior of a certain set of objects from the object graph being created without changing the code of the corresponding types.
 $f=Using an intercept gives you the ability to add end-to-end functionality such as:
 $f=
 $f=- Logging
@@ -44,7 +44,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {    
         // OnDependencyInjection = On

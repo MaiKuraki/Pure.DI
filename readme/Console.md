@@ -2,7 +2,7 @@
 
 [![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/ShroedingersCat)
 
-This example demonstrates the creation of a simple console application in the pure DI paradigm using the Pure.DI code generator. All code is in [one file](/samples/ShroedingersCat/Program.cs) for easy perception:
+This example demonstrates the creation of a simple console application in the pure DI paradigm using the Pure.DI code generator. All code is in [one file](/samples/ShroedingersCat/Program.cs) for easy reading:
 
 ```c#
 using Pure.DI;
@@ -46,7 +46,7 @@ public class ShroedingersCat(Lazy<State> superposition) : ICat
     public override string ToString() => $"{State} cat";
 }
 
-// Let's glue all together
+// Let's glue it all together
 
 internal partial class Composition
 {
@@ -58,7 +58,7 @@ internal partial class Composition
         .Bind().As(Singleton).To<Random>()
         // Represents a quantum superposition of 2 states: Alive or Dead
         .Bind().To((Random random) => (State)random.Next(2))
-        // Represents schrodinger's cat
+        // Represents Schrodinger's cat
         .Bind().To<ShroedingersCat>()
         // Represents a cardboard box with any content
         .Bind().To<CardboardBox<TT>>()
@@ -71,7 +71,7 @@ internal partial class Composition
 public class Program(IBox<ICat> box)
 {
     // Composition Root, a single place in an application
-    // where the composition of the object graphs for an application take place
+    // where the composition of the object graphs for an application takes place
     public static void Main() => new Composition().Root.Run();
 
     private void Run() => Console.WriteLine(box);

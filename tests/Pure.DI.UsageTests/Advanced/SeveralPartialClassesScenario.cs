@@ -1,4 +1,4 @@
-﻿/*
+/*
 $v=true
 $p=11
 $d=A few partial classes
@@ -50,7 +50,7 @@ class ClassCommenter(IComments comments) : IClassCommenter;
 partial class Composition
 {
 // }
-    // This hint indicates to not generate methods such as Resolve
+    // Disable Resolve methods to keep the public API minimal
     // Resolve = Off
 // {
     // Infrastructure layer setup.

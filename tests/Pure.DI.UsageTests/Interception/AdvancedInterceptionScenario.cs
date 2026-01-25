@@ -34,7 +34,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         // OnDependencyInjection = On
@@ -47,7 +47,7 @@ public class Scenario
         var composition = new Composition(log);
         var businessService = composition.BusinessService;
 
-        // Взаимодействие с сервисами для проверки перехвата
+        // Use the services to verify interception.
         businessService.Process();
         businessService.DataService.Count();
 

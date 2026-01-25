@@ -2,11 +2,11 @@
 $v=true
 $p=1
 $d=Resolve methods
-$h=This example shows how to resolve the roots of a composition using `Resolve` methods to use the composition as a _Service Locator_. The `Resolve` methods are generated automatically without additional effort.
-$f=_Resolve_ methods are similar to calls to composition roots. Composition roots are properties (or methods). Their use is efficient and does not cause exceptions. This is why they are recommended to be used. In contrast, _Resolve_ methods have a number of disadvantages:
+$h=This example shows how to resolve composition roots via `Resolve` methods, using the composition as a _Service Locator_. The `Resolve` methods are generated automatically.
+$f=_Resolve_ methods are similar to calling composition roots, which are properties (or methods). Roots are efficient and do not throw, so they are preferred. In contrast, _Resolve_ methods have drawbacks:
 $f=- They provide access to an unlimited set of dependencies (_Service Locator_).
 $f=- Their use can potentially lead to runtime exceptions. For example, when the corresponding root has not been defined.
-$f=- Sometimes cannot be used directly, e.g., for MAUI/WPF/Avalonia binding.
+$f=- They are awkward for some UI binding scenarios (e.g., MAUI/WPF/Avalonia).
 */
 
 // ReSharper disable ClassNeverInstantiated.Local
@@ -58,7 +58,7 @@ public class Scenario
         // The next 3 lines of code do the same thing too:
         var humiditySensor1 = composition.Resolve<ISensor>("Humidity");
         var humiditySensor2 = composition.Resolve(typeof(ISensor), "Humidity");
-        var humiditySensor3 = composition.HumiditySensor; // Gets the composition through the public root
+        var humiditySensor3 = composition.HumiditySensor; // Resolve via the public root
         // }
         sensor1.ShouldBeOfType<TemperatureSensor>();
         sensor2.ShouldBeOfType<TemperatureSensor>();

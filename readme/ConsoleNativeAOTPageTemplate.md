@@ -1,8 +1,8 @@
-#### Console native AOT application
+#### Console Native AOT application
 
 [![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/ShroedingersCatNativeAOT)
 
-This example is very similar to [simple console application](ConsoleTemplate.md), except that this is [native AOT](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/) application.
+This example is very similar to the [simple console application](ConsoleTemplate.md), except that this is a [native AOT](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/) application.
 
 The [project file](/samples/ShroedingersCatNativeAOT/ShroedingersCatNativeAOT.csproj) looks like this:
 

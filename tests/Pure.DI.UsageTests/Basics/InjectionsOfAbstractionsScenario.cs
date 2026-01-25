@@ -2,10 +2,10 @@
 $v=true
 $p=0
 $d=Injections of abstractions
-$h=This example demonstrates the recommended approach of using abstractions instead of implementations when injecting dependencies.
-$f=Usually the biggest block in the setup is the chain of bindings, which describes which implementation corresponds to which abstraction. This is necessary so that the code generator can build a composition of objects using only NOT abstract types. This is true because the cornerstone of DI technology implementation is the principle of abstraction-based programming rather than concrete class-based programming. Thanks to it, it is possible to replace one concrete implementation by another. And each implementation can correspond to an arbitrary number of abstractions.
+$h=This example shows the recommended approach: depend on abstractions and bind them to implementations.
+$f=The binding chain maps abstractions to concrete types so the generator can build a fully concrete object graph. This keeps consumers decoupled and allows swapping implementations. A single implementation can satisfy multiple abstractions.
 $f=> [!TIP]
-$f=> Even if the binding is not defined, there is no problem with the injection, but obviously under the condition that the consumer requests an injection NOT of abstract type.
+$f=> If a binding is missing, injection still works when the consumer requests a concrete type (not an abstraction).
 $f=
 */
 
@@ -30,7 +30,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))

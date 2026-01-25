@@ -1,8 +1,8 @@
-﻿/*
+/*
 $v=true
 $p=17
 $d=Root binding
-$h=In general, it is recommended to define one composition root for the entire application. But sometimes it is necessary to have multiple roots. To simplify the definition of composition roots, a "hybrid" API method `RootBind<T>(string rootName)` was added. It allows you to define a binding and at the same time the root of the composition. You can it in order to reduce repetitions. The registration `composition.RootBind<IDependency>().To<Dependency>()` is an equivalent to `composition.Bind<IDependency>().To<Dependency>().Root<IDependency>()`.
+$h=In general, it is recommended to define one composition root for the entire application. But Sometimes you need to have multiple roots. To simplify the definition of composition roots, a "hybrid" API method `RootBind<T>(string rootName)` was added. It lets you define a binding and at the same time the root of the composition. You can it in order to reduce repetitions. The registration `composition.RootBind<IDependency>().To<Dependency>()` is an equivalent to `composition.Bind<IDependency>().To<Dependency>().Root<IDependency>()`.
 $r=Shouldly
 */
 
@@ -26,12 +26,12 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))
             .Bind().As(Lifetime.Singleton).To<DbConnection>()
-            // RootBind allows you to define a binding and a composition root
+            // RootBind lets you define a binding and a composition root
             // simultaneously. This is useful for creating public entry points
             // for your application components while keeping the configuration concise.
             .RootBind<IOrderService>("OrderService").To<OrderService>();

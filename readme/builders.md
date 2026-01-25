@@ -1,6 +1,6 @@
 #### Builders
 
-Sometimes you need builders for all types inherited from <see cref=“T”/> available at compile time at the point where the method is called.
+Sometimes you need builders for all types derived from `T` that are known at compile time.
 
 
 ```c#
@@ -66,7 +66,7 @@ record GuardBot : IRobot
 <details>
 <summary>Running this code sample locally</summary>
 
-- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later is installed
+- Make sure you have the [.NET SDK 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or later installed
 ```bash
 dotnet --list-sdk
 ```
@@ -74,7 +74,7 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add references to NuGet packages
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
   - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash

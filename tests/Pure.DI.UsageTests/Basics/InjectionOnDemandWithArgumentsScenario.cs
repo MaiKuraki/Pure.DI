@@ -2,7 +2,7 @@
 $v=true
 $p=3
 $d=Injections on demand with arguments
-$h=This example illustrates dependency injection with parameterized factory functions using Pure.DI, where dependencies are created with runtime-provided arguments. The scenario features a service that generates dependencies with specific IDs passed during instantiation.
+$h=This example uses a parameterized factory so dependencies can be created with runtime arguments. The service creates sensors with specific IDs at instantiation time.
 $f=Delayed dependency instantiation:
 $f=- Injection of dependencies requiring runtime parameters
 $f=- Creation of distinct instances with different configurations
@@ -29,7 +29,7 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))
@@ -71,10 +71,10 @@ class SmartHome(Func<int, ISensor> sensorFactory) : ISmartHome
 {
     public IReadOnlyList<ISensor> Sensors { get; } =
     [
-        // Use the injected factory to create a sensor with ID 101 (e.g., Kitchen Temperature)
+        // Use the injected factory to create a sensor with ID 101
         sensorFactory(101),
 
-        // Create another sensor with ID 102 (e.g., Living Room Humidity)
+        // Create another sensor with ID 102
         sensorFactory(102)
     ];
 }

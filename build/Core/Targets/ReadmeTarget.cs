@@ -192,7 +192,7 @@ class ReadmeTarget(
                 await examplesWriter.WriteLineAsync("<details>");
                 await examplesWriter.WriteLineAsync("<summary>Running this code sample locally</summary>");
                 await examplesWriter.WriteLineAsync();
-                await examplesWriter.WriteLineAsync($"- Make sure you have the [.NET SDK {settings.BaseDotNetFrameworkVersion}](https://dotnet.microsoft.com/en-us/download/dotnet/{settings.BaseDotNetFrameworkVersion}) or later is installed");
+                await examplesWriter.WriteLineAsync($"- Make sure you have the [.NET SDK {settings.BaseDotNetFrameworkVersion}](https://dotnet.microsoft.com/en-us/download/dotnet/{settings.BaseDotNetFrameworkVersion}) or later installed");
                 await examplesWriter.WriteLineAsync("```bash");
                 await examplesWriter.WriteLineAsync("dotnet --list-sdk");
                 await examplesWriter.WriteLineAsync("```");
@@ -202,7 +202,8 @@ class ReadmeTarget(
                 await examplesWriter.WriteLineAsync("```");
                 var references = example[CreateExamplesTarget.ReferencesKey].Split(";", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                 var refs = references.Length > 0 ? "s" : "";
-                await examplesWriter.WriteLineAsync($"- Add reference{refs} to NuGet package{refs}");
+                var art = references.Length > 0 ? "" : "a ";
+                await examplesWriter.WriteLineAsync($"- Add {art}reference{refs} to the NuGet package{refs}");
                 await examplesWriter.WriteLineAsync("  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)");
                 foreach (var reference in references)
                 {

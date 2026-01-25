@@ -1,4 +1,4 @@
-﻿/*
+/*
 $v=true
 $p=7
 $d=Disposable singleton
@@ -26,11 +26,11 @@ public class Scenario
     [Fact]
     public void Run()
     {
-        // This hint indicates to not generate methods such as Resolve
+        // Disable Resolve methods to keep the public API minimal
         // Resolve = Off
 // {
         DI.Setup(nameof(Composition))
-            // This hint indicates to not generate methods such as Resolve
+            // Disable Resolve methods to keep the public API minimal
             .Hint(Hint.Resolve, "Off")
 
             // A realistic example:
