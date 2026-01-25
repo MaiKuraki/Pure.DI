@@ -4,7 +4,9 @@
 
 namespace Pure.DI.Core.Code.Parts;
 
-sealed class ResolverClassesBuilder(IBuilder<RootsContext, IEnumerable<ResolverInfo>> resolversBuilder)
+sealed class ResolverClassesBuilder(
+    IBuilder<RootsContext, IEnumerable<ResolverInfo>> resolversBuilder,
+    ICodeNameProvider codeNameProvider)
     : IClassPartBuilder
 {
     public ClassPart Part => ClassPart.ResolverClasses;
@@ -25,22 +27,23 @@ sealed class ResolverClassesBuilder(IBuilder<RootsContext, IEnumerable<ResolverI
         membersCount++;
         code.AppendLine();
 
-        code.AppendLine($"private class {Names.ResolverClassName}<T>: {Names.IResolverTypeName}<{composition.Source.Source.Name.ClassName}, T>");
+        var resolverTypeParam = codeNameProvider.GetUniqueTypeParameterName(composition.Source.Source.Name.ClassName);
+        code.AppendLine($"private class {Names.ResolverClassName}<{resolverTypeParam}>: {Names.IResolverTypeName}<{composition.Source.Source.Name.ClassName}, {resolverTypeParam}>");
         using (code.CreateBlock())
         {
-            code.AppendLine($"public static {Names.IResolverTypeName}<{composition.Source.Source.Name.ClassName}, T> {Names.ResolverPropertyName} = new {Names.ResolverClassName}<T>();");
+            code.AppendLine($"public static {Names.IResolverTypeName}<{composition.Source.Source.Name.ClassName}, {resolverTypeParam}> {Names.ResolverPropertyName} = new {Names.ResolverClassName}<{resolverTypeParam}>();");
             code.AppendLine();
-            code.AppendLine($"public virtual T {Names.ResolveMethodName}({composition.Source.Source.Name.ClassName} composite)");
+            code.AppendLine($"public virtual {resolverTypeParam} {Names.ResolveMethodName}({composition.Source.Source.Name.ClassName} composite)");
             using (code.CreateBlock())
             {
-                code.AppendLine($"throw new {Names.CannotResolveExceptionTypeName}($\"{{{Names.CannotResolveFieldName}}}{{{Names.OfTypeFieldName}}}{{typeof(T)}}.\", typeof(T), null);");
+                code.AppendLine($"throw new {Names.CannotResolveExceptionTypeName}($\"{{{Names.CannotResolveFieldName}}}{{{Names.OfTypeFieldName}}}{{typeof({resolverTypeParam})}}.\", typeof({resolverTypeParam}), null);");
             }
 
             code.AppendLine();
-            code.AppendLine($"public virtual T {Names.ResolveByTagMethodName}({composition.Source.Source.Name.ClassName} composite, object tag)");
+            code.AppendLine($"public virtual {resolverTypeParam} {Names.ResolveByTagMethodName}({composition.Source.Source.Name.ClassName} composite, object tag)");
             using (code.CreateBlock())
             {
-                code.AppendLine($"throw new {Names.CannotResolveExceptionTypeName}($\"{{{Names.CannotResolveFieldName}}}\\\"{{tag}}\\\" {{{Names.OfTypeFieldName}}}{{typeof(T)}}.\", typeof(T), tag);");
+                code.AppendLine($"throw new {Names.CannotResolveExceptionTypeName}($\"{{{Names.CannotResolveFieldName}}}\\\"{{tag}}\\\" {{{Names.OfTypeFieldName}}}{{typeof({resolverTypeParam})}}.\", typeof({resolverTypeParam}), tag);");
             }
         }
 

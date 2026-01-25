@@ -4,7 +4,8 @@ namespace Pure.DI.Core.Code.Parts;
 
 sealed class DefaultConstructorBuilder(
     ILocks locks,
-    IConstructors constructors)
+    IConstructors constructors,
+    ICodeNameProvider codeNameProvider)
     : IClassPartBuilder
 {
     public ClassPart Part => ClassPart.DefaultConstructor;
@@ -28,7 +29,8 @@ sealed class DefaultConstructorBuilder(
         }
 
         code.AppendLine($"[{Names.OrdinalAttributeName}(256)]");
-        code.AppendLine($"public {composition.Source.Source.Name.ClassName}()");
+        var ctorName = codeNameProvider.GetConstructorName(composition.Source.Source.Name.ClassName);
+        code.AppendLine($"public {ctorName}()");
         using (code.CreateBlock())
         {
             if (composition.Singletons.Length > 0)
@@ -54,4 +56,5 @@ sealed class DefaultConstructorBuilder(
         membersCounter++;
         return composition with { MembersCount = membersCounter };
     }
+
 }

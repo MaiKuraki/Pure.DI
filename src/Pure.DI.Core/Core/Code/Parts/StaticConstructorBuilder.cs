@@ -6,7 +6,8 @@ using static LinesExtensions;
 
 sealed class StaticConstructorBuilder(
     ITypeResolver typeResolver,
-    IBuilder<RootsContext, IEnumerable<ResolverInfo>> resolversBuilder)
+    IBuilder<RootsContext, IEnumerable<ResolverInfo>> resolversBuilder,
+    ICodeNameProvider codeNameProvider)
     : IClassPartBuilder
 {
     public ClassPart Part => ClassPart.StaticConstructor;
@@ -35,7 +36,8 @@ sealed class StaticConstructorBuilder(
             return composition;
         }
 
-        code.AppendLine($"static {composition.Source.Source.Name.ClassName}()");
+        var ctorName = codeNameProvider.GetConstructorName(composition.Source.Source.Name.ClassName);
+        code.AppendLine($"static {ctorName}()");
         using (code.CreateBlock())
         {
             foreach (var resolver in resolvers)
@@ -83,4 +85,5 @@ sealed class StaticConstructorBuilder(
 
         return composition with { MembersCount = composition.MembersCount + membersCounter };
     }
+
 }

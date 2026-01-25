@@ -1389,6 +1389,592 @@ public class BindAttributeTests
     }
 
     [Fact]
+    public async Task ShouldSupportExposedRootFromOtherCompositionWithGenericType()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using Pure.DI;
+
+                           public class MyDependency<T> { }
+
+                           public interface IMyService<T> { void DoSomething(); }
+
+                           public class MyService<T> : IMyService<T>
+                           {
+                               public MyDependency<T> MyDependency { get; }
+                               public MyService(MyDependency<T> myDependency) => MyDependency = myDependency;
+                               public void DoSomething() { }
+                           }
+
+                           public partial class CompositionInOtherProject<T>
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<MyDependency<T>>()
+                                       .Bind().To<MyService<T>>()
+                                       .Root<IMyService<T>>("MyService", kind: RootKinds.Exposed);
+                           }
+
+                           public partial class Composition
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<CompositionInOtherProject<int>>()
+                                       .Root<Program>("Program");
+                           }
+
+                           public partial class Program
+                           {
+                               public IMyService<int> MyService { get; }
+
+                               public Program(IMyService<int> myService)
+                               {
+                                   MyService = myService;
+                               }
+                               
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   var program = composition.Program;
+                                   System.Console.WriteLine(program.MyService != null);
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportExposedRootFromOtherCompositionWithGenericTypes()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using Pure.DI;
+
+                           public class MyDependency<T1, T2> { }
+
+                           public interface IMyService<T1, T2> { void DoSomething(); }
+
+                           public class MyService<T1, T2> : IMyService<T1, T2>
+                           {
+                               public MyDependency<T1, T2> MyDependency { get; }
+                               public MyService(MyDependency<T1, T2> myDependency) => MyDependency = myDependency;
+                               public void DoSomething() { }
+                           }
+
+                           public partial class CompositionInOtherProject<T1, T2>
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<MyDependency<T1, T2>>()
+                                       .Bind().To<MyService<T1, T2>>()
+                                       .Root<IMyService<T1, T2>>("MyService", kind: RootKinds.Exposed);
+                           }
+
+                           public partial class Composition
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<CompositionInOtherProject<int, string>>()
+                                       .Root<Program>("Program");
+                           }
+
+                           public partial class Program
+                           {
+                               public IMyService<int, string> MyService { get; }
+
+                               public Program(IMyService<int, string> myService)
+                               {
+                                   MyService = myService;
+                               }
+                               
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   var program = composition.Program;
+                                   System.Console.WriteLine(program.MyService != null);
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportExposedRootFromOtherCompositionWithNestedGenericTypes()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System.Collections.Generic;
+                           using Pure.DI;
+
+                           public class MyDependency<T1, T2, T3> { }
+
+                           public interface IMyService<T1, T2, T3> { void DoSomething(); }
+
+                           public class MyService<T1, T2, T3> : IMyService<T1, T2, T3>
+                           {
+                               public MyDependency<T1, T2, T3> MyDependency { get; }
+                               public MyService(MyDependency<T1, T2, T3> myDependency) => MyDependency = myDependency;
+                               public void DoSomething() { }
+                           }
+
+                           public partial class CompositionInOtherProject<T1, T2, T3>
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<MyDependency<T1, List<T2>, T3>>()
+                                       .Bind().To<MyService<T1, List<T2>, T3>>()
+                                       .Root<IMyService<T1, List<T2>, T3>>("MyService", kind: RootKinds.Exposed);
+                           }
+
+                           public partial class Composition
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<CompositionInOtherProject<int, string, double>>()
+                                       .Root<Program>("Program");
+                           }
+
+                           public partial class Program
+                           {
+                               public IMyService<int, List<string>, double> MyService { get; }
+
+                               public Program(IMyService<int, List<string>, double> myService)
+                               {
+                                   MyService = myService;
+                               }
+                               
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   var program = composition.Program;
+                                   System.Console.WriteLine(program.MyService != null);
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportExposedRootFromOtherCompositionWithDeeplyNestedGenericTypes()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System.Collections.Generic;
+                           using Pure.DI;
+
+                           public class MyDependency<T> { }
+
+                           public interface IMyService<T> { void DoSomething(); }
+
+                           public class MyService<T> : IMyService<T>
+                           {
+                               public MyDependency<T> MyDependency { get; }
+                               public MyService(MyDependency<T> myDependency) => MyDependency = myDependency;
+                               public void DoSomething() { }
+                           }
+
+                           public partial class CompositionInOtherProject<T1, T2>
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<MyDependency<List<List<T1>>> >()
+                                       .Bind().To<MyService<List<List<T1>>>>()
+                                       .Root<IMyService<List<List<T1>>>>("MyService", kind: RootKinds.Exposed);
+                           }
+
+                           public partial class Composition
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<CompositionInOtherProject<int, string>>()
+                                       .Root<Program>("Program");
+                           }
+
+                           public partial class Program
+                           {
+                               public IMyService<List<List<int>>> MyService { get; }
+
+                               public Program(IMyService<List<List<int>>> myService)
+                               {
+                                   MyService = myService;
+                               }
+                               
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   var program = composition.Program;
+                                   System.Console.WriteLine(program.MyService != null);
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportExposedRootFromOtherCompositionWithDeeplyNestedGenericTypesAndConstraints()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System.Collections.Generic;
+                           using Pure.DI;
+
+                           public class MyDependency<T> { }
+
+                           public interface IMyService<T> where T : class, new()
+                           {
+                               MyDependency<T> MyDependency { get; }
+                               void DoSomething();
+                           }
+
+                           public class MyService<T> : IMyService<T> where T : class, new()
+                           {
+                               public MyDependency<T> MyDependency { get; }
+                               public MyService(MyDependency<T> myDependency) => MyDependency = myDependency;
+                               public void DoSomething() { }
+                           }
+
+                           public class MyModel { }
+
+                           public partial class CompositionInOtherProject<T1> where T1 : class, new()
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<MyDependency<List<List<T1>>>>()
+                                       .Bind().To<MyService<List<List<T1>>>>()
+                                       .Root<IMyService<List<List<T1>>>>("MyService", kind: RootKinds.Exposed);
+                           }
+
+                           public partial class Composition
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<CompositionInOtherProject<MyModel>>()
+                                       .Root<Program>("Program");
+                           }
+
+                           public partial class Program
+                           {
+                               public IMyService<List<List<MyModel>>> MyService { get; }
+
+                               public Program(IMyService<List<List<MyModel>>> myService)
+                               {
+                                   MyService = myService;
+                               }
+                               
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   var program = composition.Program;
+                                   System.Console.WriteLine(program.MyService != null);
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportExposedRootFromOtherCompositionWithDeeplyNestedGenericTypesAndStructConstraints()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System.Collections.Generic;
+                           using Pure.DI;
+
+                           public class MyDependency<T> { }
+
+                           public interface IMyService<T> where T : struct
+                           {
+                               MyDependency<T> MyDependency { get; }
+                               void DoSomething();
+                           }
+
+                           public class MyService<T> : IMyService<T> where T : struct
+                           {
+                               public MyDependency<T> MyDependency { get; }
+                               public MyService(MyDependency<T> myDependency) => MyDependency = myDependency;
+                               public void DoSomething() { }
+                           }
+
+                           public struct MyModel { }
+
+                           public partial class CompositionInOtherProject<T1> where T1 : struct
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<MyDependency<KeyValuePair<T1, KeyValuePair<T1, T1>>>>()
+                                       .Bind().To<MyService<KeyValuePair<T1, KeyValuePair<T1, T1>>>>()
+                                       .Root<IMyService<KeyValuePair<T1, KeyValuePair<T1, T1>>>>("MyService", kind: RootKinds.Exposed);
+                           }
+
+                           public partial class Composition
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<CompositionInOtherProject<MyModel>>()
+                                       .Root<Program>("Program");
+                           }
+
+                           public partial class Program
+                           {
+                               public IMyService<KeyValuePair<MyModel, KeyValuePair<MyModel, MyModel>>> MyService { get; }
+
+                               public Program(IMyService<KeyValuePair<MyModel, KeyValuePair<MyModel, MyModel>>> myService)
+                               {
+                                   MyService = myService;
+                               }
+                               
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   var program = composition.Program;
+                                   System.Console.WriteLine(program.MyService != null);
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportExposedRootFromOtherCompositionWithDeeplyNestedGenericTypesAndClassConstraints()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System.Collections.Generic;
+                           using Pure.DI;
+
+                           public class MyDependency<T> { }
+
+                           public interface IMyService<T> where T : class
+                           {
+                               MyDependency<T> MyDependency { get; }
+                               void DoSomething();
+                           }
+
+                           public class MyService<T> : IMyService<T> where T : class
+                           {
+                               public MyDependency<T> MyDependency { get; }
+                               public MyService(MyDependency<T> myDependency) => MyDependency = myDependency;
+                               public void DoSomething() { }
+                           }
+
+                           public class MyModel { }
+
+                           public partial class CompositionInOtherProject<T1> where T1 : class
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<MyDependency<List<List<T1>>>>()
+                                       .Bind().To<MyService<List<List<T1>>>>()
+                                       .Root<IMyService<List<List<T1>>>>("MyService", kind: RootKinds.Exposed);
+                           }
+
+                           public partial class Composition
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<CompositionInOtherProject<MyModel>>()
+                                       .Root<Program>("Program");
+                           }
+
+                           public partial class Program
+                           {
+                               public IMyService<List<List<MyModel>>> MyService { get; }
+
+                               public Program(IMyService<List<List<MyModel>>> myService)
+                               {
+                                   MyService = myService;
+                               }
+                               
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   var program = composition.Program;
+                                   System.Console.WriteLine(program.MyService != null);
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportExposedRootFromOtherCompositionWithDeeplyNestedGenericTypesAndDisposableConstraints()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using System.Collections.Generic;
+                           using Pure.DI;
+
+                           public class MyDependency<T> { }
+
+                           public interface IMyService<T> where T : class, IDisposable
+                           {
+                               MyDependency<T> MyDependency { get; }
+                               void DoSomething();
+                           }
+
+                           public class MyService<T> : IMyService<T> where T : class, IDisposable
+                           {
+                               public MyDependency<T> MyDependency { get; }
+                               public MyService(MyDependency<T> myDependency) => MyDependency = myDependency;
+                               public void DoSomething() { }
+                           }
+
+                           public class DisposableBox<T> : IDisposable
+                           {
+                               public void Dispose() { }
+                           }
+
+                           public class MyModel : IDisposable
+                           {
+                               public void Dispose() { }
+                           }
+
+                           public partial class CompositionInOtherProject<T1> where T1 : class, IDisposable
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<MyDependency<DisposableBox<List<List<T1>>>>>()
+                                       .Bind().To<MyService<DisposableBox<List<List<T1>>>>>()
+                                       .Root<IMyService<DisposableBox<List<List<T1>>>>>("MyService", kind: RootKinds.Exposed);
+                           }
+
+                           public partial class Composition
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<CompositionInOtherProject<MyModel>>()
+                                       .Root<Program>("Program");
+                           }
+
+                           public partial class Program
+                           {
+                               public IMyService<DisposableBox<List<List<MyModel>>>> MyService { get; }
+
+                               public Program(IMyService<DisposableBox<List<List<MyModel>>>> myService)
+                               {
+                                   MyService = myService;
+                               }
+                               
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   var program = composition.Program;
+                                   System.Console.WriteLine(program.MyService != null);
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportExposedRootFromOtherCompositionWithMultipleGenericRoots()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using Pure.DI;
+
+                           public class MyDependency<T1, T2> { }
+
+                           public interface IMyService<T1, T2> { void DoSomething(); }
+
+                           public class MyService<T1, T2> : IMyService<T1, T2>
+                           {
+                               public MyDependency<T1, T2> MyDependency { get; }
+                               public MyService(MyDependency<T1, T2> myDependency) => MyDependency = myDependency;
+                               public void DoSomething() { }
+                           }
+
+                           public partial class CompositionInOtherProject<T1, T2>
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<MyDependency<T1, T2>>()
+                                       .Bind().To<MyService<T1, T2>>()
+                                       .Bind().To<MyService<T2, T1>>()
+                                       .Root<IMyService<T1, T2>>("MyService", kind: RootKinds.Exposed)
+                                       .Root<IMyService<T2, T1>>("MyServiceReversed", kind: RootKinds.Exposed);
+                           }
+
+                           public partial class Composition
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<CompositionInOtherProject<int, string>>()
+                                       .Root<Program>("Program");
+                           }
+
+                           public partial class Program
+                           {
+                               public IMyService<int, string> MyService { get; }
+                               public IMyService<string, int> MyServiceReversed { get; }
+
+                               public Program(
+                                   IMyService<int, string> myService,
+                                   IMyService<string, int> myServiceReversed)
+                               {
+                                   MyService = myService;
+                                   MyServiceReversed = myServiceReversed;
+                               }
+                               
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   var program = composition.Program;
+                                   System.Console.WriteLine(program.MyService != null);
+                                   System.Console.WriteLine(program.MyServiceReversed != null);
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True", "True"], result);
+    }
+
+    [Fact]
     public async Task ShouldSupportExposedRootFromOtherCompositionWhenBinding()
     {
         // Given
@@ -1574,6 +2160,86 @@ public class BindAttributeTests
                                public IMyService MyService { get; }
 
                                public Program([Tag("svc")] IMyService myService)
+                               {
+                                   MyService = myService;
+                               }
+                               
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   var program1 = composition.Program;
+                                   var program2 = composition.Program;
+                                   Console.WriteLine(ReferenceEquals(program1.MyService, program2.MyService));
+                                   Console.WriteLine(ReferenceEquals(program1.MyService.MyDependency, program2.MyService.MyDependency));
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True", "True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportExposedRootFromOtherCompositionWhenBindingWithTagsLifetimeAndBindTypeWithGenericConstraints()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           public interface IMyDependency
+                           {
+                               Guid Id { get; }
+                           }
+
+                           public class MyDependency<T> : IMyDependency where T : class, new()
+                           {
+                               public Guid Id { get; } = Guid.NewGuid();
+                           }
+
+                           public interface IMyService<T> where T : class, new()
+                           {
+                               IMyDependency MyDependency { get; }
+                               void DoSomething();
+                           }
+
+                           public class MyService<T> : IMyService<T> where T : class, new()
+                           {
+                               public IMyDependency MyDependency { get; }
+                               public MyService(IMyDependency myDependency) => MyDependency = myDependency;
+                               public void DoSomething() { }
+                           }
+
+                           public class MyModel { }
+
+                           public partial class CompositionInOtherProject<T> where T : class, new()
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<MyDependency<T>>()
+                                       .Bind().As(Lifetime.Singleton).To<MyService<T>>()
+                                       .Root<IMyService<T>>("MyService");
+
+                               [Bind(typeof(IMyService<Pure.DI.TTN>), Lifetime.Singleton, "svc")]
+                               public MyService<T> MyServiceRoot => (MyService<T>)MyService;
+                           }
+
+                           public partial class Composition
+                           {
+                               private void Setup() =>
+                                   DI.Setup()
+                                       .Bind().As(Lifetime.Singleton).To<CompositionInOtherProject<MyModel>>()
+                                       .Root<Program>("Program");
+                           }
+
+                           public partial class Program
+                           {
+                               public IMyService<MyModel> MyService { get; }
+
+                               public Program([Tag("svc")] IMyService<MyModel> myService)
                                {
                                    MyService = myService;
                                }

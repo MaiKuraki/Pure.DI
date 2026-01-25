@@ -288,7 +288,14 @@ sealed class ApiInvocationProcessor(
                             && string.IsNullOrWhiteSpace(setupCompositionTypeName)
                             && baseTypeDeclarationSyntax is not null)
                         {
-                            setupCompositionTypeName = baseTypeDeclarationSyntax.Identifier.Text;
+                            if (semanticModel.GetDeclaredSymbol(baseTypeDeclarationSyntax) is {} baseTypeSymbol)
+                            {
+                                setupCompositionTypeName = GetTypeName(baseTypeSymbol);
+                            }
+                            else
+                            {
+                                setupCompositionTypeName = baseTypeDeclarationSyntax.Identifier.Text;
+                            }
                         }
 
                         foreach (var hint in comments.GetHints(invocationComments))
@@ -331,7 +338,7 @@ sealed class ApiInvocationProcessor(
                             foreach (var derivedType in derivedTypes)
                             {
                                 var compositionName = new CompositionName(
-                                    derivedType.Name,
+                                    GetTypeName(derivedType),
                                     derivedType.ContainingNamespace.IsGlobalNamespace ? "" : derivedType.ContainingNamespace.ToString(),
                                     baseTypeDeclarationSyntax);
 
@@ -1403,6 +1410,25 @@ sealed class ApiInvocationProcessor(
         }
 
         return new CompositionName(className, newNamespace, source);
+    }
+
+    private static string GetTypeName(INamedTypeSymbol typeSymbol)
+    {
+        var parts = new Stack<string>();
+        var current = typeSymbol.OriginalDefinition;
+        while (current != null)
+        {
+            var typeName = current.Name;
+            if (current.TypeParameters.Length > 0)
+            {
+                typeName = $"{typeName}<{string.Join(", ", current.TypeParameters.Select(i => i.Name))}>";
+            }
+
+            parts.Push(typeName);
+            current = current.ContainingType?.OriginalDefinition;
+        }
+
+        return string.Join(".", parts);
     }
 
     private string? GetName(

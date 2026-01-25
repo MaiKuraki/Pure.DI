@@ -32,7 +32,7 @@ sealed class MetadataValidator(
         }
 
         if (setup.Kind == CompositionKind.Public
-            && (!SyntaxFacts.IsValidIdentifier(setup.Name.ClassName)
+            && (!IsValidCompositionTypeName(setup.Name.ClassName)
                 || !IsValidOrEmptyIdentifier(setup.Name.Namespace.Replace('.', '_'))))
         {
             logger.CompileError(
@@ -114,6 +114,17 @@ sealed class MetadataValidator(
     private static bool IsValidOrEmptyIdentifier(string identifier) =>
         string.IsNullOrEmpty(identifier)
         || SyntaxFacts.IsValidIdentifier(identifier);
+
+    private static bool IsValidCompositionTypeName(string typeName)
+    {
+        if (string.IsNullOrWhiteSpace(typeName))
+        {
+            return false;
+        }
+
+        var nameSyntax = SyntaxFactory.ParseName(typeName);
+        return !nameSyntax.ContainsDiagnostics && nameSyntax.DescendantTokens().All(token => !token.IsMissing);
+    }
 
     private bool Validate(MdSetup setup, in MdBinding binding)
     {

@@ -6,7 +6,8 @@ sealed class ParameterizedConstructorBuilder(
     ITypeResolver typeResolver,
     [Tag(typeof(ParameterizedConstructorCommenter))] ICommenter<Unit> constructorCommenter,
     ILocks locks,
-    IConstructors constructors)
+    IConstructors constructors,
+    ICodeNameProvider codeNameProvider)
     : IClassPartBuilder
 {
     public ClassPart Part => ClassPart.ParameterizedConstructor;
@@ -29,7 +30,8 @@ sealed class ParameterizedConstructorBuilder(
 
         code.AppendLine($"[{Names.OrdinalAttributeName}(128)]");
         var classArgs = composition.ClassArgs.GetArgsOfKind(ArgKind.Composition).ToList();
-        code.AppendLine($"public {composition.Source.Source.Name.ClassName}({string.Join(", ", classArgs.Select(arg => $"{typeResolver.Resolve(composition.Source.Source, arg.InstanceType)} {arg.Node.Arg?.Source.ArgName}"))})");
+        var ctorName = codeNameProvider.GetConstructorName(composition.Source.Source.Name.ClassName);
+        code.AppendLine($"public {ctorName}({string.Join(", ", classArgs.Select(arg => $"{typeResolver.Resolve(composition.Source.Source, arg.InstanceType)} {arg.Node.Arg?.Source.ArgName}"))})");
         using (code.CreateBlock())
         {
             foreach (var arg in classArgs)
@@ -66,4 +68,5 @@ sealed class ParameterizedConstructorBuilder(
         membersCounter++;
         return composition with { MembersCount = membersCounter };
     }
+
 }

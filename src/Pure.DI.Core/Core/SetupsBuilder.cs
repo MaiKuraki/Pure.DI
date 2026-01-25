@@ -230,13 +230,9 @@ sealed class SetupsBuilder(
             select (member, attribute.ConstructorArguments, attribute.NamedArguments))
             .ToList();
 
-        var className = type.Name;
-        var containingType = type.ContainingType;
-        while (containingType != null)
-        {
-            className = $"{containingType.Name}.{className}";
-            containingType = containingType.ContainingType;
-        }
+        var className = type is INamedTypeSymbol namedTypeSymbol
+            ? GetTypeName(namedTypeSymbol)
+            : type.Name;
 
         var typeNamespace = "";
         if (type.ContainingNamespace is { IsGlobalNamespace: false } ns)
@@ -259,11 +255,13 @@ sealed class SetupsBuilder(
 
         bindingsRegistryManager.Register(setup, binding.Id);
         var typeConstructor = typeConstructorFactory();
+        var typeParameterMap = CreateTypeParameterMap(type);
         var boundMemberContracts = new HashSet<(ITypeSymbol ContractType, object? Tag)>(contractTagComparer);
         foreach (var (member, constructorArguments, namedArguments) in membersToBind)
         {
             var values = arguments.GetArgs(constructorArguments, namedArguments, "type", "lifetime", "tags");
             ITypeSymbol? contractType = null;
+            ITypeSymbol? memberType;
             if (values.Length > 0 && values[0].Value is ITypeSymbol newContractType)
             {
                 contractType = newContractType;
@@ -276,14 +274,17 @@ sealed class SetupsBuilder(
             {
                 case IFieldSymbol fieldSymbol:
                     contractType ??= fieldSymbol.Type;
+                    memberType = fieldSymbol.Type;
                     break;
 
                 case IPropertySymbol propertySymbol:
                     contractType ??= propertySymbol.Type;
+                    memberType = propertySymbol.Type;
                     break;
 
                 case IMethodSymbol methodSymbol:
                     contractType ??= methodSymbol.ReturnType;
+                    memberType = methodSymbol.ReturnType;
                     if (methodSymbol.IsGenericMethod)
                     {
                         typeConstructor.TryBind(setup, contractType, methodSymbol.ReturnType);
@@ -310,6 +311,14 @@ sealed class SetupsBuilder(
                 default:
                     continue;
             }
+
+            if (member is not IMethodSymbol { IsGenericMethod: true })
+            {
+                typeConstructor.TryBind(setup, contractType, memberType);
+                contractType = typeConstructor.Construct(setup, contractType);
+            }
+
+            contractType = SubstituteTypeParameters(contractType, typeParameterMap);
 
             var lifetime = Lifetime.Transient;
             if (values.Length > 1 && values[1].Value is int newLifetime)
@@ -457,12 +466,13 @@ sealed class SetupsBuilder(
                 rootTagValue = null;
             }
 
-            if (boundMemberContracts.Contains((root.RootContractType, rootTagValue)))
+            var rootContractType = SubstituteTypeParameters(root.RootContractType, typeParameterMap);
+            rootContractType = ReplaceTypeParametersWithMarkers(rootContractType);
+            if (boundMemberContracts.Contains((rootContractType, rootTagValue)))
             {
                 continue;
             }
 
-            var contractType = root.RootContractType;
             var tags = new List<object?>();
             if (root.Tag is { } rootTag && rootTag.Value != MdTag.ContextTag)
             {
@@ -495,7 +505,7 @@ sealed class SetupsBuilder(
                 new MdContract(
                     semanticModel,
                     source,
-                    contractType,
+                    rootContractType,
                     ContractKind.Explicit,
                     ImmutableArray<MdTag>.Empty));
 
@@ -536,7 +546,7 @@ sealed class SetupsBuilder(
                 new MdFactory(
                     semanticModel,
                     source,
-                    contractType,
+                    rootContractType,
                     localVariableRenamingRewriterFactory(),
                     factoryLambda,
                     true,
@@ -577,6 +587,126 @@ sealed class SetupsBuilder(
                 Position = curPosition++,
                 TypeConstructor = constructor
             };
+        }
+
+        Dictionary<ITypeParameterSymbol, ITypeSymbol> CreateTypeParameterMap(ITypeSymbol compositionType)
+        {
+            if (compositionType is not INamedTypeSymbol { IsGenericType: true } namedType)
+            {
+                return new Dictionary<ITypeParameterSymbol, ITypeSymbol>(SymbolEqualityComparer.Default);
+            }
+
+            var definition = namedType.OriginalDefinition;
+            if (definition.TypeParameters.Length != namedType.TypeArguments.Length)
+            {
+                return new Dictionary<ITypeParameterSymbol, ITypeSymbol>(SymbolEqualityComparer.Default);
+            }
+
+            var map = new Dictionary<ITypeParameterSymbol, ITypeSymbol>(SymbolEqualityComparer.Default);
+            for (var i = 0; i < definition.TypeParameters.Length; i++)
+            {
+                map[definition.TypeParameters[i]] = namedType.TypeArguments[i];
+            }
+
+            return map;
+        }
+
+        string GetTypeName(INamedTypeSymbol typeSymbol)
+        {
+            var parts = new Stack<string>();
+            var current = typeSymbol.OriginalDefinition;
+            while (current != null)
+            {
+                var typeName = current.Name;
+                if (current.TypeParameters.Length > 0)
+                {
+                    typeName = $"{typeName}<{string.Join(", ", current.TypeParameters.Select(i => i.Name))}>";
+                }
+
+                parts.Push(typeName);
+                current = current.ContainingType?.OriginalDefinition;
+            }
+
+            return string.Join(".", parts);
+        }
+
+        ITypeSymbol SubstituteTypeParameters(ITypeSymbol typeSymbol, IReadOnlyDictionary<ITypeParameterSymbol, ITypeSymbol> map)
+        {
+            if (map.Count == 0)
+            {
+                return typeSymbol;
+            }
+
+            switch (typeSymbol)
+            {
+                case ITypeParameterSymbol typeParameter when map.TryGetValue(typeParameter, out var mappedType):
+                    return mappedType;
+
+                case INamedTypeSymbol { IsGenericType: true } namedType:
+                {
+                    var args = namedType.TypeArguments.Select(i => SubstituteTypeParameters(i, map)).ToArray();
+                    var constructed = namedType.OriginalDefinition.Construct(args);
+                    return constructed.WithNullableAnnotation(namedType.NullableAnnotation);
+                }
+
+                case IArrayTypeSymbol arrayType:
+                {
+                    var elementType = SubstituteTypeParameters(arrayType.ElementType, map);
+                    var result = semanticModel.Compilation.CreateArrayTypeSymbol(elementType, arrayType.Rank);
+                    return result.WithNullableAnnotation(arrayType.NullableAnnotation);
+                }
+
+                default:
+                    return typeSymbol;
+            }
+
+        }
+
+        ITypeSymbol ReplaceTypeParametersWithMarkers(ITypeSymbol typeSymbol)
+        {
+            var map = new Dictionary<ITypeParameterSymbol, ITypeSymbol>(SymbolEqualityComparer.Default);
+
+            return Replace(typeSymbol);
+
+            ITypeSymbol Replace(ITypeSymbol symbol)
+            {
+                switch (symbol)
+                {
+                    case ITypeParameterSymbol typeParameter:
+                        if (map.TryGetValue(typeParameter, out var markerType))
+                        {
+                            return markerType;
+                        }
+
+                        var resolvedMarker = GetMarkerType(map.Count);
+                        markerType = resolvedMarker ?? (ITypeSymbol)typeParameter;
+                        map[typeParameter] = markerType;
+                        return markerType;
+
+                    case INamedTypeSymbol { IsGenericType: true } namedType:
+                    {
+                        var args = namedType.TypeArguments.Select(Replace).ToArray();
+                        var constructed = namedType.OriginalDefinition.Construct(args);
+                        return constructed.WithNullableAnnotation(namedType.NullableAnnotation);
+                    }
+
+                    case IArrayTypeSymbol arrayType:
+                    {
+                        var elementType = Replace(arrayType.ElementType);
+                        var result = semanticModel.Compilation.CreateArrayTypeSymbol(elementType, arrayType.Rank);
+                        return result.WithNullableAnnotation(arrayType.NullableAnnotation);
+                    }
+
+                    default:
+                        return symbol;
+                }
+            }
+        }
+
+        INamedTypeSymbol? GetMarkerType(int index)
+        {
+            var typeName = index == 0 ? "Pure.DI.TT" : $"Pure.DI.TT{index}";
+            return semanticModel.Compilation.GetTypeByMetadataName(typeName);
         }
 
         void TrackMemberBindings(ITypeSymbol? memberContractType, List<object?> memberTags)

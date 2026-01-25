@@ -4,14 +4,14 @@ namespace Pure.DI.Core.Code.Parts;
 
 sealed class ApiMembersBuilder(
     IBuilder<RootsContext, IEnumerable<ResolverInfo>> resolversBuilder,
-    IBuildTools buildTools)
+    IBuildTools buildTools,
+    ICodeNameProvider codeNameProvider)
     : IClassPartBuilder
 {
     private const string CommentSummaryStart = "/// <summary>";
     private const string CommentSummary = "/// Resolves the composition root.";
     private const string CommentSummaryByTag = "/// Resolves the composition root by tag.";
     private const string CommentSummaryFinish = "/// </summary>";
-    private const string CommentParamT = "/// <typeparam name=\"T\">The type of the composition root.</typeparam>";
     private const string CommentParamType = "/// <param name=\"type\">The type of the composition root.</param>";
     private const string CommentParamTag = "/// <param name=\"tag\">The tag of a composition root.</param>";
 
@@ -27,21 +27,22 @@ sealed class ApiMembersBuilder(
         var nullable = composition.Compilation.Options.NullableContextOptions == NullableContextOptions.Disable ? "" : "?";
         if (hints.IsResolveEnabled)
         {
+            var resolveTypeParam = codeNameProvider.GetUniqueTypeParameterName(composition.Source.Source.Name.ClassName);
             if (isCommentsEnabled)
             {
                 apiCode.AppendLine(CommentSummaryStart);
                 apiCode.AppendLine(CommentSummary);
                 apiCode.AppendLine(CommentSummaryFinish);
-                apiCode.AppendLine(CommentParamT);
+                apiCode.AppendLine(GetCommentParamT(resolveTypeParam));
                 FinishComments(apiCode);
             }
 
             buildTools.AddPureHeader(apiCode);
             buildTools.AddAggressiveInlining(apiCode);
-            apiCode.AppendLine($"{hints.ResolveMethodModifiers} T {hints.ResolveMethodName}<T>()");
+            apiCode.AppendLine($"{hints.ResolveMethodModifiers} {resolveTypeParam} {hints.ResolveMethodName}<{resolveTypeParam}>()");
             using (apiCode.CreateBlock())
             {
-                apiCode.AppendLine($"return {Names.ResolverClassName}<T>.{Names.ResolverPropertyName}.{Names.ResolveMethodName}(this);");
+                apiCode.AppendLine($"return {Names.ResolverClassName}<{resolveTypeParam}>.{Names.ResolverPropertyName}.{Names.ResolveMethodName}(this);");
             }
 
             membersCounter++;
@@ -52,17 +53,17 @@ sealed class ApiMembersBuilder(
                 apiCode.AppendLine(CommentSummaryStart);
                 apiCode.AppendLine(CommentSummaryByTag);
                 apiCode.AppendLine(CommentSummaryFinish);
-                apiCode.AppendLine(CommentParamT);
+                apiCode.AppendLine(GetCommentParamT(resolveTypeParam));
                 apiCode.AppendLine(CommentParamTag);
                 FinishComments(apiCode);
             }
 
             buildTools.AddPureHeader(apiCode);
             buildTools.AddAggressiveInlining(apiCode);
-            apiCode.AppendLine($"{hints.ResolveByTagMethodModifiers} T {hints.ResolveByTagMethodName}<T>(object{nullable} tag)");
+            apiCode.AppendLine($"{hints.ResolveByTagMethodModifiers} {resolveTypeParam} {hints.ResolveByTagMethodName}<{resolveTypeParam}>(object{nullable} tag)");
             using (apiCode.CreateBlock())
             {
-                apiCode.AppendLine($"return {Names.ResolverClassName}<T>.{Names.ResolverPropertyName}.{Names.ResolveByTagMethodName}(this, tag);");
+                apiCode.AppendLine($"return {Names.ResolverClassName}<{resolveTypeParam}>.{Names.ResolverPropertyName}.{Names.ResolveByTagMethodName}(this, tag);");
             }
 
             membersCounter++;
@@ -141,21 +142,24 @@ sealed class ApiMembersBuilder(
         if (composition.Source.Source.Hints is { IsOnNewInstanceEnabled: true, IsOnNewInstancePartial: true })
         {
             apiCode.AppendLine();
-            apiCode.AppendLine($"partial void {Names.OnNewInstanceMethodName}<T>(ref T value, object{nullable} tag, {Names.ApiNamespace}{nameof(Lifetime)} lifetime);");
+            var typeParam = codeNameProvider.GetUniqueTypeParameterName(composition.Source.Source.Name.ClassName);
+            apiCode.AppendLine($"partial void {Names.OnNewInstanceMethodName}<{typeParam}>(ref {typeParam} value, object{nullable} tag, {Names.ApiNamespace}{nameof(Lifetime)} lifetime);");
             membersCounter++;
         }
 
         if (composition.Source.Source.Hints is { IsOnDependencyInjectionEnabled: true, IsOnDependencyInjectionPartial: true })
         {
             apiCode.AppendLine();
-            apiCode.AppendLine($"private partial T {Names.OnDependencyInjectionMethodName}<T>(in T value, object{nullable} tag, {Names.ApiNamespace}{nameof(Lifetime)} lifetime);");
+            var typeParam = codeNameProvider.GetUniqueTypeParameterName(composition.Source.Source.Name.ClassName);
+            apiCode.AppendLine($"private partial {typeParam} {Names.OnDependencyInjectionMethodName}<{typeParam}>(in {typeParam} value, object{nullable} tag, {Names.ApiNamespace}{nameof(Lifetime)} lifetime);");
             membersCounter++;
         }
 
         if (composition.Source.Source.Hints is { IsOnCannotResolveEnabled: true, IsOnCannotResolvePartial: true })
         {
             apiCode.AppendLine();
-            apiCode.AppendLine($"private partial T {Names.OnCannotResolve}<T>(object{nullable} tag, {Names.ApiNamespace}{nameof(Lifetime)} lifetime);");
+            var typeParam = codeNameProvider.GetUniqueTypeParameterName(composition.Source.Source.Name.ClassName);
+            apiCode.AppendLine($"private partial {typeParam} {Names.OnCannotResolve}<{typeParam}>(object{nullable} tag, {Names.ApiNamespace}{nameof(Lifetime)} lifetime);");
             membersCounter++;
         }
 
@@ -178,6 +182,9 @@ sealed class ApiMembersBuilder(
         apiCode.AppendLine($"/// <seealso cref=\"{Names.IConfigurationTypeName}.Builder{{T}}\"/>");
         apiCode.AppendLine($"/// <seealso cref=\"{Names.IConfigurationTypeName}.Builders{{T}}\"/>");
     }
+
+    private static string GetCommentParamT(string typeParamName) =>
+        $"/// <typeparam name=\"{typeParamName}\">The type of the composition root.</typeparam>";
 
     private void CreateObjectResolverMethod(
         string methodModifiers,

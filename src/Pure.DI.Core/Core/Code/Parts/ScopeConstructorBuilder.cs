@@ -4,7 +4,8 @@ namespace Pure.DI.Core.Code.Parts;
 
 sealed class ScopeConstructorBuilder(
     ILocks locks,
-    IConstructors constructors)
+    IConstructors constructors,
+    ICodeNameProvider codeNameProvider)
     : IClassPartBuilder
 {
     public ClassPart Part => ClassPart.ScopeConstructor;
@@ -28,7 +29,8 @@ sealed class ScopeConstructorBuilder(
             code.AppendLine($"/// <param name=\"{Names.ParentScopeArgName}\">Scope parent.</param>");
         }
 
-        code.AppendLine($"internal {composition.Source.Source.Name.ClassName}({composition.Source.Source.Name.ClassName} {Names.ParentScopeArgName})");
+        var ctorName = codeNameProvider.GetConstructorName(composition.Source.Source.Name.ClassName);
+        code.AppendLine($"internal {ctorName}({composition.Source.Source.Name.ClassName} {Names.ParentScopeArgName})");
         using (code.CreateBlock())
         {
             if (composition.Singletons.Length > 0)
@@ -66,4 +68,5 @@ sealed class ScopeConstructorBuilder(
         membersCounter++;
         return composition with { MembersCount = membersCounter };
     }
+
 }
