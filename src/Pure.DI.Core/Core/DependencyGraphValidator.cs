@@ -25,6 +25,13 @@ sealed class DependencyGraphValidator(
         {
             cancellationToken.ThrowIfCancellationRequested();
             var setup = dependencyGraph.Source;
+            if (dependency.Target.Error is {} targetError)
+            {
+                logger.CompileError(targetError.ErrorMessage, targetError.Locations, targetError.Id);
+                isErrorReported = true;
+                continue;
+            }
+
             if (setup.Hints.IsOnCannotResolveEnabled)
             {
                 string GetContractName() => typeResolver.Resolve(setup, dependency.Injection.Type).Name;
@@ -41,13 +48,6 @@ sealed class DependencyGraphValidator(
             }
 
             isResolved = false;
-            if (dependency.Target.Error is {} error)
-            {
-                logger.CompileError(error.ErrorMessage, error.Locations, error.Id);
-                isErrorReported = true;
-                continue;
-            }
-
             var errorMessage = string.Format(Strings.Error_Template_UnableToResolve, dependency.Injection, dependency.Target);
             var locationsWalker = dependencyGraphLocationsWalkerFactory(dependency.Injection);
             locationsWalker.VisitDependencyNode(Unit.Shared, dependency.Target);
