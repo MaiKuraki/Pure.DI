@@ -174,7 +174,7 @@ sealed class VariationalDependencyGraphBuilder(
     [SuppressMessage("ReSharper", "NotDisposedResourceIsReturned")]
     private static IEnumerable<Variation> CreateVariants(IEnumerable<IProcessingNode> nodes) =>
         nodes.GroupBy(i => i.Node.Binding)
-            .Select(i => new SafeEnumerator<IProcessingNode>(i.GetEnumerator()));
+            .Select(i => new SafeEnumerator<IProcessingNode>(i.ToList().GetEnumerator()));
 
     private static IEnumerable<DependencyNode> SortByPriority(IEnumerable<DependencyNode> nodes) =>
         nodes.GroupBy(i => i.Binding)

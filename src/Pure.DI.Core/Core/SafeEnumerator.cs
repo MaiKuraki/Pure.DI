@@ -5,6 +5,9 @@ sealed class SafeEnumerator<T>(IEnumerator<T> source) : IEnumerator<T>
     where T : class
 {
     private bool _result;
+    private T? _current;
+
+    public bool IsStarted { get; private set; }
 
     public T? Current
     {
@@ -12,11 +15,11 @@ sealed class SafeEnumerator<T>(IEnumerator<T> source) : IEnumerator<T>
         {
             if (!_result)
             {
-                return field;
+                return _current;
             }
 
-            field = source.Current;
-            return field;
+            _current = source.Current;
+            return _current;
         }
     }
 
@@ -24,11 +27,23 @@ sealed class SafeEnumerator<T>(IEnumerator<T> source) : IEnumerator<T>
 
     public bool MoveNext()
     {
+        IsStarted = true;
         _result = source.MoveNext();
+        if (_result)
+        {
+            _current = source.Current;
+        }
+
         return _result;
     }
 
-    public void Reset() => source.Reset();
+    public void Reset()
+    {
+        source.Reset();
+        _result = false;
+        _current = null;
+        IsStarted = false;
+    }
 
     public void Dispose() => source.Dispose();
 }
