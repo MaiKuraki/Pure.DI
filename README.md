@@ -435,7 +435,7 @@ dotnet run
   - [Top-level statements](readme/ConsoleTopLevelStatements.md)
   - [Native AOT](readme/ConsoleNativeAOT.md)
   - [Entity Framework](readme/EntityFramework.md)
-- [Unity](readme/Unity.md) 
+- [Unity](readme/Unity.md)
 - UI
   - [MAUI](readme/Maui.md)
   - [WPF](readme/Wpf.md)
@@ -451,8 +451,8 @@ dotnet run
   - [Blazor WebAssembly](readme/BlazorWebAssemblyApp.md)
     - [https://devteam.github.io/Pure.DI/](https://devteam.github.io/Pure.DI/)
 - GitHub repos with examples
-  - [Schrödinger's cat](https://github.com/DevTeam/Pure.DI.Example) 
-  - [How to use Pure.DI to create and test libraries](https://github.com/DevTeam/Pure.DI.Solution) 
+  - [Schrödinger's cat](https://github.com/DevTeam/Pure.DI.Example)
+  - [How to use Pure.DI to create and test libraries](https://github.com/DevTeam/Pure.DI.Solution)
 
 ## Generated Code
 
@@ -519,7 +519,7 @@ DI.Setup("BaseComposition", CompositionKind.Internal)
     .Bind().To<Dependency>();
 
 DI.Setup("Composition").DependsOn("BaseComposition")
-    .Bind().To<Service>();    
+    .Bind().To<Service>();
 ```
 
 If the _CompositionKind.Public_ flag is set in the composition setup, it can also serve as the base for other compositions, as in the example above.
@@ -536,7 +536,7 @@ No composition class will be created when this value is specified, but this setu
 By default, starting with version 2.3.0, no constructors are generated for a composition. The actual set of constructors depends on the composition arguments and lifetime scopes.
 
 #### Parameterized constructor (automatic generation)
-   
+
 If the composition has any arguments defined, Pure.DI automatically generates a public parameterized constructor that includes all specified arguments.
 
 Example configuration:
@@ -560,8 +560,8 @@ Important notes:
 - Unused arguments are omitted to optimize resource usage.
 - If no arguments are specified, no parameterized constructor is created.
 
-#### Scope‑related constructors (conditional generation)
-   
+#### Scope-related constructors (conditional generation)
+
 If there is at least one binding with `Lifetime.Scoped`, Pure.DI generates two constructors:
 
 1. Public default constructor
@@ -614,7 +614,7 @@ In this case, the property for the _IService_ type will be named _MyService_ and
 public IService MyService
 {
     get
-    { 
+    {
         ...
         return new Service(...);
     }
@@ -953,7 +953,12 @@ Equivalent shortcuts exist for all lifetimes:
 
 ## Setup hints
 
-Hints are used to fine-tune code generation. Setup hints can be used as shown in the following example:
+Hints are per-setup switches and filters that control how the composition code is generated (for example, whether `Resolve` methods are emitted, thread-safety, diagnostics hooks, or `ToString()` diagrams). Think of them as generator settings that let you trade off features, diagnostics, and compile-time cost.
+
+Guidelines:
+- Prefer the fluent API for discoverability and refactoring safety; use comment directives for quick local overrides.
+- Hints affect only the `DI.Setup(...)` they are attached to (unless you use a global composition).
+- If you set the same hint multiple times, the last value wins.
 
 ```c#
 DI.Setup("Composition")
@@ -963,7 +968,7 @@ DI.Setup("Composition")
     ...
 ```
 
-In addition, setup hints can be commented out before the _Setup_ method as `hint = value`. For example:
+As an alternative to the fluent API, you can place comment directives before the _Setup_ method in the form `hint = value`. For example:
 
 ```c#
 // Resolve = Off
@@ -972,7 +977,7 @@ DI.Setup("Composition")
     ...
 ```
 
-Both approaches can be mixed:
+Both approaches can be mixed when it improves readability:
 
 ```c#
 // Resolve = Off
@@ -981,72 +986,79 @@ DI.Setup("Composition")
     ...
 ```
 
-| Hint                                                                                                                               | Values                                     | C# version | Default   |
-|------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|------------|-----------|
-| [Resolve](#resolve-hint)                                                                                                           | _On_ or _Off_                              |            | _On_      |
-| [OnNewInstance](#onnewinstance-hint)                                                                                               | _On_ or _Off_                              | 9.0        | _Off_     |
-| [OnNewInstancePartial](#onnewinstance-hint)                                                                                        | _On_ or _Off_                              |            | _On_      |
-| [OnNewInstanceImplementationTypeNameRegularExpression](#onnewinstanceimplementationtypenameregularexpression-hint)                 | Regular expression                         |            | .+        |
-| [OnNewInstanceImplementationTypeNameWildcard](#onnewinstanceimplementationtypenamewildcard-hint)                                   | Wildcard                                   |            | *         |
-| [OnNewInstanceTagRegularExpression](#onnewinstancetagregularexpression-hint)                                                       | Regular expression                         |            | .+        |
-| [OnNewInstanceTagWildcard](#onnewinstancetagwildcard-hint)                                                                         | Wildcard                                   |            | *         |
-| [OnNewInstanceLifetimeRegularExpression](#onnewinstancelifetimeregularexpression-hint)                                             | Regular expression                         |            | .+        |
-| [OnNewInstanceLifetimeWildcard](#onnewinstancelifetimewildcard-hint)                                                               | Wildcard                                   |            | *         |
-| [OnDependencyInjection](#ondependencyinjection-hint)                                                                               | _On_ or _Off_                              | 9.0        | _Off_     | 
-| [OnDependencyInjectionPartial](#ondependencyinjectionpartial-hint)                                                                 | _On_ or _Off_                              |            | _On_      |
-| [OnDependencyInjectionImplementationTypeNameRegularExpression](#ondependencyinjectionimplementationtypenameregularexpression-hint) | Regular expression                         |            | .+        |
-| [OnDependencyInjectionImplementationTypeNameWildcard](#ondependencyinjectionimplementationtypenamewildcard-hint)                   | Wildcard                                   |            | *         |
-| [OnDependencyInjectionContractTypeNameRegularExpression](#ondependencyinjectioncontracttypenameregularexpression-hint)             | Regular expression                         |            | .+        |
-| [OnDependencyInjectionContractTypeNameWildcard](#ondependencyinjectioncontracttypenamewildcard-hint)                               | Wildcard                                   |            | *         |
-| [OnDependencyInjectionTagRegularExpression](#ondependencyinjectiontagregularexpression-hint)                                       | Regular expression                         |            | .+        |
-| [OnDependencyInjectionTagWildcard](#ondependencyinjectiontagwildcard-hint)                                                         | Wildcard                                   |            | *         |
-| [OnDependencyInjectionLifetimeRegularExpression](#ondependencyinjectionlifetimeregularexpression-hint)                             | Regular expression                         |            | .+        |
-| [OnDependencyInjectionLifetimeWildcard](#ondependencyinjectionlifetimewildcard-hint)                                               | Wildcard                                   |            | *         |
-| [OnCannotResolve](#oncannotresolve-hint)                                                                                           | _On_ or _Off_                              | 9.0        | _Off_     |
-| [OnCannotResolvePartial](#oncannotresolvepartial-hint)                                                                             | _On_ or _Off_                              |            | _On_      |
-| [OnCannotResolveContractTypeNameRegularExpression](#oncannotresolvecontracttypenameregularexpression-hint)                         | Regular expression                         |            | .+        |
-| [OnCannotResolveContractTypeNameWildcard](#oncannotresolvecontracttypenamewildcard-hint)                                           | Wildcard                                   |            | *         |
-| [OnCannotResolveTagRegularExpression](#oncannotresolvetagregularexpression-hint)                                                   | Regular expression                         |            | .+        |
-| [OnCannotResolveTagWildcard](#oncannotresolvetagwildcard-hint)                                                                     | Wildcard                                   |            | *         |
-| [OnCannotResolveLifetimeRegularExpression](#oncannotresolvelifetimeregularexpression-hint)                                         | Regular expression                         |            | .+        |
-| [OnCannotResolveLifetimeWildcard](#oncannotresolvelifetimewildcard-hint)                                                           | Wildcard                                   |            | *         |
-| [OnNewRoot](#onnewroot-hint)                                                                                                       | _On_ or _Off_                              |            | _Off_     |
-| [OnNewRootPartial](#onnewrootpartial-hint)                                                                                         | _On_ or _Off_                              |            | _On_      |
-| [ToString](#tostring-hint)                                                                                                         | _On_ or _Off_                              |            | _Off_     |
-| [ThreadSafe](#threadsafe-hint)                                                                                                     | _On_ or _Off_                              |            | _On_      |
-| [ResolveMethodModifiers](#resolvemethodmodifiers-hint)                                                                             | Method modifier                            |            | _public_  |
-| [ResolveMethodName](#resolvemethodname-hint)                                                                                       | Method name                                |            | _Resolve_ |
-| [ResolveByTagMethodModifiers](#resolvebytagmethodmodifiers-hint)                                                                   | Method modifier                            |            | _public_  |
-| [ResolveByTagMethodName](#resolvebytagmethodname-hint)                                                                             | Method name                                |            | _Resolve_ |
-| [ObjectResolveMethodModifiers](#objectresolvemethodmodifiers-hint)                                                                 | Method modifier                            |            | _public_  |
-| [ObjectResolveMethodName](#objectresolvemethodname-hint)                                                                           | Method name                                |            | _Resolve_ |
-| [ObjectResolveByTagMethodModifiers](#objectresolvebytagmethodmodifiers-hint)                                                       | Method modifier                            |            | _public_  |
-| [ObjectResolveByTagMethodName](#objectresolvebytagmethodname-hint)                                                                 | Method name                                |            | _Resolve_ |
-| [DisposeMethodModifiers](#disposemethodmodifiers-hint)                                                                             | Method modifier                            |            | _public_  |
-| [DisposeAsyncMethodModifiers](#disposeasyncmethodmodifiers-hint)                                                                   | Method modifier                            |            | _public_  |
-| [FormatCode](#formatcode-hint)                                                                                                     | _On_ or _Off_                              |            | _Off_     |
-| [SeverityOfNotImplementedContract](#severityofnotimplementedcontract-hint)                                                         | _Error_ or _Warning_ or _Info_ or _Hidden_ |            | _Error_   |
-| [Comments](#comments-hint)                                                                                                         | _On_ or _Off_                              |            | _On_      |
-| SkipDefaultConstructor                                                                                                             | _On_ or _Off_                              |            | _Off_     | 
-| SkipDefaultConstructorImplementationTypeNameRegularExpression                                                                      | Regular expression                         |            | .+        |
-| SkipDefaultConstructorImplementationTypeNameWildcard                                                                               | Wildcard                                   |            | *         |
-| SkipDefaultConstructorLifetimeRegularExpression                                                                                    | Regular expression                         |            | .+        |
-| SkipDefaultConstructorLifetimeWildcard                                                                                             | Wildcard                                   |            | *         |
-| DisableAutoBinding                                                                                                                 | _On_ or _Off_                              |            | _Off_     | 
-| DisableAutoBindingImplementationTypeNameRegularExpression                                                                          | Regular expression                         |            | .+        |
-| DisableAutoBindingImplementationTypeNameWildcard                                                                                   | Wildcard                                   |            | *         |
-| DisableAutoBindingLifetimeRegularExpression                                                                                        | Regular expression                         |            | .+        |
-| DisableAutoBindingLifetimeWildcard                                                                                                 | Wildcard                                   |            | *         |
+| Hint                                                                                                                                 | Values                                     | C# version | Default   |
+|--------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|------------|-----------|
+| [Resolve](#resolve-hint)                                                                                                             | _On_ or _Off_                              |            | _On_      |
+| [OnNewInstance](#onnewinstance-hint)                                                                                                 | _On_ or _Off_                              | 9.0        | _Off_     |
+| [OnNewInstancePartial](#onnewinstance-hint)                                                                                          | _On_ or _Off_                              |            | _On_      |
+| [OnNewInstanceImplementationTypeNameRegularExpression](#onnewinstanceimplementationtypenameregularexpression-hint)                   | Regular expression                         |            | .+        |
+| [OnNewInstanceImplementationTypeNameWildcard](#onnewinstanceimplementationtypenamewildcard-hint)                                     | Wildcard                                   |            | *         |
+| [OnNewInstanceTagRegularExpression](#onnewinstancetagregularexpression-hint)                                                         | Regular expression                         |            | .+        |
+| [OnNewInstanceTagWildcard](#onnewinstancetagwildcard-hint)                                                                           | Wildcard                                   |            | *         |
+| [OnNewInstanceLifetimeRegularExpression](#onnewinstancelifetimeregularexpression-hint)                                               | Regular expression                         |            | .+        |
+| [OnNewInstanceLifetimeWildcard](#onnewinstancelifetimewildcard-hint)                                                                 | Wildcard                                   |            | *         |
+| [OnDependencyInjection](#ondependencyinjection-hint)                                                                                 | _On_ or _Off_                              | 9.0        | _Off_     |
+| [OnDependencyInjectionPartial](#ondependencyinjectionpartial-hint)                                                                   | _On_ or _Off_                              |            | _On_      |
+| [OnDependencyInjectionImplementationTypeNameRegularExpression](#ondependencyinjectionimplementationtypenameregularexpression-hint)   | Regular expression                         |            | .+        |
+| [OnDependencyInjectionImplementationTypeNameWildcard](#ondependencyinjectionimplementationtypenamewildcard-hint)                     | Wildcard                                   |            | *         |
+| [OnDependencyInjectionContractTypeNameRegularExpression](#ondependencyinjectioncontracttypenameregularexpression-hint)               | Regular expression                         |            | .+        |
+| [OnDependencyInjectionContractTypeNameWildcard](#ondependencyinjectioncontracttypenamewildcard-hint)                                 | Wildcard                                   |            | *         |
+| [OnDependencyInjectionTagRegularExpression](#ondependencyinjectiontagregularexpression-hint)                                         | Regular expression                         |            | .+        |
+| [OnDependencyInjectionTagWildcard](#ondependencyinjectiontagwildcard-hint)                                                           | Wildcard                                   |            | *         |
+| [OnDependencyInjectionLifetimeRegularExpression](#ondependencyinjectionlifetimeregularexpression-hint)                               | Regular expression                         |            | .+        |
+| [OnDependencyInjectionLifetimeWildcard](#ondependencyinjectionlifetimewildcard-hint)                                                 | Wildcard                                   |            | *         |
+| [OnCannotResolve](#oncannotresolve-hint)                                                                                             | _On_ or _Off_                              | 9.0        | _Off_     |
+| [OnCannotResolvePartial](#oncannotresolvepartial-hint)                                                                               | _On_ or _Off_                              |            | _On_      |
+| [OnCannotResolveContractTypeNameRegularExpression](#oncannotresolvecontracttypenameregularexpression-hint)                           | Regular expression                         |            | .+        |
+| [OnCannotResolveContractTypeNameWildcard](#oncannotresolvecontracttypenamewildcard-hint)                                             | Wildcard                                   |            | *         |
+| [OnCannotResolveTagRegularExpression](#oncannotresolvetagregularexpression-hint)                                                     | Regular expression                         |            | .+        |
+| [OnCannotResolveTagWildcard](#oncannotresolvetagwildcard-hint)                                                                       | Wildcard                                   |            | *         |
+| [OnCannotResolveLifetimeRegularExpression](#oncannotresolvelifetimeregularexpression-hint)                                           | Regular expression                         |            | .+        |
+| [OnCannotResolveLifetimeWildcard](#oncannotresolvelifetimewildcard-hint)                                                             | Wildcard                                   |            | *         |
+| [OnNewRoot](#onnewroot-hint)                                                                                                         | _On_ or _Off_                              |            | _Off_     |
+| [OnNewRootPartial](#onnewrootpartial-hint)                                                                                           | _On_ or _Off_                              |            | _On_      |
+| [ToString](#tostring-hint)                                                                                                           | _On_ or _Off_                              |            | _Off_     |
+| [ThreadSafe](#threadsafe-hint)                                                                                                       | _On_ or _Off_                              |            | _On_      |
+| [ResolveMethodModifiers](#resolvemethodmodifiers-hint)                                                                               | Method modifier                            |            | _public_  |
+| [ResolveMethodName](#resolvemethodname-hint)                                                                                         | Method name                                |            | _Resolve_ |
+| [ResolveByTagMethodModifiers](#resolvebytagmethodmodifiers-hint)                                                                     | Method modifier                            |            | _public_  |
+| [ResolveByTagMethodName](#resolvebytagmethodname-hint)                                                                               | Method name                                |            | _Resolve_ |
+| [ObjectResolveMethodModifiers](#objectresolvemethodmodifiers-hint)                                                                   | Method modifier                            |            | _public_  |
+| [ObjectResolveMethodName](#objectresolvemethodname-hint)                                                                             | Method name                                |            | _Resolve_ |
+| [ObjectResolveByTagMethodModifiers](#objectresolvebytagmethodmodifiers-hint)                                                         | Method modifier                            |            | _public_  |
+| [ObjectResolveByTagMethodName](#objectresolvebytagmethodname-hint)                                                                   | Method name                                |            | _Resolve_ |
+| [DisposeMethodModifiers](#disposemethodmodifiers-hint)                                                                               | Method modifier                            |            | _public_  |
+| [DisposeAsyncMethodModifiers](#disposeasyncmethodmodifiers-hint)                                                                     | Method modifier                            |            | _public_  |
+| [FormatCode](#formatcode-hint)                                                                                                       | _On_ or _Off_                              |            | _Off_     |
+| [SeverityOfNotImplementedContract](#severityofnotimplementedcontract-hint)                                                           | _Error_ or _Warning_ or _Info_ or _Hidden_ |            | _Error_   |
+| [Comments](#comments-hint)                                                                                                           | _On_ or _Off_                              |            | _On_      |
+| [SkipDefaultConstructor](#skipdefaultconstructor-hint)                                                                               | _On_ or _Off_                              |            | _Off_     |
+| [SkipDefaultConstructorImplementationTypeNameRegularExpression](#skipdefaultconstructorimplementationtypenameregularexpression-hint) | Regular expression                         |            | .+        |
+| [SkipDefaultConstructorImplementationTypeNameWildcard](#skipdefaultconstructorimplementationtypenamewildcard-hint)                   | Wildcard                                   |            | *         |
+| [SkipDefaultConstructorLifetimeRegularExpression](#skipdefaultconstructorlifetimeregularexpression-hint)                             | Regular expression                         |            | .+        |
+| [SkipDefaultConstructorLifetimeWildcard](#skipdefaultconstructorlifetimewildcard-hint)                                               | Wildcard                                   |            | *         |
+| [DisableAutoBinding](#disableautobinding-hint)                                                                                       | _On_ or _Off_                              |            | _Off_     |
+| [DisableAutoBindingImplementationTypeNameRegularExpression](#disableautobindingimplementationtypenameregularexpression-hint)         | Regular expression                         |            | .+        |
+| [DisableAutoBindingImplementationTypeNameWildcard](#disableautobindingimplementationtypenamewildcard-hint)                           | Wildcard                                   |            | *         |
+| [DisableAutoBindingLifetimeRegularExpression](#disableautobindinglifetimeregularexpression-hint)                                     | Regular expression                         |            | .+        |
+| [DisableAutoBindingLifetimeWildcard](#disableautobindinglifetimewildcard-hint)                                                       | Wildcard                                   |            | *         |
 
 The list of hints will be gradually expanded to meet the needs and desires for fine-tuning code generation. Please feel free to add your ideas.
 
 ### Resolve Hint
 
-Determines whether to generate [_Resolve_/_ResolveByTag_ methods](#resolve). By default, a set of four _Resolve_/_ResolveByTag_ methods are generated. Set this hint to _Off_ to disable the generation of Resolve/ResolveByTag methods. This will reduce the generation time of the class composition, and in this case no [anonymous composition roots](#private-composition-roots) will be generated. The class composition will be smaller and will only have [public roots](#public-composition-roots). When the _Resolve_ hint is disabled, only the public roots properties are available, so be sure to explicitly define them using the `Root<T>(string name)` method with an explicit composition root name.
+Controls whether [_Resolve_/_ResolveByTag_ methods](#resolve-resolvebytag-methods) are generated. By default they are enabled. Turn this _Off_ to reduce generated code size and compilation time, but note that anonymous roots are not created and only explicitly named roots are available. When disabled, always define public roots via `Root<T>(string name)`.
+
+```c#
+// Resolve = Off
+DI.Setup("Composition")
+    .Bind<IService>().To<Service>()
+    .Root<IService>("Root");
+```
 
 ### OnNewInstance Hint
 
-Determines whether to use the _OnNewInstance_ partial method. By default, this partial method is not generated. This can be useful, for example, for logging purposes:
+Enables the `OnNewInstance` callback to observe or replace newly created instances (for example, logging, diagnostics, or decoration). It is _Off_ by default to avoid overhead.
 
 ```c#
 internal partial class Composition
@@ -1060,35 +1072,84 @@ You can also replace the created instance with a `T` type, where `T` is the actu
 
 ### OnNewInstancePartial Hint
 
-Determines whether to generate the _OnNewInstance_ partial method. By default, this partial method is generated when the _OnNewInstance_ hint is ```On```.
+Controls whether the `OnNewInstance` partial method signature is generated when `OnNewInstance` is enabled. Turn it _Off_ if you want to enable filtering hints without emitting the partial method.
+
+```c#
+// OnNewInstance = On
+// OnNewInstancePartial = Off
+DI.Setup("Composition")
+    .Bind<IService>().To<Service>();
+```
 
 ### OnNewInstanceImplementationTypeNameRegularExpression Hint
 
 This is a regular expression for filtering by instance type name. This hint is useful when _OnNewInstance_ is in _On_ state and it is necessary to limit the set of types for which the _OnNewInstance_ method will be called.
 
+```c#
+// OnNewInstance = On
+// OnNewInstanceImplementationTypeNameRegularExpression = .*Service
+DI.Setup("Composition")
+    .Bind<IService>().To<Service>();
+```
+
 ### OnNewInstanceImplementationTypeNameWildcard Hint
 
 This is a Wildcard for filtering by instance type name. This hint is useful when _OnNewInstance_ is in _On_ state and it is necessary to limit the set of types for which the _OnNewInstance_ method will be called.
+
+```c#
+// OnNewInstance = On
+// OnNewInstanceImplementationTypeNameWildcard = *Service
+DI.Setup("Composition")
+    .Bind<IService>().To<Service>();
+```
 
 ### OnNewInstanceTagRegularExpression Hint
 
 This is a regular expression for filtering by _tag_. This hint is also useful when _OnNewInstance_ is in _On_ state and it is necessary to limit the set of _tags_ for which the _OnNewInstance_ method will be called.
 
+```c#
+// OnNewInstance = On
+// OnNewInstanceTagRegularExpression = Internal|Public
+DI.Setup("Composition")
+    .Bind<IService>("Internal").To<Service>();
+```
+
 ### OnNewInstanceTagWildcard Hint
 
 This is a wildcard for filtering by _tag_. This hint is also useful when _OnNewInstance_ is in _On_ state and it is necessary to limit the set of _tags_ for which the _OnNewInstance_ method will be called.
+
+```c#
+// OnNewInstance = On
+// OnNewInstanceTagWildcard = *Internal
+DI.Setup("Composition")
+    .Bind<IService>("Internal").To<Service>();
+```
 
 ### OnNewInstanceLifetimeRegularExpression Hint
 
 This is a regular expression for filtering by _lifetime_. This hint is also useful when _OnNewInstance_ is in _On_ state and it is necessary to restrict the set of _lifetimes_ for which the _OnNewInstance_ method will be called.
 
+```c#
+// OnNewInstance = On
+// OnNewInstanceLifetimeRegularExpression = Singleton|Scoped
+DI.Setup("Composition")
+    .Bind<IService>().As(Lifetime.Singleton).To<Service>();
+```
+
 ### OnNewInstanceLifetimeWildcard Hint
 
 This is a wildcard for filtering by _lifetime_. This hint is also useful when _OnNewInstance_ is in _On_ state and it is necessary to restrict the set of _lifetimes_ for which the _OnNewInstance_ method will be called.
 
+```c#
+// OnNewInstance = On
+// OnNewInstanceLifetimeWildcard = *Singleton
+DI.Setup("Composition")
+    .Bind<IService>().As(Lifetime.Singleton).To<Service>();
+```
+
 ### OnDependencyInjection Hint
 
-Determines whether to use the _OnDependencyInjection_ partial method when the _OnDependencyInjection_ hint is ```On``` to control dependency injection. By default it is ```Off```.
+Enables the `OnDependencyInjection` callback that can intercept dependency injection and return an alternative instance. Use for advanced scenarios like interception, conditional injection, or diagnostics. It is _Off_ by default.
 
 ```c#
 // OnDependencyInjection = On
@@ -1101,7 +1162,7 @@ DI.Setup("Composition")
 
 ### OnDependencyInjectionPartial Hint
 
-Determines whether to generate the _OnDependencyInjection_ partial method to control dependency injection. By default, this partial method is not generated. It cannot have an empty body because of the return value. It must be overridden when it is generated. This may be useful, for example, for [Interception Scenario](readme/interception.md).
+Controls whether the `OnDependencyInjection` partial method is generated. Because it returns a value, the method must be implemented when generated. Turn it _Off_ to rely on filters without emitting the method body.
 
 ```c#
 // OnDependencyInjection = On
@@ -1117,37 +1178,93 @@ To minimize performance loss when calling _OnDependencyInjection_, use the three
 
 This is a regular expression for filtering by instance type name. This hint is useful when _OnDependencyInjection_ is in _On_ state and it is necessary to restrict the set of types for which the _OnDependencyInjection_ method will be called.
 
+```c#
+// OnDependencyInjection = On
+// OnDependencyInjectionImplementationTypeNameRegularExpression = .*Service
+DI.Setup("Composition")
+    .Bind<IService>().To<Service>();
+```
+
 ### OnDependencyInjectionImplementationTypeNameWildcard Hint
 
 This is a wildcard for filtering by instance type name. This hint is useful when _OnDependencyInjection_ is in _On_ state and it is necessary to restrict the set of types for which the _OnDependencyInjection_ method will be called.
+
+```c#
+// OnDependencyInjection = On
+// OnDependencyInjectionImplementationTypeNameWildcard = *Service
+DI.Setup("Composition")
+    .Bind<IService>().To<Service>();
+```
 
 ### OnDependencyInjectionContractTypeNameRegularExpression Hint
 
 This is a regular expression for filtering by the name of the resolving type. This hint is also useful when _OnDependencyInjection_ is in _On_ state and it is necessary to limit the set of permissive types for which the _OnDependencyInjection_ method will be called.
 
+```c#
+// OnDependencyInjection = On
+// OnDependencyInjectionContractTypeNameRegularExpression = I.*Service
+DI.Setup("Composition")
+    .Bind<IService>().To<Service>();
+```
+
 ### OnDependencyInjectionContractTypeNameWildcard Hint
 
 This is a wildcard for filtering by the name of the resolving type. This hint is also useful when _OnDependencyInjection_ is in _On_ state and it is necessary to limit the set of permissive types for which the _OnDependencyInjection_ method will be called.
+
+```c#
+// OnDependencyInjection = On
+// OnDependencyInjectionContractTypeNameWildcard = I*Service
+DI.Setup("Composition")
+    .Bind<IService>().To<Service>();
+```
 
 ### OnDependencyInjectionTagRegularExpression Hint
 
 This is a regular expression for filtering by _tag_. This hint is also useful when _OnDependencyInjection_ is in the _On_ state and you want to limit the set of _tags_ for which the _OnDependencyInjection_ method will be called.
 
+```c#
+// OnDependencyInjection = On
+// OnDependencyInjectionTagRegularExpression = Internal|Public
+DI.Setup("Composition")
+    .Bind<IService>("Internal").To<Service>();
+```
+
 ### OnDependencyInjectionTagWildcard Hint
 
 This is a wildcard for filtering by _tag_. This hint is also useful when _OnDependencyInjection_ is in the _On_ state and you want to limit the set of _tags_ for which the _OnDependencyInjection_ method will be called.
+
+```c#
+// OnDependencyInjection = On
+// OnDependencyInjectionTagWildcard = *Internal
+DI.Setup("Composition")
+    .Bind<IService>("Internal").To<Service>();
+```
 
 ### OnDependencyInjectionLifetimeRegularExpression Hint
 
 This is a regular expression for filtering by _lifetime_. This hint is also useful when _OnDependencyInjection_ is in _On_ state and it is necessary to restrict the set of _lifetime_ for which the _OnDependencyInjection_ method will be called.
 
+```c#
+// OnDependencyInjection = On
+// OnDependencyInjectionLifetimeRegularExpression = Singleton|Scoped
+DI.Setup("Composition")
+    .Bind<IService>().As(Lifetime.Singleton).To<Service>();
+```
+
 ### OnDependencyInjectionLifetimeWildcard Hint
 
 This is a wildcard for filtering by _lifetime_. This hint is also useful when _OnDependencyInjection_ is in _On_ state and it is necessary to restrict the set of _lifetime_ for which the _OnDependencyInjection_ method will be called.
 
+```c#
+// OnDependencyInjection = On
+// OnDependencyInjectionLifetimeWildcard = *Singleton
+DI.Setup("Composition")
+    .Bind<IService>().As(Lifetime.Singleton).To<Service>();
+```
+
 ### OnCannotResolve Hint
 
-Determines whether to use the `OnCannotResolve<T>(...)` partial method to handle a scenario in which an instance cannot be resolved. By default, this partial method is not generated. Because of the return value, it cannot have an empty body and must be overridden at creation.
+Enables the `OnCannotResolve<T>(...)` callback, allowing you to provide a fallback instance or custom error handling when a root cannot be resolved. It is _Off_ by default. The generated method must be implemented because it returns a value.
 
 ```c#
 // OnCannotResolve = On
@@ -1161,7 +1278,7 @@ To avoid missing failed bindings by mistake, use the two relevant hints below.
 
 ### OnCannotResolvePartial Hint
 
-Determines whether to generate the `OnCannotResolve<T>(...)` partial method when the _OnCannotResolve_ hint is <c>On</c> to handle a scenario in which an instance cannot be resolved. By default it is ```On```.
+Controls whether the `OnCannotResolve<T>(...)` partial method is generated when `OnCannotResolve` is enabled. Turn it _Off_ to enable filters without emitting the partial method.
 
 ```c#
 // OnCannotResolve = On
@@ -1176,7 +1293,7 @@ To avoid missing failed bindings by mistake, use the two relevant hints below.
 
 ### OnNewRoot Hint
 
-Determines whether to use a static partial method `OnNewRoot<TContract, T>(...)` to handle the new composition root registration event.
+Enables the static `OnNewRoot<TContract, T>(...)` callback that runs when a new root is registered. This is useful for logging or custom validation, but it bypasses some dependency resolution checks.
 
 ```c#
 // OnNewRoot = On
@@ -1188,7 +1305,7 @@ Be careful, this hint disables checks for the ability to resolve dependencies!
 
 ### OnNewRootPartial Hint
 
-Determines whether to generate a static partial method `OnNewRoot<TContract, T>(...)` when the _OnNewRoot_ hint is ```On``` to handle the new composition root registration event.
+Controls whether the `OnNewRoot<TContract, T>(...)` partial method is generated when `OnNewRoot` is enabled.
 
 ```c#
 // OnNewRootPartial = Off
@@ -1200,43 +1317,85 @@ DI.Setup("Composition")
 
 This is a regular expression for filtering by the name of the resolving type. This hint is also useful when _OnCannotResolve_ is in _On_ state and it is necessary to limit the set of resolving types for which the _OnCannotResolve_ method will be called.
 
+```c#
+// OnCannotResolve = On
+// OnCannotResolveContractTypeNameRegularExpression = string|DateTime
+DI.Setup("Composition")
+    .Bind<IService>().To<Service>();
+```
+
 ### OnCannotResolveContractTypeNameWildcard Hint
 
 This is a wildcard for filtering by the name of the resolving type. This hint is also useful when _OnCannotResolve_ is in _On_ state and it is necessary to limit the set of resolving types for which the _OnCannotResolve_ method will be called.
+
+```c#
+// OnCannotResolve = On
+// OnCannotResolveContractTypeNameWildcard = *Service
+DI.Setup("Composition")
+    .Bind<IService>().To<Service>();
+```
 
 ### OnCannotResolveTagRegularExpression Hint
 
 This is a regular expression for filtering by _tag_. This hint is also useful when _OnCannotResolve_ is in _On_ state and it is necessary to limit the set of _tags_ for which the _OnCannotResolve_ method will be called.
 
+```c#
+// OnCannotResolve = On
+// OnCannotResolveTagRegularExpression = Internal|Public
+DI.Setup("Composition")
+    .Bind<IService>("Internal").To<Service>();
+```
+
 ### OnCannotResolveTagWildcard Hint
 
 This is a wildcard for filtering by _tag_. This hint is also useful when _OnCannotResolve_ is in _On_ state and it is necessary to limit the set of _tags_ for which the _OnCannotResolve_ method will be called.
+
+```c#
+// OnCannotResolve = On
+// OnCannotResolveTagWildcard = *Internal
+DI.Setup("Composition")
+    .Bind<IService>("Internal").To<Service>();
+```
 
 ### OnCannotResolveLifetimeRegularExpression Hint
 
 This is a regular expression for filtering by _lifetime_. This hint is also useful when _OnCannotResolve_ is in the _On_ state and it is necessary to restrict the set of _lifetimes_ for which the _OnCannotResolve_ method will be called.
 
+```c#
+// OnCannotResolve = On
+// OnCannotResolveLifetimeRegularExpression = Singleton|Scoped
+DI.Setup("Composition")
+    .Bind<IService>().As(Lifetime.Singleton).To<Service>();
+```
+
 ### OnCannotResolveLifetimeWildcard Hint
 
 This is a wildcard for filtering by _lifetime_. This hint is also useful when _OnCannotResolve_ is in the _On_ state and it is necessary to restrict the set of _lifetimes_ for which the _OnCannotResolve_ method will be called.
 
+```c#
+// OnCannotResolve = On
+// OnCannotResolveLifetimeWildcard = *Singleton
+DI.Setup("Composition")
+    .Bind<IService>().As(Lifetime.Singleton).To<Service>();
+```
+
 ### ToString Hint
 
-Determines whether to generate the _ToString()_ method. This method provides a class diagram in [Mermaid](https://mermaid.js.org/) format. To see this diagram, just call the ToString method and copy the text to [this site](https://mermaid.live/).
+Controls generation of `ToString()` that returns a Mermaid class diagram of the composition. Useful for documentation and debugging, but disabled by default to reduce generated code.
 
 ```c#
 // ToString = On
 DI.Setup("Composition")
     .Bind<IService>().To<Service>()
     .Root<IService>("MyService");
-    
+
 var composition = new Composition();
-string classDiagram = composition.ToString(); 
+string classDiagram = composition.ToString();
 ```
 
 ### ThreadSafe Hint
 
-This hint determines whether the object graph will be created in a thread-safe way. The default value of this hint is _On_. It is a good practice not to use threads when creating an object graph; in this case the hint can be disabled, which will result in a small performance gain. For example:
+Controls whether object graph creation uses synchronization. It is _On_ by default for safety. Turn it _Off_ if you know composition creation is single-threaded and want a small performance gain.
 
 ```c#
 // ThreadSafe = Off
@@ -1249,54 +1408,136 @@ DI.Setup("Composition")
 
 Overrides the modifiers of the `public T Resolve<T>()` method.
 
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.ResolveMethodModifiers, "internal")
+    .Bind<IService>().To<Service>()
+    .Root<IService>("Root");
+```
+
 ### ResolveMethodName Hint
 
 Overrides the method name for `public T Resolve<T>()`.
+
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.ResolveMethodName, "GetRoot")
+    .Bind<IService>().To<Service>()
+    .Root<IService>("Root");
+```
 
 ### ResolveByTagMethodModifiers Hint
 
 Overrides the modifiers of the `public T Resolve<T>(object? tag)` method.
 
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.ResolveByTagMethodModifiers, "internal")
+    .Bind<IService>().To<Service>()
+    .Root<IService>("Root");
+```
+
 ### ResolveByTagMethodName Hint
 
 Overrides the method name for `public T Resolve<T>(object? tag)`.
+
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.ResolveByTagMethodName, "GetRootByTag")
+    .Bind<IService>().To<Service>()
+    .Root<IService>("Root");
+```
 
 ### ObjectResolveMethodModifiers Hint
 
 Overrides the modifiers of the `public object Resolve(Type type)` method.
 
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.ObjectResolveMethodModifiers, "internal")
+    .Bind<IService>().To<Service>()
+    .Root<IService>("Root");
+```
+
 ### ObjectResolveMethodName Hint
 
 Overrides the method name for `public object Resolve(Type type)`.
+
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.ObjectResolveMethodName, "GetObject")
+    .Bind<IService>().To<Service>()
+    .Root<IService>("Root");
+```
 
 ### ObjectResolveByTagMethodModifiers Hint
 
 Overrides the modifiers of the `public object Resolve(Type type, object? tag)` method.
 
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.ObjectResolveByTagMethodModifiers, "internal")
+    .Bind<IService>().To<Service>()
+    .Root<IService>("Root");
+```
+
 ### ObjectResolveByTagMethodName Hint
 
 Overrides the method name for `public object Resolve(Type type, object? tag)`.
+
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.ObjectResolveByTagMethodName, "GetObjectByTag")
+    .Bind<IService>().To<Service>()
+    .Root<IService>("Root");
+```
 
 ### DisposeMethodModifiers Hint
 
 Overrides the modifiers of the `public void Dispose()` method.
 
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.DisposeMethodModifiers, "internal")
+    .Bind<IService>().To<Service>()
+    .Root<IService>("Root");
+```
+
 ### DisposeAsyncMethodModifiers Hint
 
 Overrides the modifiers of the `public ValueTask DisposeAsync()` method.
 
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.DisposeAsyncMethodModifiers, "internal")
+    .Bind<IService>().To<Service>()
+    .Root<IService>("Root");
+```
+
 ### FormatCode Hint
 
-Specifies whether the generated code should be formatted. This option consumes a lot of CPU resources. This hint may be useful when studying the generated code or, for example, when making presentations.
+Enables formatting of generated code. This can significantly increase compilation time and memory usage, so it is best reserved for debugging or presentation scenarios.
+
+```c#
+// FormatCode = On
+DI.Setup("Composition")
+    .Bind<IService>().To<Service>();
+```
 
 ### SeverityOfNotImplementedContract Hint
 
-Indicates the severity level of the situation when, in the binding, an implementation does not implement a contract. Possible values:
+Controls the diagnostic severity emitted when a binding declares a contract that the implementation does not actually implement. Possible values:
 
 - _"Error"_ - this is the default value.
 - _"Warning"_ - something suspicious but allowed.
 - _"Info"_ - information that does not indicate a problem.
 - _"Hidden"_ - not a problem.
+
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.SeverityOfNotImplementedContract, "Warning")
+    .Bind<IService>().To<Service>();
+```
 
 ### Comments Hint
 
@@ -1312,6 +1553,141 @@ DI.Setup(nameof(Composition))
 
 Appropriate comments will be added to the generated ```Composition``` class and the documentation for the class, depending on the IDE used, will look something like this:
 
+![ReadmeDocumentation1.png](readme/ReadmeDocumentation1.png)
+
+Then documentation for the composition root:
+
+![ReadmeDocumentation2.png](readme/ReadmeDocumentation2.png)
+
+### SkipDefaultConstructor Hint
+
+Enables/disables skipping the default constructor. Default: `Off` (meaning the default constructor is used when available).
+
+```c#
+// SkipDefaultConstructor = On
+DI.Setup("Composition")
+    .Bind<IDependency>().To<Dependency>();
+```
+
+### SkipDefaultConstructorImplementationTypeNameRegularExpression Hint
+
+Regular expression filter for implementation type names when skipping default constructors. Default: `.+`.
+
+```c#
+// SkipDefaultConstructor = On
+// SkipDefaultConstructorImplementationTypeNameRegularExpression = .*Repository
+DI.Setup("Composition")
+    .Bind().To<OrderRepository>();
+```
+
+### SkipDefaultConstructorImplementationTypeNameWildcard Hint
+
+Wildcard filter for implementation type names when skipping default constructors. Default: `*`.
+
+```c#
+// SkipDefaultConstructor = On
+// SkipDefaultConstructorImplementationTypeNameWildcard = *Repository
+DI.Setup("Composition")
+    .Bind().To<OrderRepository>();
+```
+
+### SkipDefaultConstructorLifetimeRegularExpression Hint
+
+Regular expression filter for lifetimes when skipping default constructors. Default: `.+`.
+
+```c#
+// SkipDefaultConstructor = On
+// SkipDefaultConstructorLifetimeRegularExpression = Singleton|Scoped
+DI.Setup("Composition")
+    .Bind().As(Lifetime.Singleton).To<OrderRepository>();
+```
+
+### SkipDefaultConstructorLifetimeWildcard Hint
+
+Wildcard filter for lifetimes when skipping default constructors. Default: `*`.
+
+```c#
+// SkipDefaultConstructor = On
+// SkipDefaultConstructorLifetimeWildcard = *Singleton
+DI.Setup("Composition")
+    .Bind().As(Lifetime.Singleton).To<OrderRepository>();
+```
+
+Use these filters to restrict which implementation types or lifetimes are affected when `SkipDefaultConstructor` is enabled. You can apply them as comment directives or via the fluent API:
+
+```c#
+// SkipDefaultConstructor = On
+// SkipDefaultConstructorImplementationTypeNameWildcard = *Repository
+// SkipDefaultConstructorLifetimeRegularExpression = Singleton|Scoped
+DI.Setup("Composition")
+    .Bind().To<OrderRepository>()
+    .Bind().To<CachedRepository>();
+```
+
+### DisableAutoBinding Hint
+
+Disables automatic binding when no explicit binding exists. Default: `Off`.
+
+```c#
+// DisableAutoBinding = On
+DI.Setup("Composition")
+    .Bind<IDependency>().To<Dependency>();
+```
+
+### DisableAutoBindingImplementationTypeNameRegularExpression Hint
+
+Regular expression filter for implementation type names to disable auto-binding. Default: `.+`.
+
+```c#
+// DisableAutoBinding = On
+// DisableAutoBindingImplementationTypeNameRegularExpression = .*Service
+DI.Setup("Composition")
+    .Bind().To<OrderService>();
+```
+
+### DisableAutoBindingImplementationTypeNameWildcard Hint
+
+Wildcard filter for implementation type names to disable auto-binding. Default: `*`.
+
+```c#
+// DisableAutoBinding = On
+// DisableAutoBindingImplementationTypeNameWildcard = *Service
+DI.Setup("Composition")
+    .Bind().To<OrderService>();
+```
+
+### DisableAutoBindingLifetimeRegularExpression Hint
+
+Regular expression filter for lifetimes to disable auto-binding. Default: `.+`.
+
+```c#
+// DisableAutoBinding = On
+// DisableAutoBindingLifetimeRegularExpression = Singleton|Scoped
+DI.Setup("Composition")
+    .Bind().As(Lifetime.Singleton).To<OrderService>();
+```
+
+### DisableAutoBindingLifetimeWildcard Hint
+
+Wildcard filter for lifetimes to disable auto-binding. Default: `*`.
+
+```c#
+// DisableAutoBinding = On
+// DisableAutoBindingLifetimeWildcard = *Singleton
+DI.Setup("Composition")
+    .Bind().As(Lifetime.Singleton).To<OrderService>();
+```
+
+Use these filters to narrow which types or lifetimes are excluded from auto-binding when `DisableAutoBinding` is enabled:
+
+```c#
+// DisableAutoBinding = On
+// DisableAutoBindingImplementationTypeNameRegularExpression = .*Service
+DI.Setup("Composition")
+    .Bind().To<OrderService>()
+    .Bind().To<PaymentService>();
+```
+
 ### SystemThreadingLock Hint
 
 Indicates whether `System.Threading.Lock` should be used whenever possible instead of the classic approach of synchronizing object access using `System.Threading.Monitor`. `On` by default.
@@ -1323,12 +1699,6 @@ DI.Setup(nameof(Composition))
     .Root<Service>("MyService");
 ```
 
-![ReadmeDocumentation1.png](readme/ReadmeDocumentation1.png)
-
-Then documentation for the composition root:
-
-![ReadmeDocumentation2.png](readme/ReadmeDocumentation2.png)
-
 </details>
 
 <details>
@@ -1339,7 +1709,7 @@ flowchart TD
     start@{ shape: circle, label: Start }
     setups[fa:fa-search DI setups analysis]
     types["`fa:fa-search Types analysis
-    constructors/methods/properties/fields`"] 
+    constructors/methods/properties/fields`"]
     subgraph dep[Dependency graph]
     option[fa:fa-search Selecting a next dependency set]
     creating[fa:fa-cog Creating a dependency graph variant]
@@ -1433,12 +1803,12 @@ You can set project properties to save generated files and control their storage
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
-    
+
     <PropertyGroup>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
         <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
     </PropertyGroup>
-    
+
 </Project>
 ```
 
