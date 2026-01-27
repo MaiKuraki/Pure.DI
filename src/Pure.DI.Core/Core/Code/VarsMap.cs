@@ -124,7 +124,7 @@ class VarsMap(
 
         return Disposables.Create(() => {
             // Cleanup and restore state after exiting the local function.
-            RemoveNewPerBlockVars(var, state, lines, nameof(LocalFunction));
+            RemoveNewNonPersistentVars(var, state, lines, nameof(LocalFunction));
             RestoreState(var, state, lines, nameof(LocalFunction));
             foreach (var item in removed)
             {
@@ -143,7 +143,7 @@ class VarsMap(
         var state = CreateState(var);
         return Disposables.Create(() => {
             // Cleanup and restore state after exiting the lazy scope.
-            RemoveNewPerBlockVars(var, state, lines, nameof(Lazy));
+            RemoveNewNonPersistentVars(var, state, lines, nameof(Lazy));
             RestoreState(var, state, lines, nameof(Lazy));
         });
     }
@@ -155,7 +155,7 @@ class VarsMap(
         var state = CreateState(var);
         return Disposables.Create(() => {
             // Cleanup and restore state after exiting the block.
-            RemoveNewPerBlockVars(var, state, lines, nameof(Block));
+            RemoveNewNonPersistentVars(var, state, lines, nameof(Block));
             RestoreState(var, state, lines, nameof(Block));
         });
     }
@@ -174,13 +174,13 @@ class VarsMap(
             .ToDictionary(i => i.Key, i => new VarState(i.Value));
 
     /// <summary>
-    /// Removes variables that were newly introduced in the nested scope and have PerBlock lifetime.
-    /// This prevents them from leaking into the parent scope.
+    /// Removes variables that were newly introduced in the nested scope and have non-persistent lifetimes
+    /// (e.g., PerBlock or Transient). This prevents them from leaking into the parent scope.
     /// </summary>
-    private void RemoveNewPerBlockVars(Var var, IReadOnlyDictionary<int, VarState> state, Lines lines, string reason)
+    private void RemoveNewNonPersistentVars(Var var, IReadOnlyDictionary<int, VarState> state, Lines lines, string reason)
     {
 #if DEBUG
-        lines.AppendLine($"// remove new per-block vars ({reason} {var.Declaration.Name})");
+        lines.AppendLine($"// remove new non-persistent vars ({reason} {var.Declaration.Name})");
 #endif
         var newItems = _map.Where(i => {
             if (state.ContainsKey(i.Key))
