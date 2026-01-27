@@ -3,12 +3,16 @@
 namespace Pure.DI;
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Pure.DI.Core;
 
 [Generator(LanguageNames.CSharp)]
 [SuppressMessage("MicrosoftCodeAnalysisCorrectness", "RS1036:Specify analyzer banned API enforcement setting")]
 public class SourceGenerator : IIncrementalGenerator
 {
     private static readonly Generator Generator = new();
+    private static readonly ISetupInvocationMatcher SetupMatcher = new SetupInvocationMatcher();
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -23,18 +27,29 @@ public class SourceGenerator : IIncrementalGenerator
             }
         });
 
-        var valuesProvider = context.AnalyzerConfigOptionsProvider
-            .Combine(context.ParseOptionsProvider)
-            .Combine(context.SyntaxProvider.CreateSyntaxProvider(
-                static (_, _) => true,
-                static (syntaxContext, _) => syntaxContext).Collect());
+        var setupContexts = context.SyntaxProvider
+            .CreateSyntaxProvider(
+                static (node, _) => node is InvocationExpressionSyntax { Expression: { } expression } && SetupMatcher.IsSetupInvocation(expression),
+                static (syntaxContext, _) => syntaxContext)
+            .Collect();
+
+        var optionsProvider = context.AnalyzerConfigOptionsProvider
+            .Combine(context.ParseOptionsProvider);
+
+        var valuesProvider = optionsProvider
+            .Combine(context.CompilationProvider)
+            .Combine(setupContexts);
 
         context.RegisterSourceOutput(valuesProvider, (sourceProductionContext, options) =>
+        {
+            var ((configAndParse, _), updates) = options;
+            var (config, parseOptions) = configAndParse;
             Generator.Generate(
-                options.Left.Right,
-                options.Left.Left,
+                parseOptions,
+                config,
                 sourceProductionContext,
-                options.Right,
-                sourceProductionContext.CancellationToken));
+                updates,
+                sourceProductionContext.CancellationToken);
+        });
     }
 }
