@@ -76,6 +76,7 @@ sealed class DependencyGraphBuilder(
         var processed = new HashSet<IProcessingNode>();
         var notProcessed = new HashSet<IProcessingNode>();
         var edgesMap = new Dictionary<IProcessingNode, List<Dependency>>();
+        var handledInjections = new Dictionary<IProcessingNode, HashSet<Injection>>();
         var counter = 0;
         while (queue.Count > 0)
         {
@@ -97,7 +98,7 @@ sealed class DependencyGraphBuilder(
                 continue;
             }
 
-            foreach (var (injection, hasExplicitDefaultValue, explicitDefaultValue, _) in node.Injections)
+            foreach (var (injection, hasExplicitDefaultValue, explicitDefaultValue, position) in node.Injections)
             {
                 if (!processedInjection.Add(injection))
                 {
@@ -165,7 +166,9 @@ sealed class DependencyGraphBuilder(
                                 typeConstructor,
                                 ++maxBindingId);
 
-                            if (nodesFactory.CreateNodes(setup, typeConstructor, genericBinding).FirstOrDefault(i => i.Variation == sourceNode.Variation) is {} genericNode)
+                            var genericNodes = nodesFactory.CreateNodes(setup, typeConstructor, genericBinding).ToList();
+                            var genericNode = genericNodes.FirstOrDefault(i => i.Variation == sourceNode.Variation);
+                            if (genericNode is not null)
                             {
                                 UpdateMap(newInjection, genericNode);
                                 queue.Enqueue(CreateNewProcessingNode(newInjection.Tag, genericNode));
@@ -180,6 +183,11 @@ sealed class DependencyGraphBuilder(
 
                                 isDone = true;
                                 break;
+                            }
+
+                            if (genericNodes.Count > 0)
+                            {
+                                return genericNodes;
                             }
                         }
 
@@ -281,9 +289,10 @@ sealed class DependencyGraphBuilder(
                             edgesMap.Add(node, edges);
                         }
 
+                        MarkHandledInjection(node, injection);
                         var contextTag = GetContextTag(injection, newNode);
                         var newInjection = injection with { Tag = contextTag ?? injection.Tag };
-                        edges.Add(new Dependency(true, newNode, newInjection, targetNode));
+                        edges.Add(new Dependency(true, newNode, newInjection, targetNode, position));
                     }
 
                     continue;
@@ -375,6 +384,11 @@ sealed class DependencyGraphBuilder(
 
             foreach (var injection in node.Injections)
             {
+                if (IsInjectionHandled(node, injection.Injection))
+                {
+                    continue;
+                }
+
                 var dependency = map.TryGetValue(injection.Injection, out var sourceNode) && sourceNode.Error is null
                     ? new Dependency(true, sourceNode, injection.Injection, node.Node, injection.Position)
                     : new Dependency(false, new DependencyNode(0, node.Node.Binding, node.Node.TypeConstructor), injection.Injection, node.Node, injection.Position, sourceNode?.Error);
@@ -407,6 +421,20 @@ sealed class DependencyGraphBuilder(
                 map[injection] = node;
             }
         }
+
+        void MarkHandledInjection(IProcessingNode processingNode, Injection injection)
+        {
+            if (!handledInjections.TryGetValue(processingNode, out var injections))
+            {
+                injections = new HashSet<Injection>();
+                handledInjections.Add(processingNode, injections);
+            }
+
+            injections.Add(injection);
+        }
+
+        bool IsInjectionHandled(IProcessingNode processingNode, Injection injection) =>
+            handledInjections.TryGetValue(processingNode, out var injections) && injections.Contains(injection);
     }
 
     private MdConstructKind GetConstructKind(INamedTypeSymbol geneticType)

@@ -2770,6 +2770,62 @@ public class OverrideTests
     }
 
     [Fact]
+    public async Task ShouldSupportOverrideWhenBuildUpUsesExplicitDefaultValue()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               class Service
+                               {
+                                   public string Name { get; private set; } = "";
+                                   
+                                   [Dependency]
+                                   public void Init(string name = "Default")
+                                   {
+                                       Name = name;
+                                   }
+                               }
+
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind<Service>().To(ctx => 
+                                           {
+                                                ctx.Override("Override");
+                                                var service = new Service();
+                                                ctx.BuildUp(service);
+                                                return service;
+                                           })
+                                           .Root<Service>("Root");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                       Console.WriteLine(root.Name);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Override"], result);
+    }
+
+    [Fact]
     public async Task ShouldSupportOverrideWhenInitialInjectionsHasNoAnyConstructors()
     {
         // Given
