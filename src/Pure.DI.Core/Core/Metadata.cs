@@ -23,11 +23,7 @@ sealed class Metadata(
                 case IdentifierNameSyntax { Identifier.Text: nameof(DI.Setup) }:
                 case MemberAccessExpressionSyntax memberAccess
                     when memberAccess.Kind() == SyntaxKind.SimpleMemberAccessExpression
-                         && memberAccess.Name.Identifier.Text == nameof(DI.Setup)
-                         && (memberAccess.Expression is IdentifierNameSyntax { Identifier.Text: nameof(DI) }
-                             || memberAccess.Expression is MemberAccessExpressionSyntax firstMemberAccess
-                             && firstMemberAccess.Kind() == SyntaxKind.SimpleMemberAccessExpression
-                             && firstMemberAccess.Name.Identifier.Text == nameof(DI)):
+                         && memberAccess.Name.Identifier.Text == nameof(DI.Setup):
 
                     if (semanticModel is null || ReturnConfiguration(curInvocation, semanticModel))
                     {

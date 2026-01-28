@@ -12,7 +12,6 @@ using Pure.DI.Core;
 public class SourceGenerator : IIncrementalGenerator
 {
     private static readonly Generator Generator = new();
-    private static readonly ISetupInvocationMatcher SetupMatcher = new SetupInvocationMatcher();
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -29,7 +28,7 @@ public class SourceGenerator : IIncrementalGenerator
 
         var setupContexts = context.SyntaxProvider
             .CreateSyntaxProvider(
-                static (node, _) => node is InvocationExpressionSyntax { Expression: { } expression } && SetupMatcher.IsSetupInvocation(expression),
+                static (node, _) => node is InvocationExpressionSyntax invocation && IsPotentialSetup(invocation),
                 static (syntaxContext, _) => syntaxContext)
             .Collect();
 
@@ -52,4 +51,12 @@ public class SourceGenerator : IIncrementalGenerator
                 sourceProductionContext.CancellationToken);
         });
     }
+
+    private static bool IsPotentialSetup(InvocationExpressionSyntax invocation) =>
+        invocation.Expression switch
+        {
+            IdentifierNameSyntax { Identifier.Text: "Setup" } => true,
+            MemberAccessExpressionSyntax { Name.Identifier.Text: "Setup" } => true,
+            _ => false
+        };
 }

@@ -129,6 +129,101 @@ public class SetupTests
     }
 
     [Fact]
+    public async Task ShouldSupportSetupInvocationViaAlias()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using Pure.DI;
+                           using MyDI = Pure.DI.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency { }
+
+                               class Dependency : IDependency { }
+
+                               class Service
+                               {
+                                   public Service(IDependency dependency)
+                                   {
+                                   }
+                               }
+
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       MyDI.Setup("Composition")
+                                           .Bind<IDependency>().To<Dependency>()
+                                           .Root<Service>("Root");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Root;
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportSetupInvocationViaGlobalQualifier()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency { }
+
+                               class Dependency : IDependency { }
+
+                               class Service
+                               {
+                                   public Service(IDependency dependency)
+                                   {
+                                   }
+                               }
+
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       global::Pure.DI.DI.Setup("Composition")
+                                           .Bind<IDependency>().To<Dependency>()
+                                           .Root<Service>("Root");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Root;
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+    }
+
+    [Fact]
     public async Task ShouldGenerateSpecifiedRootType()
     {
         // Given

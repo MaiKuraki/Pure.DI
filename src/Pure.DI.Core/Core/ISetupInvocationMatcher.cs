@@ -1,8 +1,9 @@
 namespace Pure.DI.Core;
 
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 public interface ISetupInvocationMatcher
 {
-    bool IsSetupInvocation(ExpressionSyntax expression);
+    bool IsSetupInvocation(InvocationExpressionSyntax invocation, SemanticModel semanticModel);
 }

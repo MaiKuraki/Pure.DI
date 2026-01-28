@@ -76,7 +76,7 @@ sealed class DependencyGraphBuilder(
         var processed = new HashSet<IProcessingNode>();
         var notProcessed = new HashSet<IProcessingNode>();
         var edgesMap = new Dictionary<IProcessingNode, List<Dependency>>();
-        var handledInjections = new Dictionary<IProcessingNode, HashSet<Injection>>();
+        var handledInjections = new Dictionary<IProcessingNode, HashSet<(Injection Injection, int? Position)>>();
         var counter = 0;
         while (queue.Count > 0)
         {
@@ -289,7 +289,7 @@ sealed class DependencyGraphBuilder(
                             edgesMap.Add(node, edges);
                         }
 
-                        MarkHandledInjection(node, injection);
+                        MarkHandledInjection(node, injection, position);
                         var contextTag = GetContextTag(injection, newNode);
                         var newInjection = injection with { Tag = contextTag ?? injection.Tag };
                         edges.Add(new Dependency(true, newNode, newInjection, targetNode, position));
@@ -384,7 +384,7 @@ sealed class DependencyGraphBuilder(
 
             foreach (var injection in node.Injections)
             {
-                if (IsInjectionHandled(node, injection.Injection))
+                if (IsInjectionHandled(node, injection.Injection, injection.Position))
                 {
                     continue;
                 }
@@ -422,19 +422,19 @@ sealed class DependencyGraphBuilder(
             }
         }
 
-        void MarkHandledInjection(IProcessingNode processingNode, Injection injection)
+        void MarkHandledInjection(IProcessingNode processingNode, Injection injection, int? position)
         {
             if (!handledInjections.TryGetValue(processingNode, out var injections))
             {
-                injections = new HashSet<Injection>();
+                injections = new HashSet<(Injection Injection, int? Position)>();
                 handledInjections.Add(processingNode, injections);
             }
 
-            injections.Add(injection);
+            injections.Add((injection, position));
         }
 
-        bool IsInjectionHandled(IProcessingNode processingNode, Injection injection) =>
-            handledInjections.TryGetValue(processingNode, out var injections) && injections.Contains(injection);
+        bool IsInjectionHandled(IProcessingNode processingNode, Injection injection, int? position) =>
+            handledInjections.TryGetValue(processingNode, out var injections) && injections.Contains((injection, position));
     }
 
     private MdConstructKind GetConstructKind(INamedTypeSymbol geneticType)

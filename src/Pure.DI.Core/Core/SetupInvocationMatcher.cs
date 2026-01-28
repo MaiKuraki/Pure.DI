@@ -1,21 +1,86 @@
 namespace Pure.DI.Core;
 
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 public sealed class SetupInvocationMatcher : ISetupInvocationMatcher
 {
-    public bool IsSetupInvocation(ExpressionSyntax expression) =>
-        expression switch
+    public bool IsSetupInvocation(InvocationExpressionSyntax invocation, SemanticModel semanticModel)
+    {
+        var symbol = semanticModel.GetSymbolInfo(invocation).Symbol as IMethodSymbol
+            ?? semanticModel.GetSymbolInfo(invocation).CandidateSymbols.OfType<IMethodSymbol>().FirstOrDefault();
+
+        if (symbol is not null)
         {
-            IdentifierNameSyntax { Identifier.Text: "Setup" } => true,
-            MemberAccessExpressionSyntax memberAccess
-                when memberAccess.Kind() == SyntaxKind.SimpleMemberAccessExpression
-                     && memberAccess.Name.Identifier.Text == "Setup"
-                     && (memberAccess.Expression is IdentifierNameSyntax { Identifier.Text: "DI" }
-                         || memberAccess.Expression is MemberAccessExpressionSyntax firstMemberAccess
-                         && firstMemberAccess.Kind() == SyntaxKind.SimpleMemberAccessExpression
-                         && firstMemberAccess.Name.Identifier.Text == "DI") => true,
-            _ => false
-        };
+            return IsSetupMethod(symbol);
+        }
+
+        if (invocation.Expression is MemberAccessExpressionSyntax { Name.Identifier.Text: "Setup", Expression: var receiver })
+        {
+            var receiverSymbol = semanticModel.GetSymbolInfo(receiver).Symbol;
+            if (receiverSymbol is IAliasSymbol { Target: INamedTypeSymbol targetType })
+            {
+                return IsSetupType(targetType);
+            }
+
+            if (receiver is IdentifierNameSyntax identifierName)
+            {
+                var aliasSymbol = semanticModel.GetAliasInfo(identifierName);
+                if (aliasSymbol?.Target is INamedTypeSymbol aliasType)
+                {
+                    return IsSetupType(aliasType);
+                }
+
+                if (IsAliasToSetupType(identifierName))
+                {
+                    return true;
+                }
+            }
+
+            if (semanticModel.GetTypeInfo(receiver).Type is INamedTypeSymbol receiverTypeInfo)
+            {
+                return IsSetupType(receiverTypeInfo);
+            }
+
+            if (receiverSymbol is INamedTypeSymbol receiverType)
+            {
+                return IsSetupType(receiverType);
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsSetupMethod(IMethodSymbol symbol) =>
+        symbol.Name == "Setup" && IsSetupType(symbol.ContainingType);
+
+    private static bool IsSetupType(INamedTypeSymbol? type) =>
+        type is { Name: "DI" } && type.ContainingNamespace.ToDisplayString() == "Pure.DI";
+
+    private static bool IsAliasToSetupType(IdentifierNameSyntax identifierName)
+    {
+        var aliasName = identifierName.Identifier.Text;
+        var root = identifierName.SyntaxTree.GetRoot();
+        foreach (var usingDirective in root.DescendantNodes().OfType<UsingDirectiveSyntax>())
+        {
+            if (usingDirective.Alias?.Name.Identifier.Text != aliasName)
+            {
+                continue;
+            }
+
+            var targetName = usingDirective.Name?.ToString();
+            if (targetName is null)
+            {
+                continue;
+            }
+
+            if (targetName == "Pure.DI.DI" || targetName == "global::Pure.DI.DI")
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
