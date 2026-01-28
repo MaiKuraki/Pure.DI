@@ -21,6 +21,10 @@ sealed class FactoryRewriter(
     private static readonly IdentifierNameSyntax InjectionMarkerExpression = SyntaxFactory.IdentifierName(Names.InjectionMarker);
     private static readonly IdentifierNameSyntax InitializationMarkerExpression = SyntaxFactory.IdentifierName(Names.InitializationMarker);
     private static readonly IdentifierNameSyntax OverrideMarkerExpression = SyntaxFactory.IdentifierName(Names.OverrideMarker);
+    private readonly IParameterSymbol? _contextSymbol = ctx.Factory.Source.Context.SyntaxTree == ctx.Factory.Source.SemanticModel.SyntaxTree
+        ? ctx.Factory.Source.SemanticModel.GetDeclaredSymbol(ctx.Factory.Source.Context)
+        : null;
+    private LambdaExpressionSyntax? _rootLambda;
     private CodeContext? _ctx;
     private int _nestedBlockCounter;
     private int _nestedLambdaCounter;
@@ -30,6 +34,7 @@ sealed class FactoryRewriter(
     public LambdaExpressionSyntax Rewrite(CodeContext codeCtx, LambdaExpressionSyntax lambda)
     {
         _ctx = codeCtx;
+        _rootLambda = lambda;
         return (LambdaExpressionSyntax)Visit(lambda);
     }
 
@@ -157,7 +162,7 @@ sealed class FactoryRewriter(
                 ArgumentList.Arguments.Count: > 0,
                 Expression: MemberAccessExpressionSyntax { Expression: IdentifierNameSyntax context } memberAccessExpression
             } invocation
-            || context.Identifier.Text != ctx.Factory.Source.Context.Identifier.Text)
+            || !IsContextIdentifier(context))
         {
             return null;
         }
@@ -251,6 +256,13 @@ sealed class FactoryRewriter(
                 expressionSyntax = InjectionMarkerExpression.WithLeadingTrivia(invocation.GetLeadingTrivia()).WithTrailingTrivia(invocation.GetTrailingTrivia());
                 return true;
             }
+
+            case DeclarationExpressionSyntax { Designation: DiscardDesignationSyntax }:
+                ctx.Injections.Add(new Injection("_", false));
+            {
+                expressionSyntax = InjectionMarkerExpression.WithLeadingTrivia(invocation.GetLeadingTrivia()).WithTrailingTrivia(invocation.GetTrailingTrivia());
+                return true;
+            }
         }
 
         expressionSyntax = null;
@@ -301,11 +313,56 @@ sealed class FactoryRewriter(
         return true;
     }
 
+    private bool IsContextIdentifier(IdentifierNameSyntax identifierName)
+    {
+        if (identifierName.Identifier.Text != ctx.Factory.Source.Context.Identifier.Text)
+        {
+            return false;
+        }
+
+        var semanticModel = ctx.Factory.Source.SemanticModel;
+        if (_contextSymbol is not null && identifierName.SyntaxTree == semanticModel.SyntaxTree)
+        {
+            var symbol = semanticModel.GetSymbolInfo(identifierName).Symbol;
+            return symbol is not null && SymbolEqualityComparer.Default.Equals(symbol, _contextSymbol);
+        }
+
+        if (_rootLambda is null)
+        {
+            return false;
+        }
+
+        var nearestLambda = identifierName
+            .AncestorsAndSelf()
+            .OfType<LambdaExpressionSyntax>()
+            .FirstOrDefault(lambda => LambdaDeclaresParameter(lambda, identifierName.Identifier.Text));
+
+        if (nearestLambda is not null)
+        {
+            return ReferenceEquals(nearestLambda, _rootLambda);
+        }
+
+        var nearestLocalFunction = identifierName
+            .Ancestors()
+            .OfType<LocalFunctionStatementSyntax>()
+            .FirstOrDefault(localFunction => localFunction.ParameterList.Parameters.Any(parameter => parameter.Identifier.Text == identifierName.Identifier.Text));
+
+        return nearestLocalFunction is null;
+    }
+
+    private static bool LambdaDeclaresParameter(LambdaExpressionSyntax lambda, string name) =>
+        lambda switch
+        {
+            SimpleLambdaExpressionSyntax { Parameter.Identifier.Text: var parameterName } => parameterName == name,
+            ParenthesizedLambdaExpressionSyntax parenthesized => parenthesized.ParameterList.Parameters.Any(parameter => parameter.Identifier.Text == name),
+            _ => false
+        };
+
     public override SyntaxNode? VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
     {
         if (node.IsKind(SyntaxKind.SimpleMemberAccessExpression)
             && node is { Expression: IdentifierNameSyntax identifierName }
-            && identifierName.Identifier.Text == ctx.Factory.Source.Context.Identifier.Text)
+            && IsContextIdentifier(identifierName))
         {
             switch (node.Name.Identifier.Text)
             {
