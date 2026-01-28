@@ -10,6 +10,84 @@ using Core;
 public class CtorTests
 {
     [Fact]
+    public async Task ShouldResolveWhenOnlyMixedConstructorVariantsAreValid()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDep1 { }
+                               interface IDep2 { }
+
+                               class Dep1 : IDep1 { }
+                               class Dep2 : IDep2 { }
+
+                               abstract class MissingA { }
+                               abstract class MissingB { }
+
+                               class A
+                               {
+                                   public string Mode { get; }
+
+                                   [Ordinal(0)]
+                                   public A(IDep1 dep) => Mode = "A0";
+
+                                   [Ordinal(1)]
+                                   public A(MissingA dep) => Mode = "A1";
+                               }
+
+                               class B
+                               {
+                                   public string Mode { get; }
+
+                                   [Ordinal(0)]
+                                   public B(MissingB dep) => Mode = "B0";
+
+                                   [Ordinal(1)]
+                                   public B(IDep2 dep) => Mode = "B1";
+                               }
+
+                               class Service
+                               {
+                                   public Service(A a, B b) => Console.WriteLine($"{a.Mode}:{b.Mode}");
+                               }
+
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind<IDep1>().To<Dep1>()
+                                           .Bind<IDep2>().To<Dep2>()
+                                           .Bind<A>().To<A>()
+                                           .Bind<B>().To<B>()
+                                           .Bind<Service>().To<Service>()
+                                           .Root<Service>("Root");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Root;
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["A0:B1"], result);
+    }
+
+    [Fact]
     public async Task ShouldPreferCtorWithActualDependency()
     {
         // Given

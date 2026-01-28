@@ -8,6 +8,62 @@ using Core;
 public class ExplicitDefaultValueTests
 {
     [Fact]
+    public async Task ShouldUseDefaultForStructWhenExplicitDefaultValueIsNull()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               struct Counter
+                               {
+                                   public int Value { get; }
+                                   
+                                   public Counter(int value) => Value = value;
+                               }
+
+                               class Service
+                               {
+                                   public Service(Counter counter = default)
+                                   {
+                                       Counter = counter;
+                                   }
+
+                                   public Counter Counter { get; }
+                               }
+
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind<Service>().To<Service>()
+                                           .Root<Service>("Root");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Root;
+                                       Console.WriteLine(service.Counter.Value);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["0"], result);
+    }
+
+    [Fact]
     public async Task ShouldReportMissingDependencyWhenOtherInitializerUsesExplicitDefaultValue()
     {
         // Given
