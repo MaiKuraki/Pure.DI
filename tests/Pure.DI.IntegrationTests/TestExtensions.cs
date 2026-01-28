@@ -90,7 +90,19 @@ public static class TestExtensions
     [SuppressMessage("Performance", "CA1806:Не игнорируйте результаты метода")]
     internal static Task<Result> RunAsync(this string setupCode, Options? options = null)
     {
+        return new[] { setupCode }.RunAsync(options);
+    }
+
+    [SuppressMessage("Performance", "CA1806:Не игнорируйте результаты метода")]
+    internal static Task<Result> RunAsync(this IEnumerable<string> sourceTexts, Options? options = null)
+    {
         var stdOut = new List<string>();
+        var sourceList = sourceTexts.ToList();
+        if (sourceList.Count == 0)
+        {
+            throw new ArgumentException("At least one source is required.", nameof(sourceTexts));
+        }
+
         var runOptions = options ?? new Options();
         var parseOptions = CSharpParseOptions.Default
             .WithLanguageVersion(runOptions.LanguageVersion);
@@ -104,7 +116,7 @@ public static class TestExtensions
         var compilation = CreateCompilation()
             .WithOptions(new CSharpCompilationOptions(OutputKind.ConsoleApplication).WithNullableContextOptions(runOptions.NullableContextOptions))
             .AddSyntaxTrees(generatedApiSources.Select(api => CSharpSyntaxTree.ParseText(api.SourceText, parseOptions)))
-            .AddSyntaxTrees(CSharpSyntaxTree.ParseText(setupCode, parseOptions));
+            .AddSyntaxTrees(sourceList.Select(source => CSharpSyntaxTree.ParseText(source, parseOptions)));
         // .Check(stdOut, options);
 
         var globalOptions = new TestAnalyzerConfigOptions(new Dictionary<string, string>
