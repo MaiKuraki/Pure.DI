@@ -3,6 +3,10 @@ $v=true
 $p=0
 $d=Transient
 $h=The _Transient_ lifetime specifies to create a new dependency instance each time. It is the default lifetime and can be omitted.
+$h=When this occurs: you need this feature while building the composition and calling roots.
+$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+$f=
 $f=The _Transient_ lifetime is the safest and is used by default. Yes, its widespread use can cause a lot of memory traffic, but if there are doubts about thread safety, the _Transient_ lifetime is preferable because each consumer has its own instance of the dependency. The following nuances should be considered when choosing the _Transient_ lifetime:
 $f=
 $f=- There will be unnecessary memory overhead that could be avoided.
@@ -13,6 +17,15 @@ $f=- Poorly designed constructors can run slowly, perform functions that are not
 $f=
 $f=> [!IMPORTANT]
 $f=> The following very important rule, in my opinion, will help in the last point. Now, when a constructor is used to implement dependencies, it should not be loaded with other tasks. Accordingly, constructors should be free of all logic except for checking arguments and saving them for later use. Following this rule, even the largest compositions of objects will be built quickly.
+$f=What it shows:
+$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+$f=
+$f=Important points:
+$f=- Highlights the key configuration choices and their effect on resolution.
+$f=
+$f=Useful when:
+$f=- You want a concrete template for applying this feature in a composition.
+$f=
 $r=Shouldly
 */
 

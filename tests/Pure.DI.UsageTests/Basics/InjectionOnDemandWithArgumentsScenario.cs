@@ -1,12 +1,25 @@
-﻿/*
+/*
 $v=true
 $p=3
 $d=Injections on demand with arguments
 $h=This example uses a parameterized factory so dependencies can be created with runtime arguments. The service creates sensors with specific IDs at instantiation time.
+$h=When this occurs: you need this feature while building the composition and calling roots.
+$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+$f=
 $f=Delayed dependency instantiation:
 $f=- Injection of dependencies requiring runtime parameters
 $f=- Creation of distinct instances with different configurations
 $f=- Type-safe resolution of dependencies with constructor arguments
+$f=What it shows:
+$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+$f=
+$f=Important points:
+$f=- Highlights the key configuration choices and their effect on resolution.
+$f=
+$f=Useful when:
+$f=- You want a concrete template for applying this feature in a composition.
+$f=
 $r=Shouldly
 */
 

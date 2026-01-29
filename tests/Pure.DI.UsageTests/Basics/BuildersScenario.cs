@@ -1,11 +1,21 @@
-﻿/*
+/*
 $v=true
 $p=9
 $d=Builders
 $h=Sometimes you need builders for all types derived from `T` that are known at compile time.
+$h=When this occurs: you need this feature while building the composition and calling roots.
+$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+$f=
 $f=Important Notes:
 $f=- The default builder method name is `BuildUp`
 $f=- The first argument to the builder method is always the instance to be built
+$f=What it shows:
+$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+$f=
+$f=Useful when:
+$f=- You want a concrete template for applying this feature in a composition.
+$f=
 $r=Shouldly
 */
 

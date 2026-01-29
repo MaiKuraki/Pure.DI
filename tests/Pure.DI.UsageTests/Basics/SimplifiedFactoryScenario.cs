@@ -1,9 +1,22 @@
-﻿/*
+/*
 $v=true
 $p=2
 $d=Simplified factory
 $h=This example shows a simplified manual factory. Each lambda parameter represents an injected dependency, and starting with C# 10 you can add `Tag(...)` to specify a tagged dependency.
+$h=When this occurs: you need this feature while building the composition and calling roots.
+$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+$f=
 $f=The example creates a service that depends on a logger initialized with a date-based file name. The `Tag` attribute enables named dependencies for more complex setups.
+$f=What it shows:
+$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+$f=
+$f=Important points:
+$f=- Highlights the key configuration choices and their effect on resolution.
+$f=
+$f=Useful when:
+$f=- You want a concrete template for applying this feature in a composition.
+$f=
 $r=Shouldly
 */
 

@@ -6,6 +6,19 @@ $h=The _Setup_ method has an additional argument _kind_, which defines the type 
 $h=- _CompositionKind.Public_ - will create a normal composition class, this is the default setting and can be omitted, it can also use the _DependsOn_ method to use it as a dependency in other compositions
 $h=- _CompositionKind.Internal_ - the composition class will not be created, but that composition can be used to create other compositions by calling the _DependsOn_ method with its name
 $h=- _CompositionKind.Global_ - the composition class will also not be created, but that composition will automatically be used to create other compositions
+$h=When this occurs: you need this feature while building the composition and calling roots.
+$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+$f=
+$f=What it shows:
+$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+$f=
+$f=Important points:
+$f=- Highlights the key configuration choices and their effect on resolution.
+$f=
+$f=Useful when:
+$f=- You want a concrete template for applying this feature in a composition.
+$f=
 */
 
 // ReSharper disable ClassNeverInstantiated.Local

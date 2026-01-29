@@ -1,12 +1,25 @@
-﻿/*
+/*
 $v=true
 $p=1
 $d=Resolve methods
 $h=This example shows how to resolve composition roots via `Resolve` methods, using the composition as a _Service Locator_. The `Resolve` methods are generated automatically.
+$h=When this occurs: you need this feature while building the composition and calling roots.
+$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+$f=
 $f=_Resolve_ methods are similar to calling composition roots, which are properties (or methods). Roots are efficient and do not throw, so they are preferred. In contrast, _Resolve_ methods have drawbacks:
 $f=- They provide access to an unlimited set of dependencies (_Service Locator_).
 $f=- Their use can potentially lead to runtime exceptions. For example, when the corresponding root has not been defined.
 $f=- They are awkward for some UI binding scenarios (e.g., MAUI/WPF/Avalonia).
+$f=What it shows:
+$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+$f=
+$f=Important points:
+$f=- Highlights the key configuration choices and their effect on resolution.
+$f=
+$f=Useful when:
+$f=- You want a concrete template for applying this feature in a composition.
+$f=
 */
 
 // ReSharper disable ClassNeverInstantiated.Local

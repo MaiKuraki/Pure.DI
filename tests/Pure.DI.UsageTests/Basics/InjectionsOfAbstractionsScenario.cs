@@ -1,11 +1,24 @@
-﻿/*
+/*
 $v=true
 $p=0
 $d=Injections of abstractions
 $h=This example shows the recommended approach: depend on abstractions and bind them to implementations.
+$h=When this occurs: you need this feature while building the composition and calling roots.
+$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+$f=
 $f=The binding chain maps abstractions to concrete types so the generator can build a fully concrete object graph. This keeps consumers decoupled and allows swapping implementations. A single implementation can satisfy multiple abstractions.
 $f=> [!TIP]
 $f=> If a binding is missing, injection still works when the consumer requests a concrete type (not an abstraction).
+$f=
+$f=What it shows:
+$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+$f=
+$f=Important points:
+$f=- Highlights the key configuration choices and their effect on resolution.
+$f=
+$f=Useful when:
+$f=- You want a concrete template for applying this feature in a composition.
 $f=
 */
 
