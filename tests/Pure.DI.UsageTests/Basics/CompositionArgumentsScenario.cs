@@ -14,7 +14,7 @@ $r=Shouldly
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable ArrangeTypeModifiers
 
-namespace Pure.DI.UsageTests.Basics.ClassArgumentsScenario;
+namespace Pure.DI.UsageTests.Basics.CompositionArgumentsScenario;
 
 using Shouldly;
 using Xunit;
