@@ -1,5 +1,9 @@
 #### Simplified lifetime-specific factory
 
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
 
 ```c#
 using Shouldly;
@@ -85,6 +89,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -107,17 +121,17 @@ partial class Composition
         lock (_lock)
           if (_singletonIFileLogger53 is null)
           {
-            Func<Guid> transientFunc300 = new Func<Guid>(
+            Func<Guid> transientFunc301 = new Func<Guid>(
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             () =>
             {
-              Guid transientGuid301 = Guid.NewGuid();
-              Guid localValue19 = transientGuid301;
+              Guid transientGuid302 = Guid.NewGuid();
+              Guid localValue19 = transientGuid302;
               return localValue19;
             });
-            FileLogger localLogger5 = new FileLogger(transientFunc300);
-            DateTime transientDateTime299 = DateTime.Today;
-            DateTime localDate1 = transientDateTime299;
+            FileLogger localLogger5 = new FileLogger(transientFunc301);
+            DateTime transientDateTime300 = DateTime.Today;
+            DateTime localDate1 = transientDateTime300;
             localLogger5.Init($"app-{localDate1:yyyy-MM-dd}.log");
             _singletonIFileLogger53 = localLogger5;
           }

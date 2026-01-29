@@ -1,6 +1,9 @@
 #### Factory
 
 This example shows manual creation and initialization. The generator usually infers dependencies from constructors, but sometimes you need custom creation or setup logic.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -82,6 +85,15 @@ There are scenarios where manual control over the creation process is required, 
 
 > [!IMPORTANT]
 > The method `Inject()` cannot be used outside of the binding setup.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 The following partial class will be generated:
 
@@ -93,13 +105,13 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      DatabaseService transientDatabaseService239;
+      DatabaseService transientDatabaseService240;
       // Some logic for creating an instance.
       // For example, we need to manually initialize the connection.
       DatabaseService localService = new DatabaseService();
       localService.Connect();
-      transientDatabaseService239 = localService;
-      return new UserRegistry(transientDatabaseService239);
+      transientDatabaseService240 = localService;
+      return new UserRegistry(transientDatabaseService240);
     }
   }
 }

@@ -1,6 +1,9 @@
 #### Enumerable generics
 
 Shows how generic middleware pipelines collect all matching implementations.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -86,6 +89,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -97,13 +110,13 @@ partial class Composition
     get
     {
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      IEnumerable<IMiddleware<string>> EnumerationOf_transientIEnumerable324()
+      IEnumerable<IMiddleware<string>> EnumerationOf_transientIEnumerable325()
       {
         yield return new LoggingMiddleware<string>();
         yield return new MetricsMiddleware<string>();
       }
 
-      return new Pipeline<string>(EnumerationOf_transientIEnumerable324());
+      return new Pipeline<string>(EnumerationOf_transientIEnumerable325());
     }
   }
 
@@ -113,13 +126,13 @@ partial class Composition
     get
     {
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      IEnumerable<IMiddleware<int>> EnumerationOf_transientIEnumerable328()
+      IEnumerable<IMiddleware<int>> EnumerationOf_transientIEnumerable329()
       {
         yield return new LoggingMiddleware<int>();
         yield return new MetricsMiddleware<int>();
       }
 
-      return new Pipeline<int>(EnumerationOf_transientIEnumerable328());
+      return new Pipeline<int>(EnumerationOf_transientIEnumerable329());
     }
   }
 }

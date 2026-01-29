@@ -1,6 +1,9 @@
 #### Injections on demand with arguments
 
 This example uses a parameterized factory so dependencies can be created with runtime arguments. The service creates sensors with specific IDs at instantiation time.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -82,6 +85,15 @@ Delayed dependency instantiation:
 - Injection of dependencies requiring runtime parameters
 - Creation of distinct instances with different configurations
 - Type-safe resolution of dependencies with constructor arguments
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 The following partial class will be generated:
 
@@ -99,18 +111,18 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<int, ISensor> transientFunc247;
-      Func<int, ISensor> localFactory1 = new Func<int, ISensor>((int localArg18) =>
+      Func<int, ISensor> transientFunc248;
+      Func<int, ISensor> localFactory1 = new Func<int, ISensor>((int localArg19) =>
       {
         lock (_lock)
         {
-          int overriddenInt32 = localArg18;
+          int overriddenInt32 = localArg19;
           ISensor localValue18 = new Sensor(overriddenInt32);
           return localValue18;
         }
       });
-      transientFunc247 = localFactory1;
-      return new SmartHome(transientFunc247);
+      transientFunc248 = localFactory1;
+      return new SmartHome(transientFunc248);
     }
   }
 }

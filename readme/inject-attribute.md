@@ -5,6 +5,9 @@ If you want attributes without defining your own, add this package:
 [![NuGet](https://img.shields.io/nuget/v/Pure.DI.Abstractions)](https://www.nuget.org/packages/Pure.DI.Abstractions)
 
 It provides `Inject` and `Inject<T>` for constructors, methods, properties, and fields, letting you configure injection metadata.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -72,6 +75,15 @@ dotnet run
 This package should also be included in a project:
 
 [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 The following partial class will be generated:
 

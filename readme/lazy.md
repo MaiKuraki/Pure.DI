@@ -1,5 +1,9 @@
 #### Lazy
 
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
 
 ```c#
 using Shouldly;
@@ -60,6 +64,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -70,19 +84,19 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Lazy<IGraphicsEngine> transientLazy351;
+      Lazy<IGraphicsEngine> transientLazy352;
       // Injects an instance factory
-      Func<IGraphicsEngine> transientFunc352 = new Func<IGraphicsEngine>(
+      Func<IGraphicsEngine> transientFunc353 = new Func<IGraphicsEngine>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
         IGraphicsEngine localValue23 = new GraphicsEngine();
         return localValue23;
       });
-      Func<IGraphicsEngine> localFactory3 = transientFunc352;
+      Func<IGraphicsEngine> localFactory3 = transientFunc353;
       // Creates an instance that supports lazy initialization
-      transientLazy351 = new Lazy<IGraphicsEngine>(localFactory3, true);
-      return new Window(transientLazy351);
+      transientLazy352 = new Lazy<IGraphicsEngine>(localFactory3, true);
+      return new Window(transientLazy352);
     }
   }
 }

@@ -4,6 +4,9 @@ Use composition arguments when you need to pass state into the composition. Defi
 > [!NOTE]
 > Actually, composition arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
 
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -99,5 +102,100 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
 
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
+The following partial class will be generated:
+
+```c#
+partial class Composition
+{
+#if NET9_0_OR_GREATER
+  private readonly Lock _lock;
+#else
+  private readonly Object _lock;
+#endif
+
+  private readonly int _argTimeoutSeconds;
+  private readonly string _argAuthToken;
+  private readonly string _argGatewayUrl;
+
+  [OrdinalAttribute(128)]
+  public Composition(int timeoutSeconds, string authToken, string gatewayUrl)
+  {
+    _argTimeoutSeconds = timeoutSeconds;
+    _argAuthToken = authToken ?? throw new ArgumentNullException(nameof(authToken));
+    _argGatewayUrl = gatewayUrl ?? throw new ArgumentNullException(nameof(gatewayUrl));
+#if NET9_0_OR_GREATER
+    _lock = new Lock();
+#else
+    _lock = new Object();
+#endif
+  }
+
+  public IPaymentProcessor PaymentService
+  {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    get
+    {
+      return new PaymentProcessor(_argAuthToken, new BankGateway(_argTimeoutSeconds, _argGatewayUrl));
+    }
+  }
+}
+```
+
+Class diagram:
+
+```mermaid
+---
+ config:
+  maxTextSize: 2147483647
+  maxEdges: 2147483647
+  class:
+   hideEmptyMembersBox: true
+---
+classDiagram
+	BankGateway --|> IBankGateway
+	PaymentProcessor --|> IPaymentProcessor
+	Composition ..> PaymentProcessor : IPaymentProcessor PaymentService
+	BankGateway o-- Int32 : Argument "timeoutSeconds"
+	BankGateway o-- String : Argument "gatewayUrl"
+	PaymentProcessor *--  BankGateway : IBankGateway
+	PaymentProcessor o-- String : "api token"  Argument "authToken"
+	namespace Pure.DI.UsageTests.Basics.CompositionArgumentsScenario {
+		class BankGateway {
+				<<class>>
+			+BankGateway(Int32 timeoutSeconds, String gatewayUrl)
+		}
+		class Composition {
+		<<partial>>
+		+IPaymentProcessor PaymentService
+		}
+		class IBankGateway {
+			<<interface>>
+		}
+		class IPaymentProcessor {
+			<<interface>>
+		}
+		class PaymentProcessor {
+				<<class>>
+			+PaymentProcessor(String token, IBankGateway gateway)
+		}
+	}
+	namespace System {
+		class Int32 {
+				<<struct>>
+		}
+		class String {
+				<<class>>
+		}
+	}
+```
 

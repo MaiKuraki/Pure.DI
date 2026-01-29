@@ -1,6 +1,9 @@
 #### Injections of abstractions
 
 This example shows the recommended approach: depend on abstractions and bind them to implementations.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -81,6 +84,15 @@ dotnet run
 The binding chain maps abstractions to concrete types so the generator can build a fully concrete object graph. This keeps consumers decoupled and allows swapping implementations. A single implementation can satisfy multiple abstractions.
 > [!TIP]
 > If a binding is missing, injection still works when the consumer requests a concrete type (not an abstraction).
+
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
 
 
 The following partial class will be generated:

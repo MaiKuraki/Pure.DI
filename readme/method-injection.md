@@ -1,6 +1,9 @@
 #### Method injection
 
 To use dependency implementation for a method, simply add the _Ordinal_ attribute to that method, specifying the sequence number that will be used to define the call to that method:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -70,6 +73,15 @@ The key points are:
 - The method must be available to be called from a composition class
 - The `Dependency` (or `Ordinal`) attribute is used to mark the method for injection
 - The container automatically calls the method to inject dependencies
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 The following partial class will be generated:
 
@@ -81,9 +93,9 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var transientNavigator253 = new Navigator();
-      transientNavigator253.LoadMap(new Map());
-      return transientNavigator253;
+      var transientNavigator254 = new Navigator();
+      transientNavigator254.LoadMap(new Map());
+      return transientNavigator254;
     }
   }
 }

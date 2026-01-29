@@ -1,6 +1,9 @@
 #### PerResolve
 
 The _PerResolve_ lifetime ensures that there will be one instance of the dependency for each composition root instance.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -98,6 +101,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -117,28 +130,28 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perResolveRoutePlanningSession526 = default(RoutePlanningSession);
+      var perResolveRoutePlanningSession527 = default(RoutePlanningSession);
       if (!_singletonValueTuple54Created)
         lock (_lock)
           if (!_singletonValueTuple54Created)
           {
             EnsureRoutePlanningSessionExists();
-            _singletonValueTuple54 = (perResolveRoutePlanningSession526, perResolveRoutePlanningSession526);
+            _singletonValueTuple54 = (perResolveRoutePlanningSession527, perResolveRoutePlanningSession527);
             Thread.MemoryBarrier();
             _singletonValueTuple54Created = true;
           }
 
       EnsureRoutePlanningSessionExists();
       EnsureRoutePlanningSessionExists();
-      return new TrainTripPlanner(perResolveRoutePlanningSession526, perResolveRoutePlanningSession526, _singletonValueTuple54);
+      return new TrainTripPlanner(perResolveRoutePlanningSession527, perResolveRoutePlanningSession527, _singletonValueTuple54);
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       void EnsureRoutePlanningSessionExists()
       {
-        if (perResolveRoutePlanningSession526 is null)
+        if (perResolveRoutePlanningSession527 is null)
           lock (_lock)
-            if (perResolveRoutePlanningSession526 is null)
+            if (perResolveRoutePlanningSession527 is null)
             {
-              perResolveRoutePlanningSession526 = new RoutePlanningSession();
+              perResolveRoutePlanningSession527 = new RoutePlanningSession();
             }
       }
     }

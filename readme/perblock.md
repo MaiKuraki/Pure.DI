@@ -1,6 +1,9 @@
 #### PerBlock
 
 The _PerBlock_ lifetime does not guarantee that there will be a single dependency instance for each instance of the composition root (as for the _PerResolve_ lifetime), but is useful for reducing the number of instances of a type.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -93,6 +96,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -112,17 +125,17 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perBlockDatabaseConnection523 = new DatabaseConnection();
+      var perBlockDatabaseConnection524 = new DatabaseConnection();
       if (!_singletonValueTuple54Created)
         lock (_lock)
           if (!_singletonValueTuple54Created)
           {
-            _singletonValueTuple54 = (perBlockDatabaseConnection523, perBlockDatabaseConnection523);
+            _singletonValueTuple54 = (perBlockDatabaseConnection524, perBlockDatabaseConnection524);
             Thread.MemoryBarrier();
             _singletonValueTuple54Created = true;
           }
 
-      return new OrderRepository(perBlockDatabaseConnection523, perBlockDatabaseConnection523, _singletonValueTuple54);
+      return new OrderRepository(perBlockDatabaseConnection524, perBlockDatabaseConnection524, _singletonValueTuple54);
     }
   }
 }

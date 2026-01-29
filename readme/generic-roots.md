@@ -1,5 +1,9 @@
 #### Generic roots
 
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
 
 ```c#
 using Pure.DI;
@@ -64,6 +68,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -72,10 +86,10 @@ partial class Composition
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public NetworkExporter<T2> GetMyNetworkExporter_T<T2>()
   {
-    NetworkExporter<T2> transientNetworkExporter453;
+    NetworkExporter<T2> transientNetworkExporter454;
     IFormatter<T2> localFormatter = new JsonFormatter<T2>();
-    transientNetworkExporter453 = new NetworkExporter<T2>(localFormatter);
-    return transientNetworkExporter453;
+    transientNetworkExporter454 = new NetworkExporter<T2>(localFormatter);
+    return transientNetworkExporter454;
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -13,6 +13,9 @@ public partial class CompositionWithGenericRootsAndArgsInOtherProject
             .Root<IMyGenericService<TT>>("GetMyService", kind: RootKinds.Exposed);
 }
 ```
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -60,6 +63,16 @@ dotnet run
 ```
 
 </details>
+
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 The following partial class will be generated:
 

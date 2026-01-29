@@ -1,5 +1,9 @@
 #### Serilog
 
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
 
 ```c#
 using Serilog.Core;
@@ -96,6 +100,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -125,10 +139,10 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Serilog.ILogger transientILogger574;
+      Serilog.ILogger transientILogger575;
       Serilog.ILogger localLogger7 = _argLogger;
-      transientILogger574 = localLogger7.ForContext(typeof(Composition));
-      return transientILogger574;
+      transientILogger575 = localLogger7.ForContext(typeof(Composition));
+      return transientILogger575;
     }
   }
 
@@ -137,14 +151,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var transientDependency572 = new Dependency();
-      OnNewInstance<Dependency>(ref transientDependency572, null, Lifetime.Transient);
-      Serilog.ILogger transientILogger571;
+      var transientDependency573 = new Dependency();
+      OnNewInstance<Dependency>(ref transientDependency573, null, Lifetime.Transient);
+      Serilog.ILogger transientILogger572;
       Serilog.ILogger localLogger6 = _argLogger;
-      transientILogger571 = localLogger6.ForContext(typeof(Service));
-      var transientService570 = new Service(transientILogger571, OnDependencyInjection<IDependency>(transientDependency572, null, Lifetime.Transient));
-      OnNewInstance<Service>(ref transientService570, null, Lifetime.Transient);
-      return OnDependencyInjection<IService>(transientService570, null, Lifetime.Transient);
+      transientILogger572 = localLogger6.ForContext(typeof(Service));
+      var transientService571 = new Service(transientILogger572, OnDependencyInjection<IDependency>(transientDependency573, null, Lifetime.Transient));
+      OnNewInstance<Service>(ref transientService571, null, Lifetime.Transient);
+      return OnDependencyInjection<IService>(transientService571, null, Lifetime.Transient);
     }
   }
 

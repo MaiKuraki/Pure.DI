@@ -4,7 +4,11 @@ This Markdown-formatted document contains information about working with Pure.DI
 
 ## Auto-bindings
 
-Non-abstract types can be injected without any additional bindings.
+Auto-bindings are implicit bindings for non-abstract types, so the generator can build an object graph without explicit registrations.
+Pros: fast to get started and low ceremony in small demos or spikes.
+Cons: weaker adherence to dependency inversion and less explicit lifetime control, which can make larger graphs harder to reason about.
+Recommendation: prefer explicit bindings for abstractions in production code and use auto-bindings sparingly for simple leaf types.
+In this example, a composition is created with only a root; the `OrderService` and `Database` types are resolved implicitly.
 
 ```c#
 using Pure.DI;
@@ -31,10 +35,22 @@ To run the above code, the following NuGet package must be added:
 > This approach is not recommended if you follow the dependency inversion principle or need precise lifetime control.
 
 Prefer injecting abstractions (for example, interfaces) and map them to implementations as in most [other examples](injections-of-abstractions.md).
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Injections of abstractions
 
 This example shows the recommended approach: depend on abstractions and bind them to implementations.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -93,6 +109,15 @@ The binding chain maps abstractions to concrete types so the generator can build
 > [!TIP]
 > If a binding is missing, injection still works when the consumer requests a concrete type (not an abstraction).
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Composition roots
 
@@ -101,6 +126,9 @@ This example shows several ways to create a composition root.
 > There is no hard limit on roots, but prefer a small number. Ideally, an application has a single composition root.
 
 In classic DI containers, the composition is resolved dynamically via calls like `T Resolve<T>()` or `object GetService(Type type)`. The root is simply the requested type, and you can have as many as you like. In Pure.DI, each root generates a property or method at compile time, so roots are explicit and defined via `Root(string rootName)`.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -180,10 +208,22 @@ DI.Setup("Composition")
   ...
 ```
 This can be done if these methods are not needed, in case only certain composition roots are used. It's not significant then, but it will help save resources during compilation.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Resolve methods
 
 This example shows how to resolve composition roots via `Resolve` methods, using the composition as a _Service Locator_. The `Resolve` methods are generated automatically.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -232,10 +272,22 @@ _Resolve_ methods are similar to calling composition roots, which are properties
 - They provide access to an unlimited set of dependencies (_Service Locator_).
 - Their use can potentially lead to runtime exceptions. For example, when the corresponding root has not been defined.
 - They are awkward for some UI binding scenarios (e.g., MAUI/WPF/Avalonia).
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Simplified binding
 
 You can call `Bind()` without type parameters. It binds the implementation type itself, and if it is not abstract, all directly implemented abstract types except special ones.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using System.Collections;
@@ -332,10 +384,22 @@ For class `OrderManager`, `Bind().To<OrderManager>()` is equivalent to `Bind<IOr
 | ❌ | `IEnumerable<string>` | special type                                      |
 | ❌ | `ManagerBase`         | non-abstract                                      |
 | ❌ | `IManager`            | is not directly implemented by class OrderManager |
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Factory
 
 This example shows manual creation and initialization. The generator usually infers dependencies from constructors, but sometimes you need custom creation or setup logic.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -393,10 +457,22 @@ There are scenarios where manual control over the creation process is required, 
 
 > [!IMPORTANT]
 > The method `Inject()` cannot be used outside of the binding setup.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Simplified factory
 
 This example shows a simplified manual factory. Each lambda parameter represents an injected dependency, and starting with C# 10 you can add `Tag(...)` to specify a tagged dependency.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -457,10 +533,22 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 The example creates a service that depends on a logger initialized with a date-based file name. The `Tag` attribute enables named dependencies for more complex setups.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Injection on demand
 
 This example creates dependencies on demand using a factory delegate. The service (`GameLevel`) needs multiple instances of `IEnemy`, so it receives a `Func<IEnemy>` that can create new instances when needed.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -512,10 +600,19 @@ Key elements:
 - The `GameLevel` calls the factory twice, resulting in two distinct `Enemy` instances stored in its `Enemies` collection.
 
 This approach lets factories control lifetime and instantiation timing. Pure.DI resolves a new `IEnemy` each time the factory is invoked.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Injections on demand with arguments
 
 This example uses a parameterized factory so dependencies can be created with runtime arguments. The service creates sensors with specific IDs at instantiation time.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -573,10 +670,284 @@ Delayed dependency instantiation:
 - Injection of dependencies requiring runtime parameters
 - Creation of distinct instances with different configurations
 - Type-safe resolution of dependencies with constructor arguments
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
+## Composition arguments
+
+Use composition arguments when you need to pass state into the composition. Define them with `Arg<T>(string argName)` (optionally with tags) and use them like any other dependency. Only arguments that are used in the object graph become constructor parameters.
+> [!NOTE]
+> Actually, composition arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
+```c#
+using Shouldly;
+using Pure.DI;
+
+DI.Setup(nameof(Composition))
+    .Bind<IBankGateway>().To<BankGateway>()
+    .Bind<IPaymentProcessor>().To<PaymentProcessor>()
+
+    // Composition root "PaymentService"
+    .Root<IPaymentProcessor>("PaymentService")
+
+    // Composition argument: Connection timeout (e.g., from config)
+    .Arg<int>("timeoutSeconds")
+
+    // Composition argument: API Token (using a tag to distinguish from other strings)
+    .Arg<string>("authToken", "api token")
+
+    // Composition argument: Bank gateway address
+    .Arg<string>("gatewayUrl");
+
+// Create the composition, passing real settings from outside
+var composition = new Composition(
+    timeoutSeconds: 30,
+    authToken: "secret_token_123",
+    gatewayUrl: "https://api.bank.com/v1");
+
+var paymentService = composition.PaymentService;
+
+paymentService.Token.ShouldBe("secret_token_123");
+paymentService.Gateway.Timeout.ShouldBe(30);
+paymentService.Gateway.Url.ShouldBe("https://api.bank.com/v1");
+
+interface IBankGateway
+{
+    int Timeout { get; }
+
+    string Url { get; }
+}
+
+// Simulation of a bank gateway client
+class BankGateway(int timeoutSeconds, string gatewayUrl) : IBankGateway
+{
+    public int Timeout { get; } = timeoutSeconds;
+
+    public string Url { get; } = gatewayUrl;
+}
+
+interface IPaymentProcessor
+{
+    string Token { get; }
+
+    IBankGateway Gateway { get; }
+}
+
+// Payment processing service
+class PaymentProcessor(
+    // The tag allows specifying exactly which string to inject here
+    [Tag("api token")] string token,
+    IBankGateway gateway) : IPaymentProcessor
+{
+    public string Token { get; } = token;
+
+    public IBankGateway Gateway { get; } = gateway;
+}
+```
+
+To run the above code, the following NuGet packages must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+ - [Shouldly](https://www.nuget.org/packages/Shouldly)
+
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
+## Root arguments
+
+Use root arguments when you need to pass state into a specific root. Define them with `RootArg<T>(string argName)` (optionally with tags) and use them like any other dependency. A root that uses at least one root argument becomes a method, and only arguments used in that root's object graph appear in the method signature. Use unique argument names to avoid collisions.
+> [!NOTE]
+> Actually, root arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
+```c#
+using Shouldly;
+using Pure.DI;
+using static Pure.DI.Tag;
+
+DI.Setup(nameof(Composition))
+    // Disable Resolve methods because root arguments are not compatible
+    .Hint(Hint.Resolve, "Off")
+    .Bind<IDatabaseService>().To<DatabaseService>()
+    .Bind<IApplication>().To<Application>()
+
+    // Root arguments serve as values passed
+    // to the composition root method
+    .RootArg<int>("port")
+    .RootArg<string>("connectionString")
+
+    // An argument can be tagged
+    // to be injectable by type and this tag
+    .RootArg<string>("appName", AppDetail)
+
+    // Composition root
+    .Root<IApplication>("CreateApplication");
+
+var composition = new Composition();
+
+// Creates an application with specific arguments
+var app = composition.CreateApplication(
+    appName: "MySuperApp",
+    port: 8080,
+    connectionString: "Server=.;Database=MyDb;");
+
+app.Name.ShouldBe("MySuperApp");
+app.Database.Port.ShouldBe(8080);
+app.Database.ConnectionString.ShouldBe("Server=.;Database=MyDb;");
+
+interface IDatabaseService
+{
+    int Port { get; }
+
+    string ConnectionString { get; }
+}
+
+class DatabaseService(int port, string connectionString) : IDatabaseService
+{
+    public int Port { get; } = port;
+
+    public string ConnectionString { get; } = connectionString;
+}
+
+interface IApplication
+{
+    string Name { get; }
+
+    IDatabaseService Database { get; }
+}
+
+class Application(
+    [Tag(AppDetail)] string name,
+    IDatabaseService database)
+    : IApplication
+{
+    public string Name { get; } = name;
+
+    public IDatabaseService Database { get; } = database;
+}
+```
+
+To run the above code, the following NuGet packages must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+ - [Shouldly](https://www.nuget.org/packages/Shouldly)
+
+When using root arguments, compilation warnings are emitted if `Resolve` methods are generated because these methods cannot create such roots. Disable `Resolve` via `Hint(Hint.Resolve, "Off")`, or ignore the warnings and accept the risks.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
+## Tags
+
+Tags let you control dependency selection when multiple implementations exist:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
+```c#
+using Shouldly;
+using Pure.DI;
+
+DI.Setup(nameof(Composition))
+    // The `default` tag is used when the consumer does not specify a tag
+    .Bind<IApiClient>("Public", default).To<RestApiClient>()
+    .Bind<IApiClient>("Internal").As(Lifetime.Singleton).To<InternalApiClient>()
+    .Bind<IApiFacade>().To<ApiFacade>()
+
+    // "InternalRoot" is a root name, "Internal" is a tag
+    .Root<IApiClient>("InternalRoot", "Internal")
+
+    // Specifies to create the composition root named "Root"
+    .Root<IApiFacade>("Api");
+
+var composition = new Composition();
+var api = composition.Api;
+api.PublicClient.ShouldBeOfType<RestApiClient>();
+api.InternalClient.ShouldBeOfType<InternalApiClient>();
+api.InternalClient.ShouldBe(composition.InternalRoot);
+api.DefaultClient.ShouldBeOfType<RestApiClient>();
+
+interface IApiClient;
+
+class RestApiClient : IApiClient;
+
+class InternalApiClient : IApiClient;
+
+interface IApiFacade
+{
+    IApiClient PublicClient { get; }
+
+    IApiClient InternalClient { get; }
+
+    IApiClient DefaultClient { get; }
+}
+
+class ApiFacade(
+    [Tag("Public")] IApiClient publicClient,
+    [Tag("Internal")] IApiClient internalClient,
+    IApiClient defaultClient)
+    : IApiFacade
+{
+    public IApiClient PublicClient { get; } = publicClient;
+
+    public IApiClient InternalClient { get; } = internalClient;
+
+    public IApiClient DefaultClient { get; } = defaultClient;
+}
+```
+
+To run the above code, the following NuGet packages must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+ - [Shouldly](https://www.nuget.org/packages/Shouldly)
+
+The example shows how to:
+- Define multiple bindings for the same interface
+- Use tags to differentiate between implementations
+- Control lifetime management
+- Inject tagged dependencies into constructors
+
+The tag can be a constant, a type, a [smart tag](smart-tags.md), or a value of an `Enum` type. The _default_ and _null_ tags are also supported.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Transient
 
 The _Transient_ lifetime specifies to create a new dependency instance each time. It is the default lifetime and can be omitted.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -634,10 +1005,22 @@ The _Transient_ lifetime is the safest and is used by default. Yes, its widespre
 
 > [!IMPORTANT]
 > The following very important rule, in my opinion, will help in the last point. Now, when a constructor is used to implement dependencies, it should not be loaded with other tasks. Accordingly, constructors should be free of all logic except for checking arguments and saving them for later use. Following this rule, even the largest compositions of objects will be built quickly.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Singleton
 
 The _Singleton_ lifetime ensures that there will be a single instance of the dependency for each composition.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -725,10 +1108,22 @@ Some articles advise using objects with a _Singleton_ lifetime as often as possi
 - _Singleton_ can retain dependency references longer than their expected lifetime, this is especially significant for objects that hold "non-renewable" resources, such as the operating system Handler.
 
 - Sometimes additional logic is required to dispose of _Singleton_.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## PerResolve
 
 The _PerResolve_ lifetime ensures that there will be one instance of the dependency for each composition root instance.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -802,10 +1197,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## PerBlock
 
 The _PerBlock_ lifetime does not guarantee that there will be a single dependency instance for each instance of the composition root (as for the _PerResolve_ lifetime), but is useful for reducing the number of instances of a type.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -873,4 +1280,510 @@ class OrderRepository(
 To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
+
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
+## Scope
+
+The _Scoped_ lifetime ensures that there will be a single instance of the dependency for each scope.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
+```c#
+using Shouldly;
+using Pure.DI;
+using static Pure.DI.Lifetime;
+
+var composition = new Composition();
+var app = composition.AppRoot;
+
+// Real-world analogy:
+// each HTTP request (or message consumer handling) creates its own scope.
+// Scoped services live exactly as long as the request is being processed.
+
+// Request #1
+var request1 = app.CreateRequestScope();
+var checkout1 = request1.RequestRoot;
+
+var ctx11 = checkout1.Context;
+var ctx12 = checkout1.Context;
+
+// Same request => same scoped instance
+ctx11.ShouldBe(ctx12);
+
+// Request #2
+var request2 = app.CreateRequestScope();
+var checkout2 = request2.RequestRoot;
+
+var ctx2 = checkout2.Context;
+
+// Different request => different scoped instance
+ctx11.ShouldNotBe(ctx2);
+
+// End of Request #1 => scoped instance is disposed
+request1.Dispose();
+ctx11.IsDisposed.ShouldBeTrue();
+
+// End of Request #2 => scoped instance is disposed
+request2.Dispose();
+ctx2.IsDisposed.ShouldBeTrue();
+
+interface IRequestContext
+{
+    Guid CorrelationId { get; }
+
+    bool IsDisposed { get; }
+}
+
+// Typically: DbContext / UnitOfWork / RequestTelemetry / Activity, etc.
+sealed class RequestContext : IRequestContext, IDisposable
+{
+    public Guid CorrelationId { get; } = Guid.NewGuid();
+
+    public bool IsDisposed { get; private set; }
+
+    public void Dispose() => IsDisposed = true;
+}
+
+interface ICheckoutService
+{
+    IRequestContext Context { get; }
+}
+
+// "Controller/service" that participates in request processing.
+// It depends on a scoped context (per-request resource).
+sealed class CheckoutService(IRequestContext context) : ICheckoutService
+{
+    public IRequestContext Context => context;
+}
+
+// Implements a request scope (per-request container)
+sealed class RequestScope(Composition parent) : Composition(parent);
+
+partial class App(Func<RequestScope> requestScopeFactory)
+{
+    // In a web app this would roughly map to: "create scope for request"
+    public RequestScope CreateRequestScope() => requestScopeFactory();
+}
+
+partial class Composition
+{
+    static void Setup() =>
+
+        DI.Setup()
+            // Per-request lifetime
+            .Bind().As(Scoped).To<RequestContext>()
+
+            // Regular service that consumes scoped context
+            .Bind().To<CheckoutService>()
+
+            // "Request root" (what your controller/handler resolves)
+            .Root<ICheckoutService>("RequestRoot")
+
+            // "Application root" (what creates request scopes)
+            .Root<App>("AppRoot");
+}
+```
+
+To run the above code, the following NuGet packages must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+ - [Shouldly](https://www.nuget.org/packages/Shouldly)
+
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
+## Auto scoped
+
+You can use the following example to automatically create a session when creating instances of a particular type:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
+```c#
+using Shouldly;
+using Pure.DI;
+using static Pure.DI.Lifetime;
+
+var composition = new Composition();
+var musicApp = composition.MusicAppRoot;
+
+// Session #1: user starts listening on "Living Room Speaker"
+var session1 = musicApp.StartListeningSession();
+session1.Enqueue("Daft Punk - One More Time");
+session1.Enqueue("Massive Attack - Teardrop");
+
+// Session #2: user starts listening on "Headphones"
+var session2 = musicApp.StartListeningSession();
+session2.Enqueue("Radiohead - Weird Fishes/Arpeggi");
+
+// Different sessions -> different scoped queue instances
+session1.Queue.ShouldNotBe(session2.Queue);
+
+// But inside one session, the same queue is used everywhere within that scope
+session1.Queue.Items.Count.ShouldBe(2);
+session2.Queue.Items.Count.ShouldBe(1);
+
+// Domain abstractions
+
+interface IPlaybackQueue
+{
+    IReadOnlyList<string> Items { get; }
+    void Add(string trackTitle);
+}
+
+sealed class PlaybackQueue : IPlaybackQueue
+{
+    private readonly List<string> _items = [];
+
+    public IReadOnlyList<string> Items => _items;
+
+    public void Add(string trackTitle) => _items.Add(trackTitle);
+}
+
+interface IListeningSession
+{
+    IPlaybackQueue Queue { get; }
+
+    void Enqueue(string trackTitle);
+}
+
+sealed class ListeningSession(IPlaybackQueue queue) : IListeningSession
+{
+    public IPlaybackQueue Queue => queue;
+
+    public void Enqueue(string trackTitle) => queue.Add(trackTitle);
+}
+
+// Implements a "session boundary" for listening
+class MusicApp(Func<IListeningSession> sessionFactory)
+{
+    // Each call creates a new DI scope under the hood (new "listening session").
+    public IListeningSession StartListeningSession() => sessionFactory();
+}
+
+partial class Composition
+{
+    static void Setup() =>
+
+        DI.Setup()
+            // Scoped: one queue per listening session
+            .Bind().As(Scoped).To<PlaybackQueue>()
+
+            // Session composition root (private root used only to build sessions)
+            .Root<ListeningSession>("Session", kind: RootKinds.Private)
+
+            // Auto scoped factory: creates a new scope for each listening session
+            .Bind().To(IListeningSession (Composition parentScope) => {
+                // Create a child scope so scoped services (PlaybackQueue) are unique per session.
+                var scope = new Composition(parentScope);
+                return scope.Session;
+            })
+
+            // App-level root
+            .Root<MusicApp>("MusicAppRoot");
+}
+```
+
+To run the above code, the following NuGet packages must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+ - [Shouldly](https://www.nuget.org/packages/Shouldly)
+
+> [!IMPORTANT]
+> The method `Inject()`cannot be used outside of the binding setup.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
+## Default lifetime
+
+For example, if some lifetime is used more often than others, you can make it the default lifetime:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
+```c#
+using Shouldly;
+using Pure.DI;
+using static Pure.DI.Lifetime;
+
+DI.Setup(nameof(Composition))
+    // In real AI apps, the "client" (HTTP handler, connection pool, retries, telemetry)
+    // is typically expensive and should be shared.
+    //
+    // DefaultLifetime(Singleton) makes *all* bindings in this chain singletons,
+    // until the chain ends or DefaultLifetime(...) is called again.
+    .DefaultLifetime(Singleton)
+    .Bind().To<LlmGateway>()
+    .Bind().To<RagChatAssistant>()
+    .Root<IChatAssistant>("Assistant");
+
+var composition = new Composition();
+
+// Think of these as two independent "requests" to resolve the assistant.
+// With singleton lifetime, you get the same assistant instance each time.
+var assistant1 = composition.Assistant;
+var assistant2 = composition.Assistant;
+
+assistant1.ShouldBe(assistant2);
+
+// The assistant depends on the same gateway in two places (e.g., chat + embeddings).
+// Because the gateway is singleton, both references are the *same instance*.
+assistant1.ChatGateway.ShouldBe(assistant1.EmbeddingsGateway);
+
+// And because the assistant itself is singleton, it reuses the same gateway across resolutions.
+assistant1.ChatGateway.ShouldBe(assistant2.ChatGateway);
+
+// Represents an "LLM provider gateway": HTTP client, auth, retries, rate limiting, etc.
+// NOTE: No secrets here; in real projects you'd configure credentials via secure configuration.
+interface ILlmGateway;
+
+// Concrete gateway implementation (placeholder for "OpenAI/Anthropic/Azure/etc. client").
+class LlmGateway : ILlmGateway;
+
+// A chat assistant that does RAG (Retrieval-Augmented Generation).
+// It needs the gateway for:
+// - Chat completions (answer generation)
+// - Embeddings (vectorization of question/documents)
+interface IChatAssistant
+{
+    ILlmGateway ChatGateway { get; }
+
+    ILlmGateway EmbeddingsGateway { get; }
+}
+
+class RagChatAssistant(
+    ILlmGateway chatGateway,
+    ILlmGateway embeddingsGateway)
+    : IChatAssistant
+{
+    public ILlmGateway ChatGateway { get; } = chatGateway;
+
+    public ILlmGateway EmbeddingsGateway { get; } = embeddingsGateway;
+}
+```
+
+To run the above code, the following NuGet packages must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+ - [Shouldly](https://www.nuget.org/packages/Shouldly)
+
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
+## Default lifetime for a type
+
+For example, if a certain lifetime is used more often than others, you can make it the default lifetime for a certain type:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
+```c#
+using Shouldly;
+using Pure.DI;
+using static Pure.DI.Lifetime;
+
+DI.Setup(nameof(Composition))
+    // In a real base station, the time source (PTP/GNSS disciplined clock)
+    // is a shared infrastructure component:
+    // it should be created once per station and reused everywhere.
+    .DefaultLifetime<ITimeSource>(Singleton)
+
+    // Time source used by multiple subsystems
+    .Bind().To<GnssTimeSource>()
+
+    // Upper-level station components (usually transient by default)
+    .Bind().To<BaseStationController>()
+    .Bind().To<RadioScheduler>()
+
+    // Composition root (represents "get me a controller instance")
+    .Root<IBaseStationController>("Controller");
+
+var composition = new Composition();
+
+// Two independent controller instances (e.g., two independent operations)
+var controller1 = composition.Controller;
+var controller2 = composition.Controller;
+
+controller1.ShouldNotBe(controller2);
+
+// Inside one controller we request ITimeSource twice:
+// the same singleton instance should be injected both times.
+controller1.SyncTimeSource.ShouldBe(controller1.SchedulerTimeSource);
+
+// Across different controllers the same station-wide time source is reused.
+controller1.SyncTimeSource.ShouldBe(controller2.SyncTimeSource);
+
+// A shared station-wide dependency
+interface ITimeSource
+{
+    long UnixTimeMilliseconds { get; }
+}
+
+// Represents a GNSS-disciplined clock (or PTP grandmaster input).
+// In real deployments you'd talk to a driver / NIC / daemon here.
+class GnssTimeSource : ITimeSource
+{
+    public long UnixTimeMilliseconds => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+}
+
+interface IBaseStationController
+{
+    ITimeSource SyncTimeSource { get; }
+    ITimeSource SchedulerTimeSource { get; }
+}
+
+// A "top-level" controller of the base station.
+// It depends on the time source for synchronization and for scheduling decisions.
+class BaseStationController(
+    ITimeSource syncTimeSource,
+    RadioScheduler scheduler)
+    : IBaseStationController
+{
+    // Used for time synchronization / frame timing
+    public ITimeSource SyncTimeSource { get; } = syncTimeSource;
+
+    // Demonstrates that scheduler also uses the same singleton time source
+    public ITimeSource SchedulerTimeSource { get; } = scheduler.TimeSource;
+}
+
+// A subsystem (e.g., MAC scheduler) that also needs precise time.
+class RadioScheduler(ITimeSource timeSource)
+{
+    public ITimeSource TimeSource { get; } = timeSource;
+}
+```
+
+To run the above code, the following NuGet packages must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+ - [Shouldly](https://www.nuget.org/packages/Shouldly)
+
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
+## Default lifetime for a type and a tag
+
+For example, if a certain lifetime is used more often than others, you can make it the default lifetime for a certain type:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
+```c#
+using Shouldly;
+using Pure.DI;
+using static Pure.DI.Lifetime;
+
+DI.Setup(nameof(Composition))
+    // Real-world idea:
+    // "Live" audio capture device should be shared (singleton),
+    // while a regular (untagged) audio source can be created per session (transient).
+    .DefaultLifetime<IAudioSource>(Singleton, "Live")
+
+    // Tagged binding: "Live" audio capture (shared)
+    .Bind("Live").To<LiveAudioSource>()
+
+    // Untagged binding: some other source (new instance each time)
+    .Bind().To<BufferedAudioSource>()
+
+    // A playback session uses two sources:
+    // - Live (shared, tagged)
+    // - Buffered (transient, untagged)
+    .Bind().To<PlaybackSession>()
+
+    // Composition root
+    .Root<IPlaybackSession>("PlaybackSession");
+
+var composition = new Composition();
+
+// Two independent sessions (transient root)
+var session1 = composition.PlaybackSession;
+var session2 = composition.PlaybackSession;
+
+session1.ShouldNotBe(session2);
+
+// Within a single session:
+// - Live source is tagged => default lifetime forces it to be shared (singleton)
+// - Buffered source is untagged => transient => always a new instance
+session1.LiveSource.ShouldNotBe(session1.BufferedSource);
+
+// Between sessions:
+// - Live source is a shared singleton (same instance)
+// - Buffered source is transient (different instances)
+session1.LiveSource.ShouldBe(session2.LiveSource);
+
+interface IAudioSource;
+
+// "Live" device: e.g., microphone/line-in capture.
+class LiveAudioSource : IAudioSource;
+
+// "Buffered" source: e.g., decoded audio chunks, per-session pipeline buffer.
+class BufferedAudioSource : IAudioSource;
+
+interface IPlaybackSession
+{
+    IAudioSource LiveSource { get; }
+
+    IAudioSource BufferedSource { get; }
+}
+
+class PlaybackSession(
+    // Tagged dependency: should be singleton because of DefaultLifetime<IAudioSource>(..., "Live")
+    [Tag("Live")] IAudioSource liveSource,
+
+    // Untagged dependency: transient by default
+    IAudioSource bufferedSource)
+    : IPlaybackSession
+{
+    public IAudioSource LiveSource { get; } = liveSource;
+
+    public IAudioSource BufferedSource { get; } = bufferedSource;
+}
+```
+
+To run the above code, the following NuGet packages must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+ - [Shouldly](https://www.nuget.org/packages/Shouldly)
+
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
 

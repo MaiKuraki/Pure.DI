@@ -1,6 +1,9 @@
 #### Overriding the BCL binding
 
 At any time, the default binding to the BCL type can be changed to your own:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -67,6 +70,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -77,8 +90,8 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      IMessageSender[] transient360 = [new EmailSender(), new SmsSender(), new EmailSender()];
-      return new NotificationService(transient360);
+      IMessageSender[] transient361 = [new EmailSender(), new SmsSender(), new EmailSender()];
+      return new NotificationService(transient361);
     }
   }
 }

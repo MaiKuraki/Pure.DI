@@ -1,6 +1,9 @@
 #### Builder
 
 Sometimes you need to build up an existing composition root and inject all of its dependencies, in which case the `Builder` method will be useful, as in the example below:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -87,6 +90,12 @@ Use Cases:
 - For working with third-party libraries
 - When migrating existing code to DI
 - For complex object graphs where full construction is not feasible
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 The following partial class will be generated:
 

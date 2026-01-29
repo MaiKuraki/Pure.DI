@@ -1,6 +1,9 @@
 #### Func
 
 _Func<T>_ helps when the logic must enter instances of some type on demand or more than once. This is a very handy mechanism for instance replication. For example it is used when implementing the `Lazy<T>` injection.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -90,6 +93,15 @@ dotnet run
 </details>
 
 Be careful, replication takes into account the lifetime of the object.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 The following partial class will be generated:
 
@@ -109,7 +121,7 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<ITicket> transientFunc336 = new Func<ITicket>(
+      Func<ITicket> transientFunc337 = new Func<ITicket>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
@@ -123,7 +135,7 @@ partial class Composition
         ITicket localValue20 = new Ticket(_singletonTicketIdGenerator51);
         return localValue20;
       });
-      return new QueueTerminal(transientFunc336);
+      return new QueueTerminal(transientFunc337);
     }
   }
 }

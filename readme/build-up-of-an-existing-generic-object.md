@@ -1,6 +1,9 @@
 #### Build up of an existing generic object
 
 In other words, injecting the necessary dependencies via methods, properties, or fields into an existing object.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -88,6 +91,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -103,16 +116,16 @@ partial class Composition
   public IFacade<Guid> GetFacade(string userName)
   {
     if (userName is null) throw new ArgumentNullException(nameof(userName));
-    UserContext<Guid> transientUserContext433;
+    UserContext<Guid> transientUserContext434;
     // The "BuildUp" method injects dependencies into an existing object.
     // This is useful when the object is created externally (e.g., by a UI framework
     // or an ORM) or requires specific initialization before injection.
     UserContext<Guid> localContext = new UserContext<Guid>();
-    Guid transientGuid435 = Guid.NewGuid();
+    Guid transientGuid436 = Guid.NewGuid();
     localContext.UserName = userName;
-    localContext.SetId(transientGuid435);
-    transientUserContext433 = localContext;
-    return new Facade<Guid>(transientUserContext433);
+    localContext.SetId(transientGuid436);
+    transientUserContext434 = localContext;
+    return new Facade<Guid>(transientUserContext434);
   }
 }
 ```

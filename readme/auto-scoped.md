@@ -1,6 +1,9 @@
 #### Auto scoped
 
 You can use the following example to automatically create a session when creating instances of a particular type:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -117,6 +120,15 @@ dotnet run
 
 > [!IMPORTANT]
 > The method `Inject()`cannot be used outside of the binding setup.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 The following partial class will be generated:
 
@@ -154,19 +166,19 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<IListeningSession> transientFunc507 = new Func<IListeningSession>(
+      Func<IListeningSession> transientFunc508 = new Func<IListeningSession>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        IListeningSession transientIListeningSession508;
+        IListeningSession transientIListeningSession509;
         Composition localParentScope = this;
         // Create a child scope so scoped services (PlaybackQueue) are unique per session.
         var localScope = new Composition(localParentScope);
-        transientIListeningSession508 = localScope.Session;
-        IListeningSession localValue33 = transientIListeningSession508;
+        transientIListeningSession509 = localScope.Session;
+        IListeningSession localValue33 = transientIListeningSession509;
         return localValue33;
       });
-      return new MusicApp(transientFunc507);
+      return new MusicApp(transientFunc508);
     }
   }
 

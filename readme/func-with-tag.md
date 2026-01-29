@@ -1,5 +1,9 @@
 #### Func with tag
 
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
 
 ```c#
 using Shouldly;
@@ -70,6 +74,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -80,14 +94,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<IDbConnection> transientFunc346 = new Func<IDbConnection>(
+      Func<IDbConnection> transientFunc347 = new Func<IDbConnection>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
         IDbConnection localValue22 = new NpgsqlConnection();
         return localValue22;
       });
-      return new ConnectionPool(transientFunc346);
+      return new ConnectionPool(transientFunc347);
     }
   }
 }

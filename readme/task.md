@@ -8,6 +8,9 @@ By default, tasks are started automatically when they are injected. It is recomm
 - TaskContinuationOptions.None
 
 But you can always override them, as in the example below for <c>TaskScheduler.Current</c>.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -92,6 +95,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -106,30 +119,30 @@ partial class Composition
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public ICommand GetCommand(CancellationToken cancellationToken)
   {
-    Task<IDataService> transientTask373;
+    Task<IDataService> transientTask374;
     // Injects an instance factory
-    Func<IDataService> transientFunc374 = new Func<IDataService>(
+    Func<IDataService> transientFunc375 = new Func<IDataService>(
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
       IDataService localValue25 = new DataService();
       return localValue25;
     });
-    Func<IDataService> localFactory5 = transientFunc374;
+    Func<IDataService> localFactory5 = transientFunc375;
     // Injects a task factory creating and scheduling task objects
-    TaskFactory<IDataService> transientTaskFactory375;
+    TaskFactory<IDataService> transientTaskFactory376;
     CancellationToken localCancellationToken2 = cancellationToken;
-    TaskCreationOptions transientTaskCreationOptions378 = TaskCreationOptions.None;
-    TaskCreationOptions localTaskCreationOptions1 = transientTaskCreationOptions378;
-    TaskContinuationOptions transientTaskContinuationOptions379 = TaskContinuationOptions.None;
-    TaskContinuationOptions localTaskContinuationOptions1 = transientTaskContinuationOptions379;
-    TaskScheduler transientTaskScheduler380 = TaskScheduler.Current;
-    TaskScheduler localTaskScheduler1 = transientTaskScheduler380;
-    transientTaskFactory375 = new TaskFactory<IDataService>(localCancellationToken2, localTaskCreationOptions1, localTaskContinuationOptions1, localTaskScheduler1);
-    TaskFactory<IDataService> localTaskFactory1 = transientTaskFactory375;
+    TaskCreationOptions transientTaskCreationOptions379 = TaskCreationOptions.None;
+    TaskCreationOptions localTaskCreationOptions1 = transientTaskCreationOptions379;
+    TaskContinuationOptions transientTaskContinuationOptions380 = TaskContinuationOptions.None;
+    TaskContinuationOptions localTaskContinuationOptions1 = transientTaskContinuationOptions380;
+    TaskScheduler transientTaskScheduler381 = TaskScheduler.Current;
+    TaskScheduler localTaskScheduler1 = transientTaskScheduler381;
+    transientTaskFactory376 = new TaskFactory<IDataService>(localCancellationToken2, localTaskCreationOptions1, localTaskContinuationOptions1, localTaskScheduler1);
+    TaskFactory<IDataService> localTaskFactory1 = transientTaskFactory376;
     // Creates and starts a task using the instance factory
-    transientTask373 = localTaskFactory1.StartNew(localFactory5);
-    return new LoadDataCommand(transientTask373);
+    transientTask374 = localTaskFactory1.StartNew(localFactory5);
+    return new LoadDataCommand(transientTask374);
   }
 }
 ```

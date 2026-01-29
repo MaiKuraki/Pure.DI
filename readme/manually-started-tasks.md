@@ -1,6 +1,9 @@
 #### Manually started tasks
 
 By default, tasks are started automatically when they are injected. But you can override this behavior as shown in the example below. It is also recommended to add a binding for <c>CancellationToken</c> to be able to cancel the execution of a task.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -95,6 +98,15 @@ dotnet run
 
 > [!IMPORTANT]
 > The method `Inject()`cannot be used outside of the binding setup.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 The following partial class will be generated:
 
@@ -110,18 +122,18 @@ partial class Composition
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public IDashboardService GetDashboard(CancellationToken cancellationToken)
   {
-    Task<IUserPreferences> transientTask355;
-    Func<IUserPreferences> transientFunc356 = new Func<IUserPreferences>(
+    Task<IUserPreferences> transientTask356;
+    Func<IUserPreferences> transientFunc357 = new Func<IUserPreferences>(
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
       IUserPreferences localValue24 = new UserPreferences();
       return localValue24;
     });
-    Func<IUserPreferences> localFactory4 = transientFunc356;
+    Func<IUserPreferences> localFactory4 = transientFunc357;
     CancellationToken localCancellationToken1 = cancellationToken;
-    transientTask355 = new Task<IUserPreferences>(localFactory4, localCancellationToken1);
-    return new DashboardService(transientTask355);
+    transientTask356 = new Task<IUserPreferences>(localFactory4, localCancellationToken1);
+    return new DashboardService(transientTask356);
   }
 }
 ```

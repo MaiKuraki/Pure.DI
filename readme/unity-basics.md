@@ -1,5 +1,9 @@
 #### Unity Basics
 
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
 
 ```c#
 using Pure.DI;
@@ -107,6 +111,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -126,20 +140,20 @@ partial class Scope: IDisposable
   public Clock BuildUp(Clock buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    Clock transientClock541;
+    Clock transientClock542;
     Clock localBuildingInstance13 = buildingInstance;
     if (_singletonClockService52 is null)
       lock (_lock)
         if (_singletonClockService52 is null)
         {
-          ClockConfig transientClockConfig544 = clockConfig;
-          _singletonClockService52 = new ClockService(transientClockConfig544);
+          ClockConfig transientClockConfig545 = clockConfig;
+          _singletonClockService52 = new ClockService(transientClockConfig545);
           _disposables[_disposeIndex++] = _singletonClockService52;
         }
 
     localBuildingInstance13.ClockService = _singletonClockService52;
-    transientClock541 = localBuildingInstance13;
-    return transientClock541;
+    transientClock542 = localBuildingInstance13;
+    return transientClock542;
   }
 
   #pragma warning disable CS0162

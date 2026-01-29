@@ -1,5 +1,9 @@
 #### Unity with prefabs
 
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
 
 ```c#
 using Pure.DI;
@@ -160,6 +164,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -179,12 +193,12 @@ partial class Scope: IDisposable
   public Clock BuildUp(Clock buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    Clock transientClock551;
+    Clock transientClock552;
     Clock localBuildingInstance16 = buildingInstance;
     EnsureClockServiceExists1();
     localBuildingInstance16.ClockService = _singletonClockService52;
-    transientClock551 = localBuildingInstance16;
-    return transientClock551;
+    transientClock552 = localBuildingInstance16;
+    return transientClock552;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void EnsureClockServiceExists1()
     {
@@ -192,8 +206,8 @@ partial class Scope: IDisposable
         lock (_lock)
           if (_singletonClockService52 is null)
           {
-            ClockConfig transientClockConfig553 = clockConfig;
-            _singletonClockService52 = new ClockService(transientClockConfig553);
+            ClockConfig transientClockConfig554 = clockConfig;
+            _singletonClockService52 = new ClockService(transientClockConfig554);
             _disposables[_disposeIndex++] = _singletonClockService52;
           }
     }
@@ -203,12 +217,12 @@ partial class Scope: IDisposable
   public ClockDigital BuildUp(ClockDigital buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    ClockDigital transientClockDigital547;
+    ClockDigital transientClockDigital548;
     ClockDigital localBuildingInstance15 = buildingInstance;
     EnsureClockServiceExists();
     localBuildingInstance15.ClockService = _singletonClockService52;
-    transientClockDigital547 = localBuildingInstance15;
-    return transientClockDigital547;
+    transientClockDigital548 = localBuildingInstance15;
+    return transientClockDigital548;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void EnsureClockServiceExists()
     {
@@ -216,8 +230,8 @@ partial class Scope: IDisposable
         lock (_lock)
           if (_singletonClockService52 is null)
           {
-            ClockConfig transientClockConfig550 = clockConfig;
-            _singletonClockService52 = new ClockService(transientClockConfig550);
+            ClockConfig transientClockConfig551 = clockConfig;
+            _singletonClockService52 = new ClockService(transientClockConfig551);
             _disposables[_disposeIndex++] = _singletonClockService52;
           }
     }
@@ -246,8 +260,8 @@ partial class Scope: IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      ClockConfig transientClockConfig556 = clockConfig;
-      return new ClockManager(this, transientClockConfig556);
+      ClockConfig transientClockConfig557 = clockConfig;
+      return new ClockManager(this, transientClockConfig557);
     }
   }
 

@@ -1,6 +1,9 @@
 #### Simplified lifetime-specific bindings
 
 You can use the `Transient<>()`, `Singleton<>()`, `PerResolve<>()`, etc. methods. In this case binding will be performed for the implementation type itself, and if the implementation is not an abstract type or structure, for all abstract but NOT special types that are directly implemented.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -131,13 +134,22 @@ For class `OrderManager`, the `PerBlock<OrderManager>()` binding will be equival
 
 |    |                       |                                                   |
 |----|-----------------------|---------------------------------------------------|
-| ? | `OrderManager`        | implementation type itself                        |
-| ? | `IOrderRepository`    | directly implements                               |
-| ? | `IOrderNotification`  | directly implements                               |
-| ? | `IDisposable`         | special type                                      |
-| ? | `IEnumerable<string>` | special type                                      |
-| ? | `ManagerBase`         | non-abstract                                      |
-| ? | `IManager`            | is not directly implemented by class OrderManager |
+| ✅ | `OrderManager`        | implementation type itself                        |
+| ✅ | `IOrderRepository`    | directly implements                               |
+| ✅ | `IOrderNotification`  | directly implements                               |
+| ❌ | `IDisposable`         | special type                                      |
+| ❌ | `IEnumerable<string>` | special type                                      |
+| ❌ | `ManagerBase`         | non-abstract                                      |
+| ❌ | `IManager`            | is not directly implemented by class OrderManager |
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 The following partial class will be generated:
 
@@ -149,8 +161,8 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perBlockOrderManager294 = new OrderManager(new OrderNameFormatter());
-      return new Shop(perBlockOrderManager294, perBlockOrderManager294, perBlockOrderManager294);
+      var perBlockOrderManager295 = new OrderManager(new OrderNameFormatter());
+      return new Shop(perBlockOrderManager295, perBlockOrderManager295, perBlockOrderManager295);
     }
   }
 }

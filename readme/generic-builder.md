@@ -1,5 +1,9 @@
 #### Generic builder
 
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
 
 ```c#
 using Shouldly;
@@ -82,6 +86,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -98,13 +112,13 @@ partial class Composition
     where T4: struct
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    ViewModel<T4, T5> transientViewModel419;
+    ViewModel<T4, T5> transientViewModel420;
     ViewModel<T4, T5> localBuildingInstance8 = buildingInstance;
-    T4 transientTTS422 = (T4)(object)Guid.NewGuid();
+    T4 transientTTS423 = (T4)(object)Guid.NewGuid();
     localBuildingInstance8.Repository = new Repository<T5>();
-    localBuildingInstance8.SetId(transientTTS422);
-    transientViewModel419 = localBuildingInstance8;
-    return transientViewModel419;
+    localBuildingInstance8.SetId(transientTTS423);
+    transientViewModel420 = localBuildingInstance8;
+    return transientViewModel420;
   }
 }
 ```

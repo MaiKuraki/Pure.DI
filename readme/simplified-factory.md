@@ -1,6 +1,9 @@
 #### Simplified factory
 
 This example shows a simplified manual factory. Each lambda parameter represents an injected dependency, and starting with C# 10 you can add `Tag(...)` to specify a tagged dependency.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -85,6 +88,15 @@ dotnet run
 </details>
 
 The example creates a service that depends on a logger initialized with a date-based file name. The `Tag` attribute enables named dependencies for more complex setups.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 The following partial class will be generated:
 
@@ -96,13 +108,13 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      FileLogger transientFileLogger290;
+      FileLogger transientFileLogger291;
       FileLogger localLogger4 = new FileLogger();
-      DateTime transientDateTime292 = DateTime.Today;
-      DateTime localDate = transientDateTime292;
+      DateTime transientDateTime293 = DateTime.Today;
+      DateTime localDate = transientDateTime293;
       localLogger4.Init($"app-{localDate:yyyy-MM-dd}.log");
-      transientFileLogger290 = localLogger4;
-      return new OrderProcessingService(transientFileLogger290);
+      transientFileLogger291 = localLogger4;
+      return new OrderProcessingService(transientFileLogger291);
     }
   }
 }

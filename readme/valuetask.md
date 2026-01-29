@@ -1,5 +1,9 @@
 #### ValueTask
 
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
 
 ```c#
 using Pure.DI;
@@ -67,6 +71,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -77,11 +91,11 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      ValueTask<IConnection> transientValueTask386;
+      ValueTask<IConnection> transientValueTask387;
       IConnection localValue26 = new CloudConnection();
       // Initializes a new instance of the ValueTask class using the supplied instance
-      transientValueTask386 = new ValueTask<IConnection>(localValue26);
-      return new DataProcessor(transientValueTask386);
+      transientValueTask387 = new ValueTask<IConnection>(localValue26);
+      return new DataProcessor(transientValueTask387);
     }
   }
 }

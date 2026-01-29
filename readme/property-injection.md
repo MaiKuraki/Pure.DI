@@ -1,6 +1,9 @@
 #### Property injection
 
 To use dependency injection on a property, make sure the property is writable and simply add the _Ordinal_ attribute to that property, specifying the ordinal that will be used to determine the injection order:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -68,6 +71,15 @@ The key points are:
 - The property must be writable
 - The `Dependency` (or `Ordinal`) attribute is used to mark the property for injection
 - The container automatically injects the dependency when resolving the object graph
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 The following partial class will be generated:
 
@@ -79,9 +91,9 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var transientService264 = new Service();
-      transientService264.Logger = new ConsoleLogger();
-      return transientService264;
+      var transientService265 = new Service();
+      transientService265.Logger = new ConsoleLogger();
+      return transientService265;
     }
   }
 }

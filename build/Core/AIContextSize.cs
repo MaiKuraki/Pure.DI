@@ -3,7 +3,7 @@ namespace Build.Core;
 
 enum AIContextSize: long
 {
-    Small = 8,
+    Small = 16,
     Medium = 32,
     Large = 128
 }

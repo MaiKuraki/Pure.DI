@@ -1,6 +1,9 @@
 #### Overrides
 
 This example shows advanced dependency injection techniques using Pure.DI's override mechanism to customize dependency instantiation with runtime arguments and tagged parameters. The implementation creates multiple `IDependency` instances with values manipulated through explicit overrides.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -129,6 +132,16 @@ dotnet run
 
 </details>
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
 The following partial class will be generated:
 
 ```c#
@@ -147,7 +160,7 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<int, int, IWidget> transientFunc256 =
+      Func<int, int, IWidget> transientFunc257 =
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       (localWidgetId, localLayerIndex) =>
       {
@@ -158,8 +171,8 @@ partial class Composition
         int overriddenInt32 = localWidgetId;
         int overriddenInt324 = localLayerIndex;
         string overriddenString2 = $"Widget {localWidgetId} on layer {localLayerIndex}";
-        Drawing.Color transientColor257 = Color.Red;
-        Drawing.Color localColor = transientColor257;
+        Drawing.Color transientColor258 = Color.Red;
+        Drawing.Color localColor = transientColor258;
         // Overrides the 'color' argument with the resolved value
         // Creates the instance using the overridden values
         Drawing.Color overriddenColor5 = localColor;
@@ -173,7 +186,7 @@ partial class Composition
         Widget localWidget = new Widget(overriddenString2, _singletonClock52, overriddenInt32, overriddenInt324, overriddenColor5);
         return localWidget;
       };
-      return new Dashboard(transientFunc256);
+      return new Dashboard(transientFunc257);
     }
   }
 }
