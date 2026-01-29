@@ -321,6 +321,26 @@ sealed class FactoryRewriter(
         }
 
         var semanticModel = ctx.Factory.Source.SemanticModel;
+        var nearestLocalFunction = identifierName
+            .Ancestors()
+            .OfType<LocalFunctionStatementSyntax>()
+            .FirstOrDefault(localFunction => localFunction.ParameterList.Parameters.Any(parameter => parameter.Identifier.Text == identifierName.Identifier.Text));
+
+        if (nearestLocalFunction is not null)
+        {
+            return false;
+        }
+
+        var nearestLambda = identifierName
+            .AncestorsAndSelf()
+            .OfType<LambdaExpressionSyntax>()
+            .FirstOrDefault(lambda => LambdaDeclaresParameter(lambda, identifierName.Identifier.Text));
+
+        if (nearestLambda is not null && !ReferenceEquals(nearestLambda, _rootLambda))
+        {
+            return false;
+        }
+
         if (_contextSymbol is not null && identifierName.SyntaxTree == semanticModel.SyntaxTree)
         {
             var symbol = semanticModel.GetSymbolInfo(identifierName).Symbol;
@@ -332,22 +352,7 @@ sealed class FactoryRewriter(
             return false;
         }
 
-        var nearestLambda = identifierName
-            .AncestorsAndSelf()
-            .OfType<LambdaExpressionSyntax>()
-            .FirstOrDefault(lambda => LambdaDeclaresParameter(lambda, identifierName.Identifier.Text));
-
-        if (nearestLambda is not null)
-        {
-            return ReferenceEquals(nearestLambda, _rootLambda);
-        }
-
-        var nearestLocalFunction = identifierName
-            .Ancestors()
-            .OfType<LocalFunctionStatementSyntax>()
-            .FirstOrDefault(localFunction => localFunction.ParameterList.Parameters.Any(parameter => parameter.Identifier.Text == identifierName.Identifier.Text));
-
-        return nearestLocalFunction is null;
+        return nearestLambda is null || ReferenceEquals(nearestLambda, _rootLambda);
     }
 
     private static bool LambdaDeclaresParameter(LambdaExpressionSyntax lambda, string name) =>

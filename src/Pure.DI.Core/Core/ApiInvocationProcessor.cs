@@ -1123,6 +1123,11 @@ sealed class ApiInvocationProcessor(
     {
         hasContextTag = false;
         var invocation = @override.Expression;
+        if (!IsContextInvocation(semanticModel, invocation, contextParameter))
+        {
+            return default;
+        }
+
         if (invocation.ArgumentList.Arguments.Count == 0)
         {
             return default;
@@ -1184,6 +1189,11 @@ sealed class ApiInvocationProcessor(
         ILocalVariableRenamingRewriter localVariableRenamingRewriter)
     {
         var invocation = meta.Expression;
+        if (!IsContextInvocation(semanticModel, invocation, contextParameter))
+        {
+            return default;
+        }
+
         if (invocation.ArgumentList.Arguments is not [{} targetArg])
         {
             return default;
@@ -1219,6 +1229,11 @@ sealed class ApiInvocationProcessor(
         ILocalVariableRenamingRewriter localVariableRenamingRewriter)
     {
         var invocation = meta.Expression;
+        if (!IsContextInvocation(semanticModel, invocation, contextParameter))
+        {
+            return default;
+        }
+
         if (invocation.ArgumentList.Arguments is not { Count: > 0 } invArguments)
         {
             return default;
@@ -1289,6 +1304,44 @@ sealed class ApiInvocationProcessor(
         }
 
         return default;
+    }
+
+    private static bool IsContextInvocation(
+        SemanticModel semanticModel,
+        InvocationExpressionSyntax invocation,
+        ParameterSyntax contextParameter)
+    {
+        if (invocation.Expression is not MemberAccessExpressionSyntax
+            {
+                Expression: IdentifierNameSyntax contextIdentifierName
+            })
+        {
+            return false;
+        }
+
+        if (contextIdentifierName.Identifier.Text != contextParameter.Identifier.Text)
+        {
+            return false;
+        }
+
+        if (invocation.SyntaxTree != semanticModel.SyntaxTree)
+        {
+            return true;
+        }
+
+        if (contextParameter.SyntaxTree != semanticModel.SyntaxTree)
+        {
+            return false;
+        }
+
+        var contextSymbol = semanticModel.GetDeclaredSymbol(contextParameter);
+        if (contextSymbol is null)
+        {
+            return false;
+        }
+
+        var symbol = semanticModel.GetSymbolInfo(contextIdentifierName).Symbol;
+        return symbol is not null && SymbolEqualityComparer.Default.Equals(symbol, contextSymbol);
     }
 
     private ITypeSymbol? GetDefaultType(SemanticModel semanticModel, InvocationExpressionSyntax invocation, int typeArgPosition)
