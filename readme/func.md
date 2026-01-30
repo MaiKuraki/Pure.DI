@@ -121,7 +121,7 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<ITicket> transientFunc337 = new Func<ITicket>(
+      Func<ITicket> transientFunc344 = new Func<ITicket>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
@@ -135,7 +135,7 @@ partial class Composition
         ITicket localValue20 = new Ticket(_singletonTicketIdGenerator51);
         return localValue20;
       });
-      return new QueueTerminal(transientFunc337);
+      return new QueueTerminal(transientFunc344);
     }
   }
 }

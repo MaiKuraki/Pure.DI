@@ -8704,6 +8704,208 @@ Useful when:
 - You want a concrete template for applying this feature in a composition.
 
 
+## Dependent compositions with setup context
+
+This scenario shows how to pass an explicit setup context when a dependent setup uses instance members.
+When this occurs: you need base setup state (e.g., Unity-initialized fields) inside a dependent composition.
+What it solves: avoids missing instance members in dependent compositions and keeps state access explicit.
+How it is solved in the example: uses DependsOn(setupName, contextArgName) and passes the base setup instance into the dependent composition.
+
+```c#
+var baseContext = new BaseComposition { Settings = new AppSettings("prod", 3) };
+var composition = new Composition { baseContext = baseContext };
+var service = composition.Service;
+
+interface IService
+{
+    string Report { get; }
+}
+
+class Service(IAppSettings settings) : IService
+{
+    public string Report { get; } = $"env={settings.Environment}, retries={settings.RetryCount}";
+}
+
+internal partial class BaseComposition
+{
+    internal AppSettings Settings { get; set; } = new("", 0);
+
+    private void Setup()
+    {
+        DI.Setup(nameof(BaseComposition), Internal)
+            .Bind<IAppSettings>().To(_ => Settings);
+    }
+}
+
+internal partial class Composition
+{
+    private void Setup()
+    {
+        DI.Setup(nameof(Composition))
+            .DependsOn(setupName: nameof(BaseComposition), contextArgName: "baseContext", kind: SetupContextKind.Field)
+            .Bind<IService>().To<Service>()
+            .Root<IService>("Service");
+    }
+}
+
+record AppSettings(string Environment, int RetryCount) : IAppSettings;
+
+interface IAppSettings
+{
+    string Environment { get; }
+
+    int RetryCount { get; }
+}
+```
+
+To run the above code, the following NuGet package must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+
+What it shows:
+- Explicit setup context injection for dependent compositions.
+
+Important points:
+- The dependent composition receives the base setup instance via a constructor argument.
+
+Useful when:
+- Base setup has instance members initialized externally (e.g., Unity).
+
+
+## Dependent compositions with setup context property
+
+This scenario shows how to pass an explicit setup context via a property.
+When this occurs: Unity (or another host) sets fields/properties on the composition instance.
+What it solves: avoids constructor arguments while still allowing dependent setups to access base state.
+How it is solved in the example: uses DependsOn(..., SetupContextKind.Property) and assigns the context property.
+
+```c#
+var baseContext = new BaseComposition { Settings = new AppSettings("dev", 1) };
+var composition = new Composition { baseContext = baseContext };
+var service = composition.Service;
+
+interface IService
+{
+    string Report { get; }
+}
+
+class Service(IAppSettings settings) : IService
+{
+    public string Report { get; } = $"env={settings.Environment}, retries={settings.RetryCount}";
+}
+
+internal partial class BaseComposition
+{
+    internal AppSettings Settings { get; set; } = new("", 0);
+
+    private void Setup()
+    {
+        DI.Setup(nameof(BaseComposition), Internal)
+            .Bind<IAppSettings>().To(_ => Settings);
+    }
+}
+
+internal partial class Composition
+{
+    private void Setup()
+    {
+        DI.Setup(nameof(Composition))
+            .DependsOn(nameof(BaseComposition), "baseContext", SetupContextKind.Property)
+            .Bind<IService>().To<Service>()
+            .Root<IService>("Service");
+    }
+}
+
+record AppSettings(string Environment, int RetryCount) : IAppSettings;
+
+interface IAppSettings
+{
+    string Environment { get; }
+
+    int RetryCount { get; }
+}
+```
+
+To run the above code, the following NuGet package must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+
+What it shows:
+- Setup context as a property on the composition.
+
+Important points:
+- The composition stays parameterless and Unity-friendly.
+
+Useful when:
+- The composition is created by a framework that injects data via properties.
+
+
+## Dependent compositions with setup context root argument
+
+This scenario shows how to pass an explicit setup context as a root argument.
+When this occurs: you need external state from the base setup but cannot use a constructor (e.g., Unity MonoBehaviour).
+What it solves: keeps the dependent composition safe while avoiding constructor arguments.
+How it is solved in the example: uses DependsOn(..., SetupContextKind.RootArgument) and passes the base setup instance to the root method.
+
+```c#
+var baseContext = new BaseComposition { Settings = new AppSettings("staging", 2) };
+var composition = new Composition();
+var service = composition.Service(baseContext: baseContext);
+
+interface IService
+{
+    string Report { get; }
+}
+
+class Service(IAppSettings settings) : IService
+{
+    public string Report { get; } = $"env={settings.Environment}, retries={settings.RetryCount}";
+}
+
+internal partial class BaseComposition
+{
+    internal AppSettings Settings { get; set; } = new("", 0);
+
+    private void Setup()
+    {
+        DI.Setup(nameof(BaseComposition), Internal)
+            .Bind<IAppSettings>().To(_ => Settings);
+    }
+}
+
+internal partial class Composition
+{
+    private void Setup()
+    {
+        // Resolve = Off
+        DI.Setup(nameof(Composition))
+            .DependsOn(nameof(BaseComposition), "baseContext", SetupContextKind.RootArgument)
+            .Bind<IService>().To<Service>()
+            .Root<IService>("Service");
+    }
+}
+
+record AppSettings(string Environment, int RetryCount) : IAppSettings;
+
+interface IAppSettings
+{
+    string Environment { get; }
+
+    int RetryCount { get; }
+}
+```
+
+To run the above code, the following NuGet package must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+
+What it shows:
+- Passing setup context into a root method.
+
+Important points:
+- The composition itself can still be created with a parameterless constructor.
+
+Useful when:
+- The host (like Unity) creates the composition instance.
+
+
 ## Inheritance of compositions
 
 When this occurs: you need this feature while building the composition and calling roots.

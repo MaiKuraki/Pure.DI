@@ -90,8 +90,8 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      IMessageSender[] transient361 = [new EmailSender(), new SmsSender(), new EmailSender()];
-      return new NotificationService(transient361);
+      IMessageSender[] transient368 = [new EmailSender(), new SmsSender(), new EmailSender()];
+      return new NotificationService(transient368);
     }
   }
 }
