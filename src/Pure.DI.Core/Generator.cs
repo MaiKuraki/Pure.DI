@@ -57,7 +57,7 @@ public sealed partial class Generator
                 return new Logger(observersProvider, ctx.ConsumerType);
             })
             .Transient(_ => Compiled | CultureInvariant | Singleline | IgnoreCase)
-            .Transient<ApiInvocationProcessor, DependencyGraphBuilder, TypeConstructor, BindingBuilder>()
+            .Transient<ApiInvocationProcessor, DependencyGraphBuilder, TypeConstructor, BindingBuilder, SetupContextRewriter>()
 
             // Walkers
             .SpecialType<CSharpSyntaxRewriter>()

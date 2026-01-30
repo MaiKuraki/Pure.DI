@@ -47,6 +47,11 @@ sealed class ScopeConstructorBuilder(
                 }
             }
 
+            foreach (var contextArg in composition.SetupContextArgs.Where(arg => arg.Kind != SetupContextKind.RootArgument))
+            {
+                code.AppendLine($"{contextArg.Name} = {Names.ParentScopeArgName}.{contextArg.Name};");
+            }
+
             if (composition.IsLockRequired(locks))
             {
                 code.AppendLine($"{Names.LockFieldName} = {Names.ParentScopeArgName}.{Names.LockFieldName};");

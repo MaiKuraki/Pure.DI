@@ -106,7 +106,7 @@ By default, starting with version 2.3.0, no constructors are generated for a com
 
 #### Parameterized constructor (automatic generation)
 
-If the composition has any arguments defined, Pure.DI automatically generates a public parameterized constructor that includes all specified arguments.
+If the composition has any arguments defined, Pure.DI automatically generates a public parameterized constructor that includes all specified arguments. Setup contexts passed via `DependsOn(..., contextArgName)` with `SetupContextKind.Argument` (default) are treated as arguments and also appear in this constructor.
 
 Example configuration:
 
@@ -127,7 +127,18 @@ Important notes:
 
 - Only arguments that are actually used in the object graph appear in the constructor.
 - Unused arguments are omitted to optimize resource usage.
-- If no arguments are specified, no parameterized constructor is created.
+- If no arguments (including setup context arguments) are specified, no parameterized constructor is created.
+
+#### Setup context storage
+
+When a dependent setup needs instance state from another setup, you can pass an explicit setup context via `DependsOn`:
+
+- `SetupContextKind.Argument` (default): adds the setup context as a constructor argument.
+- `SetupContextKind.Field`: generates a field to hold the context, no constructor argument.
+- `SetupContextKind.Property`: generates a property to hold the context, no constructor argument.
+- `SetupContextKind.RootArgument`: adds the setup context to root methods that require it, no constructor argument.
+
+This is useful for Unity/MonoBehaviour scenarios where the composition must remain parameterless and the host sets fields or properties.
 
 #### Scope-related constructors (conditional generation)
 
@@ -150,13 +161,16 @@ If there is at least one binding with `Lifetime.Scoped`, Pure.DI generates two c
 > - The public default constructor enables initialization of the root composition.
 > - The internal constructor with parent reference enables proper scoping hierarchy for `Lifetime.Scoped` dependencies.
 > - These constructors are only generated when `Lifetime.Scoped` bindings exist in the composition.
+> - Setup contexts with `SetupContextKind.Field` or `SetupContextKind.Property` do not require constructors and can be set by the host (for example, Unity).
 
 #### Summary of constructor generation rules
 
 - No arguments + no _Scoped_ lifetimes: no constructors generated.
-- Arguments present: public parameterized constructor with all used arguments.
+- Arguments present (including setup context arguments): public parameterized constructor with all used arguments.
 - At least one _Scoped_ lifetime: two constructors (public default + internal with parent).
 - Both arguments and Scoped lifetimes: all three constructors (parameterized, public default, internal with parent).
+- Setup context with `SetupContextKind.Argument` behaves like an argument and can add a constructor parameter.
+- Setup context with `SetupContextKind.Field`, `SetupContextKind.Property`, or `SetupContextKind.RootArgument` does not add constructor parameters.
 </details>
 
 <details>

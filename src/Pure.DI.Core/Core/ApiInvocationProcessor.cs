@@ -346,7 +346,7 @@ sealed class ApiInvocationProcessor(
                                     new MdDependsOn(
                                         semanticModel,
                                         invocation,
-                                        ImmutableArray.Create(compositionName),
+                                        ImmutableArray.Create(new MdDependsOnItem(compositionName)),
                                         false));
                             }
                         }
@@ -362,13 +362,37 @@ sealed class ApiInvocationProcessor(
                         break;
 
                     case nameof(IConfiguration.DependsOn):
-                        if (BuildConstantArgs<string>(semanticModel, invocation.ArgumentList.Arguments) is [..] compositionTypeNames)
+                        if (semanticModel.GetSymbolInfo(invocation).Symbol is IMethodSymbol { Parameters.Length: 3 } methodWithKindSymbol
+                            && !methodWithKindSymbol.Parameters[0].IsParams)
+                        {
+                            var dependsOnArgs = arguments.GetArgs(invocation.ArgumentList, "setupName", "contextArgName", "kind");
+                            if (dependsOnArgs[0] is { Expression: {} setupNameExpression }
+                                && dependsOnArgs[1] is { Expression: {} contextArgExpression })
+                            {
+                                var setupName = semantic.GetRequiredConstantValue<string>(semanticModel, setupNameExpression, SmartTagKind.Name);
+                                var contextArgName = semantic.GetRequiredConstantValue<string>(semanticModel, contextArgExpression, SmartTagKind.Name);
+                                var contextArgKind = dependsOnArgs[2] is { Expression: {} contextKindExpression }
+                                    ? semantic.GetRequiredConstantValue<SetupContextKind>(semanticModel, contextKindExpression)
+                                    : SetupContextKind.Argument;
+                                metadataVisitor.VisitDependsOn(
+                                    new MdDependsOn(
+                                        semanticModel,
+                                        invocation,
+                                        ImmutableArray.Create(new MdDependsOnItem(
+                                            CreateCompositionName(setupName, @namespace, invocation.ArgumentList),
+                                            contextArgName,
+                                            contextArgExpression,
+                                            contextArgKind)),
+                                        true));
+                            }
+                        }
+                        else if (BuildConstantArgs<string>(semanticModel, invocation.ArgumentList.Arguments) is [..] compositionTypeNames)
                         {
                             metadataVisitor.VisitDependsOn(
                                 new MdDependsOn(
                                     semanticModel,
                                     invocation,
-                                    compositionTypeNames.Select(i => CreateCompositionName(i, @namespace, invocation.ArgumentList)).ToImmutableArray(),
+                                    compositionTypeNames.Select(i => new MdDependsOnItem(CreateCompositionName(i, @namespace, invocation.ArgumentList))).ToImmutableArray(),
                                     true));
                         }
 
@@ -623,7 +647,7 @@ sealed class ApiInvocationProcessor(
 
                         // Building instance arg
                         metadataVisitor.VisitContract(new MdContract(semanticModel, invocation, buildersRootType, ContractKind.Explicit, ImmutableArray.Create(builderArgTag)));
-                        metadataVisitor.VisitArg(new MdArg(semanticModel, invocation, buildersRootType, Names.BuildingInstance, ArgKind.Root, true, ["Instance for the build-up."]));
+                        metadataVisitor.VisitArg(new MdArg(semanticModel, invocation, buildersRootType, Names.BuildingInstance, ArgKind.Root, true, ["Instance for the build-up."], false));
 
                         // Fake factory expression, it is actually implemented in RootsBuilder
                         var factory = new Lines();
@@ -866,7 +890,7 @@ sealed class ApiInvocationProcessor(
 
         // RootArg
         metadataVisitor.VisitContract(new MdContract(semanticModel, source, builderType, ContractKind.Explicit, ImmutableArray.Create(builderArgTag)));
-        metadataVisitor.VisitArg(new MdArg(semanticModel, source, builderType, Names.BuildingInstance, ArgKind.Root, true, ["Instance for the build-up."]));
+        metadataVisitor.VisitArg(new MdArg(semanticModel, source, builderType, Names.BuildingInstance, ArgKind.Root, true, ["Instance for the build-up."], false));
 
         // Factory
         var factory = new Lines();
@@ -1060,7 +1084,7 @@ sealed class ApiInvocationProcessor(
                 tags.IsEmpty ? null : tags[0].Value) ?? "";
 
             metadataVisitor.VisitContract(new MdContract(semanticModel, source, argType, ContractKind.Explicit, tags.ToImmutableArray()));
-            metadataVisitor.VisitArg(new MdArg(semanticModel, source, argType, name, kind, false, argComments));
+            metadataVisitor.VisitArg(new MdArg(semanticModel, source, argType, name, kind, false, argComments, false));
         }
     }
 

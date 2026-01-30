@@ -134,7 +134,11 @@ sealed class ClassCommenter(
                 code.AppendLine("/// <example>");
                 code.AppendLine($"/// This example shows how to get an instance of type {formatter.FormatRef(root.Node.Type)} using the composition root {formatter.FormatRef(composition.Source.Source, root)}:");
                 code.AppendLine("/// <code>");
-                code.AppendLine($"/// {(composition.TotalDisposablesCount == 0 ? "" : "using ")}var composition = new {composition.Source.Source.Name.ClassName}({string.Join(", ", composition.ClassArgs.Where(i => i.Node.Arg?.Source.Kind == ArgKind.Composition).Select(arg => arg.Name))});");
+                var args = composition.ClassArgs
+                    .Where(i => i.Node.Arg?.Source.Kind == ArgKind.Composition)
+                    .Select(arg => arg.Name)
+                    .Concat(composition.SetupContextArgs.Where(arg => arg.Kind == SetupContextKind.Argument).Select(arg => arg.Name));
+                code.AppendLine($"/// {(composition.TotalDisposablesCount == 0 ? "" : "using ")}var composition = new {composition.Source.Source.Name.ClassName}({string.Join(", ", args)});");
                 code.AppendLine($"/// var instance = composition.{formatter.Format(root)};");
                 code.AppendLine("/// </code>");
                 code.AppendLine("/// See also:");

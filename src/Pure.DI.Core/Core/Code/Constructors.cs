@@ -10,11 +10,23 @@ class Constructors(
     public bool IsEnabled(CompositionCode composition, ConstructorKind kind) =>
         kind switch
         {
-            ConstructorKind.Default => composition.ClassArgs.Length == 0 && IsEnabled(composition.Source),
-            ConstructorKind.Parameterized => composition.ClassArgs.Length > 0 && IsEnabled(composition.Source),
+            ConstructorKind.Default => composition.ClassArgs.Length == 0
+                                        && !HasSetupContextParameters(composition)
+                                        && IsEnabled(composition.Source),
+            ConstructorKind.Parameterized => (composition.ClassArgs.Length > 0 || HasSetupContextParameters(composition))
+                                             && IsEnabled(composition.Source),
             ConstructorKind.Scope => IsScopeEnabled(composition.Source),
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
         };
+
+    private static bool HasSetupContextParameters(CompositionCode composition) =>
+        composition.SetupContextArgs.Any(arg => arg.Kind == SetupContextKind.Argument);
+
+    private bool HasSetupContextArgs(DependencyGraph graph) =>
+        graph.Source.Bindings.Any(binding =>
+            binding.Arg.HasValue
+            && binding.Arg.Value.IsSetupContext
+            && binding.Arg.Value.SetupContextKind == SetupContextKind.Argument);
 
     private bool IsEnabledInternal(DependencyGraph graph) => (
         from entry in graph.Graph.Entries
@@ -22,7 +34,7 @@ class Constructors(
         from node in ImmutableArray.Create(edge.Source, edge.Target)
         where node.Arg is { Source.Kind: ArgKind.Composition }
         where bindingsRegistry.IsRegistered(graph.Source, node.BindingId)
-        select node).Any() || IsScopeEnabled(graph);
+        select node).Any() || HasSetupContextArgs(graph) || IsScopeEnabled(graph);
 
     private bool IsScopeEnabled(DependencyGraph graph) => (
         from node in graph.Graph.Vertices

@@ -12,11 +12,20 @@ namespace Pure.DI.Core;
 sealed class MetadataBuilder(
     Func<IBuilder<SyntaxUpdate, IEnumerable<MdSetup>>> setupsBuilderFactory,
     Func<ISetupFinalizer> setupFinalizerFactory,
+    Func<SetupContextRewriterContext, ISetupContextRewriter> setupContextRewriterFactory,
     ICompilations compilations,
+    IRegistryManager<int> bindingsRegistryManager,
     ILocationProvider locationProvider,
     CancellationToken cancellationToken)
     : IBuilder<IEnumerable<SyntaxUpdate>, IEnumerable<MdSetup>>
 {
+    private readonly record struct SetupDependency(
+        MdSetup Setup,
+        string? ContextArgName,
+        ExpressionSyntax? ContextArgSource,
+        SetupContextKind ContextArgKind,
+        MdDependsOn? DependsOn);
+
     public IEnumerable<MdSetup> Build(IEnumerable<SyntaxUpdate> updates)
     {
         var actualUpdates = updates
@@ -54,7 +63,7 @@ sealed class MetadataBuilder(
             .Where(i => i.Kind != CompositionKind.Global)
             .GroupBy(i => i.Name)
             .Select(setupGroup => {
-                MergeSetups(setupGroup, out var mergedSetup, false);
+                MergeSetups(setupGroup.Select(i => new SetupDependency(i, null, null, SetupContextKind.Argument, null)), out var mergedSetup, false);
                 return mergedSetup;
             })
             .ToDictionary(i => i.Name, i => i);
@@ -63,8 +72,9 @@ sealed class MetadataBuilder(
         foreach (var setup in setupMap.Values.Where(i => i.Kind == CompositionKind.Public).OrderBy(i => i.Name))
         {
             var setupsChain = globalSetups
+                .Select(i => new SetupDependency(i, null, null, SetupContextKind.Argument, null))
                 .Concat(ResolveDependencies(setup, setupMap, new HashSet<CompositionName>()))
-                .Concat(Enumerable.Repeat(setup, 1));
+                .Concat(Enumerable.Repeat(new SetupDependency(setup, null, null, SetupContextKind.Argument, null), 1));
 
             MergeSetups(setupsChain, out var mergedSetup, true);
             var setupFinalizer = setupFinalizerFactory();
@@ -72,21 +82,22 @@ sealed class MetadataBuilder(
         }
     }
 
-    private IEnumerable<MdSetup> ResolveDependencies(
+    private IEnumerable<SetupDependency> ResolveDependencies(
         MdSetup setup,
-        IReadOnlyDictionary<CompositionName, MdSetup> map, ISet<CompositionName> processed)
+        IReadOnlyDictionary<CompositionName, MdSetup> map,
+        ISet<CompositionName> processed)
     {
         foreach (var dependsOn in setup.DependsOn)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            foreach (var compositionTypeName in dependsOn.CompositionTypeNames)
+            foreach (var item in dependsOn.Items)
             {
-                if (!processed.Add(compositionTypeName))
+                if (!processed.Add(item.CompositionTypeName))
                 {
                     continue;
                 }
 
-                if (!map.TryGetValue(compositionTypeName, out var dependsOnSetup))
+                if (!map.TryGetValue(item.CompositionTypeName, out var dependsOnSetup))
                 {
                     if (!dependsOn.Explicit)
                     {
@@ -94,7 +105,7 @@ sealed class MetadataBuilder(
                     }
 
                     throw new CompileErrorException(
-                        string.Format(Strings.Error_Template_CannotFindSetup, compositionTypeName),
+                        string.Format(Strings.Error_Template_CannotFindSetup, item.CompositionTypeName),
                         ImmutableArray.Create(locationProvider.GetLocation(dependsOn.Source)),
                         LogId.ErrorCannotFindSetup,
                         nameof(Strings.Error_Template_CannotFindSetup));
@@ -105,7 +116,7 @@ sealed class MetadataBuilder(
                     continue;
                 }
 
-                yield return dependsOnSetup;
+                yield return new SetupDependency(dependsOnSetup, item.ContextArgName, item.ContextArgSource, item.ContextArgKind, dependsOn);
                 foreach (var result in ResolveDependencies(dependsOnSetup, map, processed))
                 {
                     yield return result;
@@ -114,9 +125,10 @@ sealed class MetadataBuilder(
         }
     }
 
-    private void MergeSetups(IEnumerable<MdSetup> setups, out MdSetup mergedSetup, bool resolveDependsOn)
+    private void MergeSetups(IEnumerable<SetupDependency> setups, out MdSetup mergedSetup, bool resolveDependsOn)
     {
         MdSetup? lastSetup = null;
+        var contextArgs = new List<(string ArgName, ExpressionSyntax? ArgSource, ITypeSymbol ArgType, SetupContextKind Kind, MdDependsOn DependsOn, SemanticModel SemanticModel)>();
         var name = new CompositionName("Composition", "", null);
         var kind = CompositionKind.Global;
         var settings = new Hints();
@@ -133,8 +145,9 @@ sealed class MetadataBuilder(
         var accumulators = ImmutableArray.CreateBuilder<MdAccumulator>(1);
         var bindingId = 0;
         var comments = new List<string>();
-        foreach (var setup in setups)
+        foreach (var item in setups)
         {
+            var setup = item.Setup;
             lastSetup = setup;
             name = setup.Name;
             kind = setup.Kind;
@@ -149,7 +162,35 @@ sealed class MetadataBuilder(
 
             if (resolveDependsOn)
             {
-                bindingsBuilder.AddRange(setup.Bindings.Select(i => i with { Id = bindingId++ }));
+                bindingsBuilder.AddRange(setup.Bindings.Select(i =>
+                {
+                    var updated = i;
+                    if (item.ContextArgName is { Length: > 0 }
+                        && i.Factory is { } factory
+                        && GetContainingType(setup) is { } setupType)
+                    {
+                        var rewriterContext = new SetupContextRewriterContext(
+                            factory.SemanticModel,
+                            setupType,
+                            item.ContextArgName,
+                            item.ContextArgKind,
+                            factory.IsSimpleFactory,
+                            factory.Context);
+                        var rewritten = setupContextRewriterFactory(rewriterContext).Rewrite(factory.Factory);
+                        var updatedFactory = factory with { Factory = rewritten };
+                        if (item.ContextArgKind == SetupContextKind.RootArgument)
+                        {
+                            updatedFactory = updatedFactory with
+                            {
+                                Resolvers = AddRootArgumentResolver(updatedFactory, rewritten, setupType, item.ContextArgName)
+                            };
+                        }
+
+                        updated = updated with { Factory = updatedFactory };
+                    }
+
+                    return updated with { Id = bindingId++ };
+                }));
             }
             else
             {
@@ -175,7 +216,38 @@ sealed class MetadataBuilder(
                 comments.AddRange(setup.Comments);
             }
 
+            if (resolveDependsOn
+                && item.ContextArgName is { Length: > 0 }
+                && item.DependsOn is { } dependsOn
+                && GetContainingType(setup) is { } setupType)
+            {
+                contextArgs.Add((item.ContextArgName, item.ContextArgSource, setupType, item.ContextArgKind, dependsOn, dependsOn.SemanticModel));
+            }
+
             cancellationToken.ThrowIfCancellationRequested();
+        }
+
+        if (resolveDependsOn && lastSetup is not null && contextArgs.Count > 0)
+        {
+            foreach (var (argName, argSource, argType, contextKind, dependsOn, semanticModel) in contextArgs)
+            {
+                var argLocation = argSource ?? dependsOn.Source;
+                var argKind = contextKind == SetupContextKind.RootArgument ? ArgKind.Root : ArgKind.Composition;
+                var arg = new MdArg(semanticModel, argLocation, argType, argName, argKind, false, [], true, contextKind);
+                var binding = new MdBinding(
+                    bindingId++,
+                    argLocation,
+                    lastSetup,
+                    semanticModel,
+                    ImmutableArray.Create(new MdContract(semanticModel, argLocation, argType, ContractKind.Explicit, ImmutableArray<MdTag>.Empty)),
+                    ImmutableArray<MdTag>.Empty,
+                    null,
+                    null,
+                    null,
+                    arg);
+                bindingsBuilder.Add(binding);
+                bindingsRegistryManager.Register(lastSetup, binding.Id);
+            }
         }
 
         var bindings = bindingsBuilder.ToImmutable();
@@ -209,4 +281,70 @@ sealed class MetadataBuilder(
             tagOn,
             comments);
     }
+
+    private static ImmutableArray<MdResolver> AddRootArgumentResolver(
+        MdFactory factory,
+        LambdaExpressionSyntax rewritten,
+        INamedTypeSymbol setupType,
+        string contextArgName)
+    {
+        if (factory.Resolvers.Any(resolver =>
+                SymbolEqualityComparer.Default.Equals(resolver.ContractType, setupType)
+                && resolver.Parameter is { Identifier.Text: var name }
+                && name == contextArgName))
+        {
+            return factory.Resolvers;
+        }
+
+        ParameterSyntax? parameter = null;
+        int position = factory.Resolvers.Length;
+        switch (rewritten)
+        {
+            case ParenthesizedLambdaExpressionSyntax parenthesized:
+                for (var index = 0; index < parenthesized.ParameterList.Parameters.Count; index++)
+                {
+                    var current = parenthesized.ParameterList.Parameters[index];
+                    if (current.Identifier.Text == contextArgName)
+                    {
+                        parameter = current;
+                        position = index;
+                        break;
+                    }
+                }
+
+                break;
+
+            case SimpleLambdaExpressionSyntax simple
+                when simple.Parameter.Identifier.Text == contextArgName:
+                parameter = simple.Parameter;
+                position = 0;
+                break;
+        }
+
+        var contextParameter = parameter ?? SyntaxFactory.Parameter(SyntaxFactory.Identifier(contextArgName))
+            .WithType(SyntaxFactory.ParseTypeName(setupType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
+        var argumentType = contextParameter.Type ?? SyntaxFactory.ParseTypeName(setupType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+        var attributes = contextParameter.AttributeLists.SelectMany(list => list.Attributes).ToImmutableArray();
+
+        var resolver = new MdResolver
+        {
+            SemanticModel = factory.SemanticModel,
+            Source = factory.Source,
+            ContractType = setupType,
+            Tag = new MdTag(0, null),
+            ArgumentType = argumentType,
+            Parameter = contextParameter,
+            Position = position,
+            Attributes = attributes
+        };
+
+        return factory.Resolvers.Add(resolver);
+    }
+
+    private static INamedTypeSymbol? GetContainingType(MdSetup setup) =>
+        setup.Source.Ancestors()
+            .OfType<BaseTypeDeclarationSyntax>()
+            .FirstOrDefault() is { } typeDeclaration
+            ? setup.SemanticModel.GetDeclaredSymbol(typeDeclaration) as INamedTypeSymbol
+            : null;
 }

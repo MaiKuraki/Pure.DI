@@ -366,8 +366,8 @@ example scenarios. IDs and anchors are stable; message text is localized.
 
 ### DIW007
 - Description: DependsOn uses an instance member.
-- Problem: A binding in a dependent setup references an instance member.
-- Fix: Use `Arg/RootArg` or a context object instead of instance members.
+- Problem: A binding in a dependent setup references an instance member that will not exist in the dependent composition.
+- Fix: Use `.DependsOn(setupName, contextArgName)` to pass an explicit setup context, or move the value to `Arg/RootArg` or a separate context object.
 - See: [dependent-compositions](readme/dependent-compositions.md).
 - Examples: Binding in a dependent setup uses instance field/property.
 
