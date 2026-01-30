@@ -17,7 +17,7 @@ sealed class LogObserver(
         {
             lock (_diagnostics)
             {
-                _diagnostics.Add(new DiagnosticInfo(descriptor, logEntry.Locations));
+                _diagnostics.Add(new DiagnosticInfo(descriptor, logEntry.Locations, logInfo.Properties));
             }
         }
     }
@@ -32,7 +32,12 @@ sealed class LogObserver(
         {
             foreach (var diagnosticInfo in _diagnostics)
             {
-                diagnostic.ReportDiagnostic(Diagnostic.Create(diagnosticInfo.Descriptor, diagnosticInfo.Locations.FirstOrDefault(), diagnosticInfo.Locations.Skip(1)));
+                diagnostic.ReportDiagnostic(
+                    Diagnostic.Create(
+                        diagnosticInfo.Descriptor,
+                        diagnosticInfo.Locations.FirstOrDefault(),
+                        diagnosticInfo.Locations.Skip(1),
+                        diagnosticInfo.Properties));
             }
 
             _diagnostics.Clear();
@@ -42,5 +47,6 @@ sealed class LogObserver(
 
     private record DiagnosticInfo(
         DiagnosticDescriptor Descriptor,
-        ImmutableArray<Location> Locations);
+        ImmutableArray<Location> Locations,
+        ImmutableDictionary<string, string?>? Properties);
 }

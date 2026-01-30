@@ -24,7 +24,11 @@ sealed class RootValidator(
         foreach (var invalidRoot in invalidRoots)
         {
             logger.CompileWarning(
-                string.Format(Strings.Warning_Template_RootCannotBeResolvedByResolveMethods, Format(invalidRoot), string.Join(", ", invalidRoot.RootArgs.Select(i => i.Name))),
+                LogMessage.Format(
+                    nameof(Strings.Warning_Template_RootCannotBeResolvedByResolveMethods),
+                    Strings.Warning_Template_RootCannotBeResolvedByResolveMethods,
+                    Format(invalidRoot),
+                    string.Join(", ", invalidRoot.RootArgs.Select(i => i.Name))),
                 ImmutableArray.Create(locationProvider.GetLocation(invalidRoot.Source.Source)),
                 LogId.WarningRootArgInResolveMethod);
         }
@@ -38,7 +42,11 @@ sealed class RootValidator(
         foreach (var root in genericRoots)
         {
             logger.CompileWarning(
-                string.Format(Strings.Warning_Template_RootCannotBeResolvedByResolveMethods, Format(root), string.Join(", ", root.TypeDescription.TypeArgs)),
+                LogMessage.Format(
+                    nameof(Strings.Warning_Template_RootCannotBeResolvedByResolveMethods),
+                    Strings.Warning_Template_RootCannotBeResolvedByResolveMethods,
+                    Format(root),
+                    string.Join(", ", root.TypeDescription.TypeArgs)),
                 ImmutableArray.Create(locationProvider.GetLocation(root.Source.Source)),
                 LogId.WarningTypeArgInResolveMethod);
         }

@@ -16,7 +16,7 @@ sealed class MetadataValidator(
         if (setup is { Kind: CompositionKind.Public, Roots.Length: 0 })
         {
             logger.CompileWarning(
-                Strings.Warning_NoRoots,
+                LogMessage.From(nameof(Strings.Warning_NoRoots), Strings.Warning_NoRoots),
                 ImmutableArray.Create(locationProvider.GetLocation(setup.Source)),
                 LogId.WarningNoRoots);
         }
@@ -36,7 +36,10 @@ sealed class MetadataValidator(
                 || !IsValidOrEmptyIdentifier(setup.Name.Namespace.Replace('.', '_'))))
         {
             logger.CompileError(
-                string.Format(Strings.Error_Template_InvalidCompositionTypeName, setup.Name),
+                LogMessage.Format(
+                    nameof(Strings.Error_Template_InvalidCompositionTypeName),
+                    Strings.Error_Template_InvalidCompositionTypeName,
+                    setup.Name),
                 ImmutableArray.Create(locationProvider.GetLocation(setup.Name.Source ?? setup.Source)),
                 LogId.ErrorInvalidCompositionTypeName);
             isValid = false;
@@ -50,7 +53,10 @@ sealed class MetadataValidator(
             }
 
             logger.CompileError(
-                string.Format(Strings.Error_Template_InvalidRootName, root.Name),
+                LogMessage.Format(
+                    nameof(Strings.Error_Template_InvalidRootName),
+                    Strings.Error_Template_InvalidRootName,
+                    root.Name),
                 ImmutableArray.Create(locationProvider.GetLocation(root.Source)),
                 LogId.ErrorInvalidRootName);
             isValid = false;
@@ -67,7 +73,11 @@ sealed class MetadataValidator(
             foreach (var root in roots.Skip(1))
             {
                 logger.CompileError(
-                    string.Format(Strings.Error_Template_RootDuplicate, root.Name, roots[0].Name),
+                    LogMessage.Format(
+                        nameof(Strings.Error_Template_RootDuplicate),
+                        Strings.Error_Template_RootDuplicate,
+                        root.Name,
+                        roots[0].Name),
                     ImmutableArray.Create(locationProvider.GetLocation(root.Source)),
                     LogId.ErrorDuplicateRootName);
                 isValid = false;
@@ -79,7 +89,9 @@ sealed class MetadataValidator(
             if (marker.IsMarkerBased(setup, accumulator.AccumulatorType))
             {
                 logger.CompileError(
-                    Strings.Error_AccumulatorTypeCannotBeGenericTypeMarker,
+                    LogMessage.From(
+                        nameof(Strings.Error_AccumulatorTypeCannotBeGenericTypeMarker),
+                        Strings.Error_AccumulatorTypeCannotBeGenericTypeMarker),
                     ImmutableArray.Create(locationProvider.GetLocation(accumulator.Source)),
                     LogId.ErrorAccumulatorTypeGenericMarker);
             }
@@ -87,7 +99,9 @@ sealed class MetadataValidator(
             if (marker.IsMarkerBased(setup, accumulator.Type))
             {
                 logger.CompileError(
-                    Strings.Error_AccumulatorCannotAccumulateGenericTypeMarker,
+                    LogMessage.From(
+                        nameof(Strings.Error_AccumulatorCannotAccumulateGenericTypeMarker),
+                        Strings.Error_AccumulatorCannotAccumulateGenericTypeMarker),
                     ImmutableArray.Create(locationProvider.GetLocation(accumulator.Source)),
                     LogId.ErrorAccumulatorCannotAccumulateGenericMarker);
             }
@@ -98,7 +112,9 @@ sealed class MetadataValidator(
             if (marker.IsMarkerBased(setup, specialType.Type))
             {
                 logger.CompileError(
-                    Strings.Error_SpecialTypeCannotBeGenericTypeMarker,
+                    LogMessage.From(
+                        nameof(Strings.Error_SpecialTypeCannotBeGenericTypeMarker),
+                        Strings.Error_SpecialTypeCannotBeGenericTypeMarker),
                     ImmutableArray.Create(specialType.Source.GetLocation()),
                     LogId.ErrorSpecialTypeGenericMarker);
             }
@@ -157,7 +173,10 @@ sealed class MetadataValidator(
                     if (!IsValidIdentifier(arg.ArgName))
                     {
                         logger.CompileError(
-                            string.Format(Strings.Error_Template_InvalidArgumentName, arg.ArgName),
+                            LogMessage.Format(
+                                nameof(Strings.Error_Template_InvalidArgumentName),
+                                Strings.Error_Template_InvalidArgumentName,
+                                arg.ArgName),
                             ImmutableArray.Create(location()),
                             LogId.ErrorInvalidArgumentName);
                         isValid = false;
@@ -166,7 +185,9 @@ sealed class MetadataValidator(
                     if (arg.Kind == ArgKind.Composition && marker.IsMarkerBased(setup, arg.Type))
                     {
                         logger.CompileError(
-                            Strings.Error_CompositionArgumentTypeCannotBeGenericTypeMarker,
+                            LogMessage.From(
+                                nameof(Strings.Error_CompositionArgumentTypeCannotBeGenericTypeMarker),
+                                Strings.Error_CompositionArgumentTypeCannotBeGenericTypeMarker),
                             ImmutableArray.Create(location()),
                             LogId.ErrorCompositionArgGenericMarker);
                     }
@@ -177,7 +198,9 @@ sealed class MetadataValidator(
         if (implementationType == null || implementationType is IErrorTypeSymbol || semanticModel == null)
         {
             logger.CompileError(
-                Strings.Error_InvalidBindingDueToCompilationError,
+                LogMessage.From(
+                    nameof(Strings.Error_InvalidBindingDueToCompilationError),
+                    Strings.Error_InvalidBindingDueToCompilationError),
                 ImmutableArray.Create(location()),
                 LogId.ErrorInvalidBindingDueToCompilation);
             return false;
@@ -204,16 +227,25 @@ sealed class MetadataValidator(
                 switch (severityOfNotImplementedContract)
                 {
                     case DiagnosticSeverity.Error:
-                        logger.CompileError(message, ImmutableArray.Create(location()), LogId.ErrorNotImplementedContract);
+                        logger.CompileError(
+                            LogMessage.From(nameof(Strings.Error_Template_NotImplement), message),
+                            ImmutableArray.Create(location()),
+                            LogId.ErrorNotImplementedContract);
                         isValid = false;
                         break;
 
                     case DiagnosticSeverity.Warning:
-                        logger.CompileWarning(message, ImmutableArray.Create(location()), LogId.WarningNotImplementedContract);
+                        logger.CompileWarning(
+                            LogMessage.From(nameof(Strings.Error_Template_NotImplement), message),
+                            ImmutableArray.Create(location()),
+                            LogId.WarningNotImplementedContract);
                         break;
 
                     case DiagnosticSeverity.Info:
-                        logger.CompileInfo(message, ImmutableArray.Create(location()), LogId.InfoNotImplementedContract);
+                        logger.CompileInfo(
+                            LogMessage.From(nameof(Strings.Error_Template_NotImplement), message),
+                            ImmutableArray.Create(location()),
+                            LogId.InfoNotImplementedContract);
                         break;
                 }
             }

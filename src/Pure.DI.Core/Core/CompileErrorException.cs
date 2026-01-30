@@ -4,7 +4,8 @@ namespace Pure.DI.Core;
 sealed class CompileErrorException(
     string errorMessage,
     in ImmutableArray<Location> locations,
-    string id)
+    string id,
+    string? messageKey = null)
     : Exception
 {
     public string ErrorMessage { get; } = errorMessage;
@@ -12,4 +13,6 @@ sealed class CompileErrorException(
     public ImmutableArray<Location> Locations { get; } = locations;
 
     public string Id { get; } = id;
+
+    public string? MessageKey { get; } = messageKey;
 }

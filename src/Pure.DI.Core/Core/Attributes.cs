@@ -58,7 +58,8 @@ sealed class Attributes(
                             _ => throw new CompileErrorException(
                                 string.Format(Strings.Error_Template_InvalidAttributeArgumentPosition, attributeMetadata.ArgumentPosition, attributeMetadata.Source, args.Length),
                                 ImmutableArray.Create(locationProvider.GetLocation(attributeMetadata.Source)),
-                                LogId.ErrorInvalidAttributeArgumentPosition)
+                                LogId.ErrorInvalidAttributeArgumentPosition,
+                                nameof(Strings.Error_Template_InvalidAttributeArgumentPosition))
                         };
                     }
 
@@ -74,7 +75,8 @@ sealed class Attributes(
                     throw new CompileErrorException(
                         string.Format(Strings.Error_Template_AttributeMemberCannotBeProcessed, member, member.ContainingType),
                         ImmutableArray.Create(locationProvider.GetLocation(attributeMetadata.Source)),
-                        LogId.ErrorAttributeMemberCannotBeProcessed);
+                        LogId.ErrorAttributeMemberCannotBeProcessed,
+                        nameof(Strings.Error_Template_AttributeMemberCannotBeProcessed));
             }
         }
 
@@ -109,7 +111,8 @@ sealed class Attributes(
                         _ => throw new CompileErrorException(
                             string.Format(Strings.Error_Template_InvalidAttributeArgumentPosition, attributeMetadata.ArgumentPosition, attributeMetadata.Source, args.Count),
                             ImmutableArray.Create(locationProvider.GetLocation(attributeMetadata.Source)),
-                            LogId.ErrorInvalidAttributeArgumentPosition)
+                            LogId.ErrorInvalidAttributeArgumentPosition,
+                            nameof(Strings.Error_Template_InvalidAttributeArgumentPosition))
                     };
                 }
 

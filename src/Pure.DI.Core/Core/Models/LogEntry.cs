@@ -8,4 +8,5 @@ readonly record struct LogEntry(
     in ImmutableArray<Location> Locations = default,
     string? Id = null,
     Exception? Exception = null,
-    Type? TargetType = null);
+    Type? TargetType = null,
+    string? MessageKey = null);

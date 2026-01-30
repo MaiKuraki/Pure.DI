@@ -15,7 +15,7 @@ sealed class BindingsValidator(
             if (!GetIds(binding).Any(id => bindingsRegistry.IsRegistered(graph.Source, id)))
             {
                 logger.CompileWarning(
-                    Strings.Warning_BindingIsNotUsed,
+                    LogMessage.From(nameof(Strings.Warning_BindingIsNotUsed), Strings.Warning_BindingIsNotUsed),
                     ImmutableArray.Create(locationProvider.GetLocation(binding.Source), locationProvider.GetLocation(graph.Source.Source)),
                     LogId.WarningBindingNotUsed);
             }

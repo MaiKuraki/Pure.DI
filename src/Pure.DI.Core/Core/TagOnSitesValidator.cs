@@ -15,7 +15,10 @@ sealed class TagOnSitesValidator(
             foreach (var injectionSite in tagOn.InjectionSites.Where(injectionSite => !registry.IsRegistered(data.Source, injectionSite)))
             {
                 logger.CompileWarning(
-                    string.Format(Strings.Warning_Template_InjectionSiteIsNotUsed, injectionSite.Site),
+                    LogMessage.Format(
+                        nameof(Strings.Warning_Template_InjectionSiteIsNotUsed),
+                        Strings.Warning_Template_InjectionSiteIsNotUsed,
+                        injectionSite.Site),
                     ImmutableArray.Create(locationProvider.GetLocation(injectionSite.Source)),
                     LogId.WarningInjectionSiteNotUsed);
             }

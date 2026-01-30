@@ -60,7 +60,10 @@ sealed class VariationalDependencyGraphBuilder(
                     if (node.Binding.SourceSetup.Kind != CompositionKind.Global)
                     {
                         logger.CompileWarning(
-                            string.Format(Strings.Warning_Template_BindingHasBeenOverridden, item.Key),
+                            LogMessage.Format(
+                                nameof(Strings.Warning_Template_BindingHasBeenOverridden),
+                                Strings.Warning_Template_BindingHasBeenOverridden,
+                                item.Key),
                             ImmutableArray.Create(locationProvider.GetLocation(item.Value.Binding.Source)),
                             LogId.WarningOverriddenBinding);
                     }
@@ -87,13 +90,17 @@ sealed class VariationalDependencyGraphBuilder(
                     throw new CompileErrorException(
                         Strings.Error_CannotBuildDependencyGraph,
                         ImmutableArray.Create(locationProvider.GetLocation(setup.Source)),
-                        LogId.ErrorCannotBuildDependencyGraph);
+                        LogId.ErrorCannotBuildDependencyGraph,
+                        nameof(Strings.Error_CannotBuildDependencyGraph));
                 }
 
                 if (maxIterations-- <= 0)
                 {
                     logger.CompileError(
-                        string.Format(Strings.Error_Template_MaximumNumberOfIterations, globalProperties.MaxIterations),
+                        LogMessage.Format(
+                            nameof(Strings.Error_Template_MaximumNumberOfIterations),
+                            Strings.Error_Template_MaximumNumberOfIterations,
+                            globalProperties.MaxIterations),
                         ImmutableArray.Create(locationProvider.GetLocation(setup.Source)),
                         LogId.ErrorMaximumNumberOfIterations);
 

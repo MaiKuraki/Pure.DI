@@ -34,7 +34,10 @@ sealed class CyclicDependenciesValidator(
                 .AddRange(path.SelectMany(i => i.Injection.Locations.IsDefault ? ImmutableArray<Location>.Empty : i.Injection.Locations))
                 .Add(locationProvider.GetLocation(dependency.Source.Binding.Source));
 
-            logger.CompileError(string.Format(Strings.Error_Template_CyclicDependency, pathStr), locations, LogId.ErrorCyclicDependency);
+            logger.CompileError(
+                LogMessage.Format(nameof(Strings.Error_Template_CyclicDependency), Strings.Error_Template_CyclicDependency, pathStr),
+                locations,
+                LogId.ErrorCyclicDependency);
         }
 
         return errors.Count == 0;

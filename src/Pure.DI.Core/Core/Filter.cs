@@ -48,7 +48,11 @@ sealed class Filter(
                 catch (ArgumentException ex)
                 {
                     logger.CompileError(
-                        string.Format(Strings.Error_Template_InvalidRegularExpression, regularExpression, ex.Message),
+                        LogMessage.Format(
+                            nameof(Strings.Error_Template_InvalidRegularExpression),
+                            Strings.Error_Template_InvalidRegularExpression,
+                            regularExpression,
+                            ex.Message),
                         ImmutableArray.Create(locationProvider.GetLocation(setup.Source)),
                         LogId.ErrorInvalidRegularExpression);
                 }
@@ -70,7 +74,11 @@ sealed class Filter(
                 catch (Exception ex)
                 {
                     logger.CompileError(
-                        string.Format(Strings.Error_Template_InvalidWildcard, wildcard, ex.Message),
+                        LogMessage.Format(
+                            nameof(Strings.Error_Template_InvalidWildcard),
+                            Strings.Error_Template_InvalidWildcard,
+                            wildcard,
+                            ex.Message),
                         ImmutableArray.Create(locationProvider.GetLocation(setup.Source)),
                         LogId.ErrorInvalidWildcard);
                 }

@@ -390,7 +390,8 @@ sealed class ApiInvocationProcessor(
                             throw new CompileErrorException(
                                 Strings.Error_InvalidRootType,
                                 ImmutableArray.Create(locationProvider.GetLocation(invocation)),
-                                LogId.ErrorInvalidRootType);
+                                LogId.ErrorInvalidRootType,
+                                nameof(Strings.Error_InvalidRootType));
                         }
 
                         var tagArguments = invocation.ArgumentList.Arguments.SkipWhile((arg, i) => arg.NameColon?.Name.Identifier.Text != "tags" && i < 2);
@@ -542,7 +543,8 @@ sealed class ApiInvocationProcessor(
                             throw new CompileErrorException(
                                 Strings.Error_InvalidRootsRype,
                                 ImmutableArray.Create(locationProvider.GetLocation(invocation)),
-                                LogId.ErrorInvalidRootsType);
+                                LogId.ErrorInvalidRootsType,
+                                nameof(Strings.Error_InvalidRootsRype));
                         }
 
                         var rootsArgs = arguments.GetArgs(invocation.ArgumentList, "name", "kind", "filter");
@@ -562,7 +564,8 @@ sealed class ApiInvocationProcessor(
                             throw new CompileErrorException(
                                 string.Format(Strings.Error_Template_NoTypeForWildcard, symbolNames.GetName(rootsType), rootsWildcardFilter),
                                 ImmutableArray.Create(locationProvider.GetLocation(invocation)),
-                                LogId.ErrorNoTypeForWildcard);
+                                LogId.ErrorNoTypeForWildcard,
+                                nameof(Strings.Error_Template_NoTypeForWildcard));
                         }
 
                         break;
@@ -573,7 +576,8 @@ sealed class ApiInvocationProcessor(
                             throw new CompileErrorException(
                                 Strings.Error_InvalidRootType,
                                 ImmutableArray.Create(locationProvider.GetLocation(invocation)),
-                                LogId.ErrorInvalidRootType);
+                                LogId.ErrorInvalidRootType,
+                                nameof(Strings.Error_InvalidRootType));
                         }
 
                         var rootSymbol = semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, rootTypeSyntax);
@@ -589,7 +593,8 @@ sealed class ApiInvocationProcessor(
                             throw new CompileErrorException(
                                 Strings.Error_InvalidBuildersType,
                                 ImmutableArray.Create(locationProvider.GetLocation(invocation)),
-                                LogId.ErrorInvalidBuildersType);
+                                LogId.ErrorInvalidBuildersType,
+                                nameof(Strings.Error_InvalidBuildersType));
                         }
 
                         var buildersArgs = arguments.GetArgs(invocation.ArgumentList, "name", "kind", "filter");
@@ -607,7 +612,8 @@ sealed class ApiInvocationProcessor(
                             throw new CompileErrorException(
                                 string.Format(Strings.Error_Template_NoTypeForWildcard, symbolNames.GetName(buildersRootType), buildersWildcardFilter),
                                 ImmutableArray.Create(locationProvider.GetLocation(invocation)),
-                                LogId.ErrorNoTypeForWildcard);
+                                LogId.ErrorNoTypeForWildcard,
+                                nameof(Strings.Error_Template_NoTypeForWildcard));
                         }
 
                         // Composite builder
@@ -644,7 +650,8 @@ sealed class ApiInvocationProcessor(
                             throw new CompileErrorException(
                                 Strings.Error_InvalidBuilderType,
                                 ImmutableArray.Create(locationProvider.GetLocation(invocation)),
-                                LogId.ErrorInvalidBuilderType);
+                                LogId.ErrorInvalidBuilderType,
+                                nameof(Strings.Error_InvalidBuilderType));
                         }
 
                         var builderType = semantic.GetTypeSymbol<INamedTypeSymbol>(semanticModel, builderRootTypeSyntax);
@@ -832,10 +839,11 @@ sealed class ApiInvocationProcessor(
             }
             else
             {
-                throw new CompileErrorException(
-                    Strings.Error_TooManyTypeParameters,
-                    ImmutableArray.Create(locationProvider.GetLocation(source)),
-                    LogId.ErrorTooManyTypeParameters);
+            throw new CompileErrorException(
+                Strings.Error_TooManyTypeParameters,
+                ImmutableArray.Create(locationProvider.GetLocation(source)),
+                LogId.ErrorTooManyTypeParameters,
+                nameof(Strings.Error_TooManyTypeParameters));
             }
         }
 
@@ -1142,10 +1150,11 @@ sealed class ApiInvocationProcessor(
         var argType = GetDefaultType(semanticModel, invocation, 0) ?? GetArgSymbol(semanticModel, atgSyntax);
         if (argType is null or IErrorTypeSymbol)
         {
-            throw new CompileErrorException(
-                Strings.Error_TypeCannotBeInferred,
-                ImmutableArray.Create(locationProvider.GetLocation(atgSyntax)),
-                LogId.ErrorTypeCannotBeInferred);
+                    throw new CompileErrorException(
+                        Strings.Error_TypeCannotBeInferred,
+                        ImmutableArray.Create(locationProvider.GetLocation(atgSyntax)),
+                        LogId.ErrorTypeCannotBeInferred,
+                        nameof(Strings.Error_TypeCannotBeInferred));
         }
         var tagArguments = invocation.ArgumentList.Arguments.Skip(1).ToList();
         var hasCtx = tagArguments.Aggregate(false, (current, tag) => current | HasContextTag(tag.Expression, contextParameter));
@@ -1287,7 +1296,8 @@ sealed class ApiInvocationProcessor(
                         throw new CompileErrorException(
                             Strings.Error_TypeCannotBeInferred,
                             ImmutableArray.Create(locationProvider.GetLocation(argSyntax2)),
-                            LogId.ErrorTypeCannotBeInferred);
+                            LogId.ErrorTypeCannotBeInferred,
+                            nameof(Strings.Error_TypeCannotBeInferred));
                     }
 
                     return new MdResolver(
@@ -1408,7 +1418,8 @@ sealed class ApiInvocationProcessor(
             throw new CompileErrorException(
                 Strings.Error_AsynchronousFactoryWithAsyncNotSupported,
                 ImmutableArray.Create(locationProvider.GetLocation(lambdaExpression.AsyncKeyword)),
-                LogId.ErrorAsyncFactoryNotSupported);
+                LogId.ErrorAsyncFactoryNotSupported,
+                nameof(Strings.Error_AsynchronousFactoryWithAsyncNotSupported));
         }
     }
 
@@ -1417,7 +1428,8 @@ sealed class ApiInvocationProcessor(
         throw new CompileErrorException(
             string.Format(Strings.Error_Template_NotSupported, source),
             ImmutableArray.Create(locationProvider.GetLocation(source)),
-            LogId.ErrorNotSupportedSyntax);
+            LogId.ErrorNotSupportedSyntax,
+            nameof(Strings.Error_Template_NotSupported));
 
     private IReadOnlyList<T> BuildConstantArgs<T>(
         SemanticModel semanticModel,
@@ -1427,7 +1439,8 @@ sealed class ApiInvocationProcessor(
             .Select(a => a.value ?? throw new CompileErrorException(
                 string.Format(Strings.Error_Template_MustBeValueOfType, a.Expression, typeof(T)),
                 ImmutableArray.Create(locationProvider.GetLocation(a.Expression)),
-                LogId.ErrorMustBeValueOfType))
+                LogId.ErrorMustBeValueOfType,
+                nameof(Strings.Error_Template_MustBeValueOfType)))
             .ToList();
 
     private ImmutableArray<MdTag> BuildTags(
@@ -1501,7 +1514,8 @@ sealed class ApiInvocationProcessor(
             throw new CompileErrorException(
                 string.Format(Strings.Error_Template_InvalidIdentifier, name),
                 ImmutableArray.Create(locationProvider.GetLocation(source)),
-                LogId.ErrorInvalidIdentifier);
+                LogId.ErrorInvalidIdentifier,
+                nameof(Strings.Error_Template_InvalidIdentifier));
         }
 
         return name;

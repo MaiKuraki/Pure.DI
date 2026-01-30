@@ -17,6 +17,7 @@ sealed class LogInfoBuilder : IBuilder<LogEntry, LogInfo>
         };
 
         DiagnosticDescriptor? descriptor = null;
+        ImmutableDictionary<string, string?>? properties = null;
         if (logEntry.Id is not null && !string.IsNullOrWhiteSpace(logEntry.Id))
         {
             var message = new StringBuilder(logEntry.Message);
@@ -30,8 +31,14 @@ sealed class LogInfoBuilder : IBuilder<LogEntry, LogInfo>
             }
 
             descriptor = new DiagnosticDescriptor(logEntry.Id, severityCode, message.ToString(), severityCode, logEntry.Severity, true);
+            if (!string.IsNullOrWhiteSpace(logEntry.MessageKey))
+            {
+                properties = ImmutableDictionary<string, string?>
+                    .Empty
+                    .Add("puredi.messageKey", logEntry.MessageKey);
+            }
         }
 
-        return new LogInfo(logEntry, descriptor);
+        return new LogInfo(logEntry, descriptor, properties);
     }
 }

@@ -32,7 +32,8 @@ sealed class MetadataBuilder(
                 throw new CompileErrorException(
                     string.Format(Strings.Error_Template_UnsupportLanguage, Names.GeneratorName, languageVersion.ToDisplayString(), LanguageVersion.CSharp8.ToDisplayString()),
                     ImmutableArray.Create(locationProvider.GetLocation(update.Node)),
-                    LogId.ErrorNotSupportedLanguageVersion);
+                    LogId.ErrorNotSupportedLanguageVersion,
+                    nameof(Strings.Error_Template_UnsupportLanguage));
             }
 
             var setupsBuilder = setupsBuilderFactory();
@@ -95,7 +96,8 @@ sealed class MetadataBuilder(
                     throw new CompileErrorException(
                         string.Format(Strings.Error_Template_CannotFindSetup, compositionTypeName),
                         ImmutableArray.Create(locationProvider.GetLocation(dependsOn.Source)),
-                        LogId.ErrorCannotFindSetup);
+                        LogId.ErrorCannotFindSetup,
+                        nameof(Strings.Error_Template_CannotFindSetup));
                 }
 
                 if (!dependsOn.Explicit && dependsOnSetup.Kind != CompositionKind.Internal)

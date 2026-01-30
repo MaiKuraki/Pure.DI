@@ -57,7 +57,10 @@ sealed class ExceptionHandler(ILogger logger)
     }
 
     private void OnCompileException(CompileErrorException exception) =>
-        logger.CompileError(exception.ErrorMessage, exception.Locations, exception.Id);
+        logger.CompileError(
+            new LogMessage(exception.MessageKey, exception.ErrorMessage),
+            exception.Locations,
+            exception.Id);
 
     private void OnHandledException(HandledException handledException) =>
         logger.Log(
@@ -70,7 +73,8 @@ sealed class ExceptionHandler(ILogger logger)
                 Strings.Info_CodeGenerationAborted,
                 ImmutableArray<Location>.Empty,
                 LogId.InfoGenerationInterrupted,
-                handledException));
+                handledException,
+                MessageKey: nameof(Strings.Info_CodeGenerationAborted)));
 
     private void OnException(Exception exception) =>
         logger.Log(
@@ -79,5 +83,6 @@ sealed class ExceptionHandler(ILogger logger)
                 Strings.Error_UnhandledError,
                 ImmutableArray<Location>.Empty,
                 LogId.ErrorUnhandled,
-                exception));
+                exception,
+                MessageKey: nameof(Strings.Error_UnhandledError)));
 }

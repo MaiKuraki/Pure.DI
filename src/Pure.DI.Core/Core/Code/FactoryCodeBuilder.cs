@@ -262,7 +262,8 @@ sealed class FactoryCodeBuilder(
             throw new CompileErrorException(
                 string.Format(Strings.Error_Template_LifetimeDoesNotSupportCyclicDependencies, var.AbstractNode.ActualLifetime),
                 ImmutableArray.Create(locationProvider.GetLocation(factory.Source.Source)),
-                LogId.ErrorLifetimeDoesNotSupportCyclicDependencies);
+                LogId.ErrorLifetimeDoesNotSupportCyclicDependencies,
+                nameof(Strings.Error_Template_LifetimeDoesNotSupportCyclicDependencies));
         }
 
         if (factory.Initializers.Length != inits.Count)
@@ -270,7 +271,8 @@ sealed class FactoryCodeBuilder(
             throw new CompileErrorException(
                 Strings.Error_InvalidNumberOfInitializers,
                 ImmutableArray.Create(locationProvider.GetLocation(factory.Source.Source)),
-                LogId.ErrorInvalidNumberOfInitializers);
+                LogId.ErrorInvalidNumberOfInitializers,
+                nameof(Strings.Error_InvalidNumberOfInitializers));
         }
 
         var resolversCount = injections.Count;

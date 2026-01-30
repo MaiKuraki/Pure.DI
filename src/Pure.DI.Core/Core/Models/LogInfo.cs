@@ -4,4 +4,5 @@ namespace Pure.DI.Core.Models;
 
 readonly record struct LogInfo(
     in LogEntry Entry,
-    DiagnosticDescriptor? DiagnosticDescriptor);
+    DiagnosticDescriptor? DiagnosticDescriptor,
+    ImmutableDictionary<string, string?>? Properties);

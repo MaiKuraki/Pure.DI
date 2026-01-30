@@ -42,7 +42,13 @@ sealed class LifetimesValidatorVisitor(
                 if (ctx.Errors.Add(new ScopedToSingletonErrorKey(actualTargetLifetimeNode, targetNode)))
                 {
                     logger.CompileError(
-                        string.Format(Strings.Error_Template_TypeWithLifetimeRequiresDirectOrTransitiveInjection, actualTargetLifetimeNode.Type, actualTargetLifetimeNode.Lifetime, targetNode.Type, targetNode.Lifetime),
+                        LogMessage.Format(
+                            nameof(Strings.Error_Template_TypeWithLifetimeRequiresDirectOrTransitiveInjection),
+                            Strings.Error_Template_TypeWithLifetimeRequiresDirectOrTransitiveInjection,
+                            actualTargetLifetimeNode.Type,
+                            actualTargetLifetimeNode.Lifetime,
+                            targetNode.Type,
+                            targetNode.Lifetime),
                         ImmutableArray.Create(locationProvider.GetLocation(targetNode.Binding.Source)),
                         LogId.ErrorLifetimeDefect);
                 }
@@ -53,7 +59,12 @@ sealed class LifetimesValidatorVisitor(
                 if (ctx.Errors.Add(new RootKindSpecificLifetimeErrorKey(ctx.Root, targetNode)))
                 {
                     logger.CompileError(
-                        string.Format(Strings.Error_Template_StaticRootCannotUseLifetime, ctx.Root.Name, ctx.Root.Source.RootType, targetNode.Lifetime),
+                        LogMessage.Format(
+                            nameof(Strings.Error_Template_StaticRootCannotUseLifetime),
+                            Strings.Error_Template_StaticRootCannotUseLifetime,
+                            ctx.Root.Name,
+                            ctx.Root.Source.RootType,
+                            targetNode.Lifetime),
                         dependency.Injection.Locations,
                         LogId.ErrorLifetimeDefect);
                 }
@@ -65,7 +76,12 @@ sealed class LifetimesValidatorVisitor(
                 if (ctx.Errors.Add(new RootKindSpecificLifetimeErrorKey(ctx.Root, sourceNode)))
                 {
                     logger.CompileError(
-                        string.Format(Strings.Error_Template_StaticRootCannotUseLifetime, ctx.Root.Name, ctx.Root.Source.RootType, sourceNode.Lifetime),
+                        LogMessage.Format(
+                            nameof(Strings.Error_Template_StaticRootCannotUseLifetime),
+                            Strings.Error_Template_StaticRootCannotUseLifetime,
+                            ctx.Root.Name,
+                            ctx.Root.Source.RootType,
+                            sourceNode.Lifetime),
                         dependency.Injection.Locations,
                         LogId.ErrorLifetimeDefect);
                 }

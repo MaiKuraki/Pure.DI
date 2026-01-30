@@ -33,7 +33,8 @@ sealed class DependsOnInstanceMemberValidator(
             foreach (var access in walker.Accesses)
             {
                 logger.CompileWarning(
-                    string.Format(
+                    LogMessage.Format(
+                        nameof(Strings.Warning_Template_InstanceMemberInDependsOnSetup),
                         Strings.Warning_Template_InstanceMemberInDependsOnSetup,
                         access.MemberName,
                         binding.SourceSetup.Name),
