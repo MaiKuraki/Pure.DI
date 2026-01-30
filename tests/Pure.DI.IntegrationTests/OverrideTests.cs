@@ -576,7 +576,7 @@ public class OverrideTests
         // Then
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(1, result);
-        result.Warnings.Count(i => i.Id == LogId.WarningMetadataDefect && i.Locations.FirstOrDefault().GetSource() == "To<Clock>()").ShouldBe(1, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningBindingNotUsed && i.Locations.FirstOrDefault().GetSource() == "To<Clock>()").ShouldBe(1, result);
     }
 
     [Fact]

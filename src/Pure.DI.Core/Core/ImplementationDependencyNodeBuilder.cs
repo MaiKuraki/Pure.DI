@@ -36,7 +36,7 @@ sealed class ImplementationDependencyNodeBuilder(
                 throw new CompileErrorException(
                     string.Format(Strings.Error_Template_CannotConstructAbstractType, implementationType),
                     ImmutableArray.Create(locationProvider.GetLocation(implementation.Source)),
-                    LogId.ErrorInvalidMetadata);
+                    LogId.ErrorCannotConstructAbstractType);
             }
 
             var constructors = new List<DpMethod>();
@@ -79,7 +79,7 @@ sealed class ImplementationDependencyNodeBuilder(
                 var error = new CompileErrorException(
                     string.Format(Strings.Error_Template_CannotBeInstantiatedNoAccessibleConstructor, implementationType),
                     ImmutableArray.Create(locationProvider.GetLocation(implementation.Source)),
-                    LogId.ErrorInvalidMetadata);
+                    LogId.ErrorNoAccessibleConstructor);
 
                 yield return new DependencyNode(0, binding, ctx.TypeConstructor, Error: error);
             }

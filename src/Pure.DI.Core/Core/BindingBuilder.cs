@@ -74,7 +74,7 @@ sealed class BindingBuilder(
             throw new CompileErrorException(
                 Strings.Error_InvalidBinding,
                 ImmutableArray.Create(locationProvider.GetLocation(setup.Source)),
-                LogId.ErrorInvalidMetadata);
+                LogId.ErrorInvalidBinding);
         }
 
         var implementationType = _implementation?.Type ?? _factory?.Type ?? _arg?.Type;

@@ -41,7 +41,7 @@ sealed class Semantic(
         throw new CompileErrorException(
             string.Format(Strings.Error_Template_NotSupported, node),
             ImmutableArray.Create(locationProvider.GetLocation(node)),
-            LogId.ErrorInvalidMetadata);
+            LogId.ErrorNotSupportedSyntax);
     }
 
     public T GetRequiredConstantValue<T>(SemanticModel semanticModel, SyntaxNode node, SmartTagKind smartTagKind)
@@ -55,7 +55,7 @@ sealed class Semantic(
         throw new CompileErrorException(
             string.Format(Strings.Error_Template_MustBeValueOfType, node, typeof(T)),
             ImmutableArray.Create(locationProvider.GetLocation(node)),
-            LogId.ErrorInvalidMetadata);
+            LogId.ErrorMustBeValueOfType);
     }
 
     public T?[] GetConstantValues<T>(SemanticModel semanticModel, SyntaxNode node, SmartTagKind smartTagKind)
@@ -160,7 +160,7 @@ sealed class Semantic(
                                 throw new CompileErrorException(
                                     string.Format(Strings.Error_Template_NoAccessibleConstructor, typeArg, name),
                                     ImmutableArray.Create(locationProvider.GetLocation(invocationExpressionSyntax)),
-                                    LogId.ErrorInvalidMetadata);
+                                    LogId.ErrorNoAccessibleConstructorForTagOn);
                             }
 
                             var injectionSite = injectionSiteFactory.CreateInjectionSite(ctorArgName.Expression, ctor, name);
@@ -188,7 +188,7 @@ sealed class Semantic(
                                 throw new CompileErrorException(
                                     string.Format(Strings.Error_Template_NoAccessibleMethod, typeArg, methodName, methodArg),
                                     ImmutableArray.Create(locationProvider.GetLocation(invocationExpressionSyntax)),
-                                    LogId.ErrorInvalidMetadata);
+                                    LogId.ErrorNoAccessibleMethodForTagOn);
                             }
 
                             var injectionSite = injectionSiteFactory.CreateInjectionSite(methodArgName.Expression, method, methodArg);
@@ -217,7 +217,7 @@ sealed class Semantic(
                                 throw new CompileErrorException(
                                     string.Format(Strings.Error_Template_NoAccessibleFieldOrProperty, name, typeArg),
                                     ImmutableArray.Create(locationProvider.GetLocation(invocationExpressionSyntax)),
-                                    LogId.ErrorInvalidMetadata);
+                                    LogId.ErrorNoAccessibleFieldOrPropertyForTagOn);
                             }
 
                             var injectionSite = injectionSiteFactory.CreateInjectionSite(memberNameArg, type, name);
@@ -255,7 +255,7 @@ sealed class Semantic(
         throw new CompileErrorException(
             string.Format(Strings.Error_Template_MustBeApiCall, node, typeof(T)),
             ImmutableArray.Create(locationProvider.GetLocation(node)),
-            LogId.ErrorInvalidMetadata);
+            LogId.ErrorMustBeApiCall);
     }
 
     private T? GetConstantValue<T>(SemanticModel semanticModel, SyntaxNode node, SmartTagKind smartTagKind, string text)

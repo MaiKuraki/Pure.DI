@@ -17,7 +17,7 @@ sealed class TagOnSitesValidator(
                 logger.CompileWarning(
                     string.Format(Strings.Warning_Template_InjectionSiteIsNotUsed, injectionSite.Site),
                     ImmutableArray.Create(locationProvider.GetLocation(injectionSite.Source)),
-                    LogId.WarningMetadataDefect);
+                    LogId.WarningInjectionSiteNotUsed);
             }
         }
 

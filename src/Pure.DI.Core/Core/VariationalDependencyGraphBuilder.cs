@@ -87,7 +87,7 @@ sealed class VariationalDependencyGraphBuilder(
                     throw new CompileErrorException(
                         Strings.Error_CannotBuildDependencyGraph,
                         ImmutableArray.Create(locationProvider.GetLocation(setup.Source)),
-                        LogId.ErrorInvalidMetadata);
+                        LogId.ErrorCannotBuildDependencyGraph);
                 }
 
                 if (maxIterations-- <= 0)
@@ -95,7 +95,7 @@ sealed class VariationalDependencyGraphBuilder(
                     logger.CompileError(
                         string.Format(Strings.Error_Template_MaximumNumberOfIterations, globalProperties.MaxIterations),
                         ImmutableArray.Create(locationProvider.GetLocation(setup.Source)),
-                        LogId.ErrorInvalidMetadata);
+                        LogId.ErrorMaximumNumberOfIterations);
 
                     break;
                 }

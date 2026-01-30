@@ -328,7 +328,7 @@ public class ErrorsAndWarningsTests
         // Then
         result.Success.ShouldBeFalse(result);
         result.Errors.Count.ShouldBe(2, result);
-        result.Errors.Count(i => i is { Id: LogId.ErrorInvalidMetadata, Message: "The composition argument type cannot be based on a generic type marker." } && i.Locations.FirstOrDefault().GetSource() == "Arg<IList<TT>>(\"serviceName\")").ShouldBe(1, result);
+        result.Errors.Count(i => i is { Id: LogId.ErrorCompositionArgGenericMarker, Message: "The composition argument type cannot be based on a generic type marker." } && i.Locations.FirstOrDefault().GetSource() == "Arg<IList<TT>>(\"serviceName\")").ShouldBe(1, result);
     }
 
     [Fact]
@@ -393,7 +393,7 @@ public class ErrorsAndWarningsTests
         // Then
         result.Success.ShouldBeFalse(result);
         result.Errors.Count.ShouldBe(2, result);
-        result.Errors.Count(i => i is { Id: LogId.ErrorInvalidMetadata, Message: "The composition argument type cannot be based on a generic type marker." } && i.Locations.FirstOrDefault().GetSource() == "Arg<TT>(\"serviceName\")").ShouldBe(1, result);
+        result.Errors.Count(i => i is { Id: LogId.ErrorCompositionArgGenericMarker, Message: "The composition argument type cannot be based on a generic type marker." } && i.Locations.FirstOrDefault().GetSource() == "Arg<TT>(\"serviceName\")").ShouldBe(1, result);
     }
 
     [Fact]
@@ -441,7 +441,7 @@ public class ErrorsAndWarningsTests
 
         // Then
         result.Success.ShouldBeFalse(result);
-        result.Errors.Count(i => i.Id == LogId.ErrorInvalidMetadata && i.Locations.FirstOrDefault().GetSource() == "Builders<IService>()").ShouldBe(1, result);
+        result.Errors.Count(i => i.Id == LogId.ErrorNoTypeForWildcard && i.Locations.FirstOrDefault().GetSource() == "Builders<IService>()").ShouldBe(1, result);
     }
 
     [Theory]
@@ -516,7 +516,7 @@ public class ErrorsAndWarningsTests
         // Then
         result.Success.ShouldBeFalse(result);
         result.Errors
-            .Count(i => i is { Id: LogId.ErrorInvalidMetadata } && i.Message == $"Cannot use \"{contextArgName}\" directly. Only its methods or properties are accessible." && i.Locations.FirstOrDefault().GetSource() == contextArgName)
+            .Count(i => i is { Id: LogId.ErrorCannotUseContextDirectly } && i.Message == $"Cannot use \"{contextArgName}\" directly. Only its methods or properties are accessible." && i.Locations.FirstOrDefault().GetSource() == contextArgName)
             .ShouldBe(1, result);
     }
 
@@ -590,7 +590,7 @@ public class ErrorsAndWarningsTests
         // Then
         result.Success.ShouldBeFalse(result);
         result.Errors
-            .Count(i => i is { Id: LogId.ErrorInvalidMetadata, Message: "It is not possible to use \"ctx2\" directly. Only its methods or properties can be used." } && i.Locations.FirstOrDefault().GetSource() == "ctx2")
+            .Count(i => i is { Id: LogId.ErrorCannotUseContextDirectly, Message: "It is not possible to use \"ctx2\" directly. Only its methods or properties can be used." } && i.Locations.FirstOrDefault().GetSource() == "ctx2")
             .ShouldBe(0, result);
     }
 
@@ -657,7 +657,7 @@ public class ErrorsAndWarningsTests
         result.Success.ShouldBeFalse(result);
         result.Errors.Count.ShouldBe(1, result);
         result.Errors
-            .Count(i => i is { Id: LogId.ErrorInvalidMetadata, Message: "Asynchronous factory with the 'async' keyword is not supported." } && i.Locations.FirstOrDefault().GetSource() == "async")
+            .Count(i => i is { Id: LogId.ErrorAsyncFactoryNotSupported, Message: "Asynchronous factory with the 'async' keyword is not supported." } && i.Locations.FirstOrDefault().GetSource() == "async")
             .ShouldBe(1, result);
     }
 
@@ -1257,13 +1257,13 @@ public class ErrorsAndWarningsTests
 
         // Then
         result.Success.ShouldBeFalse(result);
-        result.Errors.Count(i => i.Id == LogId.ErrorInvalidMetadata && i.Locations.FirstOrDefault().GetSource() == "Roots<IService>()").ShouldBe(1, result);
+        result.Errors.Count(i => i.Id == LogId.ErrorNoTypeForWildcard && i.Locations.FirstOrDefault().GetSource() == "Roots<IService>()").ShouldBe(1, result);
     }
 
     [Theory]
-    [InlineData(DiagnosticSeverity.Error, LogId.ErrorInvalidMetadata)]
-    [InlineData(DiagnosticSeverity.Warning, LogId.WarningMetadataDefect)]
-    [InlineData(DiagnosticSeverity.Info, LogId.InfoMetadataDefect)]
+    [InlineData(DiagnosticSeverity.Error, LogId.ErrorNotImplementedContract)]
+    [InlineData(DiagnosticSeverity.Warning, LogId.WarningNotImplementedContract)]
+    [InlineData(DiagnosticSeverity.Info, LogId.InfoNotImplementedContract)]
     [InlineData(DiagnosticSeverity.Hidden, "")]
     internal async Task ShouldReportWhenContractWasNotImplemented(DiagnosticSeverity severity, string logId)
     {
@@ -1408,7 +1408,7 @@ public class ErrorsAndWarningsTests
         result.Success.ShouldBeFalse(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(1, result);
-        result.Warnings.Count(i => i.Id == LogId.WarningMetadataDefect && i.Locations.FirstOrDefault().GetSource() == "To<Dependency>()").ShouldBe(1, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningBindingNotUsed && i.Locations.FirstOrDefault().GetSource() == "To<Dependency>()").ShouldBe(1, result);
     }
 
     [Fact]
@@ -1455,7 +1455,7 @@ public class ErrorsAndWarningsTests
         result.Success.ShouldBeFalse(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(1, result);
-        result.Warnings.Count(i => i.Id == LogId.WarningMetadataDefect && i.Locations.FirstOrDefault().GetSource() == "Dependency").ShouldBe(1, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningBindingNotUsed && i.Locations.FirstOrDefault().GetSource() == "Dependency").ShouldBe(1, result);
     }
 
     [Fact]
@@ -1506,7 +1506,7 @@ public class ErrorsAndWarningsTests
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(2, result);
         result.Warnings.Count(i => i.Id == LogId.WarningOverriddenBinding && i.Locations.FirstOrDefault().GetSource() == "To<Service2>()").ShouldBe(1, result);
-        result.Warnings.Count(i => i.Id == LogId.WarningMetadataDefect && i.Locations.FirstOrDefault().GetSource() == "To<Service>()").ShouldBe(1, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningBindingNotUsed && i.Locations.FirstOrDefault().GetSource() == "To<Service>()").ShouldBe(1, result);
     }
 
     [Fact]
@@ -1556,7 +1556,7 @@ public class ErrorsAndWarningsTests
         result.Success.ShouldBeFalse(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(1, result);
-        result.Warnings.Count(i => i.Id == LogId.WarningMetadataDefect && i.Locations.FirstOrDefault().GetSource() == "To<Service2>()").ShouldBe(1, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningBindingNotUsed && i.Locations.FirstOrDefault().GetSource() == "To<Service2>()").ShouldBe(1, result);
     }
 
     [Fact]
@@ -1673,8 +1673,8 @@ public class ErrorsAndWarningsTests
         result.Success.ShouldBeFalse(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(2, result);
-        result.Warnings.Count(i => i.Id == LogId.WarningMetadataDefect && i.Locations.FirstOrDefault().GetSource() == "\"Sample.Service.Service:abc\"").ShouldBe(1, result);
-        result.Warnings.Count(i => i.Id == LogId.WarningMetadataDefect && i.Locations.FirstOrDefault().GetSource() == "To<Dep>()").ShouldBe(1, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningInjectionSiteNotUsed && i.Locations.FirstOrDefault().GetSource() == "\"Sample.Service.Service:abc\"").ShouldBe(1, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningBindingNotUsed && i.Locations.FirstOrDefault().GetSource() == "To<Dep>()").ShouldBe(1, result);
         result.StdOut.ShouldBe(["Sample.Service"], result);
     }
 
@@ -2215,6 +2215,6 @@ public class ErrorsAndWarningsTests
 
         // Then
         result.Success.ShouldBeFalse(result);
-        result.Logs.Count(i => i.Id == LogId.ErrorInvalidMetadata && i.Locations.FirstOrDefault().GetSource() == "IComparer<TT>").ShouldBe(1, result);
+        result.Logs.Count(i => i.Id == LogId.ErrorSpecialTypeGenericMarker && i.Locations.FirstOrDefault().GetSource() == "IComparer<TT>").ShouldBe(1, result);
     }
 }

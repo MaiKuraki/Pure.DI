@@ -14,7 +14,7 @@ sealed class FactoryValidator(ILocationProvider locationProvider, DpFactory fact
                 throw new CompileErrorException(
                     string.Format(Strings.Error_Template_CannotUseContextDirectly, _contextParameterName),
                     ImmutableArray.Create(locationProvider.GetLocation(node)),
-                    LogId.ErrorInvalidMetadata);
+                    LogId.ErrorCannotUseContextDirectly);
             }
         }
 

@@ -125,7 +125,7 @@ public class SetupTests
         result.Success.ShouldBeFalse(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(2, result);
-        result.Warnings.Count(i => i.Id == LogId.WarningMetadataDefect && i.Locations.FirstOrDefault().GetSource() == "Setup(\"Composition\")").ShouldBe(1, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNoRoots && i.Locations.FirstOrDefault().GetSource() == "Setup(\"Composition\")").ShouldBe(1, result);
     }
 
     [Fact]
@@ -370,7 +370,7 @@ public class SetupTests
         result.StdOut.ShouldBe(["Xyz"], result);
         result.Warnings.Count.ShouldBe(2, result);
         result.Warnings.Count(i => i.Id == LogId.WarningOverriddenBinding && i.Locations.FirstOrDefault().GetSource() == "To(_ => \"Xyz\")").ShouldBe(1, result);
-        result.Warnings.Count(i => i.Id == LogId.WarningMetadataDefect && i.Locations.FirstOrDefault().GetSource() == "To(_ => \"Abc\")").ShouldBe(1, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningBindingNotUsed && i.Locations.FirstOrDefault().GetSource() == "To(_ => \"Abc\")").ShouldBe(1, result);
     }
 
     [Fact]
@@ -412,7 +412,7 @@ public class SetupTests
         result.StdOut.ShouldBe(["Xyz"], result);
         result.Warnings.Count.ShouldBe(2, result);
         result.Warnings.Count(i => i is { Id: LogId.WarningOverriddenBinding, Message: "Привязка для string была переопределена." } && i.Locations.FirstOrDefault().GetSource() == "To(_ => \"Xyz\")").ShouldBe(1, result);
-        result.Warnings.Count(i => i is { Id: LogId.WarningMetadataDefect, Message: "Привязка не используется." } && i.Locations.FirstOrDefault().GetSource() == "To(_ => \"Abc\")").ShouldBe(1, result);
+        result.Warnings.Count(i => i is { Id: LogId.WarningBindingNotUsed, Message: "Привязка не используется." } && i.Locations.FirstOrDefault().GetSource() == "To(_ => \"Abc\")").ShouldBe(1, result);
     }
 
     [Fact]
@@ -674,7 +674,7 @@ public class SetupTests
         result.Success.ShouldBeFalse(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(1, result);
-        result.Warnings.Count(i => i.Id == LogId.WarningMetadataDefect && i.Locations.FirstOrDefault().GetSource() == "To(_ => global::System.Collections.Generic.Comparer<TT>.Default)").ShouldBe(1, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningBindingNotUsed && i.Locations.FirstOrDefault().GetSource() == "To(_ => global::System.Collections.Generic.Comparer<TT>.Default)").ShouldBe(1, result);
     }
 
     [Fact]
@@ -1162,7 +1162,7 @@ public class SetupTests
         result.Success.ShouldBeFalse(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(7, result);
-        result.Warnings.Count(i => i.Id == LogId.WarningMetadataDefect && i.Locations.FirstOrDefault().GetSource() == "To<Dependency>()").ShouldBe(7, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningBindingNotUsed && i.Locations.FirstOrDefault().GetSource() == "To<Dependency>()").ShouldBe(7, result);
     }
 
     [Fact]

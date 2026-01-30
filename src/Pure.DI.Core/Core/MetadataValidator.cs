@@ -18,7 +18,7 @@ sealed class MetadataValidator(
             logger.CompileWarning(
                 Strings.Warning_NoRoots,
                 ImmutableArray.Create(locationProvider.GetLocation(setup.Source)),
-                LogId.WarningMetadataDefect);
+                LogId.WarningNoRoots);
         }
 
         var isValid = setup.Bindings
@@ -38,7 +38,7 @@ sealed class MetadataValidator(
             logger.CompileError(
                 string.Format(Strings.Error_Template_InvalidCompositionTypeName, setup.Name),
                 ImmutableArray.Create(locationProvider.GetLocation(setup.Name.Source ?? setup.Source)),
-                LogId.ErrorInvalidMetadata);
+                LogId.ErrorInvalidCompositionTypeName);
             isValid = false;
         }
 
@@ -52,7 +52,7 @@ sealed class MetadataValidator(
             logger.CompileError(
                 string.Format(Strings.Error_Template_InvalidRootName, root.Name),
                 ImmutableArray.Create(locationProvider.GetLocation(root.Source)),
-                LogId.ErrorInvalidMetadata);
+                LogId.ErrorInvalidRootName);
             isValid = false;
         }
 
@@ -69,7 +69,7 @@ sealed class MetadataValidator(
                 logger.CompileError(
                     string.Format(Strings.Error_Template_RootDuplicate, root.Name, roots[0].Name),
                     ImmutableArray.Create(locationProvider.GetLocation(root.Source)),
-                    LogId.ErrorInvalidMetadata);
+                    LogId.ErrorDuplicateRootName);
                 isValid = false;
             }
         }
@@ -81,7 +81,7 @@ sealed class MetadataValidator(
                 logger.CompileError(
                     Strings.Error_AccumulatorTypeCannotBeGenericTypeMarker,
                     ImmutableArray.Create(locationProvider.GetLocation(accumulator.Source)),
-                    LogId.ErrorInvalidMetadata);
+                    LogId.ErrorAccumulatorTypeGenericMarker);
             }
 
             if (marker.IsMarkerBased(setup, accumulator.Type))
@@ -89,7 +89,7 @@ sealed class MetadataValidator(
                 logger.CompileError(
                     Strings.Error_AccumulatorCannotAccumulateGenericTypeMarker,
                     ImmutableArray.Create(locationProvider.GetLocation(accumulator.Source)),
-                    LogId.ErrorInvalidMetadata);
+                    LogId.ErrorAccumulatorCannotAccumulateGenericMarker);
             }
         }
 
@@ -100,7 +100,7 @@ sealed class MetadataValidator(
                 logger.CompileError(
                     Strings.Error_SpecialTypeCannotBeGenericTypeMarker,
                     ImmutableArray.Create(specialType.Source.GetLocation()),
-                    LogId.ErrorInvalidMetadata);
+                    LogId.ErrorSpecialTypeGenericMarker);
             }
         }
 
@@ -159,7 +159,7 @@ sealed class MetadataValidator(
                         logger.CompileError(
                             string.Format(Strings.Error_Template_InvalidArgumentName, arg.ArgName),
                             ImmutableArray.Create(location()),
-                            LogId.ErrorInvalidMetadata);
+                            LogId.ErrorInvalidArgumentName);
                         isValid = false;
                     }
 
@@ -168,7 +168,7 @@ sealed class MetadataValidator(
                         logger.CompileError(
                             Strings.Error_CompositionArgumentTypeCannotBeGenericTypeMarker,
                             ImmutableArray.Create(location()),
-                            LogId.ErrorInvalidMetadata);
+                            LogId.ErrorCompositionArgGenericMarker);
                     }
                 }
             }
@@ -179,7 +179,7 @@ sealed class MetadataValidator(
             logger.CompileError(
                 Strings.Error_InvalidBindingDueToCompilationError,
                 ImmutableArray.Create(location()),
-                LogId.ErrorInvalidMetadata);
+                LogId.ErrorInvalidBindingDueToCompilation);
             return false;
         }
 
@@ -204,16 +204,16 @@ sealed class MetadataValidator(
                 switch (severityOfNotImplementedContract)
                 {
                     case DiagnosticSeverity.Error:
-                        logger.CompileError(message, ImmutableArray.Create(location()), LogId.ErrorInvalidMetadata);
+                        logger.CompileError(message, ImmutableArray.Create(location()), LogId.ErrorNotImplementedContract);
                         isValid = false;
                         break;
 
                     case DiagnosticSeverity.Warning:
-                        logger.CompileWarning(message, ImmutableArray.Create(location()), LogId.WarningMetadataDefect);
+                        logger.CompileWarning(message, ImmutableArray.Create(location()), LogId.WarningNotImplementedContract);
                         break;
 
                     case DiagnosticSeverity.Info:
-                        logger.CompileInfo(message, ImmutableArray.Create(location()), LogId.InfoMetadataDefect);
+                        logger.CompileInfo(message, ImmutableArray.Create(location()), LogId.InfoNotImplementedContract);
                         break;
                 }
             }
