@@ -59,12 +59,16 @@ sealed class VariationalDependencyGraphBuilder(
 
                     if (node.Binding.SourceSetup.Kind != CompositionKind.Global)
                     {
+                        var warningSource = node.Binding.Arg is { IsSetupContext: true }
+                            ? node.Binding.Source
+                            : item.Value.Binding.Source;
+
                         logger.CompileWarning(
                             LogMessage.Format(
                                 nameof(Strings.Warning_Template_BindingHasBeenOverridden),
                                 Strings.Warning_Template_BindingHasBeenOverridden,
                                 item.Key),
-                            ImmutableArray.Create(locationProvider.GetLocation(item.Value.Binding.Source)),
+                            ImmutableArray.Create(locationProvider.GetLocation(warningSource)),
                             LogId.WarningOverriddenBinding);
                     }
                 }

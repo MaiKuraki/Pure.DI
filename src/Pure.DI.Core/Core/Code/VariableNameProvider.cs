@@ -9,7 +9,9 @@ class NameProvider(IUniqueNameProvider uniqueNameProvider): INameProvider
             { ActualLifetime: Lifetime.Singleton } => GetVariableName(Names.SingletonVariablePrefix, node.Node.Type.Name, node.BindingId),
             { ActualLifetime: Lifetime.Scoped } => GetVariableName(Names.ScopedVariablePrefix, node.Node.Type.Name, node.BindingId),
             { ActualLifetime: Lifetime.PerResolve } => GetVariableName(Names.PerResolveVariablePrefix, node.Node.Type.Name, transientId),
-            { Arg: { Source.Kind: ArgKind.Composition } arg } => $"{Names.ArgVariablePrefix}{ToTitleCase(arg.Source.ArgName)}{Names.Salt}",
+            { Arg: { Source.Kind: ArgKind.Composition } arg } => arg.Source.IsSetupContext
+                ? arg.Source.ArgName
+                : $"{Names.ArgVariablePrefix}{ToTitleCase(arg.Source.ArgName)}{Names.Salt}",
             { Arg: { Source.Kind: ArgKind.Root } arg } => arg.Source.ArgName,
             { ActualLifetime: Lifetime.PerBlock } => GetVariableName(Names.PerBlockVariablePrefix, node.Node.Type.Name, transientId),
             _ => GetVariableName(Names.TransientVariablePrefix, node.Node.Type.Name, transientId)

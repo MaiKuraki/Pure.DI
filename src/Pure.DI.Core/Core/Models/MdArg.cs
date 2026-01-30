@@ -10,7 +10,8 @@ readonly record struct MdArg(
     string ArgName,
     ArgKind Kind,
     bool IsBuildUpInstance,
-    IReadOnlyCollection<string> Comments)
+    IReadOnlyCollection<string> Comments,
+    bool IsSetupContext = false)
 {
     public override string ToString() => $"{(Kind == ArgKind.Root ? "RootArg" : "Arg")}<{Type}>(\"{ArgName}\")";
 }

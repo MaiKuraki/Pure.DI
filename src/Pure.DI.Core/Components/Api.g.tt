@@ -2041,6 +2041,30 @@ var comments = string.Join(Environment.NewLine, GetSuffixes(0, i).Select(suffix 
         IConfiguration DependsOn(params string[] setupNames);
 
         /// <summary>
+        /// Specifies a base setup and exposes its instance members through a context argument.
+        /// <example>
+        /// <code>
+        /// DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
+        ///     .Bind&lt;int&gt;().To(_ =&gt; Value);
+        ///
+        /// DI.Setup(nameof(Composition))
+        ///     .DependsOn(nameof(BaseComposition), "baseContext")
+        ///     .Root&lt;IService&gt;("Service");
+        ///
+        /// var baseContext = new BaseComposition();
+        /// var composition = new Composition(baseContext);
+        /// var service = composition.Service;
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <param name="setupName">Name of base composition setup.</param>
+        /// <param name="contextArgName">Composition argument name for the base setup instance.</param>
+        /// <returns>Configuration interface for fluent chaining.</returns>
+        /// <seealso cref="DI.Setup"/>
+        /// <seealso cref="CompositionKind"/>
+        IConfiguration DependsOn(string setupName, string contextArgName);
+
+        /// <summary>
         /// Registers custom generic type markers based on attribute usage.
         /// <example>
         /// <code>
@@ -3175,6 +3199,12 @@ var typeArgs = string.Join(", ", GetSuffixes(0, i).Select(suffix => $"T{suffix}"
 
             /// <inheritdoc />
             public IConfiguration DependsOn(params string[] setupNames)
+            {
+                return this;
+            }
+
+            /// <inheritdoc />
+            public IConfiguration DependsOn(string setupName, string contextArgName)
             {
                 return this;
             }

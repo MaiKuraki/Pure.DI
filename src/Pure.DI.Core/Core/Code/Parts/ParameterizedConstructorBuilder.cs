@@ -21,7 +21,7 @@ sealed class ParameterizedConstructorBuilder(
 
         var code = composition.Code;
         var membersCounter = composition.MembersCount;
-        if (composition.ClassArgs.Length == 0)
+        if (composition.ClassArgs.Length == 0 && composition.SetupContextArgs.Length == 0)
         {
             return composition;
         }
@@ -30,8 +30,12 @@ sealed class ParameterizedConstructorBuilder(
 
         code.AppendLine($"[{Names.OrdinalAttributeName}(128)]");
         var classArgs = composition.ClassArgs.GetArgsOfKind(ArgKind.Composition).ToList();
+        var setupContextArgs = composition.SetupContextArgs;
         var ctorName = codeNameProvider.GetConstructorName(composition.Source.Source.Name.ClassName);
-        code.AppendLine($"public {ctorName}({string.Join(", ", classArgs.Select(arg => $"{typeResolver.Resolve(composition.Source.Source, arg.InstanceType)} {arg.Node.Arg?.Source.ArgName}"))})");
+        var ctorArgs = classArgs
+            .Select(arg => $"{typeResolver.Resolve(composition.Source.Source, arg.InstanceType)} {arg.Node.Arg?.Source.ArgName}")
+            .Concat(setupContextArgs.Select(arg => $"{typeResolver.Resolve(composition.Source.Source, arg.Type)} {arg.Name}"));
+        code.AppendLine($"public {ctorName}({string.Join(", ", ctorArgs)})");
         using (code.CreateBlock())
         {
             foreach (var arg in classArgs)
@@ -42,7 +46,21 @@ sealed class ParameterizedConstructorBuilder(
                     nullCheck = $" ?? throw new {Names.SystemNamespace}ArgumentNullException(nameof({arg.Node.Arg?.Source.ArgName}))";
                 }
 
-                code.AppendLine($"{arg.Name} = {arg.Node.Arg?.Source.ArgName}{nullCheck};");
+                var leftName = arg.Name == arg.Node.Arg?.Source.ArgName
+                    ? $"this.{arg.Name}"
+                    : arg.Name;
+                code.AppendLine($"{leftName} = {arg.Node.Arg?.Source.ArgName}{nullCheck};");
+            }
+
+            foreach (var arg in setupContextArgs)
+            {
+                var nullCheck = "";
+                if (arg.Type.IsReferenceType)
+                {
+                    nullCheck = $" ?? throw new {Names.SystemNamespace}ArgumentNullException(nameof({arg.Name}))";
+                }
+
+                code.AppendLine($"this.{arg.Name} = {arg.Name}{nullCheck};");
             }
 
             if (composition.Singletons.Length > 0)

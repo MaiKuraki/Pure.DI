@@ -74,6 +74,12 @@ sealed class DependsOnInstanceMemberValidator(
 
         public override void VisitIdentifierName(IdentifierNameSyntax node)
         {
+            if (node.SyntaxTree != semanticModel.SyntaxTree)
+            {
+                base.VisitIdentifierName(node);
+                return;
+            }
+
             var symbol = semanticModel.GetSymbolInfo(node).Symbol;
             switch (symbol)
             {

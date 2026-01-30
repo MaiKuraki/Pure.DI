@@ -68,7 +68,9 @@ class CompositionBuilder(
                 RootArgs = args.GetArgsOfKind(ArgKind.Root).ToImmutableArray()
             };
 
-            classArgs.AddRange(args.GetArgsOfKind(ArgKind.Composition).Where(node => bindingsRegistry.IsRegistered(graph.Source, node.Node.BindingId)));
+            classArgs.AddRange(args.GetArgsOfKind(ArgKind.Composition)
+                .Where(node => node.Node.Arg is not { Source.IsSetupContext: true })
+                .Where(node => bindingsRegistry.IsRegistered(graph.Source, node.Node.BindingId)));
             var typeDescription = typeResolver.Resolve(graph.Source, processedRoot.Injection.Type);
             var isMethod = processedRoot.Source.IsBuilder
                            || (processedRoot.Kind & RootKinds.Method) == RootKinds.Method
@@ -91,6 +93,15 @@ class CompositionBuilder(
             .ThenBy(root => root.DisplayName)
             .ToImmutableArray();
 
+        var setupContextArgs = graph.Source.Bindings
+            .Select(binding => binding.Arg)
+            .Where(arg => arg.HasValue && arg.Value.IsSetupContext)
+            .Select(arg => arg.GetValueOrDefault())
+            .Select(arg => new SetupContextArg(arg.Type, arg.ArgName))
+            .GroupBy(arg => arg.Name)
+            .Select(group => group.First())
+            .ToImmutableArray();
+
         var totalDisposables = singletons.Where(i => nodeTools.IsDisposableAny(i.Node.Node)).ToList();
         var disposables = singletons.Where(i => nodeTools.IsDisposable(i.Node.Node)).ToList();
         var asyncDisposables = singletons.Where(i => nodeTools.IsAsyncDisposable(i.Node.Node)).ToList();
@@ -105,7 +116,8 @@ class CompositionBuilder(
             isThreadSafe,
             new Lines(),
             singletons,
-            varDeclarationTools.Sort(classArgs).Distinct().ToImmutableArray());
+            varDeclarationTools.Sort(classArgs).Distinct().ToImmutableArray(),
+            setupContextArgs);
 
         var diagram = classDiagramBuilder.Build(composition);
         return composition with { Diagram = diagram };

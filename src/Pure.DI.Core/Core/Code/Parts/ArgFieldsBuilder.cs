@@ -10,7 +10,7 @@ sealed class ArgFieldsBuilder(ITypeResolver typeResolver)
     public CompositionCode Build(CompositionCode composition)
     {
         var classArgs = composition.ClassArgs.GetArgsOfKind(ArgKind.Composition).ToList();
-        if (classArgs.Count == 0)
+        if (classArgs.Count == 0 && composition.SetupContextArgs.Length == 0)
         {
             return composition;
         }
@@ -20,6 +20,17 @@ sealed class ArgFieldsBuilder(ITypeResolver typeResolver)
         foreach (var arg in classArgs)
         {
             code.AppendLine($"[{Names.NonSerializedAttributeTypeName}] private readonly {typeResolver.Resolve(composition.Source.Source, arg.InstanceType)} {arg.Name};");
+            membersCounter++;
+        }
+
+        foreach (var arg in composition.SetupContextArgs)
+        {
+            if (classArgs.Any(existing => existing.Name == arg.Name))
+            {
+                continue;
+            }
+
+            code.AppendLine($"[{Names.NonSerializedAttributeTypeName}] private readonly {typeResolver.Resolve(composition.Source.Source, arg.Type)} {arg.Name};");
             membersCounter++;
         }
 

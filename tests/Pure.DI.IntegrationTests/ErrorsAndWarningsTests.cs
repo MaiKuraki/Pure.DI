@@ -266,6 +266,461 @@ public class ErrorsAndWarningsTests
     }
 
     [Fact]
+    public async Task ShouldShowWarningWhenDependsOnSetupUsesThisExpression()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               internal partial class BaseComposition
+                               {
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
+                                           .Bind<BaseComposition>().To(_ => this);
+                                   }
+                               }
+
+                               internal partial class Composition
+                               {
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .DependsOn(nameof(BaseComposition))
+                                           .Root<BaseComposition>("Context");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       Console.WriteLine(composition.Context);
+                                   }
+                               }
+                           }
+                           """.RunAsync(new Options(CheckCompilationErrors: false));
+
+        // Then
+        result.Success.ShouldBeFalse(result);
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count.ShouldBe(1, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningInstanceMemberInDependsOnSetup && i.Locations.FirstOrDefault().GetSource() == "this").ShouldBe(1, result);
+    }
+
+    [Fact]
+    public async Task ShouldUseSetupContextWhenDependsOnWithContextArg()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               internal partial class BaseComposition
+                               {
+                                   internal int Value => 13;
+
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
+                                           .Bind<int>().To(_ => Value);
+                                   }
+                               }
+
+                               internal partial class Composition
+                               {
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .DependsOn(nameof(BaseComposition), "baseContext")
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Service");
+                                   }
+                               }
+
+                               interface IService
+                               {
+                                   int Value { get; }
+                               }
+
+                               class Service : IService
+                               {
+                                   public Service(int value)
+                                   {
+                                       Value = value;
+                                   }
+
+                                   public int Value { get; }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var baseContext = new BaseComposition();
+                                       var composition = new Composition(baseContext);
+                                       Console.WriteLine(composition.Service.Value);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count.ShouldBe(0, result);
+        result.StdOut.ShouldBe(["13"], result);
+    }
+
+    [Fact]
+    public async Task ShouldUseSetupContextForInstanceField()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               internal partial class BaseComposition
+                               {
+                                   internal int Value;
+
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
+                                           .Bind<int>().To(_ => Value);
+                                   }
+                               }
+
+                               internal partial class Composition
+                               {
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .DependsOn(nameof(BaseComposition), "baseContext")
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Service");
+                                   }
+                               }
+
+                               interface IService
+                               {
+                                   int Value { get; }
+                               }
+
+                               class Service : IService
+                               {
+                                   public Service(int value)
+                                   {
+                                       Value = value;
+                                   }
+
+                                   public int Value { get; }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var baseContext = new BaseComposition { Value = 21 };
+                                       var composition = new Composition(baseContext);
+                                       Console.WriteLine(composition.Service.Value);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count.ShouldBe(0, result);
+        result.StdOut.ShouldBe(["21"], result);
+    }
+
+    [Fact]
+    public async Task ShouldUseSetupContextForInstanceMethod()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               internal partial class BaseComposition
+                               {
+                                   internal int GetValue() => 34;
+
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
+                                           .Bind<int>().To(_ => GetValue());
+                                   }
+                               }
+
+                               internal partial class Composition
+                               {
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .DependsOn(nameof(BaseComposition), "baseContext")
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Service");
+                                   }
+                               }
+
+                               interface IService
+                               {
+                                   int Value { get; }
+                               }
+
+                               class Service : IService
+                               {
+                                   public Service(int value)
+                                   {
+                                       Value = value;
+                                   }
+
+                                   public int Value { get; }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var baseContext = new BaseComposition();
+                                       var composition = new Composition(baseContext);
+                                       Console.WriteLine(composition.Service.Value);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count.ShouldBe(0, result);
+        result.StdOut.ShouldBe(["34"], result);
+    }
+
+    [Fact]
+    public async Task ShouldInjectSetupContextWhenBaseCompositionIsRequested()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               internal partial class BaseComposition
+                               {
+                                   internal int Value { get; set; }
+
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(BaseComposition), CompositionKind.Internal);
+                                   }
+                               }
+
+                               internal partial class Composition
+                               {
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .DependsOn(nameof(BaseComposition), "baseContext")
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Service");
+                                   }
+                               }
+
+                               interface IService
+                               {
+                                   BaseComposition Base { get; }
+                               }
+
+                               class Service : IService
+                               {
+                                   public Service(BaseComposition baseComposition)
+                                   {
+                                       Base = baseComposition;
+                                   }
+
+                                   public BaseComposition Base { get; }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var baseContext = new BaseComposition { Value = 5 };
+                                       var composition = new Composition(baseContext);
+                                       Console.WriteLine(ReferenceEquals(baseContext, composition.Service.Base));
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count.ShouldBe(0, result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldPreferSetupContextWhenBaseCompositionIsExplicitlyBound()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               internal partial class BaseComposition
+                               {
+                                   internal int Value { get; set; }
+
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(BaseComposition), CompositionKind.Internal);
+                                   }
+                               }
+
+                               internal partial class Composition
+                               {
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .Bind<BaseComposition>().To(_ => new BaseComposition { Value = 1 })
+                                           .DependsOn(nameof(BaseComposition), "baseContext")
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Service");
+                                   }
+                               }
+
+                               interface IService
+                               {
+                                   int Value { get; }
+                               }
+
+                               class Service : IService
+                               {
+                                   public Service(BaseComposition baseComposition)
+                                   {
+                                       Value = baseComposition.Value;
+                                   }
+
+                                   public int Value { get; }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var baseContext = new BaseComposition { Value = 2 };
+                                       var composition = new Composition(baseContext);
+                                       Console.WriteLine(composition.Service.Value);
+                                   }
+                               }
+                           }
+                           """.RunAsync(new Options(CheckCompilationErrors: false));
+
+        // Then
+        result.Success.ShouldBeFalse(result);
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count.ShouldBe(2, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningOverriddenBinding && i.Locations.FirstOrDefault().GetSource() == "\"baseContext\"").ShouldBe(1, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningBindingNotUsed && i.Locations.FirstOrDefault().GetSource() == "To(_ => new BaseComposition { Value = 1 })").ShouldBe(1, result);
+        result.StdOut.ShouldBe(["2"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportDependsOnWithoutContextWhenNoInstanceMembersAreUsed()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               internal partial class BaseComposition
+                               {
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
+                                           .Bind<int>().To(_ => 7);
+                                   }
+                               }
+
+                               internal partial class Composition
+                               {
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .DependsOn(nameof(BaseComposition))
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Service");
+                                   }
+                               }
+
+                               interface IService
+                               {
+                                   int Value { get; }
+                               }
+
+                               class Service : IService
+                               {
+                                   public Service(int value)
+                                   {
+                                       Value = value;
+                                   }
+
+                                   public int Value { get; }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       Console.WriteLine(composition.Service.Value);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count.ShouldBe(0, result);
+        result.StdOut.ShouldBe(["7"], result);
+    }
+
+    [Fact]
     public async Task ShouldShowCompilationErrorWhenArgIsBasedOnGenericMarker()
     {
         // Given
