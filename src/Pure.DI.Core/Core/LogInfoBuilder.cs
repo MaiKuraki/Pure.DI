@@ -32,6 +32,7 @@ sealed class LogInfoBuilder : IBuilder<LogEntry, LogInfo>
 
             var category = LogMetadata.GetCategory(logEntry.Id);
             var description = LogMetadata.GetDescription(logEntry.Id);
+            var helpLink = LogMetadata.GetHelpLink(logEntry.Id);
             descriptor = new DiagnosticDescriptor(
                 logEntry.Id,
                 severityCode,
@@ -39,7 +40,8 @@ sealed class LogInfoBuilder : IBuilder<LogEntry, LogInfo>
                 category,
                 logEntry.Severity,
                 true,
-                description: description);
+                description: description,
+                helpLinkUri: helpLink);
             if (!string.IsNullOrWhiteSpace(logEntry.MessageKey))
             {
                 properties = ImmutableDictionary<string, string?>

@@ -2,6 +2,69 @@ namespace Pure.DI.Core;
 
 static class LogMetadata
 {
+    private const string HelpLinkBaseUrl =
+        "https://github.com/DevTeam/Pure.DI/blob/master/DIAGNOSTICS.md";
+
+    public static string? GetHelpLink(string id) =>
+        id switch
+        {
+            LogId.ErrorUnableToResolve => $"{HelpLinkBaseUrl}#die000",
+            LogId.ErrorInvalidBinding => $"{HelpLinkBaseUrl}#die001",
+            LogId.ErrorInvalidBindingDueToCompilation => $"{HelpLinkBaseUrl}#die002",
+            LogId.ErrorInvalidCompositionTypeName => $"{HelpLinkBaseUrl}#die003",
+            LogId.ErrorInvalidRootName => $"{HelpLinkBaseUrl}#die004",
+            LogId.ErrorDuplicateRootName => $"{HelpLinkBaseUrl}#die005",
+            LogId.ErrorInvalidArgumentName => $"{HelpLinkBaseUrl}#die006",
+            LogId.ErrorCompositionArgGenericMarker => $"{HelpLinkBaseUrl}#die007",
+            LogId.ErrorAccumulatorTypeGenericMarker => $"{HelpLinkBaseUrl}#die008",
+            LogId.ErrorAccumulatorCannotAccumulateGenericMarker => $"{HelpLinkBaseUrl}#die009",
+            LogId.ErrorSpecialTypeGenericMarker => $"{HelpLinkBaseUrl}#die010",
+            LogId.ErrorNotImplementedContract => $"{HelpLinkBaseUrl}#die011",
+            LogId.ErrorInvalidAttributeArgumentPosition => $"{HelpLinkBaseUrl}#die012",
+            LogId.ErrorAttributeMemberCannotBeProcessed => $"{HelpLinkBaseUrl}#die013",
+            LogId.ErrorInvalidRootType => $"{HelpLinkBaseUrl}#die014",
+            LogId.ErrorInvalidRootsType => $"{HelpLinkBaseUrl}#die015",
+            LogId.ErrorNoTypeForWildcard => $"{HelpLinkBaseUrl}#die016",
+            LogId.ErrorInvalidBuildersType => $"{HelpLinkBaseUrl}#die017",
+            LogId.ErrorInvalidBuilderType => $"{HelpLinkBaseUrl}#die018",
+            LogId.ErrorTooManyTypeParameters => $"{HelpLinkBaseUrl}#die019",
+            LogId.ErrorAsyncFactoryNotSupported => $"{HelpLinkBaseUrl}#die020",
+            LogId.ErrorNotSupportedSyntax => $"{HelpLinkBaseUrl}#die021",
+            LogId.ErrorMustBeValueOfType => $"{HelpLinkBaseUrl}#die022",
+            LogId.ErrorInvalidIdentifier => $"{HelpLinkBaseUrl}#die023",
+            LogId.ErrorCannotUseContextDirectly => $"{HelpLinkBaseUrl}#die024",
+            LogId.ErrorInvalidNumberOfInitializers => $"{HelpLinkBaseUrl}#die025",
+            LogId.ErrorLifetimeDoesNotSupportCyclicDependencies => $"{HelpLinkBaseUrl}#die026",
+            LogId.ErrorTooLargeComposition => $"{HelpLinkBaseUrl}#die027",
+            LogId.ErrorCannotConstructAbstractType => $"{HelpLinkBaseUrl}#die028",
+            LogId.ErrorNoAccessibleConstructor => $"{HelpLinkBaseUrl}#die029",
+            LogId.ErrorCannotBuildDependencyGraph => $"{HelpLinkBaseUrl}#die030",
+            LogId.ErrorMaximumNumberOfIterations => $"{HelpLinkBaseUrl}#die031",
+            LogId.ErrorNoAccessibleConstructorForTagOn => $"{HelpLinkBaseUrl}#die032",
+            LogId.ErrorNoAccessibleMethodForTagOn => $"{HelpLinkBaseUrl}#die033",
+            LogId.ErrorNoAccessibleFieldOrPropertyForTagOn => $"{HelpLinkBaseUrl}#die034",
+            LogId.ErrorMustBeApiCall => $"{HelpLinkBaseUrl}#die035",
+            LogId.ErrorInvalidRegularExpression => $"{HelpLinkBaseUrl}#die036",
+            LogId.ErrorInvalidWildcard => $"{HelpLinkBaseUrl}#die037",
+            LogId.ErrorCannotFindSetup => $"{HelpLinkBaseUrl}#die038",
+            LogId.ErrorCyclicDependency => $"{HelpLinkBaseUrl}#die039",
+            LogId.ErrorNotSupportedLanguageVersion => $"{HelpLinkBaseUrl}#die040",
+            LogId.ErrorLifetimeDefect => $"{HelpLinkBaseUrl}#die041",
+            LogId.ErrorTypeCannotBeInferred => $"{HelpLinkBaseUrl}#die042",
+            LogId.ErrorUnhandled => $"{HelpLinkBaseUrl}#die043",
+            LogId.WarningOverriddenBinding => $"{HelpLinkBaseUrl}#diw000",
+            LogId.WarningNoRoots => $"{HelpLinkBaseUrl}#diw001",
+            LogId.WarningNotImplementedContract => $"{HelpLinkBaseUrl}#diw002",
+            LogId.WarningBindingNotUsed => $"{HelpLinkBaseUrl}#diw003",
+            LogId.WarningInjectionSiteNotUsed => $"{HelpLinkBaseUrl}#diw004",
+            LogId.WarningRootArgInResolveMethod => $"{HelpLinkBaseUrl}#diw005",
+            LogId.WarningTypeArgInResolveMethod => $"{HelpLinkBaseUrl}#diw006",
+            LogId.WarningInstanceMemberInDependsOnSetup => $"{HelpLinkBaseUrl}#diw007",
+            LogId.InfoGenerationInterrupted => $"{HelpLinkBaseUrl}#dii000",
+            LogId.InfoNotImplementedContract => $"{HelpLinkBaseUrl}#dii001",
+            _ => null
+        };
+
     public static string GetCategory(string id) =>
         id switch
         {
