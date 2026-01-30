@@ -21,7 +21,8 @@ sealed class ParameterizedConstructorBuilder(
 
         var code = composition.Code;
         var membersCounter = composition.MembersCount;
-        if (composition.ClassArgs.Length == 0 && composition.SetupContextArgs.Length == 0)
+        var setupContextArgs = composition.SetupContextArgs.Where(arg => arg.Kind == SetupContextKind.Argument).ToArray();
+        if (composition.ClassArgs.Length == 0 && setupContextArgs.Length == 0)
         {
             return composition;
         }
@@ -30,7 +31,6 @@ sealed class ParameterizedConstructorBuilder(
 
         code.AppendLine($"[{Names.OrdinalAttributeName}(128)]");
         var classArgs = composition.ClassArgs.GetArgsOfKind(ArgKind.Composition).ToList();
-        var setupContextArgs = composition.SetupContextArgs;
         var ctorName = codeNameProvider.GetConstructorName(composition.Source.Source.Name.ClassName);
         var ctorArgs = classArgs
             .Select(arg => $"{typeResolver.Resolve(composition.Source.Source, arg.InstanceType)} {arg.Node.Arg?.Source.ArgName}")

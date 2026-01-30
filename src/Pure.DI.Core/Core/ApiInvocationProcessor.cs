@@ -362,21 +362,29 @@ sealed class ApiInvocationProcessor(
                         break;
 
                     case nameof(IConfiguration.DependsOn):
-                        if (semanticModel.GetSymbolInfo(invocation).Symbol is IMethodSymbol { Parameters.Length: 2 } methodSymbol
-                            && !methodSymbol.Parameters[0].IsParams
-                            && invocation.ArgumentList.Arguments is [{ Expression: {} setupNameExpression }, { Expression: {} contextArgExpression }])
+                        if (semanticModel.GetSymbolInfo(invocation).Symbol is IMethodSymbol { Parameters.Length: 3 } methodWithKindSymbol
+                            && !methodWithKindSymbol.Parameters[0].IsParams)
                         {
-                            var setupName = semantic.GetRequiredConstantValue<string>(semanticModel, setupNameExpression, SmartTagKind.Name);
-                            var contextArgName = semantic.GetRequiredConstantValue<string>(semanticModel, contextArgExpression, SmartTagKind.Name);
-                            metadataVisitor.VisitDependsOn(
-                                new MdDependsOn(
-                                    semanticModel,
-                                    invocation,
-                                    ImmutableArray.Create(new MdDependsOnItem(
-                                        CreateCompositionName(setupName, @namespace, invocation.ArgumentList),
-                                        contextArgName,
-                                        contextArgExpression)),
-                                    true));
+                            var dependsOnArgs = arguments.GetArgs(invocation.ArgumentList, "setupName", "contextArgName", "kind");
+                            if (dependsOnArgs[0] is { Expression: {} setupNameExpression }
+                                && dependsOnArgs[1] is { Expression: {} contextArgExpression })
+                            {
+                                var setupName = semantic.GetRequiredConstantValue<string>(semanticModel, setupNameExpression, SmartTagKind.Name);
+                                var contextArgName = semantic.GetRequiredConstantValue<string>(semanticModel, contextArgExpression, SmartTagKind.Name);
+                                var contextArgKind = dependsOnArgs[2] is { Expression: {} contextKindExpression }
+                                    ? semantic.GetRequiredConstantValue<SetupContextKind>(semanticModel, contextKindExpression)
+                                    : SetupContextKind.Argument;
+                                metadataVisitor.VisitDependsOn(
+                                    new MdDependsOn(
+                                        semanticModel,
+                                        invocation,
+                                        ImmutableArray.Create(new MdDependsOnItem(
+                                            CreateCompositionName(setupName, @namespace, invocation.ArgumentList),
+                                            contextArgName,
+                                            contextArgExpression,
+                                            contextArgKind)),
+                                        true));
+                            }
                         }
                         else if (BuildConstantArgs<string>(semanticModel, invocation.ArgumentList.Arguments) is [..] compositionTypeNames)
                         {

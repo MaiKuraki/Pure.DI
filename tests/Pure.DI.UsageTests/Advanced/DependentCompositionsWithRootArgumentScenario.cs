@@ -1,20 +1,20 @@
 /*
 $v=true
 $p=7
-$d=Dependent compositions with setup context
-$h=This scenario shows how to pass an explicit setup context when a dependent setup uses instance members.
-$h=When this occurs: you need base setup state (e.g., Unity-initialized fields) inside a dependent composition.
-$h=What it solves: avoids missing instance members in dependent compositions and keeps state access explicit.
-$h=How it is solved in the example: uses DependsOn(setupName, contextArgName) and passes the base setup instance into the dependent composition.
+$d=Dependent compositions with setup context root argument
+$h=This scenario shows how to pass an explicit setup context as a root argument.
+$h=When this occurs: you need external state from the base setup but cannot use a constructor (e.g., Unity MonoBehaviour).
+$h=What it solves: keeps the dependent composition safe while avoiding constructor arguments.
+$h=How it is solved in the example: uses DependsOn(..., SetupContextKind.RootArgument) and passes the base setup instance to the root method.
 $f=
 $f=What it shows:
-$f=- Explicit setup context injection for dependent compositions.
+$f=- Passing setup context into a root method.
 $f=
 $f=Important points:
-$f=- The dependent composition receives the base setup instance via a constructor argument.
+$f=- The composition itself can still be created with a parameterless constructor.
 $f=
 $f=Useful when:
-$f=- Base setup has instance members initialized externally (e.g., Unity).
+$f=- The host (like Unity) creates the composition instance.
 $f=
 */
 
@@ -26,7 +26,7 @@ $f=
 
 // ReSharper disable PartialTypeWithSinglePart
 #pragma warning disable CS9113 // Parameter is unread.
-namespace Pure.DI.UsageTests.Advanced.DependentCompositionsWithContextScenario;
+namespace Pure.DI.UsageTests.Advanced.DependentCompositionsWithRootArgumentScenario;
 
 using Pure.DI;
 using UsageTests;
@@ -41,11 +41,11 @@ public class Scenario
     {
         // Resolve = Off
         // {
-        var baseContext = new BaseComposition { Settings = new AppSettings("prod", 3) };
-        var composition = new Composition { baseContext = baseContext };
-        var service = composition.Service;
+        var baseContext = new BaseComposition { Settings = new AppSettings("staging", 2) };
+        var composition = new Composition();
+        var service = composition.Service(baseContext: baseContext);
         // }
-        service.Report.ShouldBe("env=prod, retries=3");
+        service.Report.ShouldBe("env=staging, retries=2");
         composition.SaveClassDiagram();
     }
 }
@@ -76,8 +76,9 @@ internal partial class Composition
 {
     private void Setup()
     {
+        // Resolve = Off
         DI.Setup(nameof(Composition))
-            .DependsOn(setupName: nameof(BaseComposition), contextArgName: "baseContext", kind: SetupContextKind.Field)
+            .DependsOn(nameof(BaseComposition), "baseContext", SetupContextKind.RootArgument)
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }

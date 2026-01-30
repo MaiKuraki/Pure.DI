@@ -97,7 +97,8 @@ class CompositionBuilder(
             .Select(binding => binding.Arg)
             .Where(arg => arg.HasValue && arg.Value.IsSetupContext)
             .Select(arg => arg.GetValueOrDefault())
-            .Select(arg => new SetupContextArg(arg.Type, arg.ArgName))
+            .Where(arg => arg.SetupContextKind != SetupContextKind.RootArgument)
+            .Select(arg => new SetupContextArg(arg.Type, arg.ArgName, arg.SetupContextKind))
             .GroupBy(arg => arg.Name)
             .Select(group => group.First())
             .ToImmutableArray();

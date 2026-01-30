@@ -6,7 +6,8 @@ namespace Pure.DI.Core.Models;
 readonly record struct MdDependsOnItem(
     in CompositionName CompositionTypeName,
     string? ContextArgName = null,
-    ExpressionSyntax? ContextArgSource = null);
+    ExpressionSyntax? ContextArgSource = null,
+    SetupContextKind ContextArgKind = SetupContextKind.Argument);
 
 readonly record struct MdDependsOn(
     SemanticModel SemanticModel,

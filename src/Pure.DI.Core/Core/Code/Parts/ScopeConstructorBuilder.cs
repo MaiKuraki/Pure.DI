@@ -47,7 +47,7 @@ sealed class ScopeConstructorBuilder(
                 }
             }
 
-            foreach (var contextArg in composition.SetupContextArgs)
+            foreach (var contextArg in composition.SetupContextArgs.Where(arg => arg.Kind != SetupContextKind.RootArgument))
             {
                 code.AppendLine($"{contextArg.Name} = {Names.ParentScopeArgName}.{contextArg.Name};");
             }

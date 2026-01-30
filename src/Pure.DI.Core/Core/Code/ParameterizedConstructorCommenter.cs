@@ -38,7 +38,7 @@ sealed class ParameterizedConstructorCommenter(
             }
         }
 
-        foreach (var arg in composition.SetupContextArgs)
+        foreach (var arg in composition.SetupContextArgs.Where(i => i.Kind == SetupContextKind.Argument))
         {
             code.AppendLine($"/// <param name=\"{arg.Name}\">The setup context of type {formatter.FormatRef(arg.Type)}.</param>");
         }

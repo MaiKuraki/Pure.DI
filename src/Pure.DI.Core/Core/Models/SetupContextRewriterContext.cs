@@ -3,4 +3,7 @@ namespace Pure.DI.Core.Models;
 record SetupContextRewriterContext(
     SemanticModel SemanticModel,
     INamedTypeSymbol SetupType,
-    string ContextArgName);
+    string ContextArgName,
+    SetupContextKind ContextArgKind,
+    bool IsSimpleFactory,
+    ParameterSyntax ContextParameter);

@@ -30,8 +30,29 @@ sealed class ArgFieldsBuilder(ITypeResolver typeResolver)
                 continue;
             }
 
-            code.AppendLine($"[{Names.NonSerializedAttributeTypeName}] private readonly {typeResolver.Resolve(composition.Source.Source, arg.Type)} {arg.Name};");
-            membersCounter++;
+            var typeName = typeResolver.Resolve(composition.Source.Source, arg.Type);
+            var isAdded = false;
+            switch (arg.Kind)
+            {
+                case SetupContextKind.Argument:
+                    code.AppendLine($"[{Names.NonSerializedAttributeTypeName}] private readonly {typeName} {arg.Name};");
+                    isAdded = true;
+                    break;
+
+                case SetupContextKind.Field:
+                    code.AppendLine($"public {typeName} {arg.Name};");
+                    isAdded = true;
+                    break;
+
+                case SetupContextKind.Property:
+                    code.AppendLine($"public {typeName} {arg.Name} {{ get; set; }}");
+                    isAdded = true;
+                    break;
+            }
+            if (isAdded)
+            {
+                membersCounter++;
+            }
         }
 
         return composition with { MembersCount = membersCounter };

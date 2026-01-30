@@ -1473,6 +1473,32 @@ namespace Pure.DI
     }
 
     /// <summary>
+    /// Determines how the setup context is stored in the composition.
+    /// </summary>
+    internal enum SetupContextKind
+    {
+        /// <summary>
+        /// Passes the setup context via the composition constructor.
+        /// </summary>
+        Argument,
+
+        /// <summary>
+        /// Passes the setup context via the composition root method.
+        /// </summary>
+        RootArgument,
+
+        /// <summary>
+        /// Stores the setup context in a field.
+        /// </summary>
+        Field,
+
+        /// <summary>
+        /// Stores the setup context in a property.
+        /// </summary>
+        Property
+    }
+
+    /// <summary>
     /// Specifies flags for composition root members, including access level, modifiers, and representation.
     /// Flags can be combined.
     /// </summary>
@@ -2059,10 +2085,27 @@ var comments = string.Join(Environment.NewLine, GetSuffixes(0, i).Select(suffix 
         /// </summary>
         /// <param name="setupName">Name of base composition setup.</param>
         /// <param name="contextArgName">Composition argument name for the base setup instance.</param>
+        /// <summary>
+        /// Specifies a base setup and exposes its instance members through a context argument.
+        /// <example>
+        /// <code>
+        /// DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
+        ///     .Bind&lt;int&gt;().To(_ =&gt; Value);
+        ///
+        /// DI.Setup(nameof(Composition))
+        ///     .DependsOn(setupName: nameof(BaseComposition), contextArgName: "baseContext", kind: SetupContextKind.Field)
+        ///     .Root&lt;IService&gt;("Service");
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <param name="setupName">Name of base composition setup.</param>
+        /// <param name="contextArgName">Composition argument name for the base setup instance.</param>
+        /// <param name="kind">How the setup context is stored. Default is <see cref="SetupContextKind.Argument"/>.</param>
         /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="DI.Setup"/>
         /// <seealso cref="CompositionKind"/>
-        IConfiguration DependsOn(string setupName, string contextArgName);
+        /// <seealso cref="SetupContextKind"/>
+        IConfiguration DependsOn(string setupName, string contextArgName, SetupContextKind kind = SetupContextKind.Argument);
 
         /// <summary>
         /// Registers custom generic type markers based on attribute usage.
@@ -3204,7 +3247,7 @@ var typeArgs = string.Join(", ", GetSuffixes(0, i).Select(suffix => $"T{suffix}"
             }
 
             /// <inheritdoc />
-            public IConfiguration DependsOn(string setupName, string contextArgName)
+            public IConfiguration DependsOn(string setupName, string contextArgName, SetupContextKind kind = SetupContextKind.Argument)
             {
                 return this;
             }

@@ -48,7 +48,7 @@ sealed class RootMethodsCommenter(
             var args = composition.ClassArgs
                 .Where(i => i.Node.Arg?.Source.Kind == ArgKind.Composition)
                 .Select(arg => arg.Name)
-                .Concat(composition.SetupContextArgs.Select(arg => arg.Name));
+                .Concat(composition.SetupContextArgs.Where(arg => arg.Kind == SetupContextKind.Argument).Select(arg => arg.Name));
             code.AppendLine($"/// {(composition.TotalDisposablesCount == 0 ? "" : "using ")}var composition = new {composition.Source.Source.Name.ClassName}({string.Join(", ", args)});");
             code.AppendLine($"/// var instance = composition.{formatter.Format(root)};");
             code.AppendLine("/// </code>");
