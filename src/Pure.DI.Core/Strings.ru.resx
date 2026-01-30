@@ -172,4 +172,7 @@
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>Статический корень {0} типа {1} не может использовать время жизни {2} напрямую или через зависимость.</value>
     </data>
-</root>
+    <data name="Warning_Template_InstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>В привязке используется член экземпляра "{0}" из setup "{1}", который применяется через DependsOn или CompositionKind.Internal/Global. В зависимой композиции такого члена не будет. Перенесите значение в Arg/RootArg или отдельный контекст.</value>
+    </data></root>
+

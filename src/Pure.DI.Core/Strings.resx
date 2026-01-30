@@ -172,4 +172,7 @@
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>Static root {0} of type {1} cannot use lifetime {2} directly or through a dependency.</value>
     </data>
-</root>
+    <data name="Warning_Template_InstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>The binding uses instance member "{0}" from setup "{1}" that is applied via DependsOn or CompositionKind.Internal/Global. This member will not exist in the dependent composition. Use Arg/RootArg or a separate context object.</value>
+    </data></root>
+

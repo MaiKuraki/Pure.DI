@@ -501,6 +501,15 @@ namespace Pure.DI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The binding uses instance member "{0}" from setup "{1}" that is applied via DependsOn or CompositionKind.Internal/Global. This member will not exist in the dependent composition. Use Arg/RootArg or a separate context object..
+        /// </summary>
+        internal static string Warning_Template_InstanceMemberInDependsOnSetup {
+            get {
+                return ResourceManager.GetString("Warning_Template_InstanceMemberInDependsOnSetup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The binding for {0} has been overridden..
         /// </summary>
         internal static string Warning_Template_BindingHasBeenOverridden {

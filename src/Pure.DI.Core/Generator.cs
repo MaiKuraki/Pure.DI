@@ -80,7 +80,7 @@ public sealed partial class Generator
             .PerBlock<GraphCleaner>(Cleaner)
 
             // Validators
-            .PerBlock<MetadataValidator, DependencyGraphValidator, CyclicDependenciesValidator, RootValidator, TagOnSitesValidator, BindingsValidator, LifetimesValidator>(Type)
+            .PerBlock<MetadataValidator, DependsOnInstanceMemberValidator, DependencyGraphValidator, CyclicDependenciesValidator, RootValidator, TagOnSitesValidator, BindingsValidator, LifetimesValidator>(Type)
 
             // Comments
             .PerBlock<ClassCommenter, ParameterizedConstructorCommenter, RootMethodsCommenter>(Type)
