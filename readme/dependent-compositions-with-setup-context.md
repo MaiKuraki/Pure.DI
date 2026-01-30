@@ -1,42 +1,55 @@
-#### Ref dependencies
+#### Dependent compositions with setup context
 
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+This scenario shows how to pass an explicit setup context when a dependent setup uses instance members.
+When this occurs: you need base setup state (e.g., Unity-initialized fields) inside a dependent composition.
+What it solves: avoids missing instance members in dependent compositions and keeps state access explicit.
+How it is solved in the example: uses DependsOn(setupName, contextArgName) and passes the base setup instance into the dependent composition.
 
 
 ```c#
-using Shouldly;
-using Pure.DI;
+var baseContext = new BaseComposition { Settings = new AppSettings("prod", 3) };
+var composition = new Composition { baseContext = baseContext };
+var service = composition.Service;
 
-DI.Setup("Composition")
-    // Represents a large data set or buffer
-    .Bind().To<int[]>(() => [10, 20, 30])
-    .Root<Service>("MyService");
-
-var composition = new Composition();
-var service = composition.MyService;
-service.Sum.ShouldBe(60);
-
-class Service
+interface IService
 {
-    public int Sum { get; private set; }
-
-    // Ref structs cannot be fields, so they are injected via a method
-    // with the [Ordinal] attribute. This allows working with
-    // high-performance types like Span<T> or other ref structs.
-    [Ordinal]
-    public void Initialize(ref Data data) =>
-        Sum = data.Sum();
+    string Report { get; }
 }
 
-// A ref struct that holds a reference to the data
-// to process it without additional memory allocations
-readonly ref struct Data(ref int[] data)
+class Service(IAppSettings settings) : IService
 {
-    private readonly ref int[] _dep = ref data;
+    public string Report { get; } = $"env={settings.Environment}, retries={settings.RetryCount}";
+}
 
-    public int Sum() => _dep.Sum();
+internal partial class BaseComposition
+{
+    internal AppSettings Settings { get; set; } = new("", 0);
+
+    private void Setup()
+    {
+        DI.Setup(nameof(BaseComposition), Internal)
+            .Bind<IAppSettings>().To(_ => Settings);
+    }
+}
+
+internal partial class Composition
+{
+    private void Setup()
+    {
+        DI.Setup(nameof(Composition))
+            .DependsOn(setupName: nameof(BaseComposition), contextArgName: "baseContext", kind: SetupContextKind.Field)
+            .Bind<IService>().To<Service>()
+            .Root<IService>("Service");
+    }
+}
+
+record AppSettings(string Environment, int RetryCount) : IAppSettings;
+
+interface IAppSettings
+{
+    string Environment { get; }
+
+    int RetryCount { get; }
 }
 ```
 
@@ -51,12 +64,10 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add references to the NuGet packages
+- Add a reference to the NuGet package
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
-  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash
 dotnet add package Pure.DI
-dotnet add package Shouldly
 ```
 - Copy the example code into the _Program.cs_ file
 
@@ -68,13 +79,13 @@ dotnet run
 </details>
 
 What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+- Explicit setup context injection for dependent compositions.
 
 Important points:
-- Highlights the key configuration choices and their effect on resolution.
+- The dependent composition receives the base setup instance via a constructor argument.
 
 Useful when:
-- You want a concrete template for applying this feature in a composition.
+- Base setup has instance members initialized externally (e.g., Unity).
 
 
 The following partial class will be generated:
@@ -82,17 +93,15 @@ The following partial class will be generated:
 ```c#
 partial class Composition
 {
-  public Service MyService
+  public BaseComposition baseContext;
+
+  public IService Service
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      int[] transient276 = [10, 20, 30];
-      int[] transient276_ref = transient276;
-      var transientService274 = new Service();
-      Data transientData275_ref = new Data(ref transient276_ref);
-      transientService274.Initialize(ref transientData275_ref);
-      return transientService274;
+      AppSettings transientAppSettings23 = baseContext.Settings;
+      return new Service(transientAppSettings23);
     }
   }
 
@@ -170,13 +179,13 @@ partial class Composition
   static Composition()
   {
     var valResolver_0000 = new Resolver_0000();
-    Resolver<Service>.Value = valResolver_0000;
+    Resolver<IService>.Value = valResolver_0000;
     _buckets = Buckets<IResolver<Composition, object>>.Create(
       1,
       out _bucketSize,
       new Pair<IResolver<Composition, object>>[1]
       {
-         new Pair<IResolver<Composition, object>>(typeof(Service), valResolver_0000)
+         new Pair<IResolver<Composition, object>>(typeof(IService), valResolver_0000)
       });
   }
 
@@ -198,19 +207,19 @@ partial class Composition
     }
   }
 
-  private sealed class Resolver_0000: Resolver<Service>
+  private sealed class Resolver_0000: Resolver<IService>
   {
-    public override Service Resolve(Composition composition)
+    public override IService Resolve(Composition composition)
     {
-      return composition.MyService;
+      return composition.Service;
     }
 
-    public override Service ResolveByTag(Composition composition, object tag)
+    public override IService ResolveByTag(Composition composition, object tag)
     {
       switch (tag)
       {
         case null:
-          return composition.MyService;
+          return composition.Service;
 
         default:
           return base.ResolveByTag(composition, tag);
@@ -231,29 +240,31 @@ Class diagram:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	Composition ..> Service : Service MyService
-	Service *--  Data : Data
-	Data *--  ArrayᐸInt32ᐳ : ArrayᐸInt32ᐳ
-	class ArrayᐸInt32ᐳ {
-			<<array>>
-	}
-	namespace Pure.DI.UsageTests.Basics.RefDependenciesScenario {
+	AppSettings --|> IAppSettings
+	Service --|> IService
+	Composition ..> Service : IService Service
+	Service *--  AppSettings : IAppSettings
+	namespace Pure.DI.UsageTests.Advanced.DependentCompositionsWithContextScenario {
+		class AppSettings {
+				<<record>>
+		}
 		class Composition {
 		<<partial>>
-		+Service MyService
+		+IService Service
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object Resolve(Type type)
 		+ object Resolve(Type type, object? tag)
 		}
-		class Data {
-				<<struct>>
-			+Data(ArrayᐸInt32ᐳ data)
+		class IAppSettings {
+			<<interface>>
+		}
+		class IService {
+			<<interface>>
 		}
 		class Service {
 				<<class>>
-			+Service()
-			+Initialize(Data data) : Void
+			+Service(IAppSettings settings)
 		}
 	}
 ```

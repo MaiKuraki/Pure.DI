@@ -133,39 +133,39 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perBlockOwned102 = new Owned();
-      Func<Owned<IConnection>> transientFunc101 = new Func<Owned<IConnection>>(
+      var perBlockOwned109 = new Owned();
+      Func<Owned<IConnection>> transientFunc108 = new Func<Owned<IConnection>>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        Owned<IConnection> transientOwned103;
+        Owned<IConnection> transientOwned110;
         // Creates the owner of an instance
-        Owned transientOwned104;
-        Owned localOwned1 = perBlockOwned102;
-        transientOwned104 = localOwned1;
+        Owned transientOwned111;
+        Owned localOwned1 = perBlockOwned109;
+        transientOwned111 = localOwned1;
         lock (_lock)
         {
-          perBlockOwned102.Add(transientOwned104);
+          perBlockOwned109.Add(transientOwned111);
         }
 
-        IOwned localOwned = transientOwned104;
-        var transientDbConnection105 = new DbConnection();
+        IOwned localOwned = transientOwned111;
+        var transientDbConnection112 = new DbConnection();
         lock (_lock)
         {
-          perBlockOwned102.Add(transientDbConnection105);
+          perBlockOwned109.Add(transientDbConnection112);
         }
 
-        IConnection localValue2 = transientDbConnection105;
-        transientOwned103 = new Owned<IConnection>(localValue2, localOwned);
+        IConnection localValue2 = transientDbConnection112;
+        transientOwned110 = new Owned<IConnection>(localValue2, localOwned);
         lock (_lock)
         {
-          perBlockOwned102.Add(transientOwned103);
+          perBlockOwned109.Add(transientOwned110);
         }
 
-        Owned<IConnection> localValue1 = transientOwned103;
+        Owned<IConnection> localValue1 = transientOwned110;
         return localValue1;
       });
-      return new QueryService(transientFunc101);
+      return new QueryService(transientFunc108);
     }
   }
 }

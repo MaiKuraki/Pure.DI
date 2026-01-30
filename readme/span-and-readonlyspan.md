@@ -102,10 +102,10 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Point transientPoint370 = new Point(1, 1);
-      Point transientPoint371 = new Point(2, 2);
-      Point transientPoint372 = new Point(3, 3);
-      return new Path(stackalloc Point[3] { transientPoint370, transientPoint371, transientPoint372 });
+      Point transientPoint377 = new Point(1, 1);
+      Point transientPoint378 = new Point(2, 2);
+      Point transientPoint379 = new Point(3, 3);
+      return new Path(stackalloc Point[3] { transientPoint377, transientPoint378, transientPoint379 });
     }
   }
 }

@@ -182,14 +182,14 @@ partial class Composition: IDisposable, IAsyncDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<Session> transientFunc500 = new Func<Session>(
+      Func<Session> transientFunc507 = new Func<Session>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
         Session localValue32 = new Session(this);
         return localValue32;
       });
-      return new Program(transientFunc500);
+      return new Program(transientFunc507);
     }
   }
 
