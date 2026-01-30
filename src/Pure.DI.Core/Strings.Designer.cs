@@ -535,5 +535,491 @@ namespace Pure.DI {
                 return ResourceManager.GetString("Warning_Template_RootCannotBeResolvedByResolveMethods", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to resolve a dependency in the object graph..
+        /// </summary>
+        internal static string Description_ErrorUnableToResolve {
+            get {
+                return ResourceManager.GetString("Description_ErrorUnableToResolve", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Binding cannot be built due to missing binding metadata..
+        /// </summary>
+        internal static string Description_ErrorInvalidBinding {
+            get {
+                return ResourceManager.GetString("Description_ErrorInvalidBinding", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Binding is invalid because the compiler reported errors..
+        /// </summary>
+        internal static string Description_ErrorInvalidBindingDueToCompilation {
+            get {
+                return ResourceManager.GetString("Description_ErrorInvalidBindingDueToCompilation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Composition type name is invalid..
+        /// </summary>
+        internal static string Description_ErrorInvalidCompositionTypeName {
+            get {
+                return ResourceManager.GetString("Description_ErrorInvalidCompositionTypeName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Root name is invalid..
+        /// </summary>
+        internal static string Description_ErrorInvalidRootName {
+            get {
+                return ResourceManager.GetString("Description_ErrorInvalidRootName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duplicate root names detected..
+        /// </summary>
+        internal static string Description_ErrorDuplicateRootName {
+            get {
+                return ResourceManager.GetString("Description_ErrorDuplicateRootName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Argument name is invalid..
+        /// </summary>
+        internal static string Description_ErrorInvalidArgumentName {
+            get {
+                return ResourceManager.GetString("Description_ErrorInvalidArgumentName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Composition argument type is based on a generic marker..
+        /// </summary>
+        internal static string Description_ErrorCompositionArgGenericMarker {
+            get {
+                return ResourceManager.GetString("Description_ErrorCompositionArgGenericMarker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Accumulator type is based on a generic marker..
+        /// </summary>
+        internal static string Description_ErrorAccumulatorTypeGenericMarker {
+            get {
+                return ResourceManager.GetString("Description_ErrorAccumulatorTypeGenericMarker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Accumulator cannot accumulate a generic marker..
+        /// </summary>
+        internal static string Description_ErrorAccumulatorCannotAccumulateGenericMarker {
+            get {
+                return ResourceManager.GetString("Description_ErrorAccumulatorCannotAccumulateGenericMarker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Special type cannot be a generic marker..
+        /// </summary>
+        internal static string Description_ErrorSpecialTypeGenericMarker {
+            get {
+                return ResourceManager.GetString("Description_ErrorSpecialTypeGenericMarker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Implementation does not implement the contract..
+        /// </summary>
+        internal static string Description_ErrorNotImplementedContract {
+            get {
+                return ResourceManager.GetString("Description_ErrorNotImplementedContract", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attribute argument position is invalid..
+        /// </summary>
+        internal static string Description_ErrorInvalidAttributeArgumentPosition {
+            get {
+                return ResourceManager.GetString("Description_ErrorInvalidAttributeArgumentPosition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attribute member cannot be processed..
+        /// </summary>
+        internal static string Description_ErrorAttributeMemberCannotBeProcessed {
+            get {
+                return ResourceManager.GetString("Description_ErrorAttributeMemberCannotBeProcessed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Root type is invalid..
+        /// </summary>
+        internal static string Description_ErrorInvalidRootType {
+            get {
+                return ResourceManager.GetString("Description_ErrorInvalidRootType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Roots type is invalid..
+        /// </summary>
+        internal static string Description_ErrorInvalidRootsType {
+            get {
+                return ResourceManager.GetString("Description_ErrorInvalidRootsType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No type matched the wildcard filter..
+        /// </summary>
+        internal static string Description_ErrorNoTypeForWildcard {
+            get {
+                return ResourceManager.GetString("Description_ErrorNoTypeForWildcard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Builders type is invalid..
+        /// </summary>
+        internal static string Description_ErrorInvalidBuildersType {
+            get {
+                return ResourceManager.GetString("Description_ErrorInvalidBuildersType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Builder type is invalid..
+        /// </summary>
+        internal static string Description_ErrorInvalidBuilderType {
+            get {
+                return ResourceManager.GetString("Description_ErrorInvalidBuilderType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Too many type parameters provided..
+        /// </summary>
+        internal static string Description_ErrorTooManyTypeParameters {
+            get {
+                return ResourceManager.GetString("Description_ErrorTooManyTypeParameters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Async factories are not supported..
+        /// </summary>
+        internal static string Description_ErrorAsyncFactoryNotSupported {
+            get {
+                return ResourceManager.GetString("Description_ErrorAsyncFactoryNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported syntax in DI API..
+        /// </summary>
+        internal static string Description_ErrorNotSupportedSyntax {
+            get {
+                return ResourceManager.GetString("Description_ErrorNotSupportedSyntax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value must be of a specific type..
+        /// </summary>
+        internal static string Description_ErrorMustBeValueOfType {
+            get {
+                return ResourceManager.GetString("Description_ErrorMustBeValueOfType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Identifier is invalid..
+        /// </summary>
+        internal static string Description_ErrorInvalidIdentifier {
+            get {
+                return ResourceManager.GetString("Description_ErrorInvalidIdentifier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Context is used directly where it is not allowed..
+        /// </summary>
+        internal static string Description_ErrorCannotUseContextDirectly {
+            get {
+                return ResourceManager.GetString("Description_ErrorCannotUseContextDirectly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Initializers count does not match..
+        /// </summary>
+        internal static string Description_ErrorInvalidNumberOfInitializers {
+            get {
+                return ResourceManager.GetString("Description_ErrorInvalidNumberOfInitializers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lifetime does not support cyclic dependencies..
+        /// </summary>
+        internal static string Description_ErrorLifetimeDoesNotSupportCyclicDependencies {
+            get {
+                return ResourceManager.GetString("Description_ErrorLifetimeDoesNotSupportCyclicDependencies", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Composition is too large to build..
+        /// </summary>
+        internal static string Description_ErrorTooLargeComposition {
+            get {
+                return ResourceManager.GetString("Description_ErrorTooLargeComposition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot construct an abstract type..
+        /// </summary>
+        internal static string Description_ErrorCannotConstructAbstractType {
+            get {
+                return ResourceManager.GetString("Description_ErrorCannotConstructAbstractType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No accessible constructor found..
+        /// </summary>
+        internal static string Description_ErrorNoAccessibleConstructor {
+            get {
+                return ResourceManager.GetString("Description_ErrorNoAccessibleConstructor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dependency graph cannot be built..
+        /// </summary>
+        internal static string Description_ErrorCannotBuildDependencyGraph {
+            get {
+                return ResourceManager.GetString("Description_ErrorCannotBuildDependencyGraph", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Maximum number of iterations reached..
+        /// </summary>
+        internal static string Description_ErrorMaximumNumberOfIterations {
+            get {
+                return ResourceManager.GetString("Description_ErrorMaximumNumberOfIterations", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No accessible constructor found for Tag.On..
+        /// </summary>
+        internal static string Description_ErrorNoAccessibleConstructorForTagOn {
+            get {
+                return ResourceManager.GetString("Description_ErrorNoAccessibleConstructorForTagOn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No accessible method found for Tag.On..
+        /// </summary>
+        internal static string Description_ErrorNoAccessibleMethodForTagOn {
+            get {
+                return ResourceManager.GetString("Description_ErrorNoAccessibleMethodForTagOn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No accessible field or property found for Tag.On..
+        /// </summary>
+        internal static string Description_ErrorNoAccessibleFieldOrPropertyForTagOn {
+            get {
+                return ResourceManager.GetString("Description_ErrorNoAccessibleFieldOrPropertyForTagOn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Expression must be a valid API call..
+        /// </summary>
+        internal static string Description_ErrorMustBeApiCall {
+            get {
+                return ResourceManager.GetString("Description_ErrorMustBeApiCall", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Regular expression is invalid..
+        /// </summary>
+        internal static string Description_ErrorInvalidRegularExpression {
+            get {
+                return ResourceManager.GetString("Description_ErrorInvalidRegularExpression", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wildcard is invalid..
+        /// </summary>
+        internal static string Description_ErrorInvalidWildcard {
+            get {
+                return ResourceManager.GetString("Description_ErrorInvalidWildcard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DI setup could not be found..
+        /// </summary>
+        internal static string Description_ErrorCannotFindSetup {
+            get {
+                return ResourceManager.GetString("Description_ErrorCannotFindSetup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cyclic dependency detected..
+        /// </summary>
+        internal static string Description_ErrorCyclicDependency {
+            get {
+                return ResourceManager.GetString("Description_ErrorCyclicDependency", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Language version is not supported..
+        /// </summary>
+        internal static string Description_ErrorNotSupportedLanguageVersion {
+            get {
+                return ResourceManager.GetString("Description_ErrorNotSupportedLanguageVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lifetime validation error..
+        /// </summary>
+        internal static string Description_ErrorLifetimeDefect {
+            get {
+                return ResourceManager.GetString("Description_ErrorLifetimeDefect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type cannot be inferred..
+        /// </summary>
+        internal static string Description_ErrorTypeCannotBeInferred {
+            get {
+                return ResourceManager.GetString("Description_ErrorTypeCannotBeInferred", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Binding has been overridden..
+        /// </summary>
+        internal static string Description_WarningOverriddenBinding {
+            get {
+                return ResourceManager.GetString("Description_WarningOverriddenBinding", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No composition roots defined..
+        /// </summary>
+        internal static string Description_WarningNoRoots {
+            get {
+                return ResourceManager.GetString("Description_WarningNoRoots", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Implementation does not implement the contract..
+        /// </summary>
+        internal static string Description_WarningNotImplementedContract {
+            get {
+                return ResourceManager.GetString("Description_WarningNotImplementedContract", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Binding is not used..
+        /// </summary>
+        internal static string Description_WarningBindingNotUsed {
+            get {
+                return ResourceManager.GetString("Description_WarningBindingNotUsed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tag.On injection site is not used..
+        /// </summary>
+        internal static string Description_WarningInjectionSiteNotUsed {
+            get {
+                return ResourceManager.GetString("Description_WarningInjectionSiteNotUsed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resolve methods are incompatible with root arguments..
+        /// </summary>
+        internal static string Description_WarningRootArgInResolveMethod {
+            get {
+                return ResourceManager.GetString("Description_WarningRootArgInResolveMethod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resolve methods are incompatible with type arguments..
+        /// </summary>
+        internal static string Description_WarningTypeArgInResolveMethod {
+            get {
+                return ResourceManager.GetString("Description_WarningTypeArgInResolveMethod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DependsOn uses an instance member..
+        /// </summary>
+        internal static string Description_WarningInstanceMemberInDependsOnSetup {
+            get {
+                return ResourceManager.GetString("Description_WarningInstanceMemberInDependsOnSetup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Generation was interrupted..
+        /// </summary>
+        internal static string Description_InfoGenerationInterrupted {
+            get {
+                return ResourceManager.GetString("Description_InfoGenerationInterrupted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Implementation does not implement the contract..
+        /// </summary>
+        internal static string Description_InfoNotImplementedContract {
+            get {
+                return ResourceManager.GetString("Description_InfoNotImplementedContract", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unhandled generator error..
+        /// </summary>
+        internal static string Description_ErrorUnhandled {
+            get {
+                return ResourceManager.GetString("Description_ErrorUnhandled", resourceCulture);
+            }
+        }
     }
 }

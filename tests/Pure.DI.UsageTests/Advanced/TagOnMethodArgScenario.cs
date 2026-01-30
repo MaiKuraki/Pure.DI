@@ -41,7 +41,7 @@ using Xunit;
 //# using Pure.DI;
 // }
 
-[SuppressMessage("WRN", "DIW001:WRN")]
+[SuppressMessage("WRN", "DIW003:WRN")]
 public class Scenario
 {
     [Fact]

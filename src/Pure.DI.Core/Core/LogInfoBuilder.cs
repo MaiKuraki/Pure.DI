@@ -30,7 +30,16 @@ sealed class LogInfoBuilder : IBuilder<LogEntry, LogInfo>
                 message.Append('"');
             }
 
-            descriptor = new DiagnosticDescriptor(logEntry.Id, severityCode, message.ToString(), severityCode, logEntry.Severity, true);
+            var category = LogMetadata.GetCategory(logEntry.Id);
+            var description = LogMetadata.GetDescription(logEntry.Id);
+            descriptor = new DiagnosticDescriptor(
+                logEntry.Id,
+                severityCode,
+                message.ToString(),
+                category,
+                logEntry.Severity,
+                true,
+                description: description);
             if (!string.IsNullOrWhiteSpace(logEntry.MessageKey))
             {
                 properties = ImmutableDictionary<string, string?>
