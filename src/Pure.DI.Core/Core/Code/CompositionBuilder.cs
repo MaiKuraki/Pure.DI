@@ -97,11 +97,12 @@ class CompositionBuilder(
             .Select(binding => binding.Arg)
             .Where(arg => arg.HasValue && arg.Value.IsSetupContext)
             .Select(arg => arg.GetValueOrDefault())
-            .Where(arg => arg.SetupContextKind != SetupContextKind.RootArgument)
+            .Where(arg => arg.SetupContextKind != SetupContextKind.RootArgument && arg.SetupContextKind != SetupContextKind.Members)
             .Select(arg => new SetupContextArg(arg.Type, arg.ArgName, arg.SetupContextKind))
             .GroupBy(arg => arg.Name)
             .Select(group => group.First())
             .ToImmutableArray();
+        var setupContextMembers = graph.Source.SetupContextMembers;
 
         var totalDisposables = singletons.Where(i => nodeTools.IsDisposableAny(i.Node.Node)).ToList();
         var disposables = singletons.Where(i => nodeTools.IsDisposable(i.Node.Node)).ToList();
@@ -118,7 +119,8 @@ class CompositionBuilder(
             new Lines(),
             singletons,
             varDeclarationTools.Sort(classArgs).Distinct().ToImmutableArray(),
-            setupContextArgs);
+            setupContextArgs,
+            setupContextMembers);
 
         var diagram = classDiagramBuilder.Build(composition);
         return composition with { Diagram = diagram };

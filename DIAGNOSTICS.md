@@ -311,6 +311,11 @@ example scenarios. IDs and anchors are stable; message text is localized.
 - Problem: An unexpected exception occurred in the generator.
 - Fix: Reduce the scenario and report a bug with repro steps.
 - See: [check-for-a-root](readme/check-for-a-root.md).
+
+### DIE044
+- Description: DependsOn requires a setup context name when using a setup context kind (except Members).
+- Problem: `DependsOn` was called with a setup context kind but without a context name.
+- Fix: Provide a non-empty `name` value or use `DependsOn(params string[] setupNames)` when a context is not needed. `SetupContextKind.Members` allows omitting `name`.
 - Examples: Unexpected exception during generation.
 
 ## Warnings

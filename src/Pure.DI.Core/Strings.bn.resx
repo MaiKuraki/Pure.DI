@@ -82,6 +82,10 @@
     <data name="Error_Template_CannotUseContextDirectly" xml:space="preserve">
         <value>"{0}" সরাসরি ব্যবহার করা সম্ভব নয়। শুধুমাত্র এর মেথড বা প্রপার্টিগুলো ব্যবহারযোগ্য।</value>
     </data>
+    <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
+        <value>DependsOn-এর জন্য সেটআপ কনটেক্সটের নাম নির্ধারণ করতে হবে।</value>
+    </data>
+
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>অমান্য Root টাইপ।</value>
     </data>
@@ -171,5 +175,8 @@
     </data>
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>টাইপ {1}-এর স্ট্যাটিক রুট {0} সরাসরি বা কোনো ডিপেন্ডেন্সির মাধ্যমে Lifetime {2} ব্যবহার করতে পারে না।</value>
+    </data>
+    <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
+        <value>সেটআপ কনটেক্সটের ধরন ব্যবহার করলে DependsOn-এর জন্য সেটআপ কনটেক্সটের নাম দরকার।</value>
     </data>
 </root>

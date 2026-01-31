@@ -82,6 +82,10 @@
     <data name="Error_Template_CannotUseContextDirectly" xml:space="preserve">
         <value>"{0}" का सीधे उपयोग करना संभव नहीं है। केवल इसके methods या properties ही उपलब्ध हैं।</value>
     </data>
+    <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
+        <value>DependsOn के लिए सेटअप संदर्भ का नाम निर्दिष्ट करना आवश्यक है।</value>
+    </data>
+
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>अमान्य root प्रकार।</value>
     </data>
@@ -171,5 +175,8 @@
     </data>
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>प्रकार {1} का स्थिर root {0} सीधे या किसी निर्भरता के माध्यम से Lifetime {2} का उपयोग नहीं कर सकता है।</value>
+    </data>
+    <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
+        <value>जब सेटअप संदर्भ प्रकार का उपयोग किया जाता है, तो DependsOn को सेटअप संदर्भ का नाम चाहिए।</value>
     </data>
 </root>

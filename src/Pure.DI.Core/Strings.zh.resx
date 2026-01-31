@@ -82,6 +82,10 @@
     <data name="Error_Template_CannotUseContextDirectly" xml:space="preserve">
         <value>不能直接使用 "{0}"。仅可访问其方法或属性。</value>
     </data>
+    <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
+        <value>必须为 DependsOn 指定设置上下文名称。</value>
+    </data>
+
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>无效的根类型。</value>
     </data>
@@ -171,5 +175,8 @@
     </data>
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>类型为 {1} 的静态根 {0} 不能直接或通过依赖项使用 Lifetime {2}。</value>
+    </data>
+    <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
+        <value>当使用设置上下文类型时，DependsOn 需要设置上下文名称。</value>
     </data>
 </root>

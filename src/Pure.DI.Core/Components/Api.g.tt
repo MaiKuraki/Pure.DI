@@ -1495,7 +1495,12 @@ namespace Pure.DI
         /// <summary>
         /// Stores the setup context in a property.
         /// </summary>
-        Property
+        Property,
+
+        /// <summary>
+        /// Copies referenced instance members into the dependent composition.
+        /// </summary>
+        Members
     }
 
     /// <summary>
@@ -2074,7 +2079,7 @@ var comments = string.Join(Environment.NewLine, GetSuffixes(0, i).Select(suffix 
         ///     .Bind&lt;int&gt;().To(_ =&gt; Value);
         ///
         /// DI.Setup(nameof(Composition))
-        ///     .DependsOn(nameof(BaseComposition), "baseContext")
+        ///     .DependsOn(nameof(BaseComposition), SetupContextKind.Argument, "baseContext")
         ///     .Root&lt;IService&gt;("Service");
         ///
         /// var baseContext = new BaseComposition();
@@ -2084,28 +2089,45 @@ var comments = string.Join(Environment.NewLine, GetSuffixes(0, i).Select(suffix 
         /// </example>
         /// </summary>
         /// <param name="setupName">Name of base composition setup.</param>
-        /// <param name="contextArgName">Composition argument name for the base setup instance.</param>
+        /// <param name="name">Name of the setup context. Optional when <paramref name="kind"/> is <see cref="SetupContextKind.Members"/>.</param>
         /// <summary>
-        /// Specifies a base setup and exposes its instance members through a context argument.
+        /// Specifies a base setup and exposes its instance members through a setup context.
         /// <example>
         /// <code>
         /// DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
         ///     .Bind&lt;int&gt;().To(_ =&gt; Value);
         ///
         /// DI.Setup(nameof(Composition))
-        ///     .DependsOn(setupName: nameof(BaseComposition), contextArgName: "baseContext", kind: SetupContextKind.Field)
+        ///     .DependsOn(setupName: nameof(BaseComposition), kind: SetupContextKind.Field, name: "baseContext")
         ///     .Root&lt;IService&gt;("Service");
+        ///
+        /// var baseContext = new BaseComposition();
+        /// var composition = new Composition { baseContext = baseContext };
+        /// var service = composition.Service;
+        /// </code>
+        /// </example>
+        /// <example>
+        /// <code>
+        /// DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
+        ///     .Bind&lt;int&gt;().To(_ =&gt; Value);
+        ///
+        /// DI.Setup(nameof(Composition))
+        ///     .DependsOn(setupName: nameof(BaseComposition), kind: SetupContextKind.Members, name: "baseContext")
+        ///     .Root&lt;IService&gt;("Service");
+        ///
+        /// var composition = new Composition();
+        /// var service = composition.Service;
         /// </code>
         /// </example>
         /// </summary>
         /// <param name="setupName">Name of base composition setup.</param>
-        /// <param name="contextArgName">Composition argument name for the base setup instance.</param>
-        /// <param name="kind">How the setup context is stored. Default is <see cref="SetupContextKind.Argument"/>.</param>
+        /// <param name="kind">How the setup context is stored.</param>
+        /// <param name="name">Name of the setup context. Optional when <paramref name="kind"/> is <see cref="SetupContextKind.Members"/>.</param>
         /// <returns>Configuration interface for fluent chaining.</returns>
         /// <seealso cref="DI.Setup"/>
         /// <seealso cref="CompositionKind"/>
         /// <seealso cref="SetupContextKind"/>
-        IConfiguration DependsOn(string setupName, string contextArgName, SetupContextKind kind = SetupContextKind.Argument);
+        IConfiguration DependsOn(string setupName, SetupContextKind kind, string name = "");
 
         /// <summary>
         /// Registers custom generic type markers based on attribute usage.
@@ -3255,7 +3277,7 @@ var typeArgs = string.Join(", ", GetSuffixes(0, i).Select(suffix => $"T{suffix}"
             }
 
             /// <inheritdoc />
-            public IConfiguration DependsOn(string setupName, string contextArgName, SetupContextKind kind = SetupContextKind.Argument)
+            public IConfiguration DependsOn(string setupName, SetupContextKind kind, string name = "")
             {
                 return this;
             }

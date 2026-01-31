@@ -52,6 +52,7 @@ static class LogMetadata
             LogId.ErrorLifetimeDefect => $"{HelpLinkBaseUrl}#die041",
             LogId.ErrorTypeCannotBeInferred => $"{HelpLinkBaseUrl}#die042",
             LogId.ErrorUnhandled => $"{HelpLinkBaseUrl}#die043",
+            LogId.ErrorSetupContextNameIsRequired => $"{HelpLinkBaseUrl}#die044",
             LogId.WarningOverriddenBinding => $"{HelpLinkBaseUrl}#diw000",
             LogId.WarningNoRoots => $"{HelpLinkBaseUrl}#diw001",
             LogId.WarningNotImplementedContract => $"{HelpLinkBaseUrl}#diw002",
@@ -94,6 +95,7 @@ static class LogMetadata
             LogId.WarningRootArgInResolveMethod => "Setup",
             LogId.WarningTypeArgInResolveMethod => "Setup",
             LogId.WarningInstanceMemberInDependsOnSetup => "Setup",
+            LogId.ErrorSetupContextNameIsRequired => "Setup",
 
             LogId.ErrorAsyncFactoryNotSupported => "Factories",
             LogId.ErrorCannotUseContextDirectly => "Factories",
@@ -175,6 +177,7 @@ static class LogMetadata
             LogId.ErrorNotSupportedLanguageVersion => Strings.Description_ErrorNotSupportedLanguageVersion,
             LogId.ErrorLifetimeDefect => Strings.Description_ErrorLifetimeDefect,
             LogId.ErrorTypeCannotBeInferred => Strings.Description_ErrorTypeCannotBeInferred,
+            LogId.ErrorSetupContextNameIsRequired => Strings.Description_ErrorSetupContextNameIsRequired,
             LogId.WarningOverriddenBinding => Strings.Description_WarningOverriddenBinding,
             LogId.WarningNoRoots => Strings.Description_WarningNoRoots,
             LogId.WarningNotImplementedContract => Strings.Description_WarningNotImplementedContract,

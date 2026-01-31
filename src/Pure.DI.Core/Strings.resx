@@ -82,6 +82,9 @@
     <data name="Error_Template_CannotUseContextDirectly" xml:space="preserve">
         <value>Cannot use "{0}" directly. Only its methods or properties are accessible.</value>
     </data>
+    <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
+        <value>Setup context name must be specified for DependsOn.</value>
+    </data>
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>Invalid root type.</value>
     </data>
@@ -249,6 +252,9 @@
     </data>
     <data name="Description_ErrorCannotUseContextDirectly" xml:space="preserve">
         <value>Context is used directly where it is not allowed.</value>
+    </data>
+    <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
+        <value>DependsOn requires a setup context name when using a setup context kind.</value>
     </data>
     <data name="Description_ErrorInvalidNumberOfInitializers" xml:space="preserve">
         <value>Initializers count does not match.</value>

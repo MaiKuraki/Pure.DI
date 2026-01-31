@@ -5,7 +5,7 @@ $d=Dependent compositions with setup context property
 $h=This scenario shows how to pass an explicit setup context via a property.
 $h=When this occurs: Unity (or another host) sets fields/properties on the composition instance.
 $h=What it solves: avoids constructor arguments while still allowing dependent setups to access base state.
-$h=How it is solved in the example: uses DependsOn(..., SetupContextKind.Property) and assigns the context property.
+$h=How it is solved in the example: uses DependsOn(..., SetupContextKind.Property, name) and assigns the context property.
 $f=
 $f=What it shows:
 $f=- Setup context as a property on the composition.
@@ -77,7 +77,7 @@ internal partial class Composition
     private void Setup()
     {
         DI.Setup(nameof(Composition))
-            .DependsOn(nameof(BaseComposition), "baseContext", SetupContextKind.Property)
+            .DependsOn(nameof(BaseComposition), SetupContextKind.Property, "baseContext")
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }

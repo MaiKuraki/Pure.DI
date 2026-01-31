@@ -4,6 +4,7 @@ enum ClassPart
 {
     Fields,
     ArgFields,
+    SetupContextMembers,
     ParameterizedConstructor,
     DefaultConstructor,
     ScopeConstructor,

@@ -82,6 +82,10 @@
     <data name="Error_Template_CannotUseContextDirectly" xml:space="preserve">
         <value>"{0}" を直接使用することはできません。そのメソッドまたはプロパティのみがアクセス可能です。</value>
     </data>
+    <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
+        <value>DependsOn にはセットアップ コンテキスト名の指定が必要です。</value>
+    </data>
+
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>Root 型が無効です。</value>
     </data>
@@ -171,5 +175,8 @@
     </data>
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>型 {1} の静的な root {0} は、直接または依存関係を介して Lifetime {2} を使用することはできません。</value>
+    </data>
+    <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
+        <value>DependsOn は、セットアップ コンテキスト種別を使用する場合にセットアップ コンテキスト名が必要です。</value>
     </data>
 </root>

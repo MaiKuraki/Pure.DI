@@ -82,6 +82,10 @@
     <data name="Error_Template_CannotUseContextDirectly" xml:space="preserve">
         <value>Tidak dapat menggunakan "{0}" secara langsung. Hanya metode atau propertinya yang dapat diakses.</value>
     </data>
+    <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
+        <value>Nama konteks setup harus ditentukan untuk DependsOn.</value>
+    </data>
+
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>Tipe Root tidak valid.</value>
     </data>
@@ -171,5 +175,8 @@
     </data>
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>Static Root {0} bertipe {1} tidak dapat menggunakan Lifetime {2} secara langsung atau melalui dependensi.</value>
+    </data>
+    <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
+        <value>DependsOn memerlukan nama konteks setup saat menggunakan jenis konteks setup.</value>
     </data>
 </root>

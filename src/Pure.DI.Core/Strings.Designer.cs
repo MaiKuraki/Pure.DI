@@ -231,6 +231,15 @@ namespace Pure.DI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Setup context name must be specified for DependsOn..
+        /// </summary>
+        internal static string Error_SetupContextNameIsRequired {
+            get {
+                return ResourceManager.GetString("Error_SetupContextNameIsRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cyclic dependency found: {0}..
         /// </summary>
         internal static string Error_Template_CyclicDependency {
@@ -758,6 +767,15 @@ namespace Pure.DI {
         internal static string Description_ErrorCannotUseContextDirectly {
             get {
                 return ResourceManager.GetString("Description_ErrorCannotUseContextDirectly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DependsOn requires a setup context name when using a setup context kind..
+        /// </summary>
+        internal static string Description_ErrorSetupContextNameIsRequired {
+            get {
+                return ResourceManager.GetString("Description_ErrorSetupContextNameIsRequired", resourceCulture);
             }
         }
         

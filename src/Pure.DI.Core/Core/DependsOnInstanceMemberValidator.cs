@@ -16,6 +16,11 @@ sealed class DependsOnInstanceMemberValidator(
                 continue;
             }
 
+            if (setup.SetupContextMembers.Any(i => i.SetupName.Equals(binding.SourceSetup.Name)))
+            {
+                continue;
+            }
+
             if (binding.Factory is not { } factory)
             {
                 continue;

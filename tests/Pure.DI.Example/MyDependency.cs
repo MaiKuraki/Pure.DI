@@ -1,4 +1,4 @@
-﻿namespace OtherAssembly;
+namespace OtherAssembly;
 
 class MyDependency : IMyDependency
 {

@@ -82,6 +82,10 @@
     <data name="Error_Template_CannotUseContextDirectly" xml:space="preserve">
         <value>לא ניתן להשתמש ב-"{0}" ישירות. רק המתודות או המאפיינים שלו נגישים.</value>
     </data>
+    <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
+        <value>חובה לציין שם הקשר הגדרה עבור DependsOn.</value>
+    </data>
+
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>סוג Root לא חוקי.</value>
     </data>
@@ -171,5 +175,8 @@
     </data>
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>ה-Root הסטטי {0} מסוג {1} אינו יכול להשתמש ב-Lifetime {2} ישירות או דרך תלות.</value>
+    </data>
+    <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
+        <value>DependsOn דורש שם הקשר הגדרה כאשר משתמשים בסוג הקשר הגדרה.</value>
     </data>
 </root>

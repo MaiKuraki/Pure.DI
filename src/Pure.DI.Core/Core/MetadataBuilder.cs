@@ -13,6 +13,7 @@ sealed class MetadataBuilder(
     Func<IBuilder<SyntaxUpdate, IEnumerable<MdSetup>>> setupsBuilderFactory,
     Func<ISetupFinalizer> setupFinalizerFactory,
     Func<SetupContextRewriterContext, ISetupContextRewriter> setupContextRewriterFactory,
+    Func<SetupContextMembersCollectorContext, ISetupContextMembersCollector> setupContextMembersCollectorFactory,
     ICompilations compilations,
     IRegistryManager<int> bindingsRegistryManager,
     ILocationProvider locationProvider,
@@ -143,6 +144,7 @@ sealed class MetadataBuilder(
         var ordinalAttributesBuilder = ImmutableArray.CreateBuilder<MdOrdinalAttribute>(2);
         var usingDirectives = ImmutableArray.CreateBuilder<MdUsingDirectives>(2);
         var accumulators = ImmutableArray.CreateBuilder<MdAccumulator>(1);
+        var setupContextMembers = new List<SetupContextMembers>();
         var bindingId = 0;
         var comments = new List<string>();
         foreach (var item in setups)
@@ -167,6 +169,7 @@ sealed class MetadataBuilder(
                     var updated = i;
                     if (item.ContextArgName is { Length: > 0 }
                         && i.Factory is { } factory
+                        && item.ContextArgKind != SetupContextKind.Members
                         && GetContainingType(setup) is { } setupType)
                     {
                         var rewriterContext = new SetupContextRewriterContext(
@@ -206,6 +209,10 @@ sealed class MetadataBuilder(
             ordinalAttributesBuilder.AddRange(setup.OrdinalAttributes);
             specialTypeBuilder.AddRange(setup.SpecialTypes);
             accumulators.AddRange(setup.Accumulators);
+            if (!setup.SetupContextMembers.IsDefaultOrEmpty)
+            {
+                setupContextMembers.AddRange(setup.SetupContextMembers);
+            }
             foreach (var usingDirective in setup.UsingDirectives)
             {
                 usingDirectives.Add(usingDirective);
@@ -221,7 +228,19 @@ sealed class MetadataBuilder(
                 && item.DependsOn is { } dependsOn
                 && GetContainingType(setup) is { } setupType)
             {
-                contextArgs.Add((item.ContextArgName, item.ContextArgSource, setupType, item.ContextArgKind, dependsOn, dependsOn.SemanticModel));
+                if (item.ContextArgKind == SetupContextKind.Members)
+                {
+                    var collectorContext = new SetupContextMembersCollectorContext(setup, setupType);
+                    var members = setupContextMembersCollectorFactory(collectorContext).Collect();
+                    if (!members.IsDefaultOrEmpty)
+                    {
+                        setupContextMembers.Add(new SetupContextMembers(setup.Name, item.ContextArgName, members));
+                    }
+                }
+                else
+                {
+                    contextArgs.Add((item.ContextArgName, item.ContextArgSource, setupType, item.ContextArgKind, dependsOn, dependsOn.SemanticModel));
+                }
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -261,6 +280,17 @@ sealed class MetadataBuilder(
             .Reverse()
             .ToList();
 
+        var mergedSetupContextMembers = setupContextMembers
+            .GroupBy(member => member.SetupName)
+            .Select(group => new SetupContextMembers(
+                group.Key,
+                group.Select(i => i.ContextName).FirstOrDefault() ?? "",
+                group.SelectMany(i => i.Members)
+                    .GroupBy(i => (i.SyntaxTree, i.Span))
+                    .Select(i => i.First())
+                    .ToImmutableArray()))
+            .ToImmutableArray();
+
         mergedSetup = new MdSetup(
             lastSetup?.SemanticModel!,
             lastSetup?.Source!,
@@ -278,6 +308,7 @@ sealed class MetadataBuilder(
             ordinalAttributesBuilder.ToImmutable(),
             specialTypeBuilder.ToImmutable(),
             accumulators.ToImmutable(),
+            mergedSetupContextMembers,
             tagOn,
             comments);
     }

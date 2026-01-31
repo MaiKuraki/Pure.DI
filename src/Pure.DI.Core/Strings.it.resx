@@ -82,6 +82,10 @@
     <data name="Error_Template_CannotUseContextDirectly" xml:space="preserve">
         <value>Impossibile utilizzare "{0}" direttamente. Sono accessibili solo i suoi metodi o proprietà.</value>
     </data>
+    <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
+        <value>È necessario specificare il nome del contesto di configurazione per DependsOn.</value>
+    </data>
+
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>Tipo di Root non valido.</value>
     </data>
@@ -171,5 +175,8 @@
     </data>
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>Il Root statico {0} di tipo {1} non può utilizzare il Lifetime {2} direttamente o tramite una dipendenza.</value>
+    </data>
+    <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
+        <value>DependsOn richiede un nome del contesto di configurazione quando si usa un tipo di contesto di configurazione.</value>
     </data>
 </root>

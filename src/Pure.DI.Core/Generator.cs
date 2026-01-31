@@ -57,7 +57,7 @@ public sealed partial class Generator
                 return new Logger(observersProvider, ctx.ConsumerType);
             })
             .Transient(_ => Compiled | CultureInvariant | Singleline | IgnoreCase)
-            .Transient<ApiInvocationProcessor, DependencyGraphBuilder, TypeConstructor, BindingBuilder, SetupContextRewriter>()
+            .Transient<ApiInvocationProcessor, DependencyGraphBuilder, TypeConstructor, BindingBuilder, SetupContextRewriter, SetupContextMembersCollector>()
 
             // Walkers
             .SpecialType<CSharpSyntaxRewriter>()
@@ -103,7 +103,7 @@ public sealed partial class Generator
             // Code builders
             .PerBlock<CompositionClassBuilder>(CompositionClass)
             .PerBlock<UsingDeclarationsBuilder>(UsingDeclarations)
-            .PerBlock<DisposeMethodBuilder, RootMethodsBuilder, ArgFieldsBuilder, FieldsBuilder, ScopeConstructorBuilder, ParameterizedConstructorBuilder, DefaultConstructorBuilder,
+            .PerBlock<DisposeMethodBuilder, RootMethodsBuilder, ArgFieldsBuilder, SetupContextMembersBuilder, FieldsBuilder, ScopeConstructorBuilder, ParameterizedConstructorBuilder, DefaultConstructorBuilder,
                 ResolverClassesBuilder, StaticConstructorBuilder, ApiMembersBuilder, ResolversFieldsBuilder, ToStringMethodBuilder>(Unique)
 
         // PerResolve

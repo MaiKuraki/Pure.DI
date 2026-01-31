@@ -21,6 +21,7 @@ record MdSetup(
     in ImmutableArray<MdOrdinalAttribute> OrdinalAttributes,
     in ImmutableArray<MdSpecialType> SpecialTypes,
     in ImmutableArray<MdAccumulator> Accumulators,
+    in ImmutableArray<SetupContextMembers> SetupContextMembers,
     IReadOnlyCollection<MdTagOnSites> TagOn,
     IReadOnlyCollection<string> Comments)
 {

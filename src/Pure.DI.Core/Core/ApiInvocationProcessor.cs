@@ -321,6 +321,7 @@ sealed class ApiInvocationProcessor(
                                 ImmutableArray<MdOrdinalAttribute>.Empty,
                                 ImmutableArray<MdSpecialType>.Empty,
                                 ImmutableArray<MdAccumulator>.Empty,
+                                ImmutableArray<SetupContextMembers>.Empty,
                                 [],
                                 comments.FilterHints(invocationComments).ToList()));
 
@@ -365,15 +366,31 @@ sealed class ApiInvocationProcessor(
                         if (semanticModel.GetSymbolInfo(invocation).Symbol is IMethodSymbol { Parameters.Length: 3 } methodWithKindSymbol
                             && !methodWithKindSymbol.Parameters[0].IsParams)
                         {
-                            var dependsOnArgs = arguments.GetArgs(invocation.ArgumentList, "setupName", "contextArgName", "kind");
+                            var dependsOnArgs = arguments.GetArgs(invocation.ArgumentList, "setupName", "kind", "name");
                             if (dependsOnArgs[0] is { Expression: {} setupNameExpression }
-                                && dependsOnArgs[1] is { Expression: {} contextArgExpression })
+                                && dependsOnArgs[1] is { Expression: {} contextKindExpression })
                             {
                                 var setupName = semantic.GetRequiredConstantValue<string>(semanticModel, setupNameExpression, SmartTagKind.Name);
-                                var contextArgName = semantic.GetRequiredConstantValue<string>(semanticModel, contextArgExpression, SmartTagKind.Name);
-                                var contextArgKind = dependsOnArgs[2] is { Expression: {} contextKindExpression }
-                                    ? semantic.GetRequiredConstantValue<SetupContextKind>(semanticModel, contextKindExpression)
-                                    : SetupContextKind.Argument;
+                                var contextArgKind = semantic.GetRequiredConstantValue<SetupContextKind>(semanticModel, contextKindExpression);
+                                var contextArgExpression = dependsOnArgs[2]?.Expression;
+                                var contextArgName = contextArgExpression is not null
+                                    ? semantic.GetRequiredConstantValue<string>(semanticModel, contextArgExpression, SmartTagKind.Name)
+                                    : "";
+                                if (string.IsNullOrWhiteSpace(contextArgName))
+                                {
+                                    if (contextArgKind == SetupContextKind.Members)
+                                    {
+                                        contextArgName = $"{Names.DefaultInstanceValueName}{Names.TempInstanceValueNameSuffix}";
+                                    }
+                                    else
+                                    {
+                                        throw new CompileErrorException(
+                                            Strings.Error_SetupContextNameIsRequired,
+                                            ImmutableArray.Create(locationProvider.GetLocation(invocation)),
+                                            LogId.ErrorSetupContextNameIsRequired,
+                                            nameof(Strings.Error_SetupContextNameIsRequired));
+                                    }
+                                }
                                 metadataVisitor.VisitDependsOn(
                                     new MdDependsOn(
                                         semanticModel,

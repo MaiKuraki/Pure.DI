@@ -82,6 +82,9 @@
     <data name="Error_Template_CannotUseContextDirectly" xml:space="preserve">
         <value>Невозможно использовать "{0}" напрямую. Доступны только его методы или свойства.</value>
     </data>
+    <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
+        <value>Для DependsOn необходимо указать имя контекста.</value>
+    </data>
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>Недопустимый тип корня.</value>
     </data>
@@ -174,5 +177,9 @@
     </data>
     <data name="Warning_Template_InstanceMemberInDependsOnSetup" xml:space="preserve">
         <value>В привязке используется член экземпляра "{0}" из setup "{1}", который применяется через DependsOn или CompositionKind.Internal/Global. В зависимой композиции такого члена не будет. Перенесите значение в Arg/RootArg или отдельный контекст.</value>
-    </data></root>
+    </data>
+    <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
+        <value>DependsOn требует имя контекста при использовании вида контекста.</value>
+    </data>
+</root>
 
