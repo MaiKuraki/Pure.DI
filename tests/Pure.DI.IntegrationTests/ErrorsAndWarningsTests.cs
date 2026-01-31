@@ -1,4 +1,4 @@
-﻿namespace Pure.DI.IntegrationTests;
+namespace Pure.DI.IntegrationTests;
 
 using Core;
 
@@ -342,7 +342,7 @@ public class ErrorsAndWarningsTests
                                    private void Setup()
                                    {
                                        DI.Setup(nameof(Composition))
-                                           .DependsOn(nameof(BaseComposition), "baseContext")
+                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Argument, "baseContext")
                                            .Bind<IService>().To<Service>()
                                            .Root<IService>("Service");
                                    }
@@ -410,7 +410,7 @@ public class ErrorsAndWarningsTests
                                    private void Setup()
                                    {
                                        DI.Setup(nameof(Composition))
-                                           .DependsOn(nameof(BaseComposition), "baseContext")
+                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Argument, "baseContext")
                                            .Bind<IService>().To<Service>()
                                            .Root<IService>("Service");
                                    }
@@ -478,7 +478,7 @@ public class ErrorsAndWarningsTests
                                    private void Setup()
                                    {
                                        DI.Setup(nameof(Composition))
-                                           .DependsOn(nameof(BaseComposition), "baseContext")
+                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Argument, "baseContext")
                                            .Bind<IService>().To<Service>()
                                            .Root<IService>("Service");
                                    }
@@ -546,7 +546,7 @@ public class ErrorsAndWarningsTests
                                    private void Setup()
                                    {
                                        DI.Setup(nameof(Composition))
-                                           .DependsOn(nameof(BaseComposition), "baseContext", SetupContextKind.Field)
+                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Field, "baseContext")
                                            .Bind<IService>().To<Service>()
                                            .Root<IService>("Service");
                                    }
@@ -614,7 +614,7 @@ public class ErrorsAndWarningsTests
                                    private void Setup()
                                    {
                                        DI.Setup(nameof(Composition))
-                                           .DependsOn(nameof(BaseComposition), "baseContext", SetupContextKind.Property)
+                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Property, "baseContext")
                                            .Bind<IService>().To<Service>()
                                            .Root<IService>("Service");
                                    }
@@ -683,7 +683,7 @@ public class ErrorsAndWarningsTests
                                    {
                                        // Resolve = Off
                                        DI.Setup(nameof(Composition))
-                                           .DependsOn(nameof(BaseComposition), "baseContext", SetupContextKind.RootArgument)
+                                           .DependsOn(nameof(BaseComposition), SetupContextKind.RootArgument, "baseContext")
                                            .Bind<IService>().To<Service>()
                                            .Root<IService>("Service");
                                    }
@@ -751,7 +751,7 @@ public class ErrorsAndWarningsTests
                                    private void Setup()
                                    {
                                        DI.Setup(nameof(Composition))
-                                           .DependsOn(contextArgName: "baseContext", setupName: nameof(BaseComposition), kind: SetupContextKind.Field)
+                                           .DependsOn(setupName: nameof(BaseComposition), kind: SetupContextKind.Field, name: "baseContext")
                                            .Bind<IService>().To<Service>()
                                            .Root<IService>("Service");
                                    }
@@ -818,7 +818,7 @@ public class ErrorsAndWarningsTests
                                    private void Setup()
                                    {
                                        DI.Setup(nameof(Composition))
-                                           .DependsOn(nameof(BaseComposition), "baseContext")
+                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Argument, "baseContext")
                                            .Bind<IService>().To<Service>()
                                            .Root<IService>("Service");
                                    }
@@ -886,7 +886,7 @@ public class ErrorsAndWarningsTests
                                    {
                                        DI.Setup(nameof(Composition))
                                            .Bind<BaseComposition>().To(_ => new BaseComposition { Value = 1 })
-                                           .DependsOn(nameof(BaseComposition), "baseContext")
+                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Argument, "baseContext")
                                            .Bind<IService>().To<Service>()
                                            .Root<IService>("Service");
                                    }
@@ -1175,7 +1175,7 @@ public class ErrorsAndWarningsTests
     [Theory]
     [InlineData("ctx2")]
     [InlineData("Console")]
-    public async Task ShouldRaiseCompilationErrorWhenContextIsUsingDirectly(string contextArgName)
+    public async Task ShouldRaiseCompilationErrorWhenContextIsUsingDirectly(string name)
     {
         // Given
 
@@ -1239,12 +1239,12 @@ public class ErrorsAndWarningsTests
                                    }
                                }
                            }
-                           """.Replace("#ctx#", contextArgName).RunAsync(new Options(LanguageVersion.CSharp9));
+                           """.Replace("#ctx#", name).RunAsync(new Options(LanguageVersion.CSharp9));
 
         // Then
         result.Success.ShouldBeFalse(result);
         result.Errors
-            .Count(i => i is { Id: LogId.ErrorCannotUseContextDirectly } && i.Message == $"Cannot use \"{contextArgName}\" directly. Only its methods or properties are accessible." && i.Locations.FirstOrDefault().GetSource() == contextArgName)
+            .Count(i => i is { Id: LogId.ErrorCannotUseContextDirectly } && i.Message == $"Cannot use \"{name}\" directly. Only its methods or properties are accessible." && i.Locations.FirstOrDefault().GetSource() == name)
             .ShouldBe(1, result);
     }
 
@@ -2946,3 +2946,4 @@ public class ErrorsAndWarningsTests
         result.Logs.Count(i => i.Id == LogId.ErrorSpecialTypeGenericMarker && i.Locations.FirstOrDefault().GetSource() == "IComparer<TT>").ShouldBe(1, result);
     }
 }
+

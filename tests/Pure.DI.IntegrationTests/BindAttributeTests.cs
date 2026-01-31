@@ -1,4 +1,4 @@
-﻿namespace Pure.DI.IntegrationTests;
+namespace Pure.DI.IntegrationTests;
 
 /// <summary>
 /// Tests related to the [Bind] attribute, which allows defining bindings directly on members like fields, properties, or methods.

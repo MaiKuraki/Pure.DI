@@ -82,6 +82,10 @@
     <data name="Error_Template_CannotUseContextDirectly" xml:space="preserve">
         <value>ไม่สามารถใช้ "{0}" โดยตรงได้ สามารถเข้าถึงได้เฉพาะเมธอดหรือคุณสมบัติของมันเท่านั้น</value>
     </data>
+    <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
+        <value>จำเป็นต้องระบุชื่อบริบทการตั้งค่าสำหรับ DependsOn</value>
+    </data>
+
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>ประเภทรูทไม่ถูกต้อง</value>
     </data>
@@ -171,5 +175,8 @@
     </data>
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>Static root {0} ของประเภท {1} ไม่สามารถใช้ Lifetime {2} โดยตรงหรือผ่านการพึ่งพาได้</value>
+    </data>
+    <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
+        <value>DependsOn ต้องใช้ชื่อบริบทการตั้งค่าเมื่อใช้ชนิดบริบทการตั้งค่า</value>
     </data>
 </root>

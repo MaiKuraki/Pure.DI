@@ -5,7 +5,7 @@ $d=Dependent compositions with setup context root argument
 $h=This scenario shows how to pass an explicit setup context as a root argument.
 $h=When this occurs: you need external state from the base setup but cannot use a constructor (e.g., Unity MonoBehaviour).
 $h=What it solves: keeps the dependent composition safe while avoiding constructor arguments.
-$h=How it is solved in the example: uses DependsOn(..., SetupContextKind.RootArgument) and passes the base setup instance to the root method.
+$h=How it is solved in the example: uses DependsOn(..., SetupContextKind.RootArgument, name) and passes the base setup instance to the root method.
 $f=
 $f=What it shows:
 $f=- Passing setup context into a root method.
@@ -78,7 +78,7 @@ internal partial class Composition
     {
         // Resolve = Off
         DI.Setup(nameof(Composition))
-            .DependsOn(nameof(BaseComposition), "baseContext", SetupContextKind.RootArgument)
+            .DependsOn(nameof(BaseComposition), SetupContextKind.RootArgument, "baseContext")
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }

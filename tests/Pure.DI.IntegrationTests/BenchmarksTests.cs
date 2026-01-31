@@ -1,4 +1,4 @@
-﻿namespace Pure.DI.IntegrationTests;
+namespace Pure.DI.IntegrationTests;
 
 /// <summary>
 /// Tests related to the generation of benchmarks for the composition.

@@ -91,6 +91,8 @@ static class LogId
     public const string ErrorTypeCannotBeInferred = "DIE042";
     // Unhandled generator error.
     public const string ErrorUnhandled = "DIE043";
+    // Setup context name is required.
+    public const string ErrorSetupContextNameIsRequired = "DIE044";
 
     // Warnings
     // Binding has been overridden.

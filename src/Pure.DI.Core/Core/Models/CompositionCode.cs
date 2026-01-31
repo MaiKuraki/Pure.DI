@@ -13,6 +13,7 @@ record CompositionCode(
     in ImmutableArray<VarDeclaration> Singletons,
     in ImmutableArray<VarDeclaration> ClassArgs,
     in ImmutableArray<SetupContextArg> SetupContextArgs,
+    in ImmutableArray<SetupContextMembers> SetupContextMembers,
     int MembersCount = 0)
 {
     public Compilation Compilation => Source.Source.SemanticModel.Compilation;

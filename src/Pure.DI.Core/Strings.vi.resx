@@ -82,6 +82,10 @@
     <data name="Error_Template_CannotUseContextDirectly" xml:space="preserve">
         <value>Không thể sử dụng "{0}" trực tiếp. Chỉ các phương thức hoặc thuộc tính của nó mới có thể truy cập được.</value>
     </data>
+    <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
+        <value>Cần chỉ định tên ngữ cảnh thiết lập cho DependsOn.</value>
+    </data>
+
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>Kiểu root không hợp lệ.</value>
     </data>
@@ -171,5 +175,8 @@
     </data>
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>Static root {0} của kiểu {1} không thể sử dụng Lifetime {2} trực tiếp hoặc thông qua một phụ thuộc.</value>
+    </data>
+    <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
+        <value>DependsOn yêu cầu tên ngữ cảnh thiết lập khi sử dụng loại ngữ cảnh thiết lập.</value>
     </data>
 </root>

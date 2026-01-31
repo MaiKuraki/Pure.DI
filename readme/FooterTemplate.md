@@ -1,6 +1,6 @@
-﻿### Applications
+### Applications
 - Console
-  - [Schrödinger's cat](readme/Console.md)
+  - [Schrodinger's cat](readme/Console.md)
   - [Top-level statements](readme/ConsoleTopLevelStatements.md)
   - [Native AOT](readme/ConsoleNativeAOT.md)
   - [Entity Framework](readme/EntityFramework.md)
@@ -20,7 +20,7 @@
   - [Blazor WebAssembly](readme/BlazorWebAssemblyApp.md)
     - [https://devteam.github.io/Pure.DI/](https://devteam.github.io/Pure.DI/)
 - GitHub repos with examples
-  - [Schrödinger's cat](https://github.com/DevTeam/Pure.DI.Example)
+  - [Schrodinger's cat](https://github.com/DevTeam/Pure.DI.Example)
   - [How to use Pure.DI to create and test libraries](https://github.com/DevTeam/Pure.DI.Solution)
 
 ## Generated Code
@@ -106,7 +106,7 @@ By default, starting with version 2.3.0, no constructors are generated for a com
 
 #### Parameterized constructor (automatic generation)
 
-If the composition has any arguments defined, Pure.DI automatically generates a public parameterized constructor that includes all specified arguments. Setup contexts passed via `DependsOn(..., contextArgName)` with `SetupContextKind.Argument` (default) are treated as arguments and also appear in this constructor.
+If the composition has any arguments defined, Pure.DI automatically generates a public parameterized constructor that includes all specified arguments. Setup contexts passed via `DependsOn(..., kind, name)` with `SetupContextKind.Argument` are treated as arguments and also appear in this constructor.
 
 Example configuration:
 
@@ -133,7 +133,7 @@ Important notes:
 
 When a dependent setup needs instance state from another setup, you can pass an explicit setup context via `DependsOn`:
 
-- `SetupContextKind.Argument` (default): adds the setup context as a constructor argument.
+- `SetupContextKind.Argument`: adds the setup context as a constructor argument.
 - `SetupContextKind.Field`: generates a field to hold the context, no constructor argument.
 - `SetupContextKind.Property`: generates a property to hold the context, no constructor argument.
 - `SetupContextKind.RootArgument`: adds the setup context to root methods that require it, no constructor argument.
@@ -153,7 +153,7 @@ If there is at least one binding with `Lifetime.Scoped`, Pure.DI generates two c
 
 2. Internal constructor with parent scope
 
-> Used for creating child scope instances. This constructor is internal and accepts a single parameter — the parent scope.
+> Used for creating child scope instances. This constructor is internal and accepts a single parameter � the parent scope.
 > ```c#
 > internal Composition(Composition parentScope) { /* ... */ }
 > ```

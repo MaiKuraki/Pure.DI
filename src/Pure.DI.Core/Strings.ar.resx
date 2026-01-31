@@ -82,6 +82,10 @@
     <data name="Error_Template_CannotUseContextDirectly" xml:space="preserve">
         <value>لا يمكن استخدام "{0}" مباشرة. تتوفر فقط أساليبه (methods) أو خصائصه (properties).</value>
     </data>
+    <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
+        <value>يجب تحديد اسم سياق الإعداد لـ DependsOn.</value>
+    </data>
+
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>نوع جذر غير صالح.</value>
     </data>
@@ -171,5 +175,8 @@
     </data>
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>لا يمكن للجذر الثابت {0} من النوع {1} استخدام Lifetime {2} مباشرة أو من خلال تبعية.</value>
+    </data>
+    <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
+        <value>يتطلب DependsOn اسم سياق إعداد عند استخدام نوع سياق إعداد.</value>
     </data>
 </root>

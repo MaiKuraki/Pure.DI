@@ -3,7 +3,7 @@
 This scenario shows how to pass an explicit setup context when a dependent setup uses instance members.
 When this occurs: you need base setup state (e.g., Unity-initialized fields) inside a dependent composition.
 What it solves: avoids missing instance members in dependent compositions and keeps state access explicit.
-How it is solved in the example: uses DependsOn(setupName, contextArgName) and passes the base setup instance into the dependent composition.
+How it is solved in the example: uses DependsOn(setupName, kind, name) and passes the base setup instance into the dependent composition.
 
 
 ```c#
@@ -37,7 +37,7 @@ internal partial class Composition
     private void Setup()
     {
         DI.Setup(nameof(Composition))
-            .DependsOn(setupName: nameof(BaseComposition), contextArgName: "baseContext", kind: SetupContextKind.Field)
+            .DependsOn(setupName: nameof(BaseComposition), kind: SetupContextKind.Field, name: "baseContext")
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }
