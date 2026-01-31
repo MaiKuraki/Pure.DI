@@ -404,6 +404,7 @@ dotnet run
 - [Tag on injection site with wildcards](readme/tag-on-injection-site-with-wildcards.md)
 - [Dependent compositions](readme/dependent-compositions.md)
 - [Dependent compositions with setup context](readme/dependent-compositions-with-setup-context.md)
+- [Dependent compositions with setup context members](readme/dependent-compositions-with-setup-context-members.md)
 - [Dependent compositions with setup context property](readme/dependent-compositions-with-setup-context-property.md)
 - [Dependent compositions with setup context root argument](readme/dependent-compositions-with-setup-context-root-argument.md)
 - [Inheritance of compositions](readme/inheritance-of-compositions.md)
@@ -412,6 +413,7 @@ dotnet run
 - [Partial class](readme/partial-class.md)
 - [A few partial classes](readme/a-few-partial-classes.md)
 - [Thread-safe overrides](readme/thread-safe-overrides.md)
+- [Override depth](readme/override-depth.md)
 - [Consumer types](readme/consumer-types.md)
 - [Tracking disposable instances per a composition root](readme/tracking-disposable-instances-per-a-composition-root.md)
 - [Tracking disposable instances in delegates](readme/tracking-disposable-instances-in-delegates.md)
@@ -429,12 +431,13 @@ dotnet run
 - [AutoMapper](readme/automapper.md)
 - [JSON serialization](readme/json-serialization.md)
 - [Serilog](readme/serilog.md)
+- [Request overrides](readme/request-overrides.md)
 ### Unity
 - [Unity Basics](readme/unity-basics.md)
 - [Unity with prefabs](readme/unity-with-prefabs.md)
 ### Applications
 - Console
-  - [Schrödinger's cat](readme/Console.md)
+  - [Schrodinger's cat](readme/Console.md)
   - [Top-level statements](readme/ConsoleTopLevelStatements.md)
   - [Native AOT](readme/ConsoleNativeAOT.md)
   - [Entity Framework](readme/EntityFramework.md)
@@ -454,7 +457,7 @@ dotnet run
   - [Blazor WebAssembly](readme/BlazorWebAssemblyApp.md)
     - [https://devteam.github.io/Pure.DI/](https://devteam.github.io/Pure.DI/)
 - GitHub repos with examples
-  - [Schrödinger's cat](https://github.com/DevTeam/Pure.DI.Example)
+  - [Schrodinger's cat](https://github.com/DevTeam/Pure.DI.Example)
   - [How to use Pure.DI to create and test libraries](https://github.com/DevTeam/Pure.DI.Solution)
 
 ## Generated Code
@@ -540,7 +543,7 @@ By default, starting with version 2.3.0, no constructors are generated for a com
 
 #### Parameterized constructor (automatic generation)
 
-If the composition has any arguments defined, Pure.DI automatically generates a public parameterized constructor that includes all specified arguments. Setup contexts passed via `DependsOn(..., contextArgName)` with `SetupContextKind.Argument` (default) are treated as arguments and also appear in this constructor.
+If the composition has any arguments defined, Pure.DI automatically generates a public parameterized constructor that includes all specified arguments. Setup contexts passed via `DependsOn(..., kind, name)` with `SetupContextKind.Argument` are treated as arguments and also appear in this constructor.
 
 Example configuration:
 
@@ -567,7 +570,7 @@ Important notes:
 
 When a dependent setup needs instance state from another setup, you can pass an explicit setup context via `DependsOn`:
 
-- `SetupContextKind.Argument` (default): adds the setup context as a constructor argument.
+- `SetupContextKind.Argument`: adds the setup context as a constructor argument.
 - `SetupContextKind.Field`: generates a field to hold the context, no constructor argument.
 - `SetupContextKind.Property`: generates a property to hold the context, no constructor argument.
 - `SetupContextKind.RootArgument`: adds the setup context to root methods that require it, no constructor argument.
@@ -587,7 +590,7 @@ If there is at least one binding with `Lifetime.Scoped`, Pure.DI generates two c
 
 2. Internal constructor with parent scope
 
-> Used for creating child scope instances. This constructor is internal and accepts a single parameter — the parent scope.
+> Used for creating child scope instances. This constructor is internal and accepts a single parameter � the parent scope.
 > ```c#
 > internal Composition(Composition parentScope) { /* ... */ }
 > ```
@@ -777,6 +780,29 @@ Example:
 ```c#
 .Bind<IService>().To(ctx => new Service(ctx.Resolve<IDependency>()))
 ```
+
+#### Override Depth in Factories
+
+Use `Let` to keep an override at the current injection level:
+
+```c#
+DI.Setup(nameof(Composition))
+    .Bind().To<int>(_ => 7)
+    .Bind().To<Dependency>()
+    .Bind().To<Service>(ctx =>
+    {
+        // Override only the immediate injection
+        ctx.Let(42);
+        ctx.Inject(out Service service);
+        return service;
+    })
+    .Root<Service>("Service");
+```
+
+Override precedence:
+- The nearest override wins for nested dependencies.
+- If multiple overrides target the same type and tag in one factory, the last call wins.
+- `Let` applies only to the current injection level.
 
 #### For Simplified Factories
 
@@ -1890,7 +1916,7 @@ AI needs to understand the situation it’s in (context). This means knowing det
 | --------------- | ---- | ------ |
 | [AGENTS_SMALL.md](AGENTS_SMALL.md) | 63KB | 16K |
 | [AGENTS_MEDIUM.md](AGENTS_MEDIUM.md) | 124KB | 31K |
-| [AGENTS.md](AGENTS.md) | 414KB | 106K |
+| [AGENTS.md](AGENTS.md) | 420KB | 107K |
 
 For different IDEs, you can use the _AGENTS.md_ file as is by simply copying it to the root directory. For use with _JetBrains Rider_ and _Junie_, please refer to [these instructions](https://www.jetbrains.com/help/junie/customize-guidelines.html). For example, you can copy any _AGENTS.md_ file into your project (using _Pure.DI_) as _.junie/guidelines.md._
 ## How to contribute to Pure.DI

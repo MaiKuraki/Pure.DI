@@ -111,14 +111,14 @@ partial class Composition
   public IGreeter GetGreeter(string name)
   {
     if (name is null) throw new ArgumentNullException(nameof(name));
-    Person transientPerson226;
+    Person transientPerson239;
     var localPerson = new Person();
     // Injects dependencies into an existing object
-    Guid transientGuid228 = Guid.NewGuid();
+    Guid transientGuid241 = Guid.NewGuid();
     localPerson.Name = name;
-    localPerson.SetId(transientGuid228);
-    transientPerson226 = localPerson;
-    return new Greeter(transientPerson226);
+    localPerson.SetId(transientGuid241);
+    transientPerson239 = localPerson;
+    return new Greeter(transientPerson239);
   }
 }
 ```

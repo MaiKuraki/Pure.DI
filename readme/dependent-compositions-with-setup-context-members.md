@@ -1,14 +1,17 @@
-#### Dependent compositions with setup context property
+#### Dependent compositions with setup context members
 
-This scenario shows how to pass an explicit setup context via a property.
-When this occurs: Unity (or another host) sets fields/properties on the composition instance.
-What it solves: avoids constructor arguments while still allowing dependent setups to access base state.
-How it is solved in the example: uses DependsOn(..., SetupContextKind.Property) and assigns the context property.
+This scenario shows how to copy referenced members from a base setup into the dependent composition.
+When this occurs: you want to reuse base setup state without passing a separate context instance.
+What it solves: lets dependent compositions access base setup members directly (Unity-friendly, no constructor args).
+How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and sets members on the composition instance. The name parameter is optional.
 
 
 ```c#
-var baseContext = new BaseComposition { Settings = new AppSettings("dev", 1) };
-var composition = new Composition { baseContext = baseContext };
+var composition = new Composition
+{
+    Settings = new AppSettings("prod", 3),
+    Retries = 4
+};
 var service = composition.Service;
 
 interface IService
@@ -16,19 +19,24 @@ interface IService
     string Report { get; }
 }
 
-class Service(IAppSettings settings) : IService
+class Service(IAppSettings settings, [Tag("retries")] int retries) : IService
 {
-    public string Report { get; } = $"env={settings.Environment}, retries={settings.RetryCount}";
+    public string Report { get; } = $"env={settings.Environment}, retries={retries}";
 }
 
 internal partial class BaseComposition
 {
     internal AppSettings Settings { get; set; } = new("", 0);
 
+    internal int Retries { get; set; }
+
+    internal int GetRetries() => Retries;
+
     private void Setup()
     {
         DI.Setup(nameof(BaseComposition), Internal)
-            .Bind<IAppSettings>().To(_ => Settings);
+            .Bind<IAppSettings>().To(_ => Settings)
+            .Bind<int>("retries").To(_ => GetRetries());
     }
 }
 
@@ -37,7 +45,7 @@ internal partial class Composition
     private void Setup()
     {
         DI.Setup(nameof(Composition))
-            .DependsOn(nameof(BaseComposition), "baseContext", SetupContextKind.Property)
+            .DependsOn(nameof(BaseComposition), SetupContextKind.Members)
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }
@@ -79,13 +87,13 @@ dotnet run
 </details>
 
 What it shows:
-- Setup context as a property on the composition.
+- Setup context members copied into the dependent composition.
 
 Important points:
-- The composition stays parameterless and Unity-friendly.
+- The composition remains parameterless and can be configured via its own members.
 
 Useful when:
-- The composition is created by a framework that injects data via properties.
+- Base setup has instance members initialized by the host or framework.
 
 
 The following partial class will be generated:
@@ -93,15 +101,22 @@ The following partial class will be generated:
 ```c#
 partial class Composition
 {
-  public BaseComposition baseContext { get; set; }
+  internal AppSettings Settings { get; set; } = new("", 0);
+
+  internal int Retries { get; set; }
+
+  internal partial int GetRetries();
+
+  internal partial int GetRetries() => Retries;
 
   public IService Service
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      AppSettings transientAppSettings28 = baseContext.Settings;
-      return new Service(transientAppSettings28);
+      AppSettings transientAppSettings25 = Settings;
+      int transientInt3226 = GetRetries();
+      return new Service(transientAppSettings25, transientInt3226);
     }
   }
 
@@ -244,7 +259,8 @@ classDiagram
 	Service --|> IService
 	Composition ..> Service : IService Service
 	Service *--  AppSettings : IAppSettings
-	namespace Pure.DI.UsageTests.Advanced.DependentCompositionsWithPropertyContextScenario {
+	Service *--  Int32 : "retries"  Int32
+	namespace Pure.DI.UsageTests.Advanced.DependentCompositionsWithMembersContextScenario {
 		class AppSettings {
 				<<record>>
 		}
@@ -264,7 +280,12 @@ classDiagram
 		}
 		class Service {
 				<<class>>
-			+Service(IAppSettings settings)
+			+Service(IAppSettings settings, Int32 retries)
+		}
+	}
+	namespace System {
+		class Int32 {
+				<<struct>>
 		}
 	}
 ```

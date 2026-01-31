@@ -130,28 +130,28 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perResolveRoutePlanningSession534 = default(RoutePlanningSession);
+      var perResolveRoutePlanningSession547 = default(RoutePlanningSession);
       if (!_singletonValueTuple54Created)
         lock (_lock)
           if (!_singletonValueTuple54Created)
           {
             EnsureRoutePlanningSessionExists();
-            _singletonValueTuple54 = (perResolveRoutePlanningSession534, perResolveRoutePlanningSession534);
+            _singletonValueTuple54 = (perResolveRoutePlanningSession547, perResolveRoutePlanningSession547);
             Thread.MemoryBarrier();
             _singletonValueTuple54Created = true;
           }
 
       EnsureRoutePlanningSessionExists();
       EnsureRoutePlanningSessionExists();
-      return new TrainTripPlanner(perResolveRoutePlanningSession534, perResolveRoutePlanningSession534, _singletonValueTuple54);
+      return new TrainTripPlanner(perResolveRoutePlanningSession547, perResolveRoutePlanningSession547, _singletonValueTuple54);
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       void EnsureRoutePlanningSessionExists()
       {
-        if (perResolveRoutePlanningSession534 is null)
+        if (perResolveRoutePlanningSession547 is null)
           lock (_lock)
-            if (perResolveRoutePlanningSession534 is null)
+            if (perResolveRoutePlanningSession547 is null)
             {
-              perResolveRoutePlanningSession534 = new RoutePlanningSession();
+              perResolveRoutePlanningSession547 = new RoutePlanningSession();
             }
       }
     }

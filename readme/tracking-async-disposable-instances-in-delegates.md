@@ -133,39 +133,39 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perBlockOwned109 = new Owned();
-      Func<Owned<IConnection>> transientFunc108 = new Func<Owned<IConnection>>(
+      var perBlockOwned122 = new Owned();
+      Func<Owned<IConnection>> transientFunc121 = new Func<Owned<IConnection>>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        Owned<IConnection> transientOwned110;
+        Owned<IConnection> transientOwned123;
         // Creates the owner of an instance
-        Owned transientOwned111;
-        Owned localOwned1 = perBlockOwned109;
-        transientOwned111 = localOwned1;
+        Owned transientOwned124;
+        Owned localOwned1 = perBlockOwned122;
+        transientOwned124 = localOwned1;
         lock (_lock)
         {
-          perBlockOwned109.Add(transientOwned111);
+          perBlockOwned122.Add(transientOwned124);
         }
 
-        IOwned localOwned = transientOwned111;
-        var transientDbConnection112 = new DbConnection();
+        IOwned localOwned = transientOwned124;
+        var transientDbConnection125 = new DbConnection();
         lock (_lock)
         {
-          perBlockOwned109.Add(transientDbConnection112);
+          perBlockOwned122.Add(transientDbConnection125);
         }
 
-        IConnection localValue2 = transientDbConnection112;
-        transientOwned110 = new Owned<IConnection>(localValue2, localOwned);
+        IConnection localValue2 = transientDbConnection125;
+        transientOwned123 = new Owned<IConnection>(localValue2, localOwned);
         lock (_lock)
         {
-          perBlockOwned109.Add(transientOwned110);
+          perBlockOwned122.Add(transientOwned123);
         }
 
-        Owned<IConnection> localValue1 = transientOwned110;
+        Owned<IConnection> localValue1 = transientOwned123;
         return localValue1;
       });
-      return new QueryService(transientFunc108);
+      return new QueryService(transientFunc121);
     }
   }
 }
