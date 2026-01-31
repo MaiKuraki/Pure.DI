@@ -1117,6 +1117,7 @@ sealed class ApiInvocationProcessor(
 
         var localVariableRenamingRewriter = localVariableRenamingRewriterFactory()!;
         var factoryApiWalker = factoryApiWalkerFactory();
+        factoryApiWalker.Initialize(semanticModel, contextParameter, lambdaExpression);
         factoryApiWalker.Visit(lambdaExpression);
         var resolversHasContextTag = false;
         var resolvers = factoryApiWalker.Meta
@@ -1171,6 +1172,8 @@ sealed class ApiInvocationProcessor(
             return default;
         }
 
+        var isDeep = IsDeepOverride(invocation);
+
         var argType = GetDefaultType(semanticModel, invocation, 0) ?? GetArgSymbol(semanticModel, atgSyntax);
         if (argType is null or IErrorTypeSymbol)
         {
@@ -1180,7 +1183,7 @@ sealed class ApiInvocationProcessor(
                         LogId.ErrorTypeCannotBeInferred,
                         nameof(Strings.Error_TypeCannotBeInferred));
         }
-        var tagArguments = invocation.ArgumentList.Arguments.Skip(1).ToList();
+        var tagArguments = GetOverrideTagArguments(invocation);
         var hasCtx = tagArguments.Aggregate(false, (current, tag) => current | HasContextTag(tag.Expression, contextParameter));
         var tags = BuildTags(semanticModel, tagArguments)
             .AsEnumerable()
@@ -1210,7 +1213,47 @@ sealed class ApiInvocationProcessor(
             @override.Position,
             argType,
             tags,
-            valueExpression);
+            valueExpression,
+            isDeep,
+            HasExplicitTypeArguments(invocation));
+    }
+
+    private static IEnumerable<ArgumentSyntax> GetOverrideTagArguments(InvocationExpressionSyntax invocation)
+    {
+        var args = invocation.ArgumentList.Arguments;
+        if (args.Any(arg => arg.NameColon?.Name.Identifier.Text == "tags"))
+        {
+            return args.Where(arg => arg.NameColon?.Name.Identifier.Text == "tags");
+        }
+
+        return args.Where((arg, index) => arg.NameColon is null && index > 0);
+    }
+
+    private static bool HasExplicitTypeArguments(InvocationExpressionSyntax invocation)
+    {
+        return invocation.Expression switch
+        {
+            MemberAccessExpressionSyntax { Name: GenericNameSyntax } => true,
+            MemberBindingExpressionSyntax { Name: GenericNameSyntax } => true,
+            GenericNameSyntax => true,
+            _ => false
+        };
+    }
+
+    private static bool IsDeepOverride(InvocationExpressionSyntax invocation)
+    {
+        var name = invocation.Expression switch
+        {
+            MemberAccessExpressionSyntax { Name: IdentifierNameSyntax identifier } => identifier.Identifier.Text,
+            MemberAccessExpressionSyntax { Name: GenericNameSyntax generic } => generic.Identifier.Text,
+            MemberBindingExpressionSyntax { Name: IdentifierNameSyntax identifier } => identifier.Identifier.Text,
+            MemberBindingExpressionSyntax { Name: GenericNameSyntax generic } => generic.Identifier.Text,
+            IdentifierNameSyntax identifier => identifier.Identifier.Text,
+            GenericNameSyntax generic => generic.Identifier.Text,
+            _ => null
+        };
+
+        return name != nameof(IContext.Let);
     }
 
     private MdInitializer CreateInitializer(

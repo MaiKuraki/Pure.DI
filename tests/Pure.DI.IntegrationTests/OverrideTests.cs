@@ -580,6 +580,379 @@ public class OverrideTests
     }
 
     [Fact]
+    public async Task ShouldUseNearestOverrideInNestedFactories()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IRequestContext
+                               {
+                                   string Name { get; }
+                               }
+
+                               class RequestContext : IRequestContext
+                               {
+                                   public RequestContext(string name)
+                                   {
+                                       Name = name;
+                                   }
+
+                                   public string Name { get; }
+                               }
+
+                               interface IRepository
+                               {
+                               }
+
+                               class Repository : IRepository
+                               {
+                                   public Repository(IRequestContext context)
+                                   {
+                                       Console.WriteLine($"repo:{context.Name}");
+                                   }
+                               }
+
+                               class Service
+                               {
+                                   public Service(IRequestContext context, Func<IRepository> repoFactory)
+                                   {
+                                       Console.WriteLine($"svc:{context.Name}");
+                                       _ = repoFactory();
+                                   }
+                               }
+
+                               class Controller
+                               {
+                                   public Controller(Service service)
+                                   {
+                                   }
+                               }
+
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind<IRepository>().To<Repository>()
+                                           .Bind().To<Service>()
+                                           .Bind().To<Controller>()
+                                           .Bind().To<Func<IRepository>>(ctx => () =>
+                                           {
+                                               ctx.Override<IRequestContext>(new RequestContext("system"));
+                                               ctx.Inject(out IRepository repository);
+                                               return repository;
+                                           })
+                                           .Bind().To<Func<string, Controller>>(ctx => name =>
+                                           {
+                                               ctx.Override<IRequestContext>(new RequestContext(name));
+                                               ctx.Inject(out Controller controller);
+                                               return controller;
+                                           })
+                                           .Root<Func<string, Controller>>("CreateController");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       _ = composition.CreateController("request");
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["svc:request", "repo:system"], result);
+    }
+
+    [Fact]
+    public async Task ShouldUseLastOverrideAtSameLevel()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IRequestContext
+                               {
+                                   string Name { get; }
+                               }
+
+                               class RequestContext : IRequestContext
+                               {
+                                   public RequestContext(string name)
+                                   {
+                                       Name = name;
+                                   }
+
+                                   public string Name { get; }
+                               }
+
+                               class Service
+                               {
+                                   public Service(IRequestContext context)
+                                   {
+                                       Console.WriteLine($"svc:{context.Name}");
+                                   }
+                               }
+
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind().To<Service>()
+                                           .Bind().To<Func<Service>>(ctx => () =>
+                                           {
+                                               ctx.Override<IRequestContext>(new RequestContext("first"));
+                                               ctx.Override<IRequestContext>(new RequestContext("second"));
+                                               ctx.Inject(out Service service);
+                                               return service;
+                                           })
+                                           .Root<Func<Service>>("CreateService");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       _ = composition.CreateService();
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["svc:second"], result);
+    }
+
+    [Fact]
+    public async Task ShouldOverrideDeepByDefault()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency
+                               {
+                                   int Id { get; }
+                               }
+
+                               class Dependency : IDependency
+                               {
+                                   public Dependency(int id)
+                                   {
+                                       Id = id;
+                                       Console.WriteLine($"dep:{id}");
+                                   }
+
+                                   public int Id { get; }
+                               }
+
+                               class Service
+                               {
+                                   public Service(int id, IDependency dep)
+                                   {
+                                       Console.WriteLine($"svc:{id}");
+                                   }
+                               }
+
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind().To<int>(_ => 7)
+                                           .Bind().To<Dependency>()
+                                           .Bind().To<Service>(ctx =>
+                                           {
+                                               ctx.Override(42);
+                                               ctx.Inject(out Service service);
+                                               return service;
+                                           })
+                                           .Root<Service>("Root");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       _ = composition.Root;
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["dep:42", "svc:42"], result);
+    }
+
+    [Fact]
+    public async Task ShouldOverrideOneLevelOnly()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency
+                               {
+                                   int Id { get; }
+                               }
+
+                               class Dependency : IDependency
+                               {
+                                   public Dependency(int id)
+                                   {
+                                       Id = id;
+                                       Console.WriteLine($"dep:{id}");
+                                   }
+
+                                   public int Id { get; }
+                               }
+
+                               class Service
+                               {
+                                   public Service(int id, IDependency dep)
+                                   {
+                                       Console.WriteLine($"svc:{id}");
+                                   }
+                               }
+
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind().To<int>(_ => 7)
+                                           .Bind().To<Dependency>()
+                                           .Bind().To<Service>(ctx =>
+                                           {
+                                               ctx.Let(42);
+                                               ctx.Inject(out Service service);
+                                               return service;
+                                           })
+                                           .Root<Service>("Root");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       _ = composition.Root;
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["dep:7", "svc:42"], result);
+    }
+
+    [Fact]
+    public async Task ShouldKeepFuncOverrideBehavior()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               class SubDependency
+                               {
+                                   public SubDependency(int id)
+                                   {
+                                       Console.WriteLine($"sub:{id}");
+                                   }
+                               }
+
+                               class Dependency
+                               {
+                                   public Dependency(int id, SubDependency sub)
+                                   {
+                                       Console.WriteLine($"dep:{id}");
+                                   }
+                               }
+
+                               class Service
+                               {
+                                   public Service(Func<int, Dependency> factory)
+                                   {
+                                       _ = factory(10);
+                                   }
+                               }
+
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind().To<int>(_ => 7)
+                                           .Bind().To<SubDependency>()
+                                           .Bind().To<Dependency>()
+                                           .Bind().To<Func<int, Dependency>>(ctx =>
+                                               id =>
+                                               {
+                                                   ctx.Override(id);
+                                                   ctx.Inject(out Dependency dependency);
+                                                   return dependency;
+                                               })
+                                           .Bind().To<Service>()
+                                           .Root<Service>("Root");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       _ = composition.Root;
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["sub:10", "dep:10"], result);
+    }
+
+    [Fact]
     public async Task ShouldSupportSimpleOverrideWhenHasNotTypeParam()
     {
         // Given

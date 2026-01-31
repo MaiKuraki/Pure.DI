@@ -16,7 +16,18 @@ class GraphOverrider(
         var processed = new Dictionary<int, DependencyNode>(graph.Entries.Count);
         foreach (var rootNode in from node in graph.Vertices where node.Root is not null select node)
         {
-            Override(processed, new Dictionary<Injection, DependencyNode>(), new Dictionary<int, DpOverride>(), setup, graph, rootNode, rootNode, ref bindingId, entries);
+            Override(
+                processed,
+                new Dictionary<Injection, DependencyNode>(),
+                new Dictionary<Injection, DependencyNode>(),
+                false,
+                new Dictionary<int, DpOverride>(),
+                setup,
+                graph,
+                rootNode,
+                rootNode,
+                ref bindingId,
+                entries);
             if (cancellationToken.IsCancellationRequested)
             {
                 return graph;
@@ -41,6 +52,8 @@ class GraphOverrider(
     private DependencyNode Override(
         IDictionary<int, DependencyNode> processed,
         IReadOnlyDictionary<Injection, DependencyNode> nodes,
+        IReadOnlyDictionary<Injection, DependencyNode> localOverrides,
+        bool consumeLocalOverrides,
         IReadOnlyDictionary<int, DpOverride> overrides,
         MdSetup setup,
         IGraph<DependencyNode, Dependency> graph,
@@ -60,6 +73,15 @@ class GraphOverrider(
         }
 
         var nodesMap = nodes.ToDictionary();
+        var localNodesMap = nodesMap.ToDictionary();
+        if (consumeLocalOverrides && localOverrides.Count > 0)
+        {
+            foreach (var pair in localOverrides)
+            {
+                localNodesMap[pair.Key] = pair.Value;
+            }
+        }
+
         var overridesMap = overrides.ToDictionary();
         IEnumerable<ImmutableArray<DpOverride>> overridesEnumerable;
         if (targetNode.Factory is {} factory)
@@ -80,6 +102,7 @@ class GraphOverrider(
         var newDependencies = new List<Dependency>(dependencies.Count);
         var lastDependencyPosition = 0;
         using var overridesEnumerator = overridesEnumerable.GetEnumerator();
+        var nextLocalOverrides = new Dictionary<Injection, DependencyNode>();
         foreach (var dependency in dependencies)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -111,6 +134,7 @@ class GraphOverrider(
                         var currentOverride = new DpOverride(@override.Source with { Id = overrideId, ContractType = contractType }, injections);
                         overridesMap[@override.Source.Id] = currentOverride;
                         MdBinding? overrideBinding = null;
+                        var isDeepOverride = currentOverride.Source.IsDeep;
                         foreach (var injection in injections)
                         {
                             if (cancellationToken.IsCancellationRequested)
@@ -118,7 +142,7 @@ class GraphOverrider(
                                 return targetNode;
                             }
 
-                            if (nodesMap.ContainsKey(injection))
+                            if (localNodesMap.ContainsKey(injection))
                             {
                                 continue;
                             }
@@ -136,7 +160,16 @@ class GraphOverrider(
 
                             foreach (var sourceNode in nodesFactory.CreateNodes(setup, typeConstructor, overrideBinding))
                             {
-                                nodesMap[injection] = sourceNode;
+                                if (isDeepOverride)
+                                {
+                                    nodesMap[injection] = sourceNode;
+                                }
+                                else
+                                {
+                                    nextLocalOverrides[injection] = sourceNode;
+                                }
+
+                                localNodesMap[injection] = sourceNode;
                             }
                         }
                     }
@@ -144,9 +177,20 @@ class GraphOverrider(
             }
 
             var currentDependency = dependency with { Target = targetNode };
-            if (!nodesMap.TryGetValue(currentDependency.Injection, out var overridingSourceNode))
+            if (!localNodesMap.TryGetValue(currentDependency.Injection, out var overridingSourceNode))
             {
-                var source = Override(processed, nodesMap, overridesMap, setup, graph, rootNode, currentDependency.Source, ref maxId, entries);
+                var source = Override(
+                    processed,
+                    nodesMap,
+                    nextLocalOverrides,
+                    nextLocalOverrides.Count > 0,
+                    overridesMap,
+                    setup,
+                    graph,
+                    rootNode,
+                    currentDependency.Source,
+                    ref maxId,
+                    entries);
                 currentDependency = currentDependency with { Source = source };
             }
             else

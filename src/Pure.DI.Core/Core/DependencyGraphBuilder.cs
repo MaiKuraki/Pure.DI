@@ -101,12 +101,41 @@ sealed class DependencyGraphBuilder(
 
             foreach (var (injection, hasExplicitDefaultValue, explicitDefaultValue, position) in node.Injections)
             {
+                var hasSourceNode = map.TryGetValue(injection, out var sourceNode);
+                var bypassSelfFactoryOverride = hasSourceNode
+                    && sourceNode.Binding.Id == targetNode.Binding.Id
+                    && injection.Kind == InjectionKind.FactoryInjection
+                    && targetNode.Factory is not null;
+
+                if (bypassSelfFactoryOverride
+                    && injection.Type is { IsAbstract: false, TypeKind: not TypeKind.Delegate, SpecialType: Microsoft.CodeAnalysis.SpecialType.None })
+                {
+                    var autoTypeConstructor = typeConstructorFactory();
+                    var autoBinding = bindingsFactory.CreateAutoBinding(setup, targetNode, injection, autoTypeConstructor, ++maxBindingId);
+                    foreach (var newNode in nodesFactory.CreateNodes(setup, autoTypeConstructor, autoBinding))
+                    {
+                        if (!edgesMap.TryGetValue(node, out var edges))
+                        {
+                            edges = [];
+                            edgesMap.Add(node, edges);
+                        }
+
+                        MarkHandledInjection(node, injection, position);
+                        var contextTag = GetContextTag(injection, newNode);
+                        var newInjection = injection with { Tag = contextTag ?? injection.Tag };
+                        edges.Add(new Dependency(true, newNode, newInjection, targetNode, position));
+                        queue.Enqueue(CreateNewProcessingNode(newInjection.Tag, newNode));
+                    }
+
+                    continue;
+                }
+
                 if (!processedInjection.Add(injection))
                 {
                     continue;
                 }
 
-                if (map.TryGetValue(injection, out var sourceNode))
+                if (hasSourceNode)
                 {
                     if (!marker.IsMarkerBased(setup, sourceNode.Type))
                     {
