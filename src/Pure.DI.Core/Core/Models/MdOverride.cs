@@ -10,4 +10,6 @@ readonly record struct MdOverride(
     int Position,
     ITypeSymbol ContractType,
     in ImmutableArray<MdTag> Tags,
-    ExpressionSyntax ValueExpression);
+    ExpressionSyntax ValueExpression,
+    bool IsDeep,
+    bool HasExplicitTypeArguments);

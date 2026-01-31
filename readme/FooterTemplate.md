@@ -330,6 +330,29 @@ Example:
 .Bind<IService>().To(ctx => new Service(ctx.Resolve<IDependency>()))
 ```
 
+#### Override Depth in Factories
+
+Use `Let` to keep an override at the current injection level:
+
+```c#
+DI.Setup(nameof(Composition))
+    .Bind().To<int>(_ => 7)
+    .Bind().To<Dependency>()
+    .Bind().To<Service>(ctx =>
+    {
+        // Override only the immediate injection
+        ctx.Let(42);
+        ctx.Inject(out Service service);
+        return service;
+    })
+    .Root<Service>("Service");
+```
+
+Override precedence:
+- The nearest override wins for nested dependencies.
+- If multiple overrides target the same type and tag in one factory, the last call wins.
+- `Let` applies only to the current injection level.
+
 #### For Simplified Factories
 
 When you only need to inject specific dependencies without accessing the full context:
