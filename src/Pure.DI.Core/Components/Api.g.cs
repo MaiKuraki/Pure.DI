@@ -1475,16 +1475,6 @@ namespace Pure.DI
         RootArgument,
 
         /// <summary>
-        /// Stores the setup context in a field.
-        /// </summary>
-        Field,
-
-        /// <summary>
-        /// Stores the setup context in a property.
-        /// </summary>
-        Property,
-
-        /// <summary>
         /// Copies referenced instance members into the dependent composition.
         /// </summary>
         Members
@@ -2229,25 +2219,6 @@ namespace Pure.DI
         ///
         /// var baseContext = new BaseComposition();
         /// var composition = new Composition(baseContext);
-        /// var service = composition.Service;
-        /// </code>
-        /// </example>
-        /// </summary>
-        /// <param name="setupName">Name of base composition setup.</param>
-        /// <param name="name">Name of the setup context. Optional when <paramref name="kind"/> is <see cref="SetupContextKind.Members"/>.</param>
-        /// <summary>
-        /// Specifies a base setup and exposes its instance members through a setup context.
-        /// <example>
-        /// <code>
-        /// DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
-        ///     .Bind&lt;int&gt;().To(_ =&gt; Value);
-        ///
-        /// DI.Setup(nameof(Composition))
-        ///     .DependsOn(setupName: nameof(BaseComposition), kind: SetupContextKind.Field, name: "baseContext")
-        ///     .Root&lt;IService&gt;("Service");
-        ///
-        /// var baseContext = new BaseComposition();
-        /// var composition = new Composition { baseContext = baseContext };
         /// var service = composition.Service;
         /// </code>
         /// </example>
@@ -8394,6 +8365,3 @@ namespace Pure.DI
 }
 #pragma warning restore
 #endif
-
-
-

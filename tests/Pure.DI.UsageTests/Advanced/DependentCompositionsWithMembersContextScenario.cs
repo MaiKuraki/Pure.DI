@@ -5,7 +5,7 @@ $d=Dependent compositions with setup context members
 $h=This scenario shows how to copy referenced members from a base setup into the dependent composition.
 $h=When this occurs: you want to reuse base setup state without passing a separate context instance.
 $h=What it solves: lets dependent compositions access base setup members directly (Unity-friendly, no constructor args).
-$h=How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and sets members on the composition instance. The name parameter is optional.
+$h=How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and sets members on the composition instance. The name parameter is optional; methods are declared partial and implemented by the user.
 $f=
 $f=What it shows:
 $f=- Setup context members copied into the dependent composition.
@@ -89,6 +89,8 @@ internal partial class Composition
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }
+
+    internal partial int GetRetries() => Retries;
 }
 
 record AppSettings(string Environment, int RetryCount) : IAppSettings;

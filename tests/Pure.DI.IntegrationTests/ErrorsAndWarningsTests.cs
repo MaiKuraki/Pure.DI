@@ -519,142 +519,6 @@ public class ErrorsAndWarningsTests
     }
 
     [Fact]
-    public async Task ShouldUseSetupContextFieldWhenDependsOnWithContextArgKindField()
-    {
-        // Given
-
-        // When
-        var result = await """
-                           using System;
-                           using Pure.DI;
-
-                           namespace Sample
-                           {
-                               internal partial class BaseComposition
-                               {
-                                   internal int Value { get; set; }
-
-                                   private void Setup()
-                                   {
-                                       DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
-                                           .Bind<int>().To(_ => Value);
-                                   }
-                               }
-
-                               internal partial class Composition
-                               {
-                                   private void Setup()
-                                   {
-                                       DI.Setup(nameof(Composition))
-                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Field, "baseContext")
-                                           .Bind<IService>().To<Service>()
-                                           .Root<IService>("Service");
-                                   }
-                               }
-
-                               interface IService
-                               {
-                                   int Value { get; }
-                               }
-
-                               class Service : IService
-                               {
-                                   public Service(int value)
-                                   {
-                                       Value = value;
-                                   }
-
-                                   public int Value { get; }
-                               }
-
-                               public class Program
-                               {
-                                   public static void Main()
-                                   {
-                                       var baseContext = new BaseComposition { Value = 21 };
-                                       var composition = new Composition { baseContext = baseContext };
-                                       Console.WriteLine(composition.Service.Value);
-                                   }
-                               }
-                           }
-                           """.RunAsync();
-
-        // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
-        result.Errors.Count.ShouldBe(0, result);
-        result.Warnings.Count.ShouldBe(0, result);
-        result.StdOut.ShouldBe(["21"], result);
-    }
-
-    [Fact]
-    public async Task ShouldUseSetupContextPropertyWhenDependsOnWithContextArgKindProperty()
-    {
-        // Given
-
-        // When
-        var result = await """
-                           using System;
-                           using Pure.DI;
-
-                           namespace Sample
-                           {
-                               internal partial class BaseComposition
-                               {
-                                   internal int Value { get; set; }
-
-                                   private void Setup()
-                                   {
-                                       DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
-                                           .Bind<int>().To(_ => Value);
-                                   }
-                               }
-
-                               internal partial class Composition
-                               {
-                                   private void Setup()
-                                   {
-                                       DI.Setup(nameof(Composition))
-                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Property, "baseContext")
-                                           .Bind<IService>().To<Service>()
-                                           .Root<IService>("Service");
-                                   }
-                               }
-
-                               interface IService
-                               {
-                                   int Value { get; }
-                               }
-
-                               class Service : IService
-                               {
-                                   public Service(int value)
-                                   {
-                                       Value = value;
-                                   }
-
-                                   public int Value { get; }
-                               }
-
-                               public class Program
-                               {
-                                   public static void Main()
-                                   {
-                                       var baseContext = new BaseComposition { Value = 34 };
-                                       var composition = new Composition { baseContext = baseContext };
-                                       Console.WriteLine(composition.Service.Value);
-                                   }
-                               }
-                           }
-                           """.RunAsync();
-
-        // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
-        result.Errors.Count.ShouldBe(0, result);
-        result.Warnings.Count.ShouldBe(0, result);
-        result.StdOut.ShouldBe(["34"], result);
-    }
-
-    [Fact]
     public async Task ShouldUseSetupContextRootArgumentWhenDependsOnWithContextArgKindRootArgument()
     {
         // Given
@@ -746,41 +610,41 @@ public class ErrorsAndWarningsTests
                                    }
                                }
 
-                               internal partial class Composition
-                               {
-                                   private void Setup()
-                                   {
-                                       DI.Setup(nameof(Composition))
-                                           .DependsOn(setupName: nameof(BaseComposition), kind: SetupContextKind.Field, name: "baseContext")
-                                           .Bind<IService>().To<Service>()
-                                           .Root<IService>("Service");
-                                   }
-                               }
+                                internal partial class Composition
+                                {
+                                    private void Setup()
+                                    {
+                                        DI.Setup(nameof(Composition))
+                                            .DependsOn(setupName: nameof(BaseComposition), kind: SetupContextKind.Argument, name: "baseContext")
+                                            .Bind<IService>().To<Service>()
+                                            .Root<IService>("Service");
+                                    }
+                                }
 
-                               interface IService
-                               {
-                                   int Value { get; }
-                               }
+                                interface IService
+                                {
+                                    int Value { get; }
+                                }
 
-                               class Service : IService
-                               {
-                                   public Service(int value)
-                                   {
-                                       Value = value;
-                                   }
+                                class Service : IService
+                                {
+                                    public Service(int value)
+                                    {
+                                        Value = value;
+                                    }
 
-                                   public int Value { get; }
-                               }
+                                    public int Value { get; }
+                                }
 
-                               public class Program
-                               {
-                                   public static void Main()
-                                   {
-                                       var baseContext = new BaseComposition { Value = 55 };
-                                       var composition = new Composition { baseContext = baseContext };
-                                       Console.WriteLine(composition.Service.Value);
-                                   }
-                               }
+                                public class Program
+                                {
+                                    public static void Main()
+                                    {
+                                        var baseContext = new BaseComposition { Value = 55 };
+                                        var composition = new Composition(baseContext);
+                                        Console.WriteLine(composition.Service.Value);
+                                    }
+                                }
                            }
                            """.RunAsync();
 

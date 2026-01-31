@@ -21,18 +21,12 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
         var memberKeys = new HashSet<(SyntaxTree Tree, TextSpan Span)>();
         var members = new List<MemberDeclarationSyntax>();
 
-        foreach (var binding in ctx.Setup.Bindings)
+        // Collect only instance members referenced by bindings (and their dependencies)
+        foreach (var member in GetRootMembers(compilation))
         {
-            if (binding.Factory is not { } factory)
+            if (IsInstanceMemberForCollect(member, ctx.SetupType, ctx.TargetType))
             {
-                continue;
-            }
-
-            var walker = new InstanceMemberAccessWalker(factory.SemanticModel, ctx.SetupType);
-            walker.Visit(factory.Factory);
-            foreach (var symbol in walker.Members)
-            {
-                queue.Enqueue(symbol);
+                queue.Enqueue(member);
             }
         }
 
@@ -55,7 +49,7 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
                 members.Add(member);
 
                 var memberSemanticModel = compilation.GetSemanticModel(member.SyntaxTree);
-                var walker = new InstanceMemberAccessWalker(memberSemanticModel, ctx.SetupType);
+                var walker = new InstanceMemberAccessWalker(memberSemanticModel, ctx.SetupType, ctx.TargetType);
                 walker.Visit(member);
                 foreach (var nested in walker.Members)
                 {
@@ -84,20 +78,43 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
         return rewrittenMembers;
     }
 
+    private IEnumerable<ISymbol> GetRootMembers(Compilation compilation)
+    {
+        var root = (SyntaxNode?)ctx.Setup.Source
+            .AncestorsAndSelf()
+            .OfType<BaseMethodDeclarationSyntax>()
+            .FirstOrDefault() ?? ctx.Setup.Source;
+
+        var walker = new InstanceMemberAccessWalker(ctx.Setup.SemanticModel, ctx.SetupType, ctx.TargetType);
+        walker.Visit(root);
+        foreach (var member in walker.Members)
+        {
+            yield return member;
+        }
+    }
+
     private static IEnumerable<MemberDeclarationSyntax> RewriteMember(Compilation compilation, MemberDeclarationSyntax member, LanguageVersion languageVersion)
     {
         var semanticModel = compilation.GetSemanticModel(member.SyntaxTree);
         var rewriter = new SetupContextMemberRewriter(semanticModel, languageVersion);
         var rewritten = (MemberDeclarationSyntax)rewriter.Visit(member)!;
-        if (languageVersion >= LanguageVersion.CSharp9
-            && rewritten is MethodDeclarationSyntax method
-            && (method.Body is not null || method.ExpressionBody is not null)
-            && method.Modifiers.Any(i => i.IsKind(SyntaxKind.PartialKeyword)))
+        switch (rewritten)
         {
-            yield return CreatePartialDeclaration(method);
-        }
+            case MethodDeclarationSyntax method:
+                yield return CreatePartialMethodDeclaration(method, languageVersion);
+                yield break;
 
-        yield return rewritten;
+            case PropertyDeclarationSyntax property:
+                foreach (var rewrittenMember in RewriteProperty(property, languageVersion))
+                {
+                    yield return rewrittenMember;
+                }
+                yield break;
+
+            default:
+                yield return rewritten;
+                yield break;
+        }
     }
 
     private static IEnumerable<MemberDeclarationSyntax> GetMemberDeclarations(ISymbol symbol)
@@ -126,41 +143,89 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
                 ? fallback
                 : LanguageVersion.CSharp8;
 
+    private static bool IsInstanceMemberForCollect(ISymbol symbol, INamedTypeSymbol setupType, INamedTypeSymbol targetType)
+    {
+        if (symbol.IsStatic)
+        {
+            return false;
+        }
+
+        // Check if symbol belongs to the setup type itself
+        if (!SymbolEqualityComparer.Default.Equals(symbol.ContainingType, setupType))
+        {
+            return false;
+        }
+
+        // Check if targetType inherits from setupType
+        var inheritsFromSetup = InheritsFrom(targetType, setupType);
+        
+        if (inheritsFromSetup)
+        {
+            // When the target composition inherits from the base composition,
+            // only collect private members (public/internal are already visible via inheritance)
+            return symbol.DeclaredAccessibility == Accessibility.Private;
+        }
+
+        // When there's no inheritance relationship, collect all instance members,
+        // because none of them are available via inheritance.
+        return true;
+    }
+    
+    private static bool InheritsFrom(INamedTypeSymbol type, INamedTypeSymbol potentialBase)
+    {
+        var current = type.BaseType;
+        while (current is not null)
+        {
+            if (SymbolEqualityComparer.Default.Equals(current, potentialBase))
+            {
+                return true;
+            }
+            current = current.BaseType;
+        }
+        
+        return false;
+    }
+    
     private sealed class InstanceMemberAccessWalker(
         SemanticModel semanticModel,
-        INamedTypeSymbol setupType)
+        INamedTypeSymbol setupType,
+        INamedTypeSymbol targetType)
         : CSharpSyntaxWalker
     {
+        private readonly Compilation _compilation = semanticModel.Compilation;
         private readonly HashSet<TextSpan> _spans = [];
 
         public List<ISymbol> Members { get; } = [];
 
         public override void VisitIdentifierName(IdentifierNameSyntax node)
         {
-            if (node.SyntaxTree != semanticModel.SyntaxTree)
+            var model = node.SyntaxTree == semanticModel.SyntaxTree
+                ? semanticModel
+                : _compilation.GetSemanticModel(node.SyntaxTree);
+            var symbol = model.GetSymbolInfo(node).Symbol;
+            if (symbol is null)
             {
-                base.VisitIdentifierName(node);
-                return;
+                symbol = model
+                    .LookupSymbols(node.SpanStart, name: node.Identifier.ValueText)
+                    .FirstOrDefault(s => IsInstanceMember(s, setupType, targetType));
             }
-
-            var symbol = semanticModel.GetSymbolInfo(node).Symbol;
             switch (symbol)
             {
-                case IFieldSymbol field when IsInstanceMember(field, setupType):
+                case IFieldSymbol field when IsInstanceMember(field, setupType, targetType):
                     Add(node, field);
                     break;
 
-                case IPropertySymbol property when IsInstanceMember(property, setupType):
+                case IPropertySymbol property when IsInstanceMember(property, setupType, targetType):
                     Add(node, property);
                     break;
 
-                case IEventSymbol @event when IsInstanceMember(@event, setupType):
+                case IEventSymbol @event when IsInstanceMember(@event, setupType, targetType):
                     Add(node, @event);
                     break;
 
                 case IMethodSymbol method
                     when method.MethodKind == MethodKind.Ordinary
-                         && IsInstanceMember(method, setupType):
+                         && IsInstanceMember(method, setupType, targetType):
                     Add(node, method);
                     break;
             }
@@ -178,9 +243,48 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
             Members.Add(symbol);
         }
 
-        private static bool IsInstanceMember(ISymbol symbol, INamedTypeSymbol setupType) =>
-            !symbol.IsStatic
-            && SymbolEqualityComparer.Default.Equals(symbol.ContainingType, setupType);
+        public static bool IsInstanceMember(ISymbol symbol, INamedTypeSymbol setupType, INamedTypeSymbol targetType)
+        {
+            if (symbol.IsStatic)
+            {
+                return false;
+            }
+
+            // Check if symbol belongs to the setup type itself
+            if (!SymbolEqualityComparer.Default.Equals(symbol.ContainingType, setupType))
+            {
+                return false;
+            }
+
+            // Check if targetType inherits from setupType
+            var inheritsFromSetup = InheritsFrom(targetType, setupType);
+
+            if (inheritsFromSetup)
+            {
+                // When the target composition inherits from the base composition,
+                // only collect private members (public/internal are already visible via inheritance)
+                return symbol.DeclaredAccessibility == Accessibility.Private;
+            }
+
+            // When there's no inheritance relationship, collect all instance members,
+            // because none of them are available via inheritance.
+            return true;
+        }
+        
+        private static bool InheritsFrom(INamedTypeSymbol type, INamedTypeSymbol potentialBase)
+        {
+            var current = type.BaseType;
+            while (current is not null)
+            {
+                if (SymbolEqualityComparer.Default.Equals(current, potentialBase))
+                {
+                    return true;
+                }
+                current = current.BaseType;
+            }
+            
+            return false;
+        }
     }
 
     private sealed class SetupContextMemberRewriter(SemanticModel semanticModel, LanguageVersion languageVersion)
@@ -218,7 +322,6 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
         {
             var updated = (MethodDeclarationSyntax)base.VisitMethodDeclaration(node)!;
             if (languageVersion >= LanguageVersion.CSharp9
-                && (updated.Body is not null || updated.ExpressionBody is not null)
                 && !updated.Modifiers.Any(i => i.IsKind(SyntaxKind.PartialKeyword)))
             {
                 updated = updated.WithModifiers(AddPartialModifier(updated.Modifiers));
@@ -244,36 +347,198 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
             return SyntaxFactory.ParseTypeName(typeName).WithTriviaFrom(node);
         }
 
-        private static SyntaxTokenList AddPartialModifier(SyntaxTokenList modifiers)
-        {
-            var insertIndex = 0;
-            for (var i = 0; i < modifiers.Count; i++)
-            {
-                var modifier = modifiers[i];
-                if (modifier.IsKind(SyntaxKind.PublicKeyword)
-                    || modifier.IsKind(SyntaxKind.InternalKeyword)
-                    || modifier.IsKind(SyntaxKind.PrivateKeyword)
-                    || modifier.IsKind(SyntaxKind.ProtectedKeyword))
-                {
-                    insertIndex = i + 1;
-                }
-            }
-
-            return modifiers.Insert(insertIndex, SyntaxFactory.Token(SyntaxKind.PartialKeyword));
-        }
     }
 
-    private static MethodDeclarationSyntax CreatePartialDeclaration(MethodDeclarationSyntax method)
+    private static MemberDeclarationSyntax CreatePartialMethodDeclaration(MethodDeclarationSyntax method, LanguageVersion languageVersion)
     {
-        var emptyTrivia = SyntaxFactory.TriviaList();
-        var declaration = method
-            .WithAttributeLists(default)
-            .WithLeadingTrivia(emptyTrivia)
-            .WithTrailingTrivia(emptyTrivia)
+        var updated = method;
+        
+        // Always create a partial method declaration without body (defining declaration)
+        // The implementing declaration with body should already exist in the source code
+        updated = updated
             .WithBody(null)
             .WithExpressionBody(null)
             .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
 
-        return declaration;
+        if (languageVersion >= LanguageVersion.CSharp9
+            && !updated.Modifiers.Any(i => i.IsKind(SyntaxKind.PartialKeyword)))
+        {
+            updated = updated.WithModifiers(AddPartialModifier(updated.Modifiers));
+        }
+
+        return updated;
+    }
+
+    private static IEnumerable<MemberDeclarationSyntax> RewriteProperty(PropertyDeclarationSyntax property, LanguageVersion languageVersion)
+    {
+        if (!HasAccessorBody(property))
+        {
+            yield return property;
+            yield break;
+        }
+
+        var accessors = property.AccessorList?.Accessors
+            .Select(accessor => RewriteAccessor(property, accessor))
+            .ToList();
+
+        if (property.ExpressionBody is not null)
+        {
+            accessors ??= [];
+            accessors.Add(CreateAccessorFromExpression(property, SyntaxKind.GetAccessorDeclaration));
+        }
+
+        if (accessors is null || accessors.Count == 0)
+        {
+            yield return property;
+            yield break;
+        }
+
+        var updatedProperty = property
+            .WithExpressionBody(null)
+            .WithSemicolonToken(default)
+            .WithAccessorList(SyntaxFactory.AccessorList(SyntaxFactory.List(accessors)));
+
+        yield return updatedProperty;
+
+        foreach (var accessor in accessors.Where(i => i.Body is null && i.ExpressionBody is not null))
+        {
+            var accessorKind = accessor.Kind();
+            if (accessorKind is SyntaxKind.GetAccessorDeclaration or SyntaxKind.SetAccessorDeclaration or SyntaxKind.InitAccessorDeclaration)
+            {
+                yield return CreateAccessorPartialMethod(property, accessor, languageVersion);
+            }
+        }
+    }
+
+    private static bool HasAccessorBody(PropertyDeclarationSyntax property)
+    {
+        if (property.ExpressionBody is not null)
+        {
+            return true;
+        }
+
+        if (property.AccessorList is null)
+        {
+            return false;
+        }
+
+        return property.AccessorList.Accessors.Any(accessor => accessor.Body is not null || accessor.ExpressionBody is not null);
+    }
+
+    private static AccessorDeclarationSyntax RewriteAccessor(PropertyDeclarationSyntax property, AccessorDeclarationSyntax accessor)
+    {
+        if (accessor.Body is null && accessor.ExpressionBody is null)
+        {
+            return accessor;
+        }
+
+        var accessorKind = accessor.Kind();
+        if (accessorKind != SyntaxKind.GetAccessorDeclaration
+            && accessorKind != SyntaxKind.SetAccessorDeclaration
+            && accessorKind != SyntaxKind.InitAccessorDeclaration)
+        {
+            return accessor;
+        }
+
+        var methodName = GetAccessorMethodName(property.Identifier.Text, accessorKind);
+        var invocation = accessorKind == SyntaxKind.GetAccessorDeclaration
+            ? SyntaxFactory.InvocationExpression(SyntaxFactory.IdentifierName(methodName))
+            : SyntaxFactory.InvocationExpression(
+                SyntaxFactory.IdentifierName(methodName),
+                SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(
+                    SyntaxFactory.Argument(SyntaxFactory.IdentifierName("value")))));
+
+        return accessor
+            .WithBody(null)
+            .WithExpressionBody(SyntaxFactory.ArrowExpressionClause(invocation))
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+    }
+
+    private static AccessorDeclarationSyntax CreateAccessorFromExpression(PropertyDeclarationSyntax property, SyntaxKind accessorKind)
+    {
+        var methodName = GetAccessorMethodName(property.Identifier.Text, accessorKind);
+        var invocation = SyntaxFactory.InvocationExpression(SyntaxFactory.IdentifierName(methodName));
+
+        return SyntaxFactory.AccessorDeclaration(accessorKind)
+            .WithExpressionBody(SyntaxFactory.ArrowExpressionClause(invocation))
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+    }
+
+    private static MemberDeclarationSyntax CreateAccessorPartialMethod(
+        PropertyDeclarationSyntax property,
+        AccessorDeclarationSyntax accessor,
+        LanguageVersion languageVersion)
+    {
+        var accessorKind = accessor.Kind();
+        var methodName = GetAccessorMethodName(property.Identifier.Text, accessorKind);
+        var returnType = accessorKind == SyntaxKind.GetAccessorDeclaration
+            ? property.Type
+            : SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
+
+        var parameterList = accessorKind == SyntaxKind.GetAccessorDeclaration
+            ? SyntaxFactory.ParameterList()
+            : SyntaxFactory.ParameterList(SyntaxFactory.SingletonSeparatedList(
+                SyntaxFactory.Parameter(SyntaxFactory.Identifier("value")).WithType(property.Type)));
+
+        var modifiers = GetAccessorMethodModifiers(property, accessor);
+        if (languageVersion >= LanguageVersion.CSharp9
+            && !modifiers.Any(i => i.IsKind(SyntaxKind.PartialKeyword)))
+        {
+            modifiers = AddPartialModifier(modifiers);
+        }
+
+        return SyntaxFactory.MethodDeclaration(returnType, methodName)
+            .WithModifiers(modifiers)
+            .WithParameterList(parameterList)
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+    }
+
+    private static SyntaxTokenList GetAccessorMethodModifiers(PropertyDeclarationSyntax property, AccessorDeclarationSyntax accessor)
+    {
+        var modifiers = new List<SyntaxToken>();
+        var accessModifiers = accessor.Modifiers.Any()
+            ? accessor.Modifiers
+            : property.Modifiers;
+
+        foreach (var modifier in accessModifiers)
+        {
+            if (modifier.IsKind(SyntaxKind.PublicKeyword)
+                || modifier.IsKind(SyntaxKind.InternalKeyword)
+                || modifier.IsKind(SyntaxKind.PrivateKeyword)
+                || modifier.IsKind(SyntaxKind.ProtectedKeyword))
+            {
+                modifiers.Add(modifier);
+            }
+        }
+
+        if (property.Modifiers.Any(i => i.IsKind(SyntaxKind.StaticKeyword)))
+        {
+            modifiers.Add(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
+        }
+
+        return SyntaxFactory.TokenList(modifiers);
+    }
+
+    private static string GetAccessorMethodName(string propertyName, SyntaxKind accessorKind) =>
+        accessorKind == SyntaxKind.GetAccessorDeclaration
+            ? $"get_{propertyName}Core"
+            : $"set_{propertyName}Core";
+
+    private static SyntaxTokenList AddPartialModifier(SyntaxTokenList modifiers)
+    {
+        var insertIndex = 0;
+        for (var i = 0; i < modifiers.Count; i++)
+        {
+            var modifier = modifiers[i];
+            if (modifier.IsKind(SyntaxKind.PublicKeyword)
+                || modifier.IsKind(SyntaxKind.InternalKeyword)
+                || modifier.IsKind(SyntaxKind.PrivateKeyword)
+                || modifier.IsKind(SyntaxKind.ProtectedKeyword))
+            {
+                insertIndex = i + 1;
+            }
+        }
+
+        return modifiers.Insert(insertIndex, SyntaxFactory.Token(SyntaxKind.PartialKeyword));
     }
 }

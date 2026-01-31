@@ -5,91 +5,6 @@ using Core;
 public class SetupContextTests
 {
     [Fact]
-    public async Task ShouldSupportMultipleSetupContextsWithMixedKinds()
-    {
-        // Given
-
-        // When
-        var result = await """
-                           using System;
-                           using Pure.DI;
-
-                           namespace Sample
-                           {
-                               internal partial class BaseCompositionA
-                               {
-                                   internal int Value { get; set; }
-
-                                   private void Setup()
-                                   {
-                                       DI.Setup(nameof(BaseCompositionA), CompositionKind.Internal)
-                                           .Bind<int>().To(_ => Value);
-                                   }
-                               }
-
-                               internal partial class BaseCompositionB
-                               {
-                                   internal string Name { get; set; } = "";
-
-                                   private void Setup()
-                                   {
-                                       DI.Setup(nameof(BaseCompositionB), CompositionKind.Internal)
-                                           .Bind<string>().To(_ => Name);
-                                   }
-                               }
-
-                               internal partial class Composition
-                               {
-                                   private void Setup()
-                                   {
-                                       DI.Setup(nameof(Composition))
-                                           .DependsOn(nameof(BaseCompositionA), SetupContextKind.Field, "baseA")
-                                           .DependsOn(nameof(BaseCompositionB), SetupContextKind.Property, "baseB")
-                                           .Bind<IService>().To<Service>()
-                                           .Root<IService>("Service");
-                                   }
-                               }
-
-                               interface IService
-                               {
-                                   string Report { get; }
-                               }
-
-                               class Service : IService
-                               {
-                                   public Service(int value, string name)
-                                   {
-                                       Report = $"{name}:{value}";
-                                   }
-
-                                   public string Report { get; }
-                               }
-
-                               public class Program
-                               {
-                                   public static void Main()
-                                   {
-                                       var baseA = new BaseCompositionA { Value = 9 };
-                                       var baseB = new BaseCompositionB { Name = "prod" };
-                                       var composition = new Composition
-                                       {
-                                           baseA = baseA,
-                                           baseB = baseB
-                                       };
-                                       Console.WriteLine(composition.Service.Report);
-                                   }
-                               }
-                           }
-                           """.RunAsync(new Options(CheckCompilationErrors: false));
-
-        // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
-        result.Errors.Count.ShouldBe(0, result);
-        result.Warnings.Count.ShouldBe(0, result);
-        result.StdOut.ShouldBe(["prod:9"], result);
-    }
-
-    [Fact]
     public async Task ShouldFailWhenContextArgumentIsMissingForArgumentKind()
     {
         // Given
@@ -288,56 +203,6 @@ public class SetupContextTests
     }
 
     [Fact]
-    public async Task ShouldShowErrorWhenSetupContextNameIsMissing()
-    {
-        // Given
-
-        // When
-        var result = await """
-                           using System;
-                           using Pure.DI;
-
-                           namespace Sample
-                           {
-                               internal partial class BaseComposition
-                               {
-                                   private void Setup()
-                                   {
-                                       DI.Setup(nameof(BaseComposition), CompositionKind.Internal);
-                                   }
-                               }
-
-                               internal partial class Composition
-                               {
-                                   private void Setup()
-                                   {
-                                       DI.Setup(nameof(Composition))
-                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Field)
-                                           .Bind<IService>().To<Service>()
-                                           .Root<IService>("Service");
-                                   }
-                               }
-
-                               interface IService {}
-                               class Service : IService {}
-
-                               public class Program
-                               {
-                                   public static void Main()
-                                   {
-                                       var composition = new Composition();
-                                       Console.WriteLine(composition.Service);
-                                   }
-                               }
-                           }
-                           """.RunAsync(new Options(CheckCompilationErrors: false));
-
-        // Then
-        result.Success.ShouldBeFalse(result);
-        result.Errors.Count(i => i.Id == LogId.ErrorSetupContextNameIsRequired).ShouldBe(1, result);
-    }
-
-    [Fact]
     public async Task ShouldAllowMissingNameForMembersContext()
     {
         // Given
@@ -372,6 +237,8 @@ public class SetupContextTests
                                            .Bind<IService>().To<Service>()
                                            .Root<IService>("Service");
                                    }
+
+                                   internal partial int GetValue() => Value;
                                }
 
                                interface IService
@@ -410,10 +277,9 @@ public class SetupContextTests
     }
 
     [Fact]
-    public async Task ShouldSupportMethodRootWithSetupContextField()
+    public async Task ShouldSupportMembersWhenCompositionInheritsBaseComposition()
     {
         // Given
-
         // When
         var result = await """
                            using System;
@@ -423,48 +289,106 @@ public class SetupContextTests
                            {
                                internal partial class BaseComposition
                                {
-                                   internal int Value { get; set; }
+                                   // Public members
+                                   public int PublicField = 1;
+                                   public int PublicProperty { get; set; } = 2;
+                                   public int PublicMethod() => 3;
+
+                                   // Internal members
+                                   internal int InternalField = 4;
+                                   internal int InternalProperty { get; set; } = 5;
+                                   internal int InternalMethod() => 6;
+
+                                   // Private members
+                                   private int PrivateField = 7;
+                                   private int PrivateProperty { get; set; } = 8;
+                                   private int PrivateMethod() => 9;
+                                   
+                                   // These fields are out of composition roots in Composition, so generator should skip them
+                                   #pragma warning disable
+                                   private int PrivateFieldOutOfBinding = 33;
+                                   private int PrivatePropertyOutOfBinding { get; set; } = 34;
+                                   private int PrivateMethodOutOfBinding() => 45;
+                                   #pragma warning restore
 
                                    private void Setup()
                                    {
                                        DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
-                                           .Bind<int>().To(_ => Value);
+                                           .Bind<int>("publicField").To(_ => PublicField)
+                                           .Bind<int>("publicProperty").To(_ => PublicProperty)
+                                           .Bind<int>("publicMethod").To(_ => PublicMethod())
+                                           .Bind<int>("internalField").To(_ => InternalField)
+                                           .Bind<int>("internalProperty").To(_ => InternalProperty)
+                                           .Bind<int>("internalMethod").To(_ => InternalMethod())
+                                           .Bind<int>("privateField").To(_ => PrivateField)
+                                           .Bind<int>("privateProperty").To(_ => PrivateProperty)
+                                           .Bind<int>("privateMethod").To(_ => PrivateMethod());
                                    }
                                }
 
-                               internal partial class Composition
+                               internal partial class Composition : BaseComposition
                                {
                                    private void Setup()
                                    {
                                        DI.Setup(nameof(Composition))
-                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Field, "baseContext")
+                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Members)
                                            .Bind<IService>().To<Service>()
-                                           .Root<IService>("Service", kind: RootKinds.Method);
+                                           .Root<IService>("Service");
                                    }
+                                   
+                                   private partial int PrivateMethod() => 9;
                                }
 
                                interface IService
                                {
-                                   int Value { get; }
+                                   int Total { get; }
                                }
 
                                class Service : IService
                                {
-                                   public Service(int value)
+                                   private readonly int _publicField;
+                                   private readonly int _publicProperty;
+                                   private readonly int _publicMethod;
+                                   private readonly int _internalField;
+                                   private readonly int _internalProperty;
+                                   private readonly int _internalMethod;
+                                   private readonly int _privateField;
+                                   private readonly int _privateProperty;
+                                   private readonly int _privateMethod;
+
+                                   public Service(
+                                       [Tag("publicField")] int publicField,
+                                       [Tag("publicProperty")] int publicProperty,
+                                       [Tag("publicMethod")] int publicMethod,
+                                       [Tag("internalField")] int internalField,
+                                       [Tag("internalProperty")] int internalProperty,
+                                       [Tag("internalMethod")] int internalMethod,
+                                       [Tag("privateField")] int privateField,
+                                       [Tag("privateProperty")] int privateProperty,
+                                       [Tag("privateMethod")] int privateMethod)
                                    {
-                                       Value = value;
+                                       _publicField = publicField;
+                                       _publicProperty = publicProperty;
+                                       _publicMethod = publicMethod;
+                                       _internalField = internalField;
+                                       _internalProperty = internalProperty;
+                                       _internalMethod = internalMethod;
+                                       _privateField = privateField;
+                                       _privateProperty = privateProperty;
+                                       _privateMethod = privateMethod;
                                    }
 
-                                   public int Value { get; }
+                                   public int Total => _publicField + _publicProperty + _publicMethod
+                                       + _internalField + _internalProperty + _internalMethod
+                                       + _privateField + _privateProperty + _privateMethod;
                                }
 
                                public class Program
                                {
                                    public static void Main()
                                    {
-                                       var baseContext = new BaseComposition { Value = 12 };
-                                       var composition = new Composition { baseContext = baseContext };
-                                       Console.WriteLine(composition.Service().Value);
+                                       var composition = new Composition();
+                                       Console.WriteLine(composition.Service.Total);
                                    }
                                }
                            }
@@ -474,76 +398,9 @@ public class SetupContextTests
         result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
-        result.StdOut.ShouldBe(["12"], result);
+        result.StdOut.ShouldBe(["45"], result);
     }
 
-    [Fact]
-    public async Task ShouldSupportMethodRootWithSetupContextProperty()
-    {
-        // Given
-
-        // When
-        var result = await """
-                           using System;
-                           using Pure.DI;
-
-                           namespace Sample
-                           {
-                               internal partial class BaseComposition
-                               {
-                                   internal int Value { get; set; }
-
-                                   private void Setup()
-                                   {
-                                       DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
-                                           .Bind<int>().To(_ => Value);
-                                   }
-                               }
-
-                               internal partial class Composition
-                               {
-                                   private void Setup()
-                                   {
-                                       DI.Setup(nameof(Composition))
-                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Property, "baseContext")
-                                           .Bind<IService>().To<Service>()
-                                           .Root<IService>("Service", kind: RootKinds.Method);
-                                   }
-                               }
-
-                               interface IService
-                               {
-                                   int Value { get; }
-                               }
-
-                               class Service : IService
-                               {
-                                   public Service(int value)
-                                   {
-                                       Value = value;
-                                   }
-
-                                   public int Value { get; }
-                               }
-
-                               public class Program
-                               {
-                                   public static void Main()
-                                   {
-                                       var baseContext = new BaseComposition { Value = 33 };
-                                       var composition = new Composition { baseContext = baseContext };
-                                       Console.WriteLine(composition.Service().Value);
-                                   }
-                               }
-                           }
-                           """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
-
-        // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
-        result.Errors.Count.ShouldBe(0, result);
-        result.Warnings.Count.ShouldBe(0, result);
-        result.StdOut.ShouldBe(["33"], result);
-    }
 
     [Fact]
     public async Task ShouldSupportSetupContextMembers()
@@ -597,6 +454,8 @@ public class SetupContextTests
                                            .Bind<IService>().To<Service>()
                                            .Root<IService>("Service");
                                    }
+
+                                   internal partial int GetValue() => Settings.Value;
                                }
 
                                interface IService
@@ -634,7 +493,7 @@ public class SetupContextTests
         result.GeneratedCode.Contains("global::Sample.Settings").ShouldBeTrue(result);
         result.GeneratedCode.Contains("// Settings holder").ShouldBeTrue(result);
         result.GeneratedCode.Contains("partial int GetValue();").ShouldBeTrue(result);
-        result.GeneratedCode.Contains("partial int GetValue()").ShouldBeTrue(result);
+        result.GeneratedCode.Contains("return Settings.Value").ShouldBeFalse(result);
     }
 
     [Fact]
@@ -700,6 +559,8 @@ public class SetupContextTests
                                            .Bind<IService>().To<Service>()
                                            .Root<IService>("Service");
                                    }
+
+                                   internal partial int GetValue() => SettingsField.Value + SettingsProperty.Value;
                                }
 
                                interface IService
@@ -739,11 +600,111 @@ public class SetupContextTests
         result.GeneratedCode.Contains("// external settings property").ShouldBeTrue(result);
         result.GeneratedCode.Contains("// external settings method").ShouldBeTrue(result);
         result.GeneratedCode.Contains("partial int GetValue();").ShouldBeTrue(result);
-        result.GeneratedCode.Contains("partial int GetValue()").ShouldBeTrue(result);
+        result.GeneratedCode.Contains("return SettingsField.Value").ShouldBeFalse(result);
     }
 
     [Fact]
-    public async Task ShouldSupportMixedSetupContextsWithMembers()
+    public async Task ShouldCreatePartialAccessorMethodsForPropertyLogic()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace External
+                           {
+                               internal sealed class Counter
+                               {
+                                   public int Value { get; set; }
+                               }
+
+                               [AttributeUsage(AttributeTargets.Property)]
+                               internal sealed class ExternalMarkerAttribute : Attribute {}
+                           }
+
+                           namespace Sample
+                           {
+                               using External;
+
+                               internal partial class BaseComposition
+                               {
+                                   private readonly Counter _counter = new Counter();
+
+                                   // external counter property
+                                   [ExternalMarker]
+                                   internal int Count
+                                   {
+                                       get => _counter.Value;
+                                       set => _counter.Value = value;
+                                   }
+
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
+                                           .Bind<int>().To(_ => Count);
+                                   }
+                               }
+
+                               internal partial class Composition
+                               {
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Members)
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Service");
+                                   }
+
+                                   internal partial int get_CountCore() => _counter.Value;
+
+                                   internal partial void set_CountCore(int value) => _counter.Value = value;
+                               }
+
+                               interface IService
+                               {
+                                   int Value { get; }
+                               }
+
+                               class Service : IService
+                               {
+                                   public Service(int value)
+                                   {
+                                       Value = value;
+                                   }
+
+                                   public int Value { get; }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       composition.Count = 9;
+                                       Console.WriteLine(composition.Service.Value);
+                                   }
+                               }
+                           }
+                           """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
+
+        // Then
+        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count.ShouldBe(0, result);
+        result.StdOut.ShouldBe(["9"], result);
+        result.GeneratedCode.Contains("global::External.ExternalMarkerAttribute").ShouldBeTrue(result);
+        result.GeneratedCode.Contains("global::External.Counter").ShouldBeTrue(result);
+        result.GeneratedCode.Contains("// external counter property").ShouldBeTrue(result);
+        result.GeneratedCode.Contains("get => get_CountCore()").ShouldBeTrue(result);
+        result.GeneratedCode.Contains("set => set_CountCore(value)").ShouldBeTrue(result);
+        result.GeneratedCode.Contains("partial int get_CountCore();").ShouldBeTrue(result);
+        result.GeneratedCode.Contains("partial void set_CountCore").ShouldBeTrue(result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportOverridesForMembers()
     {
         // Given
 
@@ -754,35 +715,42 @@ public class SetupContextTests
 
                            namespace Sample
                            {
-                               internal partial class BaseCompositionA
+                               internal abstract class BaseSettings
                                {
-                                   internal int Factor { get; set; }
+                                   protected int ValueField;
+
+                                   public virtual int Value
+                                   {
+                                       get => ValueField;
+                                       set => ValueField = value;
+                                   }
+
+                                   public virtual int GetValue() => Value;
+                               }
+
+                               internal partial class BaseComposition : BaseSettings
+                               {
+                                   public override int Value
+                                   {
+                                       get => base.Value;
+                                       set => base.Value = value + 1;
+                                   }
+
+                                   public override int GetValue() => Value * 2;
 
                                    private void Setup()
                                    {
-                                       DI.Setup(nameof(BaseCompositionA), CompositionKind.Internal)
-                                           .Bind<int>("factor").To(_ => Factor);
+                                       DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
+                                           .Bind<int>().To(_ => GetValue());
                                    }
                                }
 
-                               internal partial class BaseCompositionB
-                               {
-                                   internal string Name { get; set; } = "";
-
-                                   private void Setup()
-                                   {
-                                       DI.Setup(nameof(BaseCompositionB), CompositionKind.Internal)
-                                           .Bind<string>().To(_ => Name);
-                                   }
-                               }
-
-                               internal partial class Composition
+                               internal partial class Composition : BaseComposition
                                {
                                    private void Setup()
                                    {
                                        DI.Setup(nameof(Composition))
-                                           .DependsOn(nameof(BaseCompositionA), SetupContextKind.Members, "baseA")
-                                           .DependsOn(nameof(BaseCompositionB), SetupContextKind.Field, "baseB")
+                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Members)
                                            .Bind<IService>().To<Service>()
                                            .Root<IService>("Service");
                                    }
@@ -790,40 +758,35 @@ public class SetupContextTests
 
                                interface IService
                                {
-                                   string Report { get; }
+                                   int Value { get; }
                                }
 
                                class Service : IService
                                {
-                                   public Service([Tag("factor")] int factor, string name)
+                                   public Service(int value)
                                    {
-                                       Report = $"{name}:{factor}";
+                                       Value = value;
                                    }
 
-                                   public string Report { get; }
+                                   public int Value { get; }
                                }
 
                                public class Program
                                {
                                    public static void Main()
                                    {
-                                       var baseB = new BaseCompositionB { Name = "stage" };
-                                       var composition = new Composition
-                                       {
-                                           baseB = baseB,
-                                           Factor = 4
-                                       };
-                                       Console.WriteLine(composition.Service.Report);
+                                       var composition = new Composition();
+                                       composition.Value = 3;
+                                       Console.WriteLine(composition.Service.Value);
                                    }
                                }
                            }
-                           """.RunAsync();
+                           """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
 
         // Then
         result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
-        result.StdOut.ShouldBe(["stage:4"], result);
+        result.StdOut.ShouldBe(["8"], result);
     }
 }
-

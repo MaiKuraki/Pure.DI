@@ -88,7 +88,7 @@ sealed class MetadataBuilder(
         IReadOnlyDictionary<CompositionName, MdSetup> map,
         ISet<CompositionName> processed)
     {
-        foreach (var dependsOn in setup.DependsOn)
+        foreach (var dependsOn in setup.DependsOn.OrderByDescending(i => i.Explicit))
         {
             cancellationToken.ThrowIfCancellationRequested();
             foreach (var item in dependsOn.Items)
@@ -230,12 +230,10 @@ sealed class MetadataBuilder(
             {
                 if (item.ContextArgKind == SetupContextKind.Members)
                 {
-                    var collectorContext = new SetupContextMembersCollectorContext(setup, setupType);
+                    var targetType = GetContainingType(dependsOn) ?? setupType;
+                    var collectorContext = new SetupContextMembersCollectorContext(setup, setupType, targetType);
                     var members = setupContextMembersCollectorFactory(collectorContext).Collect();
-                    if (!members.IsDefaultOrEmpty)
-                    {
-                        setupContextMembers.Add(new SetupContextMembers(setup.Name, item.ContextArgName, members));
-                    }
+                    setupContextMembers.Add(new SetupContextMembers(setup.Name, item.ContextArgName, members));
                 }
                 else
                 {
@@ -377,5 +375,12 @@ sealed class MetadataBuilder(
             .OfType<BaseTypeDeclarationSyntax>()
             .FirstOrDefault() is { } typeDeclaration
             ? setup.SemanticModel.GetDeclaredSymbol(typeDeclaration) as INamedTypeSymbol
+            : null;
+
+    private static INamedTypeSymbol? GetContainingType(MdDependsOn dependsOn) =>
+        dependsOn.Source.Ancestors()
+            .OfType<BaseTypeDeclarationSyntax>()
+            .FirstOrDefault() is { } typeDeclaration
+            ? dependsOn.SemanticModel.GetDeclaredSymbol(typeDeclaration) as INamedTypeSymbol
             : null;
 }

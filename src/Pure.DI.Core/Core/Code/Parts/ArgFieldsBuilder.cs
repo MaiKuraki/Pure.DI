@@ -39,16 +39,6 @@ sealed class ArgFieldsBuilder(ITypeResolver typeResolver)
                     isAdded = true;
                     break;
 
-                case SetupContextKind.Field:
-                    code.AppendLine($"public {typeName} {arg.Name};");
-                    isAdded = true;
-                    break;
-
-                case SetupContextKind.Property:
-                    code.AppendLine($"public {typeName} {arg.Name} {{ get; set; }}");
-                    isAdded = true;
-                    break;
-
                 case SetupContextKind.Members:
                     break;
             }

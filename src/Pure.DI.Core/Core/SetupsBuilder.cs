@@ -24,6 +24,7 @@ sealed class SetupsBuilder(
     private readonly List<MdSpecialType> _specialTypes = [];
     private readonly List<MdRoot> _roots = [];
     private readonly List<MdSetup> _setups = [];
+    private readonly List<SetupContextMembers> _setupContextMembers = [];
     private readonly List<MdTagAttribute> _tagAttributes = [];
     private readonly List<MdTypeAttribute> _typeAttributes = [];
     private readonly List<MdUsingDirectives> _usingDirectives = [];
@@ -160,6 +161,10 @@ sealed class SetupsBuilder(
         _specialTypes.AddRange(setup.SpecialTypes);
         _usingDirectives.AddRange(setup.UsingDirectives);
         _accumulators.AddRange(setup.Accumulators);
+        if (!setup.SetupContextMembers.IsDefaultOrEmpty)
+        {
+            _setupContextMembers.AddRange(setup.SetupContextMembers);
+        }
         foreach (var binding in setup.Bindings)
         {
             FinalizeBinding(setup, setupMap, binding);
@@ -748,7 +753,8 @@ sealed class SetupsBuilder(
             OrdinalAttributes = _ordinalAttributes.ToImmutableArray(),
             SpecialTypes = _specialTypes.ToImmutableArray(),
             UsingDirectives = _usingDirectives.ToImmutableArray(),
-            Accumulators = _accumulators.Distinct().ToImmutableArray()
+            Accumulators = _accumulators.Distinct().ToImmutableArray(),
+            SetupContextMembers = _setupContextMembers.ToImmutableArray()
         };
 
         // Creates bindings with all relevant information.
@@ -767,6 +773,7 @@ sealed class SetupsBuilder(
         _bindingBuilders.Clear();
         _bindings.Clear();
         _roots.Clear();
+        _setupContextMembers.Clear();
         _dependsOn.Clear();
         _genericTypeArguments.Clear();
         _genericTypeArgumentAttributes.Clear();

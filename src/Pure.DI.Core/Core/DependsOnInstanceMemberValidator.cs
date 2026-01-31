@@ -16,7 +16,11 @@ sealed class DependsOnInstanceMemberValidator(
                 continue;
             }
 
-            if (setup.SetupContextMembers.Any(i => i.SetupName.Equals(binding.SourceSetup.Name)))
+            if (setup.SetupContextMembers.Any(i => i.SetupName.Equals(binding.SourceSetup.Name))
+                || setup.DependsOn
+                    .SelectMany(dependsOn => dependsOn.Items)
+                    .Any(item => item.ContextArgKind == SetupContextKind.Members
+                                 && item.CompositionTypeName.Equals(binding.SourceSetup.Name)))
             {
                 continue;
             }
