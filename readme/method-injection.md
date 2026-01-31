@@ -93,9 +93,9 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var transientNavigator261 = new Navigator();
-      transientNavigator261.LoadMap(new Map());
-      return transientNavigator261;
+      var transientNavigator274 = new Navigator();
+      transientNavigator274.LoadMap(new Map());
+      return transientNavigator274;
     }
   }
 }

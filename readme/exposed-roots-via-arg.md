@@ -100,10 +100,10 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      OtherAssembly.IMyService transientIMyService40;
+      OtherAssembly.IMyService transientIMyService43;
       OtherAssembly.CompositionInOtherProject localInstance_1182D1273 = _argBaseComposition;
-      transientIMyService40 = localInstance_1182D1273.MyService;
-      return new Program(transientIMyService40);
+      transientIMyService43 = localInstance_1182D1273.MyService;
+      return new Program(transientIMyService43);
     }
   }
 }

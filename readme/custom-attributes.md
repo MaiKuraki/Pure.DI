@@ -138,12 +138,12 @@ partial class PersonComposition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      string transientString152 = "Nik";
-      Uri transientUri154 = new Uri("https://github.com/DevTeam/Pure.DI");
-      var transientPerson151 = new Person(transientString152);
-      transientPerson151.Id = _argPersonId;
-      transientPerson151.Initialize(transientUri154);
-      return transientPerson151;
+      string transientString165 = "Nik";
+      Uri transientUri167 = new Uri("https://github.com/DevTeam/Pure.DI");
+      var transientPerson164 = new Person(transientString165);
+      transientPerson164.Id = _argPersonId;
+      transientPerson164.Initialize(transientUri167);
+      return transientPerson164;
     }
   }
 }

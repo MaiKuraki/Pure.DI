@@ -8709,7 +8709,7 @@ Useful when:
 This scenario shows how to pass an explicit setup context when a dependent setup uses instance members.
 When this occurs: you need base setup state (e.g., Unity-initialized fields) inside a dependent composition.
 What it solves: avoids missing instance members in dependent compositions and keeps state access explicit.
-How it is solved in the example: uses DependsOn(setupName, contextArgName) and passes the base setup instance into the dependent composition.
+How it is solved in the example: uses DependsOn(setupName, kind, name) and passes the base setup instance into the dependent composition.
 
 ```c#
 var baseContext = new BaseComposition { Settings = new AppSettings("prod", 3) };
@@ -8742,7 +8742,7 @@ internal partial class Composition
     private void Setup()
     {
         DI.Setup(nameof(Composition))
-            .DependsOn(setupName: nameof(BaseComposition), contextArgName: "baseContext", kind: SetupContextKind.Field)
+            .DependsOn(setupName: nameof(BaseComposition), kind: SetupContextKind.Field, name: "baseContext")
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }
@@ -8771,12 +8771,87 @@ Useful when:
 - Base setup has instance members initialized externally (e.g., Unity).
 
 
+## Dependent compositions with setup context members
+
+This scenario shows how to copy referenced members from a base setup into the dependent composition.
+When this occurs: you want to reuse base setup state without passing a separate context instance.
+What it solves: lets dependent compositions access base setup members directly (Unity-friendly, no constructor args).
+How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and sets members on the composition instance. The name parameter is optional.
+
+```c#
+var composition = new Composition
+{
+    Settings = new AppSettings("prod", 3),
+    Retries = 4
+};
+var service = composition.Service;
+
+interface IService
+{
+    string Report { get; }
+}
+
+class Service(IAppSettings settings, [Tag("retries")] int retries) : IService
+{
+    public string Report { get; } = $"env={settings.Environment}, retries={retries}";
+}
+
+internal partial class BaseComposition
+{
+    internal AppSettings Settings { get; set; } = new("", 0);
+
+    internal int Retries { get; set; }
+
+    internal int GetRetries() => Retries;
+
+    private void Setup()
+    {
+        DI.Setup(nameof(BaseComposition), Internal)
+            .Bind<IAppSettings>().To(_ => Settings)
+            .Bind<int>("retries").To(_ => GetRetries());
+    }
+}
+
+internal partial class Composition
+{
+    private void Setup()
+    {
+        DI.Setup(nameof(Composition))
+            .DependsOn(nameof(BaseComposition), SetupContextKind.Members)
+            .Bind<IService>().To<Service>()
+            .Root<IService>("Service");
+    }
+}
+
+record AppSettings(string Environment, int RetryCount) : IAppSettings;
+
+interface IAppSettings
+{
+    string Environment { get; }
+
+    int RetryCount { get; }
+}
+```
+
+To run the above code, the following NuGet package must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+
+What it shows:
+- Setup context members copied into the dependent composition.
+
+Important points:
+- The composition remains parameterless and can be configured via its own members.
+
+Useful when:
+- Base setup has instance members initialized by the host or framework.
+
+
 ## Dependent compositions with setup context property
 
 This scenario shows how to pass an explicit setup context via a property.
 When this occurs: Unity (or another host) sets fields/properties on the composition instance.
 What it solves: avoids constructor arguments while still allowing dependent setups to access base state.
-How it is solved in the example: uses DependsOn(..., SetupContextKind.Property) and assigns the context property.
+How it is solved in the example: uses DependsOn(..., SetupContextKind.Property, name) and assigns the context property.
 
 ```c#
 var baseContext = new BaseComposition { Settings = new AppSettings("dev", 1) };
@@ -8809,7 +8884,7 @@ internal partial class Composition
     private void Setup()
     {
         DI.Setup(nameof(Composition))
-            .DependsOn(nameof(BaseComposition), "baseContext", SetupContextKind.Property)
+            .DependsOn(nameof(BaseComposition), SetupContextKind.Property, "baseContext")
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }
@@ -8843,7 +8918,7 @@ Useful when:
 This scenario shows how to pass an explicit setup context as a root argument.
 When this occurs: you need external state from the base setup but cannot use a constructor (e.g., Unity MonoBehaviour).
 What it solves: keeps the dependent composition safe while avoiding constructor arguments.
-How it is solved in the example: uses DependsOn(..., SetupContextKind.RootArgument) and passes the base setup instance to the root method.
+How it is solved in the example: uses DependsOn(..., SetupContextKind.RootArgument, name) and passes the base setup instance to the root method.
 
 ```c#
 var baseContext = new BaseComposition { Settings = new AppSettings("staging", 2) };
@@ -8877,7 +8952,7 @@ internal partial class Composition
     {
         // Resolve = Off
         DI.Setup(nameof(Composition))
-            .DependsOn(nameof(BaseComposition), "baseContext", SetupContextKind.RootArgument)
+            .DependsOn(nameof(BaseComposition), SetupContextKind.RootArgument, "baseContext")
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }
@@ -9351,6 +9426,74 @@ Important points:
 Useful when:
 - You want a concrete template for applying this feature in a composition.
 
+
+## Override depth
+
+When this occurs: you need to control how far override values propagate in a factory.
+What it solves: keeps overrides local to a single injection level without affecting nested dependencies.
+How it is solved in the example: uses Let to keep overrides local and verifies the scope.
+
+```c#
+using Shouldly;
+using Pure.DI;
+
+DI.Setup(nameof(DeepComposition))
+    .Bind().To<int>(_ => 7)
+    .Bind().To<Dependency>()
+    .Bind().To<Service>(ctx =>
+    {
+        ctx.Override(42);
+        ctx.Inject(out Service service);
+        return service;
+    })
+    .Root<Service>("Service");
+
+DI.Setup(nameof(ShallowComposition))
+    .Bind().To<int>(_ => 7)
+    .Bind().To<Dependency>()
+    .Bind().To<Service>(ctx =>
+    {
+        ctx.Let(42);
+        ctx.Inject(out Service service);
+        return service;
+    })
+    .Root<Service>("Service");
+
+var deep = new DeepComposition().Service;
+var shallow = new ShallowComposition().Service;
+
+deep.Id.ShouldBe(42);
+deep.Dependency.Id.ShouldBe(42);
+
+shallow.Id.ShouldBe(42);
+shallow.Dependency.Id.ShouldBe(7);
+
+class Dependency(int id)
+{
+    public int Id { get; } = id;
+}
+
+class Service(int id, Dependency dependency)
+{
+    public int Id { get; } = id;
+
+    public Dependency Dependency { get; } = dependency;
+}
+```
+
+To run the above code, the following NuGet packages must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+ - [Shouldly](https://www.nuget.org/packages/Shouldly)
+
+What it shows:
+- Demonstrates deep vs one-level override behavior.
+
+Important points:
+- Deep overrides propagate into nested dependency graphs.
+- One-level overrides affect only the immediate injection.
+
+Useful when:
+- You want to override a constructor parameter without affecting deeper object graphs.
 
 ## Consumer types
 
@@ -10684,6 +10827,98 @@ Important points:
 Useful when:
 - You want a concrete template for applying this feature in a composition.
 
+
+## Request overrides
+
+When this occurs: you need per-request overrides with different scopes for nested services.
+What it solves: applies request data to the main workflow while keeping background or system dependencies isolated.
+How it is solved in the example: uses nested factories and overrides to select the nearest context.
+
+```c#
+using Pure.DI;
+
+var composition = new Composition();
+
+var handler = composition.CreateHandler(new Request("tenant-a", "user-1"));
+
+record Request(string TenantId, string UserId);
+
+interface IRequestContext
+{
+    string TenantId { get; }
+
+    string UserId { get; }
+
+    bool IsSystem { get; }
+}
+
+class RequestContext(string tenantId, string userId, bool isSystem) : IRequestContext
+{
+    public static RequestContext System => new("system", "system", true);
+
+    public string TenantId { get; } = tenantId;
+
+    public string UserId { get; } = userId;
+
+    public bool IsSystem { get; } = isSystem;
+}
+
+interface IRepository
+{
+    IRequestContext Context { get; }
+}
+
+class Repository(IRequestContext context) : IRepository
+{
+    public IRequestContext Context { get; } = context;
+}
+
+interface IAuditWriter
+{
+    IRequestContext Context { get; }
+}
+
+class AuditWriter(IRequestContext context) : IAuditWriter
+{
+    public IRequestContext Context { get; } = context;
+}
+
+class Service(
+    IRequestContext context,
+    Func<IRepository> repositoryFactory,
+    IAuditWriter audit)
+{
+    public IRequestContext Context { get; } = context;
+
+    public IRepository Repository { get; } = repositoryFactory();
+
+    public IAuditWriter Audit { get; } = audit;
+}
+
+class Handler(Service service)
+{
+    public Service Service { get; } = service;
+}
+
+partial class Composition
+{
+    private void Setup() =>
+
+```
+
+To run the above code, the following NuGet package must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+
+What it shows:
+- Demonstrates override precedence across nested factories.
+- Shows that the closest override wins for deeper dependencies.
+
+Important points:
+- Multiple overrides for the same type pick the nearest one in the graph.
+- The last override on the same level wins.
+
+Useful when:
+- You handle multi-tenant requests and need system services to run under a system context.
 
 ## Unity Basics
 

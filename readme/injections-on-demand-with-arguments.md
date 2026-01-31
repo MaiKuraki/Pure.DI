@@ -111,18 +111,18 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<int, ISensor> transientFunc255;
-      Func<int, ISensor> localFactory1 = new Func<int, ISensor>((int localArg18) =>
+      Func<int, ISensor> transientFunc268;
+      Func<int, ISensor> localFactory1 = new Func<int, ISensor>((int localArg19) =>
       {
         lock (_lock)
         {
-          int overriddenInt32 = localArg18;
+          int overriddenInt32 = localArg19;
           ISensor localValue18 = new Sensor(overriddenInt32);
           return localValue18;
         }
       });
-      transientFunc255 = localFactory1;
-      return new SmartHome(transientFunc255);
+      transientFunc268 = localFactory1;
+      return new SmartHome(transientFunc268);
     }
   }
 }

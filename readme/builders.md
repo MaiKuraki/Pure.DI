@@ -118,24 +118,24 @@ partial class Composition
   public CleanerBot BuildUp(CleanerBot buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    CleanerBot transientCleanerBot208;
+    CleanerBot transientCleanerBot221;
     CleanerBot localBuildingInstance3 = buildingInstance;
-    Guid transientGuid211 = Guid.NewGuid();
+    Guid transientGuid224 = Guid.NewGuid();
     localBuildingInstance3.Battery = new PlutoniumBattery();
-    localBuildingInstance3.SetToken(transientGuid211);
-    transientCleanerBot208 = localBuildingInstance3;
-    return transientCleanerBot208;
+    localBuildingInstance3.SetToken(transientGuid224);
+    transientCleanerBot221 = localBuildingInstance3;
+    return transientCleanerBot221;
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public GuardBot BuildUp(GuardBot buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    GuardBot transientGuardBot205;
+    GuardBot transientGuardBot218;
     GuardBot localBuildingInstance2 = buildingInstance;
     localBuildingInstance2.Battery = new PlutoniumBattery();
-    transientGuardBot205 = localBuildingInstance2;
-    return transientGuardBot205;
+    transientGuardBot218 = localBuildingInstance2;
+    return transientGuardBot218;
   }
 
   #pragma warning disable CS0162
