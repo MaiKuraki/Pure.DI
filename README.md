@@ -405,7 +405,7 @@ dotnet run
 - [Dependent compositions](readme/dependent-compositions.md)
 - [Dependent compositions with setup context](readme/dependent-compositions-with-setup-context.md)
 - [Dependent compositions with setup context members](readme/dependent-compositions-with-setup-context-members.md)
-- [Dependent compositions with setup context property](readme/dependent-compositions-with-setup-context-property.md)
+- [Dependent compositions with setup context members and property accessors](readme/dependent-compositions-with-setup-context-members-and-property-accessors.md)
 - [Dependent compositions with setup context root argument](readme/dependent-compositions-with-setup-context-root-argument.md)
 - [Inheritance of compositions](readme/inheritance-of-compositions.md)
 - [Accumulators](readme/accumulators.md)
@@ -574,6 +574,7 @@ When a dependent setup needs instance state from another setup, you can pass an 
 - `SetupContextKind.Field`: generates a field to hold the context, no constructor argument.
 - `SetupContextKind.Property`: generates a property to hold the context, no constructor argument.
 - `SetupContextKind.RootArgument`: adds the setup context to root methods that require it, no constructor argument.
+- `SetupContextKind.Members`: copies referenced setup members into the dependent composition, no constructor argument. The `name` parameter is optional. Referenced methods are declared partial without bodies, and properties with custom accessors use partial get_/set_ methods with a Core suffix (for example, get_MyPropCore).
 
 This is useful for Unity/MonoBehaviour scenarios where the composition must remain parameterless and the host sets fields or properties.
 
@@ -607,7 +608,7 @@ If there is at least one binding with `Lifetime.Scoped`, Pure.DI generates two c
 - At least one _Scoped_ lifetime: two constructors (public default + internal with parent).
 - Both arguments and Scoped lifetimes: all three constructors (parameterized, public default, internal with parent).
 - Setup context with `SetupContextKind.Argument` behaves like an argument and can add a constructor parameter.
-- Setup context with `SetupContextKind.Field`, `SetupContextKind.Property`, or `SetupContextKind.RootArgument` does not add constructor parameters.
+- Setup context with `SetupContextKind.Field`, `SetupContextKind.Property`, `SetupContextKind.RootArgument`, or `SetupContextKind.Members` does not add constructor parameters.
 </details>
 
 <details>

@@ -1,34 +1,39 @@
-#### Dependent compositions with setup context property
+#### Dependent compositions with setup context members and property accessors
 
-This scenario shows how to pass an explicit setup context via a property.
-When this occurs: Unity (or another host) sets fields/properties on the composition instance.
-What it solves: avoids constructor arguments while still allowing dependent setups to access base state.
-How it is solved in the example: uses DependsOn(..., SetupContextKind.Property, name) and assigns the context property.
+This scenario shows how to copy referenced members and implement custom property accessors via partial methods.
+When this occurs: you need base setup properties with logic, but the dependent composition must remain parameterless.
+What it solves: keeps Unity-friendly composition while letting the user implement property logic.
+How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and implements partial get_/set_ methods.
 
 
 ```c#
-var baseContext = new BaseComposition { Settings = new AppSettings("dev", 1) };
-var composition = new Composition { baseContext = baseContext };
+var composition = new Composition { Counter = 3 };
 var service = composition.Service;
 
 interface IService
 {
-    string Report { get; }
+    int Value { get; }
 }
 
-class Service(IAppSettings settings) : IService
+class Service(int value) : IService
 {
-    public string Report { get; } = $"env={settings.Environment}, retries={settings.RetryCount}";
+    public int Value { get; } = value;
 }
 
 internal partial class BaseComposition
 {
-    internal AppSettings Settings { get; set; } = new("", 0);
+    private int _counter;
+
+    internal int Counter
+    {
+        get => _counter;
+        set => _counter = value + 1;
+    }
 
     private void Setup()
     {
         DI.Setup(nameof(BaseComposition), Internal)
-            .Bind<IAppSettings>().To(_ => Settings);
+            .Bind<int>().To(_ => Counter);
     }
 }
 
@@ -37,19 +42,14 @@ internal partial class Composition
     private void Setup()
     {
         DI.Setup(nameof(Composition))
-            .DependsOn(nameof(BaseComposition), SetupContextKind.Property, "baseContext")
+            .DependsOn(nameof(BaseComposition), SetupContextKind.Members)
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }
-}
 
-record AppSettings(string Environment, int RetryCount) : IAppSettings;
+    internal partial int get_CounterCore() => _counter;
 
-interface IAppSettings
-{
-    string Environment { get; }
-
-    int RetryCount { get; }
+    internal partial void set_CounterCore(int value) => _counter = value + 1;
 }
 ```
 
@@ -79,13 +79,13 @@ dotnet run
 </details>
 
 What it shows:
-- Setup context as a property on the composition.
+- Custom property logic via partial accessor methods.
 
 Important points:
-- The composition stays parameterless and Unity-friendly.
+- Accessor logic is not copied; the user provides partial implementations.
 
 Useful when:
-- The composition is created by a framework that injects data via properties.
+- Properties include custom logic and are referenced by bindings in a dependent setup.
 
 
 The following partial class will be generated:
@@ -93,15 +93,21 @@ The following partial class will be generated:
 ```c#
 partial class Composition
 {
-  public BaseComposition baseContext { get; set; }
+  private int _counter;
+
+  internal int Counter { get => get_CounterCore(); set => set_CounterCore(value); }
+
+  internal partial int get_CounterCore();
+
+  internal partial void set_CounterCore(int value);
 
   public IService Service
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      AppSettings transientAppSettings28 = baseContext.Settings;
-      return new Service(transientAppSettings28);
+      int transientInt3228 = Counter;
+      return new Service(transientInt3228);
     }
   }
 
@@ -240,14 +246,10 @@ Class diagram:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	AppSettings --|> IAppSettings
 	Service --|> IService
 	Composition ..> Service : IService Service
-	Service *--  AppSettings : IAppSettings
-	namespace Pure.DI.UsageTests.Advanced.DependentCompositionsWithPropertyContextScenario {
-		class AppSettings {
-				<<record>>
-		}
+	Service *--  Int32 : Int32
+	namespace Pure.DI.UsageTests.Advanced.DependentCompositionsWithMembersPropertyAccessorsScenario {
 		class Composition {
 		<<partial>>
 		+IService Service
@@ -256,15 +258,17 @@ classDiagram
 		+ object Resolve(Type type)
 		+ object Resolve(Type type, object? tag)
 		}
-		class IAppSettings {
-			<<interface>>
-		}
 		class IService {
 			<<interface>>
 		}
 		class Service {
 				<<class>>
-			+Service(IAppSettings settings)
+			+Service(Int32 value)
+		}
+	}
+	namespace System {
+		class Int32 {
+				<<struct>>
 		}
 	}
 ```

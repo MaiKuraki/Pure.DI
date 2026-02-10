@@ -8713,7 +8713,7 @@ How it is solved in the example: uses DependsOn(setupName, kind, name) and passe
 
 ```c#
 var baseContext = new BaseComposition { Settings = new AppSettings("prod", 3) };
-var composition = new Composition { baseContext = baseContext };
+var composition = new Composition(baseContext);
 var service = composition.Service;
 
 interface IService
@@ -8742,7 +8742,7 @@ internal partial class Composition
     private void Setup()
     {
         DI.Setup(nameof(Composition))
-            .DependsOn(setupName: nameof(BaseComposition), kind: SetupContextKind.Field, name: "baseContext")
+            .DependsOn(setupName: nameof(BaseComposition), kind: SetupContextKind.Argument, name: "baseContext")
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }
@@ -8776,7 +8776,7 @@ Useful when:
 This scenario shows how to copy referenced members from a base setup into the dependent composition.
 When this occurs: you want to reuse base setup state without passing a separate context instance.
 What it solves: lets dependent compositions access base setup members directly (Unity-friendly, no constructor args).
-How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and sets members on the composition instance. The name parameter is optional.
+How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and sets members on the composition instance. The name parameter is optional; methods are declared partial and implemented by the user.
 
 ```c#
 var composition = new Composition
@@ -8821,6 +8821,8 @@ internal partial class Composition
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }
+
+    internal partial int GetRetries() => Retries;
 }
 
 record AppSettings(string Environment, int RetryCount) : IAppSettings;
@@ -8846,36 +8848,41 @@ Useful when:
 - Base setup has instance members initialized by the host or framework.
 
 
-## Dependent compositions with setup context property
+## Dependent compositions with setup context members and property accessors
 
-This scenario shows how to pass an explicit setup context via a property.
-When this occurs: Unity (or another host) sets fields/properties on the composition instance.
-What it solves: avoids constructor arguments while still allowing dependent setups to access base state.
-How it is solved in the example: uses DependsOn(..., SetupContextKind.Property, name) and assigns the context property.
+This scenario shows how to copy referenced members and implement custom property accessors via partial methods.
+When this occurs: you need base setup properties with logic, but the dependent composition must remain parameterless.
+What it solves: keeps Unity-friendly composition while letting the user implement property logic.
+How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and implements partial get_/set_ methods.
 
 ```c#
-var baseContext = new BaseComposition { Settings = new AppSettings("dev", 1) };
-var composition = new Composition { baseContext = baseContext };
+var composition = new Composition { Counter = 3 };
 var service = composition.Service;
 
 interface IService
 {
-    string Report { get; }
+    int Value { get; }
 }
 
-class Service(IAppSettings settings) : IService
+class Service(int value) : IService
 {
-    public string Report { get; } = $"env={settings.Environment}, retries={settings.RetryCount}";
+    public int Value { get; } = value;
 }
 
 internal partial class BaseComposition
 {
-    internal AppSettings Settings { get; set; } = new("", 0);
+    private int _counter;
+
+    internal int Counter
+    {
+        get => _counter;
+        set => _counter = value + 1;
+    }
 
     private void Setup()
     {
         DI.Setup(nameof(BaseComposition), Internal)
-            .Bind<IAppSettings>().To(_ => Settings);
+            .Bind<int>().To(_ => Counter);
     }
 }
 
@@ -8884,19 +8891,14 @@ internal partial class Composition
     private void Setup()
     {
         DI.Setup(nameof(Composition))
-            .DependsOn(nameof(BaseComposition), SetupContextKind.Property, "baseContext")
+            .DependsOn(nameof(BaseComposition), SetupContextKind.Members)
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }
-}
 
-record AppSettings(string Environment, int RetryCount) : IAppSettings;
+    internal partial int get_CounterCore() => _counter;
 
-interface IAppSettings
-{
-    string Environment { get; }
-
-    int RetryCount { get; }
+    internal partial void set_CounterCore(int value) => _counter = value + 1;
 }
 ```
 
@@ -8904,13 +8906,13 @@ To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
 What it shows:
-- Setup context as a property on the composition.
+- Custom property logic via partial accessor methods.
 
 Important points:
-- The composition stays parameterless and Unity-friendly.
+- Accessor logic is not copied; the user provides partial implementations.
 
 Useful when:
-- The composition is created by a framework that injects data via properties.
+- Properties include custom logic and are referenced by bindings in a dependent setup.
 
 
 ## Dependent compositions with setup context root argument
@@ -11352,7 +11354,7 @@ The [project file](/samples/AvaloniaApp/AvaloniaApp.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.2">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -11416,11 +11418,11 @@ The [project file](/samples/BlazorServerApp/BlazorServerApp.csproj) looks like t
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.2">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -11484,11 +11486,11 @@ The [project file](/samples/BlazorWebAssemblyApp/BlazorWebAssemblyApp.csproj) lo
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.2">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -11513,7 +11515,7 @@ The [project file](/samples/ShroedingersCatNativeAOT/ShroedingersCatNativeAOT.cs
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.2">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -11614,7 +11616,7 @@ The [project file](/samples/ShroedingersCat/ShroedingersCat.csproj) looks like t
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.2">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -11700,7 +11702,7 @@ The [project file](/samples/ShroedingersCatTopLevelStatements/ShroedingersCatTop
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.2">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -11802,11 +11804,11 @@ The [project file](/samples/EF/EF.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.2">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -11870,11 +11872,11 @@ The [project file](/samples/GrpcService/GrpcService.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.2">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -12035,11 +12037,11 @@ The [project file](/samples/MAUIApp/MAUIApp.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.2">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -12127,11 +12129,11 @@ The [project file](/samples/MinimalWebAPI/MinimalWebAPI.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.2">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -12298,11 +12300,11 @@ The [project file](/samples/WebAPI/WebAPI.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.2">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -12367,11 +12369,11 @@ The [project file](/samples/WebApp/WebApp.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.2">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
     </ItemGroup>
 
 </Project>
@@ -12439,7 +12441,7 @@ The [project file](/samples/WinFormsAppNetCore/WinFormsAppNetCore.csproj) looks 
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.2">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -12512,7 +12514,7 @@ The [project file](/samples/WinFormsApp/WinFormsApp.csproj) looks like this:
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.2">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -12640,7 +12642,7 @@ The [project file](/samples/WpfAppNetCore/WpfAppNetCore.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk">
    ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.2">
+        <PackageReference Include="Pure.DI" Version="2.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

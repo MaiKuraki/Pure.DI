@@ -8,7 +8,7 @@ How it is solved in the example: uses DependsOn(setupName, kind, name) and passe
 
 ```c#
 var baseContext = new BaseComposition { Settings = new AppSettings("prod", 3) };
-var composition = new Composition { baseContext = baseContext };
+var composition = new Composition(baseContext);
 var service = composition.Service;
 
 interface IService
@@ -37,7 +37,7 @@ internal partial class Composition
     private void Setup()
     {
         DI.Setup(nameof(Composition))
-            .DependsOn(setupName: nameof(BaseComposition), kind: SetupContextKind.Field, name: "baseContext")
+            .DependsOn(setupName: nameof(BaseComposition), kind: SetupContextKind.Argument, name: "baseContext")
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }
@@ -93,7 +93,13 @@ The following partial class will be generated:
 ```c#
 partial class Composition
 {
-  public BaseComposition baseContext;
+  private readonly BaseComposition baseContext;
+
+  [OrdinalAttribute(128)]
+  public Composition(BaseComposition baseContext)
+  {
+    this.baseContext = baseContext ?? throw new ArgumentNullException(nameof(baseContext));
+  }
 
   public IService Service
   {

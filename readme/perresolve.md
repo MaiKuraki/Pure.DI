@@ -142,7 +142,6 @@ partial class Composition
           }
 
       EnsureRoutePlanningSessionExists();
-      EnsureRoutePlanningSessionExists();
       return new TrainTripPlanner(perResolveRoutePlanningSession547, perResolveRoutePlanningSession547, _singletonValueTuple54);
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       void EnsureRoutePlanningSessionExists()
