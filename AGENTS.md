@@ -8784,6 +8784,7 @@ var composition = new Composition
     Settings = new AppSettings("prod", 3),
     Retries = 4
 };
+
 var service = composition.Service;
 
 interface IService
@@ -8798,11 +8799,9 @@ class Service(IAppSettings settings, [Tag("retries")] int retries) : IService
 
 internal partial class BaseComposition
 {
-    internal AppSettings Settings { get; set; } = new("", 0);
+    public AppSettings Settings { get; set; } = new("", 0);
 
-    internal int Retries { get; set; }
-
-    internal int GetRetries() => Retries;
+    private int GetRetries() => 3;
 
     private void Setup()
     {
@@ -8814,6 +8813,8 @@ internal partial class BaseComposition
 
 internal partial class Composition
 {
+    public int Retries { get; set; }
+
     private void Setup()
     {
         DI.Setup(nameof(Composition))
@@ -8822,7 +8823,7 @@ internal partial class Composition
             .Root<IService>("Service");
     }
 
-    internal partial int GetRetries() => Retries;
+    private partial int GetRetries() => Retries;
 }
 
 record AppSettings(string Environment, int RetryCount) : IAppSettings;
@@ -8853,10 +8854,12 @@ Useful when:
 This scenario shows how to copy referenced members and implement custom property accessors via partial methods.
 When this occurs: you need base setup properties with logic, but the dependent composition must remain parameterless.
 What it solves: keeps Unity-friendly composition while letting the user implement property logic.
-How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and implements partial get_/set_ methods.
+How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and implements partial get_ methods.
 
 ```c#
-var composition = new Composition { Counter = 3 };
+var composition = new Composition();
+composition.SetCounter(3);
+
 var service = composition.Service;
 
 interface IService
@@ -8888,6 +8891,12 @@ internal partial class BaseComposition
 
 internal partial class Composition
 {
+    private int _counter;
+
+    private partial int get__Counter() => ++_counter;
+
+    public void SetCounter(int counter) => _counter = counter;
+
     private void Setup()
     {
         DI.Setup(nameof(Composition))
@@ -8895,10 +8904,6 @@ internal partial class Composition
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }
-
-    internal partial int get_CounterCore() => _counter;
-
-    internal partial void set_CounterCore(int value) => _counter = value + 1;
 }
 ```
 

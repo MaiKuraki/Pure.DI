@@ -16,48 +16,26 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
     {
         var compilation = ctx.Setup.SemanticModel.Compilation;
         var languageVersion = GetLanguageVersion(compilation, ctx.Setup.SemanticModel);
-        var queue = new Queue<ISymbol>();
-        var processed = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
         var memberKeys = new HashSet<(SyntaxTree Tree, TextSpan Span)>();
         var members = new List<MemberDeclarationSyntax>();
 
-        // Collect only instance members referenced by bindings (and their dependencies)
+        // Collect only instance members referenced directly by bindings
         foreach (var member in GetRootMembers(compilation))
         {
-            if (IsInstanceMemberForCollect(member, ctx.SetupType, ctx.TargetType))
-            {
-                queue.Enqueue(member);
-            }
-        }
-
-        while (queue.Count > 0)
-        {
-            var symbol = queue.Dequeue();
-            if (!processed.Add(symbol))
+            if (!IsInstanceMemberForCollect(member, ctx.SetupType, ctx.TargetType))
             {
                 continue;
             }
 
-            foreach (var member in GetMemberDeclarations(symbol))
+            foreach (var declaration in GetMemberDeclarations(member))
             {
-                var key = (member.SyntaxTree, member.Span);
+                var key = (declaration.SyntaxTree, declaration.Span);
                 if (!memberKeys.Add(key))
                 {
                     continue;
                 }
 
-                members.Add(member);
-
-                var memberSemanticModel = compilation.GetSemanticModel(member.SyntaxTree);
-                var walker = new InstanceMemberAccessWalker(memberSemanticModel, ctx.SetupType, ctx.TargetType);
-                walker.Visit(member);
-                foreach (var nested in walker.Members)
-                {
-                    if (!processed.Contains(nested))
-                    {
-                        queue.Enqueue(nested);
-                    }
-                }
+                members.Add(declaration);
             }
         }
 
@@ -360,8 +338,9 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
             .WithExpressionBody(null)
             .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
 
-        if (languageVersion >= LanguageVersion.CSharp9
-            && !updated.Modifiers.Any(i => i.IsKind(SyntaxKind.PartialKeyword)))
+        updated = updated.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PrivateKeyword)));
+
+        if (!updated.Modifiers.Any(i => i.IsKind(SyntaxKind.PartialKeyword)))
         {
             updated = updated.WithModifiers(AddPartialModifier(updated.Modifiers));
         }
@@ -371,7 +350,7 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
 
     private static IEnumerable<MemberDeclarationSyntax> RewriteProperty(PropertyDeclarationSyntax property, LanguageVersion languageVersion)
     {
-        if (!HasAccessorBody(property))
+        if (!HasGetterLogic(property))
         {
             yield return property;
             yield break;
@@ -379,6 +358,8 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
 
         var accessors = property.AccessorList?.Accessors
             .Select(accessor => RewriteAccessor(property, accessor))
+            .Where(accessor => accessor is not null)
+            .Select(accessor => accessor!)
             .ToList();
 
         if (property.ExpressionBody is not null)
@@ -387,30 +368,36 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
             accessors.Add(CreateAccessorFromExpression(property, SyntaxKind.GetAccessorDeclaration));
         }
 
-        if (accessors is null || accessors.Count == 0)
+        if ((accessors is null || accessors.Count == 0) && property.ExpressionBody is null)
         {
-            yield return property;
+            if (property.AccessorList is null)
+            {
+                yield return property;
+                yield break;
+            }
+
             yield break;
         }
 
+        accessors ??= [];
+        var hasNonAutoAccessors = accessors.Any(a => a.Body is not null || a.ExpressionBody is not null);
+        var initializer = hasNonAutoAccessors ? null : property.Initializer;
+
         var updatedProperty = property
             .WithExpressionBody(null)
-            .WithSemicolonToken(default)
+            .WithInitializer(initializer)
+            .WithSemicolonToken(initializer is not null ? property.SemicolonToken : default)
             .WithAccessorList(SyntaxFactory.AccessorList(SyntaxFactory.List(accessors)));
 
         yield return updatedProperty;
 
-        foreach (var accessor in accessors.Where(i => i.Body is null && i.ExpressionBody is not null))
+        foreach (var accessor in accessors.Where(i => i.Body is null && i.ExpressionBody is not null && i.Kind() == SyntaxKind.GetAccessorDeclaration))
         {
-            var accessorKind = accessor.Kind();
-            if (accessorKind is SyntaxKind.GetAccessorDeclaration or SyntaxKind.SetAccessorDeclaration or SyntaxKind.InitAccessorDeclaration)
-            {
-                yield return CreateAccessorPartialMethod(property, accessor, languageVersion);
-            }
+            yield return CreateAccessorPartialMethod(property, accessor, languageVersion);
         }
     }
 
-    private static bool HasAccessorBody(PropertyDeclarationSyntax property)
+    private static bool HasGetterLogic(PropertyDeclarationSyntax property)
     {
         if (property.ExpressionBody is not null)
         {
@@ -422,10 +409,17 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
             return false;
         }
 
-        return property.AccessorList.Accessors.Any(accessor => accessor.Body is not null || accessor.ExpressionBody is not null);
+        var getter = property.AccessorList.Accessors.FirstOrDefault(accessor =>
+            accessor.Kind() == SyntaxKind.GetAccessorDeclaration);
+        if (getter is null)
+        {
+            return false;
+        }
+
+        return getter.Body is not null || getter.ExpressionBody is not null;
     }
 
-    private static AccessorDeclarationSyntax RewriteAccessor(PropertyDeclarationSyntax property, AccessorDeclarationSyntax accessor)
+    private static AccessorDeclarationSyntax? RewriteAccessor(PropertyDeclarationSyntax property, AccessorDeclarationSyntax accessor)
     {
         if (accessor.Body is null && accessor.ExpressionBody is null)
         {
@@ -438,6 +432,11 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
             && accessorKind != SyntaxKind.InitAccessorDeclaration)
         {
             return accessor;
+        }
+
+        if (accessorKind is SyntaxKind.SetAccessorDeclaration or SyntaxKind.InitAccessorDeclaration)
+        {
+            return null;
         }
 
         var methodName = GetAccessorMethodName(property.Identifier.Text, accessorKind);
@@ -480,9 +479,8 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
             : SyntaxFactory.ParameterList(SyntaxFactory.SingletonSeparatedList(
                 SyntaxFactory.Parameter(SyntaxFactory.Identifier("value")).WithType(property.Type)));
 
-        var modifiers = GetAccessorMethodModifiers(property, accessor);
-        if (languageVersion >= LanguageVersion.CSharp9
-            && !modifiers.Any(i => i.IsKind(SyntaxKind.PartialKeyword)))
+        var modifiers = SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
+        if (!modifiers.Any(i => i.IsKind(SyntaxKind.PartialKeyword)))
         {
             modifiers = AddPartialModifier(modifiers);
         }
@@ -493,36 +491,10 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
             .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
     }
 
-    private static SyntaxTokenList GetAccessorMethodModifiers(PropertyDeclarationSyntax property, AccessorDeclarationSyntax accessor)
-    {
-        var modifiers = new List<SyntaxToken>();
-        var accessModifiers = accessor.Modifiers.Any()
-            ? accessor.Modifiers
-            : property.Modifiers;
-
-        foreach (var modifier in accessModifiers)
-        {
-            if (modifier.IsKind(SyntaxKind.PublicKeyword)
-                || modifier.IsKind(SyntaxKind.InternalKeyword)
-                || modifier.IsKind(SyntaxKind.PrivateKeyword)
-                || modifier.IsKind(SyntaxKind.ProtectedKeyword))
-            {
-                modifiers.Add(modifier);
-            }
-        }
-
-        if (property.Modifiers.Any(i => i.IsKind(SyntaxKind.StaticKeyword)))
-        {
-            modifiers.Add(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
-        }
-
-        return SyntaxFactory.TokenList(modifiers);
-    }
-
     private static string GetAccessorMethodName(string propertyName, SyntaxKind accessorKind) =>
         accessorKind == SyntaxKind.GetAccessorDeclaration
-            ? $"get_{propertyName}Core"
-            : $"set_{propertyName}Core";
+            ? $"get__{propertyName}"
+            : $"set__{propertyName}";
 
     private static SyntaxTokenList AddPartialModifier(SyntaxTokenList modifiers)
     {

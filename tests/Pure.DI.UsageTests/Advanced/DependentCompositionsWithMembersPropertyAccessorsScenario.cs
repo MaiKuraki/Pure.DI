@@ -5,7 +5,7 @@ $d=Dependent compositions with setup context members and property accessors
 $h=This scenario shows how to copy referenced members and implement custom property accessors via partial methods.
 $h=When this occurs: you need base setup properties with logic, but the dependent composition must remain parameterless.
 $h=What it solves: keeps Unity-friendly composition while letting the user implement property logic.
-$h=How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and implements partial get_/set_ methods.
+$h=How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and implements partial get_ methods.
 $f=
 $f=What it shows:
 $f=- Custom property logic via partial accessor methods.
@@ -41,7 +41,9 @@ public class Scenario
     {
         // Resolve = Off
         // {
-        var composition = new Composition { Counter = 3 };
+        var composition = new Composition();
+        composition.SetCounter(3);
+
         var service = composition.Service;
         // }
         service.Value.ShouldBe(4);
@@ -79,6 +81,12 @@ internal partial class BaseComposition
 
 internal partial class Composition
 {
+    private int _counter;
+
+    private partial int get__Counter() => ++_counter;
+
+    public void SetCounter(int counter) => _counter = counter;
+
     private void Setup()
     {
         DI.Setup(nameof(Composition))
@@ -86,9 +94,5 @@ internal partial class Composition
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }
-
-    internal partial int get_CounterCore() => _counter;
-
-    internal partial void set_CounterCore(int value) => _counter = value + 1;
 }
 // }

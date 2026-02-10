@@ -46,6 +46,7 @@ public class Scenario
             Settings = new AppSettings("prod", 3),
             Retries = 4
         };
+
         var service = composition.Service;
         // }
         service.Report.ShouldBe("env=prod, retries=4");
@@ -66,11 +67,9 @@ class Service(IAppSettings settings, [Tag("retries")] int retries) : IService
 
 internal partial class BaseComposition
 {
-    internal AppSettings Settings { get; set; } = new("", 0);
+    public AppSettings Settings { get; set; } = new("", 0);
 
-    internal int Retries { get; set; }
-
-    internal int GetRetries() => Retries;
+    private int GetRetries() => 3;
 
     private void Setup()
     {
@@ -82,6 +81,8 @@ internal partial class BaseComposition
 
 internal partial class Composition
 {
+    public int Retries { get; set; }
+
     private void Setup()
     {
         DI.Setup(nameof(Composition))
@@ -90,7 +91,7 @@ internal partial class Composition
             .Root<IService>("Service");
     }
 
-    internal partial int GetRetries() => Retries;
+    private partial int GetRetries() => Retries;
 }
 
 record AppSettings(string Environment, int RetryCount) : IAppSettings;
