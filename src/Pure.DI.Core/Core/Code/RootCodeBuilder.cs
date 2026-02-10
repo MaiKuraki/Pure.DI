@@ -35,7 +35,16 @@ sealed class RootCodeBuilder(
 
         if (!string.IsNullOrEmpty(var.LocalFunctionName))
         {
-            parentCtx.Lines.AppendLine($"{var.LocalFunctionName}();");
+            if (parentCtx.IsFactory)
+            {
+                parentCtx.Lines.AppendLine($"{var.LocalFunctionName}();");
+            }
+            else if (!var.IsLocalFunctionCalled)
+            {
+                parentCtx.Lines.AppendLine($"{var.LocalFunctionName}();");
+                var.IsLocalFunctionCalled = true;
+            }
+            var.IsCreated = true;
             var.Declaration.IsDeclared = true;
             yield break;
         }

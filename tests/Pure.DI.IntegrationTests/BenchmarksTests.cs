@@ -221,4 +221,41 @@ public class BenchmarksTests
         result.Success.ShouldBeTrue(result);
         result.GeneratedCode.Contains("new global::Sample.IService4[2]").ShouldBeTrue(result);
     }
+
+    [Fact]
+    public async Task ShouldNotDuplicateEnsureCallsForScopedService()
+    {
+        // Given
+
+        // When
+        var result = await (Models + """
+                                     static class Setup
+                                     {
+                                       private static void SetupComposition()
+                                       {
+                                           // FormatCode = On
+                                           DI.Setup("Composition")
+                                               .Bind<IService1>().To<Service1>()
+                                               .Bind<IService2>().To<Service2>()
+                                               .Bind<IService3>().To<Service3>()
+                                               .Bind<IService4>().As(Lifetime.Scoped).To<Service4>()
+                                               .Root<CompositionRoot>("Root", default, RootKinds.Method);
+                                       }
+                                     }
+
+                                     public class Program
+                                     {
+                                       public static void Main()
+                                       {
+                                           var composition = new Composition();
+                                       }
+                                     }
+                                     """).RunAsync(new Options(LanguageVersion.CSharp10));
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.GeneratedCode.Split(Environment.NewLine)
+            .Count(i => i.Contains("EnsureService4Exists") && i.Contains("();"))
+            .ShouldBe(1, result);
+    }
 }

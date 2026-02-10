@@ -70,6 +70,11 @@ record Var(
     public bool IsCreated { get; set; } = IsCreatedDefault(Declaration.Node);
 
     /// <summary>
+    /// Gets or sets a value indicating whether the local function was called in the current path.
+    /// </summary>
+    public bool IsLocalFunctionCalled { get; set; }
+
+    /// <summary>
     /// Resets the variable to its default state, including generated code.
     /// </summary>
     /// <returns>True if the state has changed.</returns>
@@ -102,6 +107,12 @@ record Var(
             changed = true;
         }
 
+        if (IsLocalFunctionCalled)
+        {
+            IsLocalFunctionCalled = false;
+            changed = true;
+        }
+
         // ReSharper disable once InvertIf
         if (HasCycle != null)
         {
@@ -116,7 +127,7 @@ record Var(
     /// Resets only the mutable state of the variable, without touching the generated code.
     /// </summary>
     /// <returns>True if the state has changed.</returns>
-    public bool ResetStateToDefaults()
+    public bool ResetStateToDefaults(bool resetLocalFunctionCalled)
     {
         var changed = false;
         var defaultCreated = IsCreatedDefault(Declaration.Node);
@@ -130,6 +141,12 @@ record Var(
         if (_codeExpression != null)
         {
             _codeExpression = null;
+            changed = true;
+        }
+
+        if (resetLocalFunctionCalled && IsLocalFunctionCalled)
+        {
+            IsLocalFunctionCalled = false;
             changed = true;
         }
 

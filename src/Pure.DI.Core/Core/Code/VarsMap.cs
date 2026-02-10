@@ -125,7 +125,7 @@ class VarsMap(
         return Disposables.Create(() => {
             // Cleanup and restore state after exiting the local function.
             RemoveNewNonPersistentVars(var, state, lines, nameof(LocalFunction));
-            RestoreState(var, state, lines, nameof(LocalFunction));
+            RestoreState(var, state, lines, nameof(LocalFunction), false);
             foreach (var item in removed)
             {
 #if DEBUG
@@ -144,7 +144,7 @@ class VarsMap(
         return Disposables.Create(() => {
             // Cleanup and restore state after exiting the lazy scope.
             RemoveNewNonPersistentVars(var, state, lines, nameof(Lazy));
-            RestoreState(var, state, lines, nameof(Lazy));
+            RestoreState(var, state, lines, nameof(Lazy), true);
         });
     }
 
@@ -156,7 +156,7 @@ class VarsMap(
         return Disposables.Create(() => {
             // Cleanup and restore state after exiting the block.
             RemoveNewNonPersistentVars(var, state, lines, nameof(Block));
-            RestoreState(var, state, lines, nameof(Block));
+            RestoreState(var, state, lines, nameof(Block), false);
         });
     }
 
@@ -209,7 +209,7 @@ class VarsMap(
     /// <summary>
     /// Restores the variables' state from a previously taken snapshot.
     /// </summary>
-    private void RestoreState(Var var, IReadOnlyDictionary<int, VarState> state, Lines lines, string reason)
+    private void RestoreState(Var var, IReadOnlyDictionary<int, VarState> state, Lines lines, string reason, bool restoreLocalFunctionCalled)
     {
 #if DEBUG
         lines.AppendLine($"// restore state ({reason} {var.Declaration.Name})");
@@ -217,7 +217,7 @@ class VarsMap(
         var restored = new HashSet<int>();
         foreach (var stateItem in state)
         {
-            var (varToRestore, isDeclared, isCreated, codeExpression) = stateItem.Value;
+            var (varToRestore, isDeclared, isCreated, isLocalFunctionCalled, codeExpression) = stateItem.Value;
             if (varToRestore.Declaration.Node.BindingId == var.Declaration.Node.BindingId)
             {
                 continue;
@@ -229,6 +229,7 @@ class VarsMap(
             // Global state (like LocalFunction) should persist even after exiting a nested scope.
             if (varToRestore.Declaration.IsDeclared == isDeclared
                 && varToRestore.IsCreated == isCreated
+                && (!restoreLocalFunctionCalled || varToRestore.IsLocalFunctionCalled == isLocalFunctionCalled)
                 && varToRestore.CodeExpression == codeExpression)
             {
                 continue;
@@ -239,6 +240,10 @@ class VarsMap(
 #endif
             varToRestore.Declaration.IsDeclared = isDeclared;
             varToRestore.IsCreated = isCreated;
+            if (restoreLocalFunctionCalled)
+            {
+                varToRestore.IsLocalFunctionCalled = isLocalFunctionCalled;
+            }
             varToRestore.CodeExpression = codeExpression;
         }
 
@@ -253,7 +258,7 @@ class VarsMap(
             }
 
             var declarationReset = varToRestore.Declaration.ResetStateToDefaults();
-            var varReset = varToRestore.ResetStateToDefaults();
+            var varReset = varToRestore.ResetStateToDefaults(restoreLocalFunctionCalled);
             if (!declarationReset && !varReset)
             {
                 continue;
@@ -269,6 +274,7 @@ class VarsMap(
         Var Var,
         bool IsDeclared,
         bool IsCreated,
+        bool IsLocalFunctionCalled,
         string CodeExpression)
     {
         public VarState(Var variable)
@@ -276,6 +282,7 @@ class VarsMap(
                 variable,
                 variable.Declaration.IsDeclared,
                 variable.IsCreated,
+                variable.IsLocalFunctionCalled,
                 variable.CodeExpression)
         {
         }
