@@ -128,13 +128,13 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<int, string, IPerson> transientFunc361;
-      Func<int, string, IPerson> localFactory2 = new Func<int, string, IPerson>((int localArg114, string localArg212) =>
+      Func<int, string, IPerson> transientFunc365;
+      Func<int, string, IPerson> localFactory2 = new Func<int, string, IPerson>((int localArg112, string localArg29) =>
       {
         lock (_lock)
         {
-          int overriddenInt32 = localArg114;
-          string overriddenString2 = localArg212;
+          int overriddenInt32 = localArg112;
+          string overriddenString2 = localArg29;
           if (_singletonClock51 is null)
             lock (_lock)
               if (_singletonClock51 is null)
@@ -146,8 +146,8 @@ partial class Composition
           return localValue21;
         }
       });
-      transientFunc361 = localFactory2;
-      return new Team(transientFunc361);
+      transientFunc365 = localFactory2;
+      return new Team(transientFunc365);
     }
   }
 }

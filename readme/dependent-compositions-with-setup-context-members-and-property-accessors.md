@@ -7,53 +7,83 @@ How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) a
 
 
 ```c#
-var composition = new Composition();
-composition.SetCounter(3);
-
-var service = composition.Service;
-
-interface IService
+var composition = new Composition
 {
-    int Value { get; }
+	ConnectionString = "Server=prod-db.example.com;Database=AppDb;"
+};
+
+var service = composition.DatabaseService;
+
+interface IDatabaseService
+{
+	string ConnectionString { get; }
+	int MaxConnections { get; }
 }
 
-class Service(int value) : IService
+class DatabaseService(
+	[Tag("connectionString")] string connectionString,
+	[Tag("maxConnections")] int maxConnections) : IDatabaseService
 {
-    public int Value { get; } = value;
+	public string ConnectionString { get; } = connectionString;
+	public int MaxConnections { get; } = maxConnections;
 }
 
+/// <summary>
+/// Base composition providing database configuration properties
+/// </summary>
 internal partial class BaseComposition
 {
-    private int _counter;
+	/// <summary>
+	/// Connection string - simple property with field-backed accessor (no custom logic)
+	/// </summary>
+	public string ConnectionString { get; set; } = "";
 
-    internal int Counter
-    {
-        get => _counter;
-        set => _counter = value + 1;
-    }
+	/// <summary>
+	/// Maximum number of connections - property with custom getter logic
+	/// </summary>
+	private int _maxConnections = 100;
 
-    private void Setup()
-    {
-        DI.Setup(nameof(BaseComposition), Internal)
-            .Bind<int>().To(_ => Counter);
-    }
+	public int MaxConnections
+	{
+		get => _maxConnections;
+		set => _maxConnections = value;
+	}
+
+	private void Setup()
+	{
+		DI.Setup(nameof(BaseComposition), Internal)
+			.Bind<string>("connectionString").To(_ => ConnectionString)
+			.Bind<int>("maxConnections").To(_ => MaxConnections);
+	}
 }
 
+/// <summary>
+/// Dependent composition implementing custom accessor logic for properties
+/// </summary>
 internal partial class Composition
 {
-    private int _counter;
+	/// <summary>
+	/// MaxConnections backing field
+	/// </summary>
+	private int _maxConnections = 100;
 
-    private partial int get__Counter() => ++_counter;
+	/// <summary>
+	/// Custom accessor logic: returns configured value + 1 to ensure minimum buffer
+	/// </summary>
+	private partial int get__MaxConnections() => _maxConnections + 1;
 
-    public void SetCounter(int counter) => _counter = counter;
+	/// <summary>
+	/// Setter for MaxConnections
+	/// </summary>
+	public void SetMaxConnections(int value) => _maxConnections = value;
 
-    private void Setup()
-    {
-        DI.Setup(nameof(Composition))
-            .DependsOn(nameof(BaseComposition), SetupContextKind.Members)
-            .Bind<IService>().To<Service>()
-            .Root<IService>("Service");
-    }
+	private void Setup()
+	{
+		DI.Setup(nameof(Composition))
+			.DependsOn(nameof(BaseComposition), SetupContextKind.Members)
+			.Bind<IDatabaseService>().To<DatabaseService>()
+			.Root<IDatabaseService>("DatabaseService");
+	}
 }
 ```
 
@@ -84,12 +114,21 @@ dotnet run
 
 What it shows:
 - Custom property logic via partial accessor methods.
+- Properties with simple field-backed accessors (no logic).
 
 Important points:
 - Accessor logic is not copied; the user provides partial implementations.
+- Simple property accessors (field-backed) can be used without partial methods.
+
+Example demonstrates:
+  1. BaseComposition provides connection string and max connections properties
+  2. ConnectionString has simple field-backed accessor (no logic)
+  3. MaxConnections has custom getter logic via partial method
+  4. Dependent Composition implements custom accessor logic for MaxConnections
 
 Useful when:
 - Properties include custom logic and are referenced by bindings in a dependent setup.
+- Some properties are simple field-backed while others have custom logic.
 
 
 The following partial class will be generated:
@@ -97,17 +136,20 @@ The following partial class will be generated:
 ```c#
 partial class Composition
 {
-  internal int Counter { get => get__Counter(); }
+  public string ConnectionString { get; set; } = "";
 
-  private partial int get__Counter();
+  public int MaxConnections { get => get__MaxConnections(); }
 
-  public IService Service
+  private partial int get__MaxConnections();
+
+  public IDatabaseService DatabaseService
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      int transientInt3228 = Counter;
-      return new Service(transientInt3228);
+      string transientString31 = ConnectionString;
+      int transientInt3232 = MaxConnections;
+      return new DatabaseService(transientString31, transientInt3232);
     }
   }
 
@@ -185,13 +227,13 @@ partial class Composition
   static Composition()
   {
     var valResolver_0000 = new Resolver_0000();
-    Resolver<IService>.Value = valResolver_0000;
+    Resolver<IDatabaseService>.Value = valResolver_0000;
     _buckets = Buckets<IResolver<Composition, object>>.Create(
       1,
       out _bucketSize,
       new Pair<IResolver<Composition, object>>[1]
       {
-         new Pair<IResolver<Composition, object>>(typeof(IService), valResolver_0000)
+         new Pair<IResolver<Composition, object>>(typeof(IDatabaseService), valResolver_0000)
       });
   }
 
@@ -213,19 +255,19 @@ partial class Composition
     }
   }
 
-  private sealed class Resolver_0000: Resolver<IService>
+  private sealed class Resolver_0000: Resolver<IDatabaseService>
   {
-    public override IService Resolve(Composition composition)
+    public override IDatabaseService Resolve(Composition composition)
     {
-      return composition.Service;
+      return composition.DatabaseService;
     }
 
-    public override IService ResolveByTag(Composition composition, object tag)
+    public override IDatabaseService ResolveByTag(Composition composition, object tag)
     {
       switch (tag)
       {
         case null:
-          return composition.Service;
+          return composition.DatabaseService;
 
         default:
           return base.ResolveByTag(composition, tag);
@@ -246,29 +288,33 @@ Class diagram:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	Service --|> IService
-	Composition ..> Service : IService Service
-	Service *--  Int32 : Int32
+	DatabaseService --|> IDatabaseService
+	Composition ..> DatabaseService : IDatabaseService DatabaseService
+	DatabaseService *--  String : "connectionString"  String
+	DatabaseService *--  Int32 : "maxConnections"  Int32
 	namespace Pure.DI.UsageTests.Advanced.DependentCompositionsWithMembersPropertyAccessorsScenario {
 		class Composition {
 		<<partial>>
-		+IService Service
+		+IDatabaseService DatabaseService
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object Resolve(Type type)
 		+ object Resolve(Type type, object? tag)
 		}
-		class IService {
-			<<interface>>
-		}
-		class Service {
+		class DatabaseService {
 				<<class>>
-			+Service(Int32 value)
+			+DatabaseService(String connectionString, Int32 maxConnections)
+		}
+		class IDatabaseService {
+			<<interface>>
 		}
 	}
 	namespace System {
 		class Int32 {
 				<<struct>>
+		}
+		class String {
+				<<class>>
 		}
 	}
 ```

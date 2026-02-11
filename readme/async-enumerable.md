@@ -99,14 +99,14 @@ partial class Composition
     get
     {
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      async IAsyncEnumerable<IHealthCheck> EnumerationOf_transientIAsyncEnumerable341()
+      async IAsyncEnumerable<IHealthCheck> EnumerationOf_transientIAsyncEnumerable345()
       {
         yield return new MemoryCheck();
         yield return new ExternalServiceCheck();
         await Task.CompletedTask;
       }
 
-      return new HealthService(EnumerationOf_transientIAsyncEnumerable341());
+      return new HealthService(EnumerationOf_transientIAsyncEnumerable345());
     }
   }
 }

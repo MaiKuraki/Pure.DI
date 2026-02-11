@@ -90,13 +90,13 @@ partial class Composition
     get
     {
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      IEnumerable<INotificationChannel<string>> EnumerationOf_transientIEnumerable108()
+      IEnumerable<INotificationChannel<string>> EnumerationOf_transientIEnumerable112()
       {
         yield return new EmailChannel<string>();
         yield return new SmsChannel<string>();
       }
 
-      return new NotificationService<string>(EnumerationOf_transientIEnumerable108());
+      return new NotificationService<string>(EnumerationOf_transientIEnumerable112());
     }
   }
 }

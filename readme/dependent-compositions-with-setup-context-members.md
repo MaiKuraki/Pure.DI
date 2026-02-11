@@ -9,58 +9,110 @@ How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) a
 ```c#
 var composition = new Composition
 {
-    Settings = new AppSettings("prod", 3),
-    Retries = 4
+    ConnectionSettings = new DatabaseConnectionSettings("prod-db.example.com", 5432, "app_database"),
+    LogLevel = "Info",
+    MaxRetries = 5
 };
 
-var service = composition.Service;
+var service = composition.DataService;
 
-interface IService
+interface IDataService
 {
-    string Report { get; }
+    string GetStatus();
 }
 
-class Service(IAppSettings settings, [Tag("retries")] int retries) : IService
+/// <summary>
+/// Data service using connection settings and logging configuration
+/// </summary>
+class DataService(
+    IDatabaseConnectionSettings connectionSettings,
+    [Tag("logLevel")] string logLevel,
+    [Tag("maxRetries")] int maxRetries,
+    [Tag("timeout")] int timeoutMs,
+    [Tag("enableDiagnostics")] bool enableDiagnostics) : IDataService
 {
-    public string Report { get; } = $"env={settings.Environment}, retries={retries}";
+    public string GetStatus() => enableDiagnostics
+        ? $"Database: {connectionSettings.DatabaseName}@{connectionSettings.Host}:{connectionSettings.Port}, " +
+          $"LogLevel: {logLevel}, " +
+          $"MaxRetries: {maxRetries}, " +
+          $"Timeout: {timeoutMs}ms"
+        : "OK";
 }
 
+/// <summary>
+/// Base composition providing database connection settings, default timeout, and diagnostics flag
+/// </summary>
 internal partial class BaseComposition
 {
-    public AppSettings Settings { get; set; } = new("", 0);
+    /// <summary>
+    /// Enable detailed diagnostics logging (protected field accessible in derived compositions via DependsOn)
+    /// </summary>
+    protected bool EnableDiagnostics = false;
 
-    private int GetRetries() => 3;
+    public DatabaseConnectionSettings ConnectionSettings { get; set; } = new("", 0, "");
+
+    int GetDefaultTimeout() => 5000;
 
     private void Setup()
     {
         DI.Setup(nameof(BaseComposition), Internal)
-            .Bind<IAppSettings>().To(_ => Settings)
-            .Bind<int>("retries").To(_ => GetRetries());
+            .Bind<IDatabaseConnectionSettings>().To(_ => ConnectionSettings)
+            .Bind("enableDiagnostics").To(_ => EnableDiagnostics)
+            .Bind("timeout").To(_ => GetDefaultTimeout());
     }
 }
 
+/// <summary>
+/// Dependent composition extending the base with logging level and max retries, and enabling diagnostics
+/// </summary>
 internal partial class Composition
 {
-    public int Retries { get; set; }
+    /// <summary>
+    /// Constructor enables diagnostics by default
+    /// </summary>
+    public Composition() => EnableDiagnostics = true;
+
+    /// <summary>
+    /// Application logging level
+    /// </summary>
+    public string LogLevel { get; set; } = "Warning";
+
+    /// <summary>
+    /// Maximum number of retry attempts
+    /// </summary>
+    public int MaxRetries { get; set; } = 3;
 
     private void Setup()
     {
         DI.Setup(nameof(Composition))
             .DependsOn(nameof(BaseComposition), SetupContextKind.Members)
-            .Bind<IService>().To<Service>()
-            .Root<IService>("Service");
+            .Bind<string>("logLevel").To(_ => LogLevel)
+            .Bind<int>("maxRetries").To(_ => MaxRetries)
+            .Bind<IDataService>().To<DataService>()
+            .Root<IDataService>("DataService");
     }
 
-    private partial int GetRetries() => Retries;
+    /// <summary>
+    /// Implementation of partial method from base composition
+    /// </summary>
+    private partial int GetDefaultTimeout() => 5000;
 }
 
-record AppSettings(string Environment, int RetryCount) : IAppSettings;
+/// <summary>
+/// Database connection settings
+/// </summary>
+record DatabaseConnectionSettings(string Host, int Port, string DatabaseName) : IDatabaseConnectionSettings;
 
-interface IAppSettings
+/// <summary>
+/// Database connection settings interface
+/// </summary>
+interface IDatabaseConnectionSettings
 {
-    string Environment { get; }
+    string Host { get; }
 
-    int RetryCount { get; }
+    int Port { get; }
+
+    string DatabaseName { get; }
 }
 ```
 
@@ -91,12 +143,23 @@ dotnet run
 
 What it shows:
 - Setup context members copied into the dependent composition.
+- Realistic scenario: configuring database connection and logging for a data service.
 
 Important points:
 - The composition remains parameterless and can be configured via its own members.
 
+Example demonstrates:
+  1. BaseComposition provides database connection settings, default timeout, and a protected diagnostics field
+  2. Dependent Composition adds logging level and max retries configuration
+  3. DataService uses all settings including the protected field for conditional output
+  4. Protected field 'EnableDiagnostics' from BaseComposition is accessible in Composition via DependsOn
+  5. Composition's constructor sets EnableDiagnostics to true to enable detailed status
+
+Note: SetupContextKind.Members copies both public and protected members to the dependent composition.
+
 Useful when:
 - Base setup has instance members initialized by the host or framework.
+- You need to extend configuration with additional settings in derived compositions.
 
 
 The following partial class will be generated:
@@ -104,18 +167,23 @@ The following partial class will be generated:
 ```c#
 partial class Composition
 {
-  public AppSettings Settings { get; set; } = new("", 0);
+  protected bool EnableDiagnostics = false;
 
-  private partial int GetRetries();
+  public DatabaseConnectionSettings ConnectionSettings { get; set; } = new("", 0, "");
 
-  public IService Service
+  private partial int GetDefaultTimeout();
+
+  public IDataService DataService
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      AppSettings transientAppSettings25 = Settings;
-      int transientInt3226 = GetRetries();
-      return new Service(transientAppSettings25, transientInt3226);
+      DatabaseConnectionSettings transientDatabaseConnectionSettings25 = ConnectionSettings;
+      string transientString26 = LogLevel;
+      int transientInt3227 = MaxRetries;
+      int transientInt3228 = GetDefaultTimeout();
+      bool transientBoolean29 = EnableDiagnostics;
+      return new DataService(transientDatabaseConnectionSettings25, transientString26, transientInt3227, transientInt3228, transientBoolean29);
     }
   }
 
@@ -193,13 +261,13 @@ partial class Composition
   static Composition()
   {
     var valResolver_0000 = new Resolver_0000();
-    Resolver<IService>.Value = valResolver_0000;
+    Resolver<IDataService>.Value = valResolver_0000;
     _buckets = Buckets<IResolver<Composition, object>>.Create(
       1,
       out _bucketSize,
       new Pair<IResolver<Composition, object>>[1]
       {
-         new Pair<IResolver<Composition, object>>(typeof(IService), valResolver_0000)
+         new Pair<IResolver<Composition, object>>(typeof(IDataService), valResolver_0000)
       });
   }
 
@@ -221,19 +289,19 @@ partial class Composition
     }
   }
 
-  private sealed class Resolver_0000: Resolver<IService>
+  private sealed class Resolver_0000: Resolver<IDataService>
   {
-    public override IService Resolve(Composition composition)
+    public override IDataService Resolve(Composition composition)
     {
-      return composition.Service;
+      return composition.DataService;
     }
 
-    public override IService ResolveByTag(Composition composition, object tag)
+    public override IDataService ResolveByTag(Composition composition, object tag)
     {
       switch (tag)
       {
         case null:
-          return composition.Service;
+          return composition.DataService;
 
         default:
           return base.ResolveByTag(composition, tag);
@@ -254,37 +322,46 @@ Class diagram:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	AppSettings --|> IAppSettings
-	Service --|> IService
-	Composition ..> Service : IService Service
-	Service *--  AppSettings : IAppSettings
-	Service *--  Int32 : "retries"  Int32
+	DatabaseConnectionSettings --|> IDatabaseConnectionSettings
+	DataService --|> IDataService
+	Composition ..> DataService : IDataService DataService
+	DataService *--  DatabaseConnectionSettings : IDatabaseConnectionSettings
+	DataService *--  Boolean : "enableDiagnostics"  Boolean
+	DataService *--  Int32 : "timeout"  Int32
+	DataService *--  String : "logLevel"  String
+	DataService *--  Int32 : "maxRetries"  Int32
 	namespace Pure.DI.UsageTests.Advanced.DependentCompositionsWithMembersContextScenario {
-		class AppSettings {
-				<<record>>
-		}
 		class Composition {
 		<<partial>>
-		+IService Service
+		+IDataService DataService
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object Resolve(Type type)
 		+ object Resolve(Type type, object? tag)
 		}
-		class IAppSettings {
-			<<interface>>
+		class DatabaseConnectionSettings {
+				<<record>>
 		}
-		class IService {
-			<<interface>>
-		}
-		class Service {
+		class DataService {
 				<<class>>
-			+Service(IAppSettings settings, Int32 retries)
+			+DataService(IDatabaseConnectionSettings connectionSettings, String logLevel, Int32 maxRetries, Int32 timeoutMs, Boolean enableDiagnostics)
+		}
+		class IDatabaseConnectionSettings {
+			<<interface>>
+		}
+		class IDataService {
+			<<interface>>
 		}
 	}
 	namespace System {
+		class Boolean {
+				<<struct>>
+		}
 		class Int32 {
 				<<struct>>
+		}
+		class String {
+				<<class>>
 		}
 	}
 ```

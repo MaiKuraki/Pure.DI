@@ -122,39 +122,39 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perBlockOwned133 = new Owned();
-      Func<Owned<IDbConnection>> transientFunc132 = new Func<Owned<IDbConnection>>(
+      var perBlockOwned137 = new Owned();
+      Func<Owned<IDbConnection>> transientFunc136 = new Func<Owned<IDbConnection>>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        Owned<IDbConnection> transientOwned134;
+        Owned<IDbConnection> transientOwned138;
         // Creates the owner of an instance
-        Owned transientOwned135;
-        Owned localOwned5 = perBlockOwned133;
-        transientOwned135 = localOwned5;
+        Owned transientOwned139;
+        Owned localOwned5 = perBlockOwned137;
+        transientOwned139 = localOwned5;
         lock (_lock)
         {
-          perBlockOwned133.Add(transientOwned135);
+          perBlockOwned137.Add(transientOwned139);
         }
 
-        IOwned localOwned4 = transientOwned135;
-        var transientDbConnection136 = new DbConnection();
+        IOwned localOwned4 = transientOwned139;
+        var transientDbConnection140 = new DbConnection();
         lock (_lock)
         {
-          perBlockOwned133.Add(transientDbConnection136);
+          perBlockOwned137.Add(transientDbConnection140);
         }
 
-        IDbConnection localValue5 = transientDbConnection136;
-        transientOwned134 = new Owned<IDbConnection>(localValue5, localOwned4);
+        IDbConnection localValue5 = transientDbConnection140;
+        transientOwned138 = new Owned<IDbConnection>(localValue5, localOwned4);
         lock (_lock)
         {
-          perBlockOwned133.Add(transientOwned134);
+          perBlockOwned137.Add(transientOwned138);
         }
 
-        Owned<IDbConnection> localValue4 = transientOwned134;
+        Owned<IDbConnection> localValue4 = transientOwned138;
         return localValue4;
       });
-      return new Transaction(transientFunc132);
+      return new Transaction(transientFunc136);
     }
   }
 }

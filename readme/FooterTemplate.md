@@ -134,12 +134,91 @@ Important notes:
 When a dependent setup needs instance state from another setup, you can pass an explicit setup context via `DependsOn`:
 
 - `SetupContextKind.Argument`: adds the setup context as a constructor argument.
-- `SetupContextKind.Field`: generates a field to hold the context, no constructor argument.
-- `SetupContextKind.Property`: generates a property to hold the context, no constructor argument.
 - `SetupContextKind.RootArgument`: adds the setup context to root methods that require it, no constructor argument.
-- `SetupContextKind.Members`: copies referenced setup members into the dependent composition, no constructor argument. The `name` parameter is optional. Referenced methods are declared partial without bodies, and properties with custom accessors use partial get_/set_ methods with a Core suffix (for example, get_MyPropCore).
+- `SetupContextKind.Members`: copies referenced setup members into the dependent composition, no constructor argument. The `name` parameter is optional.
+
+  - **Public and protected members** are copied to the dependent composition.
+  - **Properties without custom logic** (simple field-backed accessors) are copied without requiring partial methods.
+  - **Properties with custom logic** require implementation of partial accessor methods. Referenced methods are declared partial without bodies. Properties with custom accessors use partial `get_`/`set_` methods (for example, `get__MyProperty()` for properties, note the double underscore prefix).
 
 This is useful for Unity/MonoBehaviour scenarios where the composition must remain parameterless and the host sets fields or properties.
+
+<details>
+<summary>Example: Simple field-backed property</summary>
+
+```c#
+// BaseComposition
+internal partial class BaseComposition
+{
+    // Simple property without custom logic
+    public string ConnectionString { get; set; } = "";
+}
+
+// Composition - the property is automatically copied, no partial methods needed
+internal partial class Composition
+{
+    // ConnectionString is automatically available here
+}
+```
+
+</details>
+
+<details>
+<summary>Example: Property with custom accessor logic</summary>
+
+```c#
+// BaseComposition
+internal partial class BaseComposition
+{
+    private int _maxConnections = 100;
+
+    // Property with custom getter logic
+    public int MaxConnections
+    {
+        get => _maxConnections;
+        set => _maxConnections = value;
+    }
+}
+
+// Composition - implements custom accessor logic
+internal partial class Composition
+{
+    private int _maxConnections = 100;
+
+    // Implement custom getter logic (note the double underscore prefix)
+    private partial int get__MaxConnections() => _maxConnections + 1;
+
+    public void SetMaxConnections(int value) => _maxConnections = value;
+}
+```
+
+</details>
+
+<details>
+<summary>Example: Protected field access</summary>
+
+```c#
+// BaseComposition
+internal partial class BaseComposition
+{
+    // Protected field accessible in derived compositions
+    protected bool EnableDiagnostics = false;
+
+    private void Setup()
+    {
+        DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
+            .Bind("enableDiagnostics").To(_ => EnableDiagnostics);
+    }
+}
+
+// Composition - can access and modify protected fields
+internal partial class Composition
+{
+    public Composition() => EnableDiagnostics = true; // Access protected field
+}
+```
+
+</details>
 
 #### Scope-related constructors (conditional generation)
 
@@ -154,7 +233,7 @@ If there is at least one binding with `Lifetime.Scoped`, Pure.DI generates two c
 
 2. Internal constructor with parent scope
 
-> Used for creating child scope instances. This constructor is internal and accepts a single parameter — the parent scope.
+> Used for creating child scope instances. This constructor is internal and accepts a single parameter ï¿½ the parent scope.
 > ```c#
 > internal Composition(Composition parentScope) { /* ... */ }
 > ```

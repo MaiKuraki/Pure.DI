@@ -149,11 +149,11 @@ partial class Composition
     where T2: struct
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    CommandMessage<T2, T5> transientCommandMessage446;
+    CommandMessage<T2, T5> transientCommandMessage450;
     CommandMessage<T2, T5> localBuildingInstance10 = buildingInstance;
     localBuildingInstance10.Tracker = new MessageTracker<T5>();
-    transientCommandMessage446 = localBuildingInstance10;
-    return transientCommandMessage446;
+    transientCommandMessage450 = localBuildingInstance10;
+    return transientCommandMessage450;
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -161,13 +161,13 @@ partial class Composition
     where T2: struct
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    QueryMessage<T2, T5> transientQueryMessage449;
+    QueryMessage<T2, T5> transientQueryMessage453;
     QueryMessage<T2, T5> localBuildingInstance11 = buildingInstance;
-    T2 transientTT452 = (T2)(object)Guid.NewGuid();
+    T2 transientTT456 = (T2)(object)Guid.NewGuid();
     localBuildingInstance11.Tracker = new MessageTracker<T5>();
-    localBuildingInstance11.SetId(transientTT452);
-    transientQueryMessage449 = localBuildingInstance11;
-    return transientQueryMessage449;
+    localBuildingInstance11.SetId(transientTT456);
+    transientQueryMessage453 = localBuildingInstance11;
+    return transientQueryMessage453;
   }
 }
 ```

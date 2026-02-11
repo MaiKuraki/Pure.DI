@@ -105,13 +105,13 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      DatabaseService transientDatabaseService260;
+      DatabaseService transientDatabaseService264;
       // Some logic for creating an instance.
       // For example, we need to manually initialize the connection.
       DatabaseService localService2 = new DatabaseService();
       localService2.Connect();
-      transientDatabaseService260 = localService2;
-      return new UserRegistry(transientDatabaseService260);
+      transientDatabaseService264 = localService2;
+      return new UserRegistry(transientDatabaseService264);
     }
   }
 }

@@ -8781,58 +8781,110 @@ How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) a
 ```c#
 var composition = new Composition
 {
-    Settings = new AppSettings("prod", 3),
-    Retries = 4
+    ConnectionSettings = new DatabaseConnectionSettings("prod-db.example.com", 5432, "app_database"),
+    LogLevel = "Info",
+    MaxRetries = 5
 };
 
-var service = composition.Service;
+var service = composition.DataService;
 
-interface IService
+interface IDataService
 {
-    string Report { get; }
+    string GetStatus();
 }
 
-class Service(IAppSettings settings, [Tag("retries")] int retries) : IService
+/// <summary>
+/// Data service using connection settings and logging configuration
+/// </summary>
+class DataService(
+    IDatabaseConnectionSettings connectionSettings,
+    [Tag("logLevel")] string logLevel,
+    [Tag("maxRetries")] int maxRetries,
+    [Tag("timeout")] int timeoutMs,
+    [Tag("enableDiagnostics")] bool enableDiagnostics) : IDataService
 {
-    public string Report { get; } = $"env={settings.Environment}, retries={retries}";
+    public string GetStatus() => enableDiagnostics
+        ? $"Database: {connectionSettings.DatabaseName}@{connectionSettings.Host}:{connectionSettings.Port}, " +
+          $"LogLevel: {logLevel}, " +
+          $"MaxRetries: {maxRetries}, " +
+          $"Timeout: {timeoutMs}ms"
+        : "OK";
 }
 
+/// <summary>
+/// Base composition providing database connection settings, default timeout, and diagnostics flag
+/// </summary>
 internal partial class BaseComposition
 {
-    public AppSettings Settings { get; set; } = new("", 0);
+    /// <summary>
+    /// Enable detailed diagnostics logging (protected field accessible in derived compositions via DependsOn)
+    /// </summary>
+    protected bool EnableDiagnostics = false;
 
-    private int GetRetries() => 3;
+    public DatabaseConnectionSettings ConnectionSettings { get; set; } = new("", 0, "");
+
+    int GetDefaultTimeout() => 5000;
 
     private void Setup()
     {
         DI.Setup(nameof(BaseComposition), Internal)
-            .Bind<IAppSettings>().To(_ => Settings)
-            .Bind<int>("retries").To(_ => GetRetries());
+            .Bind<IDatabaseConnectionSettings>().To(_ => ConnectionSettings)
+            .Bind("enableDiagnostics").To(_ => EnableDiagnostics)
+            .Bind("timeout").To(_ => GetDefaultTimeout());
     }
 }
 
+/// <summary>
+/// Dependent composition extending the base with logging level and max retries, and enabling diagnostics
+/// </summary>
 internal partial class Composition
 {
-    public int Retries { get; set; }
+    /// <summary>
+    /// Constructor enables diagnostics by default
+    /// </summary>
+    public Composition() => EnableDiagnostics = true;
+
+    /// <summary>
+    /// Application logging level
+    /// </summary>
+    public string LogLevel { get; set; } = "Warning";
+
+    /// <summary>
+    /// Maximum number of retry attempts
+    /// </summary>
+    public int MaxRetries { get; set; } = 3;
 
     private void Setup()
     {
         DI.Setup(nameof(Composition))
             .DependsOn(nameof(BaseComposition), SetupContextKind.Members)
-            .Bind<IService>().To<Service>()
-            .Root<IService>("Service");
+            .Bind<string>("logLevel").To(_ => LogLevel)
+            .Bind<int>("maxRetries").To(_ => MaxRetries)
+            .Bind<IDataService>().To<DataService>()
+            .Root<IDataService>("DataService");
     }
 
-    private partial int GetRetries() => Retries;
+    /// <summary>
+    /// Implementation of partial method from base composition
+    /// </summary>
+    private partial int GetDefaultTimeout() => 5000;
 }
 
-record AppSettings(string Environment, int RetryCount) : IAppSettings;
+/// <summary>
+/// Database connection settings
+/// </summary>
+record DatabaseConnectionSettings(string Host, int Port, string DatabaseName) : IDatabaseConnectionSettings;
 
-interface IAppSettings
+/// <summary>
+/// Database connection settings interface
+/// </summary>
+interface IDatabaseConnectionSettings
 {
-    string Environment { get; }
+    string Host { get; }
 
-    int RetryCount { get; }
+    int Port { get; }
+
+    string DatabaseName { get; }
 }
 ```
 
@@ -8841,12 +8893,23 @@ To run the above code, the following NuGet package must be added:
 
 What it shows:
 - Setup context members copied into the dependent composition.
+- Realistic scenario: configuring database connection and logging for a data service.
 
 Important points:
 - The composition remains parameterless and can be configured via its own members.
 
+Example demonstrates:
+  1. BaseComposition provides database connection settings, default timeout, and a protected diagnostics field
+  2. Dependent Composition adds logging level and max retries configuration
+  3. DataService uses all settings including the protected field for conditional output
+  4. Protected field 'EnableDiagnostics' from BaseComposition is accessible in Composition via DependsOn
+  5. Composition's constructor sets EnableDiagnostics to true to enable detailed status
+
+Note: SetupContextKind.Members copies both public and protected members to the dependent composition.
+
 Useful when:
 - Base setup has instance members initialized by the host or framework.
+- You need to extend configuration with additional settings in derived compositions.
 
 
 ## Dependent compositions with setup context members and property accessors
@@ -8857,53 +8920,83 @@ What it solves: keeps Unity-friendly composition while letting the user implemen
 How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and implements partial get_ methods.
 
 ```c#
-var composition = new Composition();
-composition.SetCounter(3);
-
-var service = composition.Service;
-
-interface IService
+var composition = new Composition
 {
-    int Value { get; }
+	ConnectionString = "Server=prod-db.example.com;Database=AppDb;"
+};
+
+var service = composition.DatabaseService;
+
+interface IDatabaseService
+{
+	string ConnectionString { get; }
+	int MaxConnections { get; }
 }
 
-class Service(int value) : IService
+class DatabaseService(
+	[Tag("connectionString")] string connectionString,
+	[Tag("maxConnections")] int maxConnections) : IDatabaseService
 {
-    public int Value { get; } = value;
+	public string ConnectionString { get; } = connectionString;
+	public int MaxConnections { get; } = maxConnections;
 }
 
+/// <summary>
+/// Base composition providing database configuration properties
+/// </summary>
 internal partial class BaseComposition
 {
-    private int _counter;
+	/// <summary>
+	/// Connection string - simple property with field-backed accessor (no custom logic)
+	/// </summary>
+	public string ConnectionString { get; set; } = "";
 
-    internal int Counter
-    {
-        get => _counter;
-        set => _counter = value + 1;
-    }
+	/// <summary>
+	/// Maximum number of connections - property with custom getter logic
+	/// </summary>
+	private int _maxConnections = 100;
 
-    private void Setup()
-    {
-        DI.Setup(nameof(BaseComposition), Internal)
-            .Bind<int>().To(_ => Counter);
-    }
+	public int MaxConnections
+	{
+		get => _maxConnections;
+		set => _maxConnections = value;
+	}
+
+	private void Setup()
+	{
+		DI.Setup(nameof(BaseComposition), Internal)
+			.Bind<string>("connectionString").To(_ => ConnectionString)
+			.Bind<int>("maxConnections").To(_ => MaxConnections);
+	}
 }
 
+/// <summary>
+/// Dependent composition implementing custom accessor logic for properties
+/// </summary>
 internal partial class Composition
 {
-    private int _counter;
+	/// <summary>
+	/// MaxConnections backing field
+	/// </summary>
+	private int _maxConnections = 100;
 
-    private partial int get__Counter() => ++_counter;
+	/// <summary>
+	/// Custom accessor logic: returns configured value + 1 to ensure minimum buffer
+	/// </summary>
+	private partial int get__MaxConnections() => _maxConnections + 1;
 
-    public void SetCounter(int counter) => _counter = counter;
+	/// <summary>
+	/// Setter for MaxConnections
+	/// </summary>
+	public void SetMaxConnections(int value) => _maxConnections = value;
 
-    private void Setup()
-    {
-        DI.Setup(nameof(Composition))
-            .DependsOn(nameof(BaseComposition), SetupContextKind.Members)
-            .Bind<IService>().To<Service>()
-            .Root<IService>("Service");
-    }
+	private void Setup()
+	{
+		DI.Setup(nameof(Composition))
+			.DependsOn(nameof(BaseComposition), SetupContextKind.Members)
+			.Bind<IDatabaseService>().To<DatabaseService>()
+			.Root<IDatabaseService>("DatabaseService");
+	}
 }
 ```
 
@@ -8912,12 +9005,21 @@ To run the above code, the following NuGet package must be added:
 
 What it shows:
 - Custom property logic via partial accessor methods.
+- Properties with simple field-backed accessors (no logic).
 
 Important points:
 - Accessor logic is not copied; the user provides partial implementations.
+- Simple property accessors (field-backed) can be used without partial methods.
+
+Example demonstrates:
+  1. BaseComposition provides connection string and max connections properties
+  2. ConnectionString has simple field-backed accessor (no logic)
+  3. MaxConnections has custom getter logic via partial method
+  4. Dependent Composition implements custom accessor logic for MaxConnections
 
 Useful when:
 - Properties include custom logic and are referenced by bindings in a dependent setup.
+- Some properties are simple field-backed while others have custom logic.
 
 
 ## Dependent compositions with setup context root argument

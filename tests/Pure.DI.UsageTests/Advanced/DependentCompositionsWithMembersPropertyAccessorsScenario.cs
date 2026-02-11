@@ -9,12 +9,21 @@ $h=How it is solved in the example: uses DependsOn(..., SetupContextKind.Members
 $f=
 $f=What it shows:
 $f=- Custom property logic via partial accessor methods.
+$f=- Properties with simple field-backed accessors (no logic).
 $f=
 $f=Important points:
 $f=- Accessor logic is not copied; the user provides partial implementations.
+$f=- Simple property accessors (field-backed) can be used without partial methods.
+$f=
+$f=Example demonstrates:
+$f=  1. BaseComposition provides connection string and max connections properties
+$f=  2. ConnectionString has simple field-backed accessor (no logic)
+$f=  3. MaxConnections has custom getter logic via partial method
+$f=  4. Dependent Composition implements custom accessor logic for MaxConnections
 $f=
 $f=Useful when:
 $f=- Properties include custom logic and are referenced by bindings in a dependent setup.
+$f=- Some properties are simple field-backed while others have custom logic.
 $f=
 */
 
@@ -36,63 +45,99 @@ using static CompositionKind;
 
 public class Scenario
 {
-    [Fact]
-    public void Run()
-    {
-        // Resolve = Off
-        // {
-        var composition = new Composition();
-        composition.SetCounter(3);
+	[Fact]
+	public void Run()
+	{
+		// Resolve = Off
+		// {
+		var composition = new Composition
+		{
+			ConnectionString = "Server=prod-db.example.com;Database=AppDb;"
+		};
 
-        var service = composition.Service;
-        // }
-        service.Value.ShouldBe(4);
-        composition.SaveClassDiagram();
-    }
+		var service = composition.DatabaseService;
+		// }
+
+		// ConnectionString uses simple field-backed accessor
+		service.ConnectionString.ShouldBe("Server=prod-db.example.com;Database=AppDb;");
+
+		// MaxConnections uses custom accessor logic (returns configured value + 1)
+		service.MaxConnections.ShouldBe(101);
+
+		composition.SaveClassDiagram();
+	}
 }
 
 // {
-interface IService
+interface IDatabaseService
 {
-    int Value { get; }
+	string ConnectionString { get; }
+	int MaxConnections { get; }
 }
 
-class Service(int value) : IService
+class DatabaseService(
+	[Tag("connectionString")] string connectionString,
+	[Tag("maxConnections")] int maxConnections) : IDatabaseService
 {
-    public int Value { get; } = value;
+	public string ConnectionString { get; } = connectionString;
+	public int MaxConnections { get; } = maxConnections;
 }
 
+/// <summary>
+/// Base composition providing database configuration properties
+/// </summary>
 internal partial class BaseComposition
 {
-    private int _counter;
+	/// <summary>
+	/// Connection string - simple property with field-backed accessor (no custom logic)
+	/// </summary>
+	public string ConnectionString { get; set; } = "";
 
-    internal int Counter
-    {
-        get => _counter;
-        set => _counter = value + 1;
-    }
+	/// <summary>
+	/// Maximum number of connections - property with custom getter logic
+	/// </summary>
+	private int _maxConnections = 100;
 
-    private void Setup()
-    {
-        DI.Setup(nameof(BaseComposition), Internal)
-            .Bind<int>().To(_ => Counter);
-    }
+	public int MaxConnections
+	{
+		get => _maxConnections;
+		set => _maxConnections = value;
+	}
+
+	private void Setup()
+	{
+		DI.Setup(nameof(BaseComposition), Internal)
+			.Bind<string>("connectionString").To(_ => ConnectionString)
+			.Bind<int>("maxConnections").To(_ => MaxConnections);
+	}
 }
 
+/// <summary>
+/// Dependent composition implementing custom accessor logic for properties
+/// </summary>
 internal partial class Composition
 {
-    private int _counter;
+	/// <summary>
+	/// MaxConnections backing field
+	/// </summary>
+	private int _maxConnections = 100;
 
-    private partial int get__Counter() => ++_counter;
+	/// <summary>
+	/// Custom accessor logic: returns configured value + 1 to ensure minimum buffer
+	/// </summary>
+	private partial int get__MaxConnections() => _maxConnections + 1;
 
-    public void SetCounter(int counter) => _counter = counter;
+	/// <summary>
+	/// Setter for MaxConnections
+	/// </summary>
+	public void SetMaxConnections(int value) => _maxConnections = value;
 
-    private void Setup()
-    {
-        DI.Setup(nameof(Composition))
-            .DependsOn(nameof(BaseComposition), SetupContextKind.Members)
-            .Bind<IService>().To<Service>()
-            .Root<IService>("Service");
-    }
+	private void Setup()
+	{
+		DI.Setup(nameof(Composition))
+			.DependsOn(nameof(BaseComposition), SetupContextKind.Members)
+			.Bind<IDatabaseService>().To<DatabaseService>()
+			.Root<IDatabaseService>("DatabaseService");
+	}
 }
 // }
