@@ -39,7 +39,6 @@ public sealed partial class Generator
 
         .Root<IEnumerable<Source>>(nameof(Api))
         .Root<IObserversRegistry>(nameof(Observers))
-        .Root<ISetupInvocationMatcher>(nameof(SetupInvocationMatcher))
         .RootBind<Unit>(nameof(Generate), Internal)
             .To((IBuilder<IEnumerable<SyntaxUpdate>, Unit> generator, IEnumerable<SyntaxUpdate> updates) => generator.Build(updates))
 
@@ -76,7 +75,7 @@ public sealed partial class Generator
                 NodeTools, LocalFunctions, ExceptionHandler, WildcardMatcher, InjectionSiteFactory, Semantic, Attributes, Compilations, GraphWalker<TT, TT1>,
                 LifetimeAnalyzer, InstanceDpProvider, Injections, NameFormatter, ProcessingNode, BindingsFactory, NodesFactory, LocationProvider,
                 LifetimeOptimizer, RootCompositionDependencyRefCounterVisitor, CycleTools, LifetimeProvider, VarDeclarationTools, ContractTagComparer,
-                CodeNameProvider, SetupInvocationMatcher>()
+                CodeNameProvider>()
             .PerBlock<LifetimesValidatorVisitor, CyclicDependencyValidatorVisitor>(Type)
             .PerBlock<GraphOverrider>(Overrider)
             .PerBlock<GraphCleaner>(Cleaner)
