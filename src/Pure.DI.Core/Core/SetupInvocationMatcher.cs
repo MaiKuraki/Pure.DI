@@ -16,7 +16,8 @@ public sealed class SetupInvocationMatcher : ISetupInvocationMatcher
             return IsSetupMethod(symbol);
         }
 
-        if (invocation.Expression is MemberAccessExpressionSyntax { Name.Identifier.Text: "Setup", Expression: var receiver })
+        // ReSharper disable once InvertIf
+        if (invocation.Expression is MemberAccessExpressionSyntax { Name.Identifier.Text: nameof(DI.Setup), Expression: var receiver })
         {
             var receiverSymbol = semanticModel.GetSymbolInfo(receiver).Symbol;
             if (receiverSymbol is IAliasSymbol { Target: INamedTypeSymbol targetType })
@@ -53,10 +54,10 @@ public sealed class SetupInvocationMatcher : ISetupInvocationMatcher
     }
 
     private static bool IsSetupMethod(IMethodSymbol symbol) =>
-        symbol.Name == "Setup" && IsSetupType(symbol.ContainingType);
+        symbol.Name == nameof(DI.Setup) && IsSetupType(symbol.ContainingType);
 
     private static bool IsSetupType(INamedTypeSymbol? type) =>
-        type is { Name: "DI" } && type.ContainingNamespace.ToDisplayString() == "Pure.DI";
+        type is { Name: nameof(DI) } && type.ContainingNamespace.ToDisplayString() == Names.GeneratorName;
 
     private static bool IsAliasToSetupType(IdentifierNameSyntax identifierName)
     {
@@ -70,14 +71,13 @@ public sealed class SetupInvocationMatcher : ISetupInvocationMatcher
             }
 
             var targetName = usingDirective.Name?.ToString();
-            if (targetName is null)
+            switch (targetName)
             {
-                continue;
-            }
+                case null:
+                    continue;
 
-            if (targetName == "Pure.DI.DI" || targetName == "global::Pure.DI.DI")
-            {
-                return true;
+                case $"{Names.GeneratorName}.{nameof(DI)}" or $"{Names.GlobalNamespacePrefix}{Names.GeneratorName}.{nameof(DI)}":
+                    return true;
             }
         }
 

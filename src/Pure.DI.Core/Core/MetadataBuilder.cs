@@ -147,6 +147,7 @@ sealed class MetadataBuilder(
         var setupContextMembers = new List<SetupContextMembers>();
         var bindingId = 0;
         var comments = new List<string>();
+        // ReSharper disable once UseDeconstruction
         foreach (var item in setups)
         {
             var setup = item.Setup;
@@ -164,17 +165,19 @@ sealed class MetadataBuilder(
 
             if (resolveDependsOn)
             {
-                bindingsBuilder.AddRange(setup.Bindings.Select(i =>
+                foreach (var binding in setup.Bindings)
                 {
-                    var updated = i;
+                    var updated = binding;
+
+                    // ReSharper disable once InvertIf
                     if (item.ContextArgName is { Length: > 0 }
-                        && i.Factory is { } factory
+                        && binding.Factory is { } factory
                         && item.ContextArgKind != SetupContextKind.Members
-                        && GetContainingType(setup) is { } setupType)
+                        && GetContainingType(setup) is { } containingSetupType)
                     {
                         var rewriterContext = new SetupContextRewriterContext(
                             factory.SemanticModel,
-                            setupType,
+                            containingSetupType,
                             item.ContextArgName,
                             item.ContextArgKind,
                             factory.IsSimpleFactory,
@@ -185,15 +188,15 @@ sealed class MetadataBuilder(
                         {
                             updatedFactory = updatedFactory with
                             {
-                                Resolvers = AddRootArgumentResolver(updatedFactory, rewritten, setupType, item.ContextArgName)
+                                Resolvers = AddRootArgumentResolver(updatedFactory, rewritten, containingSetupType, item.ContextArgName)
                             };
                         }
 
                         updated = updated with { Factory = updatedFactory };
                     }
 
-                    return updated with { Id = bindingId++ };
-                }));
+                    bindingsBuilder.Add(updated with { Id = bindingId++ });
+                }
             }
             else
             {
@@ -224,8 +227,7 @@ sealed class MetadataBuilder(
             }
 
             if (resolveDependsOn
-                && item.ContextArgName is { Length: > 0 }
-                && item.DependsOn is { } dependsOn
+                && item is { ContextArgName.Length: > 0, DependsOn: { } dependsOn }
                 && GetContainingType(setup) is { } setupType)
             {
                 if (item.ContextArgKind == SetupContextKind.Members)
@@ -326,13 +328,14 @@ sealed class MetadataBuilder(
         }
 
         ParameterSyntax? parameter = null;
-        int position = factory.Resolvers.Length;
+        var position = factory.Resolvers.Length;
         switch (rewritten)
         {
             case ParenthesizedLambdaExpressionSyntax parenthesized:
                 for (var index = 0; index < parenthesized.ParameterList.Parameters.Count; index++)
                 {
                     var current = parenthesized.ParameterList.Parameters[index];
+                    // ReSharper disable once InvertIf
                     if (current.Identifier.Text == contextArgName)
                     {
                         parameter = current;
@@ -374,13 +377,13 @@ sealed class MetadataBuilder(
         setup.Source.Ancestors()
             .OfType<BaseTypeDeclarationSyntax>()
             .FirstOrDefault() is { } typeDeclaration
-            ? setup.SemanticModel.GetDeclaredSymbol(typeDeclaration) as INamedTypeSymbol
+            ? setup.SemanticModel.GetDeclaredSymbol(typeDeclaration)
             : null;
 
     private static INamedTypeSymbol? GetContainingType(MdDependsOn dependsOn) =>
         dependsOn.Source.Ancestors()
             .OfType<BaseTypeDeclarationSyntax>()
             .FirstOrDefault() is { } typeDeclaration
-            ? dependsOn.SemanticModel.GetDeclaredSymbol(typeDeclaration) as INamedTypeSymbol
+            ? dependsOn.SemanticModel.GetDeclaredSymbol(typeDeclaration)
             : null;
 }

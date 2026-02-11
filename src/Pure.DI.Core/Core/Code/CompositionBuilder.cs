@@ -95,7 +95,7 @@ class CompositionBuilder(
 
         var setupContextArgs = graph.Source.Bindings
             .Select(binding => binding.Arg)
-            .Where(arg => arg.HasValue && arg.Value.IsSetupContext)
+            .Where(arg => arg is { IsSetupContext: true })
             .Select(arg => arg.GetValueOrDefault())
             .Where(arg => arg.SetupContextKind != SetupContextKind.RootArgument && arg.SetupContextKind != SetupContextKind.Members)
             .Select(arg => new SetupContextArg(arg.Type, arg.ArgName, arg.SetupContextKind))

@@ -20,13 +20,15 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
         var members = new List<MemberDeclarationSyntax>();
 
         // Collect only instance members referenced directly by bindings
-        foreach (var member in GetRootMembers(compilation))
+        // ReSharper disable once LoopCanBeConvertedToQuery
+        foreach (var member in GetRootMembers())
         {
             if (!IsInstanceMemberForCollect(member, ctx.SetupType, ctx.TargetType))
             {
                 continue;
             }
 
+            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var declaration in GetMemberDeclarations(member))
             {
                 var key = (declaration.SyntaxTree, declaration.Span);
@@ -56,7 +58,7 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
         return rewrittenMembers;
     }
 
-    private IEnumerable<ISymbol> GetRootMembers(Compilation compilation)
+    private IEnumerable<ISymbol> GetRootMembers()
     {
         var root = (SyntaxNode?)ctx.Setup.Source
             .AncestorsAndSelf()
@@ -75,15 +77,15 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
     {
         var semanticModel = compilation.GetSemanticModel(member.SyntaxTree);
         var rewriter = new SetupContextMemberRewriter(semanticModel, languageVersion);
-        var rewritten = (MemberDeclarationSyntax)rewriter.Visit(member)!;
+        var rewritten = (MemberDeclarationSyntax)rewriter.Visit(member);
         switch (rewritten)
         {
             case MethodDeclarationSyntax method:
-                yield return CreatePartialMethodDeclaration(method, languageVersion);
+                yield return CreatePartialMethodDeclaration(method);
                 yield break;
 
             case PropertyDeclarationSyntax property:
-                foreach (var rewrittenMember in RewriteProperty(property, languageVersion))
+                foreach (var rewrittenMember in RewriteProperty(property))
                 {
                     yield return rewrittenMember;
                 }
@@ -97,6 +99,7 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
 
     private static IEnumerable<MemberDeclarationSyntax> GetMemberDeclarations(ISymbol symbol)
     {
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (var reference in symbol.DeclaringSyntaxReferences)
         {
             var syntax = reference.GetSyntax();
@@ -106,8 +109,7 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
                     yield return member;
                     break;
 
-                case VariableDeclaratorSyntax variable
-                    when variable.Parent?.Parent is MemberDeclarationSyntax member:
+                case VariableDeclaratorSyntax { Parent.Parent: MemberDeclarationSyntax member }:
                     yield return member;
                     break;
             }
@@ -181,12 +183,14 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
                 ? semanticModel
                 : _compilation.GetSemanticModel(node.SyntaxTree);
             var symbol = model.GetSymbolInfo(node).Symbol;
+            // ReSharper disable once ConvertIfStatementToNullCoalescingExpression
             if (symbol is null)
             {
                 symbol = model
                     .LookupSymbols(node.SpanStart, name: node.Identifier.ValueText)
                     .FirstOrDefault(s => IsInstanceMember(s, setupType, targetType));
             }
+
             switch (symbol)
             {
                 case IFieldSymbol field when IsInstanceMember(field, setupType, targetType):
@@ -201,9 +205,8 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
                     Add(node, @event);
                     break;
 
-                case IMethodSymbol method
-                    when method.MethodKind == MethodKind.Ordinary
-                         && IsInstanceMember(method, setupType, targetType):
+                case IMethodSymbol { MethodKind: MethodKind.Ordinary } method
+                    when IsInstanceMember(method, setupType, targetType):
                     Add(node, method);
                     break;
             }
@@ -221,7 +224,7 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
             Members.Add(symbol);
         }
 
-        public static bool IsInstanceMember(ISymbol symbol, INamedTypeSymbol setupType, INamedTypeSymbol targetType)
+        private static bool IsInstanceMember(ISymbol symbol, INamedTypeSymbol setupType, INamedTypeSymbol targetType)
         {
             if (symbol.IsStatic)
             {
@@ -248,21 +251,6 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
             // because none of them are available via inheritance.
             return true;
         }
-        
-        private static bool InheritsFrom(INamedTypeSymbol type, INamedTypeSymbol potentialBase)
-        {
-            var current = type.BaseType;
-            while (current is not null)
-            {
-                if (SymbolEqualityComparer.Default.Equals(current, potentialBase))
-                {
-                    return true;
-                }
-                current = current.BaseType;
-            }
-            
-            return false;
-        }
     }
 
     private sealed class SetupContextMemberRewriter(SemanticModel semanticModel, LanguageVersion languageVersion)
@@ -271,13 +259,14 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
         public override SyntaxNode? VisitAttribute(AttributeSyntax node)
         {
             var type = semanticModel.GetTypeInfo(node).Type;
-            if (type is not null)
+            if (type is null)
             {
-                var typeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                var name = SyntaxFactory.ParseName(typeName).WithTriviaFrom(node.Name);
-                node = node.WithName(name);
+                return base.VisitAttribute(node);
             }
 
+            var typeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var name = SyntaxFactory.ParseName(typeName).WithTriviaFrom(node.Name);
+            node = node.WithName(name);
             return base.VisitAttribute(node);
         }
 
@@ -296,7 +285,7 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
         public override SyntaxNode? VisitMemberAccessExpression(MemberAccessExpressionSyntax node) =>
             TryCreateTypeSyntax(node) ?? base.VisitMemberAccessExpression(node);
 
-        public override SyntaxNode? VisitMethodDeclaration(MethodDeclarationSyntax node)
+        public override SyntaxNode VisitMethodDeclaration(MethodDeclarationSyntax node)
         {
             var updated = (MethodDeclarationSyntax)base.VisitMethodDeclaration(node)!;
             if (languageVersion >= LanguageVersion.CSharp9
@@ -327,7 +316,7 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
 
     }
 
-    private static MemberDeclarationSyntax CreatePartialMethodDeclaration(MethodDeclarationSyntax method, LanguageVersion languageVersion)
+    private static MemberDeclarationSyntax CreatePartialMethodDeclaration(MethodDeclarationSyntax method)
     {
         var updated = method;
         
@@ -348,7 +337,7 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
         return updated;
     }
 
-    private static IEnumerable<MemberDeclarationSyntax> RewriteProperty(PropertyDeclarationSyntax property, LanguageVersion languageVersion)
+    private static IEnumerable<MemberDeclarationSyntax> RewriteProperty(PropertyDeclarationSyntax property)
     {
         if (!HasGetterLogic(property))
         {
@@ -373,7 +362,6 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
             if (property.AccessorList is null)
             {
                 yield return property;
-                yield break;
             }
 
             yield break;
@@ -393,7 +381,7 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
 
         foreach (var accessor in accessors.Where(i => i.Body is null && i.ExpressionBody is not null && i.Kind() == SyntaxKind.GetAccessorDeclaration))
         {
-            yield return CreateAccessorPartialMethod(property, accessor, languageVersion);
+            yield return CreateAccessorPartialMethod(property, accessor);
         }
     }
 
@@ -404,13 +392,9 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
             return true;
         }
 
-        if (property.AccessorList is null)
-        {
-            return false;
-        }
+        var getter = property.AccessorList?.Accessors
+            .FirstOrDefault(accessor => accessor.Kind() == SyntaxKind.GetAccessorDeclaration);
 
-        var getter = property.AccessorList.Accessors.FirstOrDefault(accessor =>
-            accessor.Kind() == SyntaxKind.GetAccessorDeclaration);
         if (getter is null)
         {
             return false;
@@ -440,6 +424,7 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
         }
 
         var methodName = GetAccessorMethodName(property.Identifier.Text, accessorKind);
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
         var invocation = accessorKind == SyntaxKind.GetAccessorDeclaration
             ? SyntaxFactory.InvocationExpression(SyntaxFactory.IdentifierName(methodName))
             : SyntaxFactory.InvocationExpression(
@@ -465,8 +450,7 @@ sealed class SetupContextMembersCollector(SetupContextMembersCollectorContext ct
 
     private static MemberDeclarationSyntax CreateAccessorPartialMethod(
         PropertyDeclarationSyntax property,
-        AccessorDeclarationSyntax accessor,
-        LanguageVersion languageVersion)
+        AccessorDeclarationSyntax accessor)
     {
         var accessorKind = accessor.Kind();
         var methodName = GetAccessorMethodName(property.Identifier.Text, accessorKind);

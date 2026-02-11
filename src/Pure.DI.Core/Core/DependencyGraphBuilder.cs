@@ -103,7 +103,7 @@ sealed class DependencyGraphBuilder(
             {
                 var hasSourceNode = map.TryGetValue(injection, out var sourceNode);
                 var bypassSelfFactoryOverride = hasSourceNode
-                    && sourceNode.Binding.Id == targetNode.Binding.Id
+                    && sourceNode!.Binding.Id == targetNode.Binding.Id
                     && injection.Kind == InjectionKind.FactoryInjection
                     && targetNode.Factory is not null;
 
@@ -137,7 +137,7 @@ sealed class DependencyGraphBuilder(
 
                 if (hasSourceNode)
                 {
-                    if (!marker.IsMarkerBased(setup, sourceNode.Type))
+                    if (!marker.IsMarkerBased(setup, sourceNode!.Type))
                     {
                         queue.Enqueue(CreateNewProcessingNode(injection.Tag, sourceNode));
                         continue;
@@ -456,7 +456,7 @@ sealed class DependencyGraphBuilder(
         {
             if (!handledInjections.TryGetValue(processingNode, out var injections))
             {
-                injections = new HashSet<(Injection Injection, int? Position)>();
+                injections = [];
                 handledInjections.Add(processingNode, injections);
             }
 

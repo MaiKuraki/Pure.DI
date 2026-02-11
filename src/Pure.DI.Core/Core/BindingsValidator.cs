@@ -13,6 +13,7 @@ sealed class BindingsValidator(
         var overriddenInjections = GetOverriddenInjections(graph);
         foreach (var binding in graph.Source.Bindings.Where(i => i.SourceSetup.Kind == CompositionKind.Public && i.Contracts.All(c => c.Kind == ContractKind.Explicit)))
         {
+            // ReSharper disable once InvertIf
             if (!GetIds(binding).Any(id => bindingsRegistry.IsRegistered(graph.Source, id)))
             {
                 if (IsOverridden(binding, overriddenInjections))
@@ -79,6 +80,7 @@ sealed class BindingsValidator(
                 continue;
             }
 
+            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var tag in contract.Tags.Select(i => i.Value).DefaultIfEmpty(null))
             {
                 var injection = new Injection(InjectionKind.Contract, RefKind.None, contract.ContractType, tag, ImmutableArray<Location>.Empty);

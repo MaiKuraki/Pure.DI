@@ -9,6 +9,7 @@ sealed class DependsOnInstanceMemberValidator(
 {
     public bool Validate(MdSetup setup)
     {
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (var binding in setup.Bindings)
         {
             if (binding.SourceSetup.Name.Equals(setup.Name))
@@ -59,7 +60,7 @@ sealed class DependsOnInstanceMemberValidator(
         setup.Source.Ancestors()
             .OfType<BaseTypeDeclarationSyntax>()
             .FirstOrDefault() is { } typeDeclaration
-            ? setup.SemanticModel.GetDeclaredSymbol(typeDeclaration) as INamedTypeSymbol
+            ? setup.SemanticModel.GetDeclaredSymbol(typeDeclaration)
             : null;
 
     private sealed class InstanceMemberAccessWalker(
@@ -104,9 +105,8 @@ sealed class DependsOnInstanceMemberValidator(
                     Add(node, @event.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat));
                     break;
 
-                case IMethodSymbol method
-                    when method.MethodKind == MethodKind.Ordinary
-                         && IsInstanceMember(method, setupType):
+                case IMethodSymbol { MethodKind: MethodKind.Ordinary } method
+                    when IsInstanceMember(method, setupType):
                     Add(node, method.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat));
                     break;
             }

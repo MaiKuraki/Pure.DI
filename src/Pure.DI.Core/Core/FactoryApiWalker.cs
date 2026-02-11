@@ -193,6 +193,7 @@ sealed class FactoryApiWalker : CSharpSyntaxWalker, IFactoryApiWalker
             return false;
         }
 
+        // ReSharper disable once InvertIf
         if (_semanticModel is not null
             && _contextSymbol is not null
             && identifierName.SyntaxTree == _semanticModel.SyntaxTree)

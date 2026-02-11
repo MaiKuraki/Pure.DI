@@ -22,11 +22,9 @@ class Constructors(
     private static bool HasSetupContextParameters(CompositionCode composition) =>
         composition.SetupContextArgs.Any(arg => arg.Kind == SetupContextKind.Argument);
 
-    private bool HasSetupContextArgs(DependencyGraph graph) =>
+    private static bool HasSetupContextArgs(DependencyGraph graph) =>
         graph.Source.Bindings.Any(binding =>
-            binding.Arg.HasValue
-            && binding.Arg.Value.IsSetupContext
-            && binding.Arg.Value.SetupContextKind == SetupContextKind.Argument);
+            binding.Arg is { IsSetupContext: true, SetupContextKind: SetupContextKind.Argument });
 
     private bool IsEnabledInternal(DependencyGraph graph) => (
         from entry in graph.Graph.Entries

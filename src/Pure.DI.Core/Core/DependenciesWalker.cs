@@ -148,8 +148,7 @@ class DependenciesWalker<TContext>(
         var hasExplicitDefaultValue = parameter.ParameterSymbol.HasExplicitDefaultValue;
         var explicitDefaultValue = hasExplicitDefaultValue ? parameter.ParameterSymbol.ExplicitDefaultValue : null;
         if (!hasExplicitDefaultValue
-            && parameter.ParameterSymbol.IsOptional
-            && parameter.ParameterSymbol.Type.IsValueType
+            && parameter.ParameterSymbol is { IsOptional: true, Type.IsValueType: true }
             && !IsNullableValueType(parameter.ParameterSymbol.Type))
         {
             hasExplicitDefaultValue = true;
@@ -209,6 +208,6 @@ class DependenciesWalker<TContext>(
         {
             IsGenericType: true,
             Name: "Nullable",
-            ContainingNamespace: { Name: "System" }
+            ContainingNamespace.Name: "System"
         };
 }

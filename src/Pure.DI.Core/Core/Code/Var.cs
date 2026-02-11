@@ -144,6 +144,7 @@ record Var(
             changed = true;
         }
 
+        // ReSharper disable once InvertIf
         if (resetLocalFunctionCalled && IsLocalFunctionCalled)
         {
             IsLocalFunctionCalled = false;

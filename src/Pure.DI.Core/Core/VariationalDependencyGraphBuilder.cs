@@ -57,6 +57,7 @@ sealed class VariationalDependencyGraphBuilder(
                         continue;
                     }
 
+                    // ReSharper disable once InvertIf
                     if (node.Binding.SourceSetup.Kind != CompositionKind.Global)
                     {
                         var warningSource = node.Binding.Arg is { IsSetupContext: true }

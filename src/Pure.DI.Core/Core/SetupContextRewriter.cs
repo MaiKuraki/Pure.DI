@@ -21,22 +21,19 @@ sealed class SetupContextRewriter(SetupContextRewriterContext ctx)
             : AddContextInjection(rewritten);
     }
 
-    public override SyntaxNode? VisitThisExpression(ThisExpressionSyntax node) =>
+    public override SyntaxNode VisitThisExpression(ThisExpressionSyntax node) =>
         _contextIdentifier.WithTriviaFrom(node);
 
     public override SyntaxNode? VisitIdentifierName(IdentifierNameSyntax node)
     {
-        if (node.Parent is MemberAccessExpressionSyntax { Name: IdentifierNameSyntax name } && ReferenceEquals(name, node))
-        {
-            return base.VisitIdentifierName(node);
-        }
-
-        if (node.SyntaxTree != ctx.SemanticModel.SyntaxTree)
+        if (node.Parent is MemberAccessExpressionSyntax { Name: IdentifierNameSyntax name } && ReferenceEquals(name, node)
+            || node.SyntaxTree != ctx.SemanticModel.SyntaxTree)
         {
             return base.VisitIdentifierName(node);
         }
 
         var symbol = ctx.SemanticModel.GetSymbolInfo(node).Symbol;
+        // ReSharper disable once InvertIf
         if (symbol is not null && IsInstanceMember(symbol, ctx.SetupType))
         {
             var memberName = SyntaxFactory.IdentifierName(node.Identifier).WithTriviaFrom(node);
@@ -89,6 +86,7 @@ sealed class SetupContextRewriter(SetupContextRewriterContext ctx)
             return lambda.WithBlock(updatedBlock);
         }
 
+        // ReSharper disable once InvertIf
         if (lambda.ExpressionBody is { } expressionBody)
         {
             var blockWithReturn = SyntaxFactory.Block(
@@ -106,11 +104,10 @@ sealed class SetupContextRewriter(SetupContextRewriterContext ctx)
             SimpleLambdaExpressionSyntax simple when simple.Parameter.Identifier.Text == ctx.ContextArgName => simple,
             SimpleLambdaExpressionSyntax simple => SyntaxFactory.ParenthesizedLambdaExpression(
                     SyntaxFactory.ParameterList(
-                        SyntaxFactory.SeparatedList(new[]
-                        {
+                        SyntaxFactory.SeparatedList([
                             simple.Parameter,
                             CreateContextParameter()
-                        })),
+                        ])),
                     simple.Body)
                 .WithTriviaFrom(simple),
             ParenthesizedLambdaExpressionSyntax parenthesized

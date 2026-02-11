@@ -17,6 +17,7 @@ sealed class SetupContextMembersBuilder
         var membersCounter = composition.MembersCount;
         var code = composition.Code;
         var hasMembers = false;
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (var setupContext in composition.SetupContextMembers)
         {
             foreach (var member in setupContext.Members)
@@ -27,7 +28,7 @@ sealed class SetupContextMembersBuilder
                 }
 
                 hasMembers = true;
-                var normalized = member.NormalizeWhitespace("\t", System.Environment.NewLine).GetText().Lines;
+                var normalized = member.NormalizeWhitespace("\t", Environment.NewLine).GetText().Lines;
                 foreach (var line in normalized)
                 {
                     code.AppendLine(line.ToString());

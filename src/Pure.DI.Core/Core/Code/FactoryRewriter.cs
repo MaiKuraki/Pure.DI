@@ -188,8 +188,7 @@ sealed class FactoryRewriter(
         {
             nameof(IContext.Inject) => TryInject(invocation, out expressionSyntax),
             nameof(IContext.BuildUp) => TryInitialize(invocation, out expressionSyntax),
-            nameof(IContext.Override) => TryOverride(invocation, out expressionSyntax),
-            nameof(IContext.Let) => TryOverride(invocation, out expressionSyntax),
+            nameof(IContext.Override) or nameof(IContext.Let) => TryOverride(invocation, out expressionSyntax),
             _ => false
         };
 

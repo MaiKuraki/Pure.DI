@@ -23,6 +23,7 @@ sealed class ArgFieldsBuilder(ITypeResolver typeResolver)
             membersCounter++;
         }
 
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (var arg in composition.SetupContextArgs)
         {
             if (classArgs.Any(existing => existing.Name == arg.Name))
@@ -30,21 +31,14 @@ sealed class ArgFieldsBuilder(ITypeResolver typeResolver)
                 continue;
             }
 
-            var typeName = typeResolver.Resolve(composition.Source.Source, arg.Type);
-            var isAdded = false;
+            // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
             switch (arg.Kind)
             {
                 case SetupContextKind.Argument:
+                    var typeName = typeResolver.Resolve(composition.Source.Source, arg.Type);
                     code.AppendLine($"[{Names.NonSerializedAttributeTypeName}] private readonly {typeName} {arg.Name};");
-                    isAdded = true;
+                    membersCounter++;
                     break;
-
-                case SetupContextKind.Members:
-                    break;
-            }
-            if (isAdded)
-            {
-                membersCounter++;
             }
         }
 

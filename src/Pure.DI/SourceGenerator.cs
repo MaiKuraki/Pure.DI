@@ -4,8 +4,6 @@ namespace Pure.DI;
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Pure.DI.Core;
 
 [Generator(LanguageNames.CSharp)]
 [SuppressMessage("MicrosoftCodeAnalysisCorrectness", "RS1036:Specify analyzer banned API enforcement setting")]
@@ -28,7 +26,7 @@ public class SourceGenerator : IIncrementalGenerator
 
         var setupContexts = context.SyntaxProvider
             .CreateSyntaxProvider(
-                static (node, _) => node is InvocationExpressionSyntax invocation && IsPotentialSetup(invocation),
+                static (_, _) => true,
                 static (syntaxContext, _) => syntaxContext)
             .Collect();
 
@@ -51,12 +49,4 @@ public class SourceGenerator : IIncrementalGenerator
                 sourceProductionContext.CancellationToken);
         });
     }
-
-    private static bool IsPotentialSetup(InvocationExpressionSyntax invocation) =>
-        invocation.Expression switch
-        {
-            IdentifierNameSyntax { Identifier.Text: "Setup" } => true,
-            MemberAccessExpressionSyntax { Name.Identifier.Text: "Setup" } => true,
-            _ => false
-        };
 }

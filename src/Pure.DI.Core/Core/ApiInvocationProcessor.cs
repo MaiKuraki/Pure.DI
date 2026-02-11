@@ -363,8 +363,7 @@ sealed class ApiInvocationProcessor(
                         break;
 
                     case nameof(IConfiguration.DependsOn):
-                        if (semanticModel.GetSymbolInfo(invocation).Symbol is IMethodSymbol { Parameters.Length: 3 } methodWithKindSymbol
-                            && !methodWithKindSymbol.Parameters[0].IsParams)
+                        if (semanticModel.GetSymbolInfo(invocation).Symbol is IMethodSymbol { Parameters: [{ IsParams: false }, _, _ ] })
                         {
                             var dependsOnArgs = arguments.GetArgs(invocation.ArgumentList, "setupName", "kind", "name");
                             if (dependsOnArgs[0] is { Expression: {} setupNameExpression }
@@ -664,7 +663,7 @@ sealed class ApiInvocationProcessor(
 
                         // Building instance arg
                         metadataVisitor.VisitContract(new MdContract(semanticModel, invocation, buildersRootType, ContractKind.Explicit, ImmutableArray.Create(builderArgTag)));
-                        metadataVisitor.VisitArg(new MdArg(semanticModel, invocation, buildersRootType, Names.BuildingInstance, ArgKind.Root, true, ["Instance for the build-up."], false));
+                        metadataVisitor.VisitArg(new MdArg(semanticModel, invocation, buildersRootType, Names.BuildingInstance, ArgKind.Root, true, ["Instance for the build-up."]));
 
                         // Fake factory expression, it is actually implemented in RootsBuilder
                         var factory = new Lines();
@@ -880,11 +879,11 @@ sealed class ApiInvocationProcessor(
             }
             else
             {
-            throw new CompileErrorException(
-                Strings.Error_TooManyTypeParameters,
-                ImmutableArray.Create(locationProvider.GetLocation(source)),
-                LogId.ErrorTooManyTypeParameters,
-                nameof(Strings.Error_TooManyTypeParameters));
+                throw new CompileErrorException(
+                    Strings.Error_TooManyTypeParameters,
+                    ImmutableArray.Create(locationProvider.GetLocation(source)),
+                    LogId.ErrorTooManyTypeParameters,
+                    nameof(Strings.Error_TooManyTypeParameters));
             }
         }
 
@@ -907,7 +906,7 @@ sealed class ApiInvocationProcessor(
 
         // RootArg
         metadataVisitor.VisitContract(new MdContract(semanticModel, source, builderType, ContractKind.Explicit, ImmutableArray.Create(builderArgTag)));
-        metadataVisitor.VisitArg(new MdArg(semanticModel, source, builderType, Names.BuildingInstance, ArgKind.Root, true, ["Instance for the build-up."], false));
+        metadataVisitor.VisitArg(new MdArg(semanticModel, source, builderType, Names.BuildingInstance, ArgKind.Root, true, ["Instance for the build-up."]));
 
         // Factory
         var factory = new Lines();
@@ -1101,7 +1100,7 @@ sealed class ApiInvocationProcessor(
                 tags.IsEmpty ? null : tags[0].Value) ?? "";
 
             metadataVisitor.VisitContract(new MdContract(semanticModel, source, argType, ContractKind.Explicit, tags.ToImmutableArray()));
-            metadataVisitor.VisitArg(new MdArg(semanticModel, source, argType, name, kind, false, argComments, false));
+            metadataVisitor.VisitArg(new MdArg(semanticModel, source, argType, name, kind, false, argComments));
         }
     }
 
@@ -1200,7 +1199,8 @@ sealed class ApiInvocationProcessor(
                         LogId.ErrorTypeCannotBeInferred,
                         nameof(Strings.Error_TypeCannotBeInferred));
         }
-        var tagArguments = GetOverrideTagArguments(invocation);
+
+        var tagArguments = GetOverrideTagArguments(invocation).ToList();
         var hasCtx = tagArguments.Aggregate(false, (current, tag) => current | HasContextTag(tag.Expression, contextParameter));
         var tags = BuildTags(semanticModel, tagArguments)
             .AsEnumerable()
@@ -1238,6 +1238,7 @@ sealed class ApiInvocationProcessor(
     private static IEnumerable<ArgumentSyntax> GetOverrideTagArguments(InvocationExpressionSyntax invocation)
     {
         var args = invocation.ArgumentList.Arguments;
+        // ReSharper disable once ConvertIfStatementToReturnStatement
         if (args.Any(arg => arg.NameColon?.Name.Identifier.Text == "tags"))
         {
             return args.Where(arg => arg.NameColon?.Name.Identifier.Text == "tags");

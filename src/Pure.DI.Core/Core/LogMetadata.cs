@@ -126,7 +126,9 @@ static class LogMetadata
             LogId.ErrorAttributeMemberCannotBeProcessed => "Validation",
             LogId.WarningInjectionSiteNotUsed => "Validation",
 
+            // ReSharper disable once RedundantSwitchExpressionArms
             LogId.InfoGenerationInterrupted => "General",
+            // ReSharper disable once RedundantSwitchExpressionArms
             LogId.ErrorUnhandled => "General",
             _ => "General"
         };

@@ -30,6 +30,6 @@ sealed class ExplicitDefaultValueCodeBuilder(ITypeResolver typeResolver)
         {
             IsGenericType: true,
             Name: "Nullable",
-            ContainingNamespace: { Name: "System" }
+            ContainingNamespace.Name: "System"
         };
 }
