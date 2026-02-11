@@ -85,7 +85,6 @@
     <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
         <value>DependsOn के लिए सेटअप संदर्भ का नाम निर्दिष्ट करना आवश्यक है।</value>
     </data>
-
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>अमान्य root प्रकार।</value>
     </data>
@@ -176,7 +175,172 @@
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>प्रकार {1} का स्थिर root {0} सीधे या किसी निर्भरता के माध्यम से Lifetime {2} का उपयोग नहीं कर सकता है।</value>
     </data>
+    <data name="Warning_Template_InstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>Binding सेटअप "{1}" से instance member "{0}" का उपयोग करता है जो DependsOn या CompositionKind.Internal/Global के माध्यम से लागू होता है। यह member निर्भर composition में मौजूद नहीं होगा। Arg/RootArg या एक अलग context object का उपयोग करें।</value>
+    </data>
     <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
         <value>जब सेटअप संदर्भ प्रकार का उपयोग किया जाता है, तो DependsOn को सेटअप संदर्भ का नाम चाहिए।</value>
+    </data>
+    <data name="Description_ErrorUnableToResolve" xml:space="preserve">
+        <value>ऑब्जेक्ट ग्राफ में निर्भरता को हल नहीं किया जा सकता।</value>
+    </data>
+    <data name="Description_ErrorInvalidBinding" xml:space="preserve">
+        <value>Binding metadata की कमी के कारण Binding बनाया नहीं जा सकता।</value>
+    </data>
+    <data name="Description_ErrorInvalidBindingDueToCompilation" xml:space="preserve">
+        <value>Binding अमान्य है क्योंकि compiler ने त्रुटियां रिपोर्ट की हैं।</value>
+    </data>
+    <data name="Description_ErrorInvalidCompositionTypeName" xml:space="preserve">
+        <value>Composition type नाम अमान्य है।</value>
+    </data>
+    <data name="Description_ErrorInvalidRootName" xml:space="preserve">
+        <value>Root नाम अमान्य है।</value>
+    </data>
+    <data name="Description_ErrorDuplicateRootName" xml:space="preserve">
+        <value>डुप्लिकेट root नाम पाए गए।</value>
+    </data>
+    <data name="Description_ErrorInvalidArgumentName" xml:space="preserve">
+        <value>Argument नाम अमान्य है।</value>
+    </data>
+    <data name="Description_ErrorCompositionArgGenericMarker" xml:space="preserve">
+        <value>Composition argument प्रकार generic marker पर आधारित है।</value>
+    </data>
+    <data name="Description_ErrorAccumulatorTypeGenericMarker" xml:space="preserve">
+        <value>Accumulator प्रकार generic marker पर आधारित है।</value>
+    </data>
+    <data name="Description_ErrorAccumulatorCannotAccumulateGenericMarker" xml:space="preserve">
+        <value>Accumulator generic marker को संचित नहीं कर सकता।</value>
+    </data>
+    <data name="Description_ErrorSpecialTypeGenericMarker" xml:space="preserve">
+        <value>विशेष प्रकार generic marker नहीं हो सकता।</value>
+    </data>
+    <data name="Description_ErrorNotImplementedContract" xml:space="preserve">
+        <value>कार्यान्वयन (implementation) contract को लागू नहीं करता है।</value>
+    </data>
+    <data name="Description_ErrorInvalidAttributeArgumentPosition" xml:space="preserve">
+        <value>Attribute argument स्थिति अमान्य है।</value>
+    </data>
+    <data name="Description_ErrorAttributeMemberCannotBeProcessed" xml:space="preserve">
+        <value>Attribute member को संसाधित नहीं किया जा सकता।</value>
+    </data>
+    <data name="Description_ErrorInvalidRootType" xml:space="preserve">
+        <value>Root प्रकार अमान्य है।</value>
+    </data>
+    <data name="Description_ErrorInvalidRootsType" xml:space="preserve">
+        <value>Roots प्रकार अमान्य है।</value>
+    </data>
+    <data name="Description_ErrorNoTypeForWildcard" xml:space="preserve">
+        <value>कोई प्रकार wildcard filter से मेल नहीं खाता।</value>
+    </data>
+    <data name="Description_ErrorInvalidBuildersType" xml:space="preserve">
+        <value>Builders प्रकार अमान्य है।</value>
+    </data>
+    <data name="Description_ErrorInvalidBuilderType" xml:space="preserve">
+        <value>Builder प्रकार अमान्य है।</value>
+    </data>
+    <data name="Description_ErrorTooManyTypeParameters" xml:space="preserve">
+        <value>बहुत अधिक type parameters प्रदान किए गए।</value>
+    </data>
+    <data name="Description_ErrorAsyncFactoryNotSupported" xml:space="preserve">
+        <value>Async factories समर्थित नहीं हैं।</value>
+    </data>
+    <data name="Description_ErrorNotSupportedSyntax" xml:space="preserve">
+        <value>DI API में असमर्थित syntax।</value>
+    </data>
+    <data name="Description_ErrorMustBeValueOfType" xml:space="preserve">
+        <value>मान किसी विशिष्ट प्रकार का होना चाहिए।</value>
+    </data>
+    <data name="Description_ErrorInvalidIdentifier" xml:space="preserve">
+        <value>Identifier अमान्य है।</value>
+    </data>
+    <data name="Description_ErrorCannotUseContextDirectly" xml:space="preserve">
+        <value>Context का उपयोग वहां सीधे किया जा रहा है जहां यह अनुमति नहीं है।</value>
+    </data>
+    <data name="Description_ErrorInvalidNumberOfInitializers" xml:space="preserve">
+        <value>Initializers की संख्या मेल नहीं खाती।</value>
+    </data>
+    <data name="Description_ErrorLifetimeDoesNotSupportCyclicDependencies" xml:space="preserve">
+        <value>Lifetime चक्रीय निर्भरताओं का समर्थन नहीं करता है।</value>
+    </data>
+    <data name="Description_ErrorTooLargeComposition" xml:space="preserve">
+        <value>Composition बनाने के लिए बहुत बड़ी है।</value>
+    </data>
+    <data name="Description_ErrorCannotConstructAbstractType" xml:space="preserve">
+        <value>Abstract प्रकार का निर्माण नहीं किया जा सकता।</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructor" xml:space="preserve">
+        <value>कोई सुलभ constructor नहीं मिला।</value>
+    </data>
+    <data name="Description_ErrorCannotBuildDependencyGraph" xml:space="preserve">
+        <value>Dependency graph बनाया नहीं जा सकता।</value>
+    </data>
+    <data name="Description_ErrorMaximumNumberOfIterations" xml:space="preserve">
+        <value>पुनरावृत्तियों की अधिकतम संख्या तक पहुंच गया।</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructorForTagOn" xml:space="preserve">
+        <value>Tag.On के लिए कोई सुलभ constructor नहीं मिला।</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleMethodForTagOn" xml:space="preserve">
+        <value>Tag.On के लिए कोई सुलभ method नहीं मिला।</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleFieldOrPropertyForTagOn" xml:space="preserve">
+        <value>Tag.On के लिए कोई सुलभ field या property नहीं मिला।</value>
+    </data>
+    <data name="Description_ErrorMustBeApiCall" xml:space="preserve">
+        <value>व्यंजक (expression) एक वैध API कॉल होना चाहिए।</value>
+    </data>
+    <data name="Description_ErrorInvalidRegularExpression" xml:space="preserve">
+        <value>Regular expression अमान्य है।</value>
+    </data>
+    <data name="Description_ErrorInvalidWildcard" xml:space="preserve">
+        <value>Wildcard अमान्य है।</value>
+    </data>
+    <data name="Description_ErrorCannotFindSetup" xml:space="preserve">
+        <value>DI सेटअप नहीं मिला।</value>
+    </data>
+    <data name="Description_ErrorCyclicDependency" xml:space="preserve">
+        <value>चक्रीय निर्भरता का पता चला।</value>
+    </data>
+    <data name="Description_ErrorNotSupportedLanguageVersion" xml:space="preserve">
+        <value>भाषा संस्करण समर्थित नहीं है।</value>
+    </data>
+    <data name="Description_ErrorLifetimeDefect" xml:space="preserve">
+        <value>Lifetime सत्यापन त्रुटि।</value>
+    </data>
+    <data name="Description_ErrorTypeCannotBeInferred" xml:space="preserve">
+        <value>प्रकार का अनुमान नहीं लगाया जा सकता।</value>
+    </data>
+    <data name="Description_WarningOverriddenBinding" xml:space="preserve">
+        <value>Binding ओवरराइड कर दी गई है।</value>
+    </data>
+    <data name="Description_WarningNoRoots" xml:space="preserve">
+        <value>कोई composition roots परिभाषित नहीं हैं।</value>
+    </data>
+    <data name="Description_WarningNotImplementedContract" xml:space="preserve">
+        <value>कार्यान्वयन (implementation) contract को लागू नहीं करता है।</value>
+    </data>
+    <data name="Description_WarningBindingNotUsed" xml:space="preserve">
+        <value>Binding का उपयोग नहीं किया गया है।</value>
+    </data>
+    <data name="Description_WarningInjectionSiteNotUsed" xml:space="preserve">
+        <value>Tag.On injection site का उपयोग नहीं किया गया है।</value>
+    </data>
+    <data name="Description_WarningRootArgInResolveMethod" xml:space="preserve">
+        <value>Resolve विधियां root arguments के साथ असंगत हैं।</value>
+    </data>
+    <data name="Description_WarningTypeArgInResolveMethod" xml:space="preserve">
+        <value>Resolve विधियां type arguments के साथ असंगत हैं।</value>
+    </data>
+    <data name="Description_WarningInstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>DependsOn instance member का उपयोग करता है।</value>
+    </data>
+    <data name="Description_InfoGenerationInterrupted" xml:space="preserve">
+        <value>जनरेशन रुका दिया गया था।</value>
+    </data>
+    <data name="Description_InfoNotImplementedContract" xml:space="preserve">
+        <value>कार्यान्वयन (implementation) contract को लागू नहीं करता है।</value>
+    </data>
+    <data name="Description_ErrorUnhandled" xml:space="preserve">
+        <value>अनहैंडल्ड जनरेटर त्रुटि।</value>
     </data>
 </root>

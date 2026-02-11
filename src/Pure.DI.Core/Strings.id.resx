@@ -85,7 +85,6 @@
     <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
         <value>Nama konteks setup harus ditentukan untuk DependsOn.</value>
     </data>
-
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>Tipe Root tidak valid.</value>
     </data>
@@ -176,7 +175,172 @@
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>Static Root {0} bertipe {1} tidak dapat menggunakan Lifetime {2} secara langsung atau melalui dependensi.</value>
     </data>
+    <data name="Warning_Template_InstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>Binding menggunakan anggota instance "{0}" dari setup "{1}" yang diterapkan melalui DependsOn atau CompositionKind.Internal/Global. Anggota ini tidak akan ada dalam komposisi dependen. Gunakan Arg/RootArg atau objek konteks terpisah.</value>
+    </data>
     <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
         <value>DependsOn memerlukan nama konteks setup saat menggunakan jenis konteks setup.</value>
+    </data>
+    <data name="Description_ErrorUnableToResolve" xml:space="preserve">
+        <value>Gagal menyelesaikan dependensi dalam grafik objek.</value>
+    </data>
+    <data name="Description_ErrorInvalidBinding" xml:space="preserve">
+        <value>Binding tidak dapat dibuat karena metadata binding hilang.</value>
+    </data>
+    <data name="Description_ErrorInvalidBindingDueToCompilation" xml:space="preserve">
+        <value>Binding tidak valid karena kompilator melaporkan kesalahan.</value>
+    </data>
+    <data name="Description_ErrorInvalidCompositionTypeName" xml:space="preserve">
+        <value>Nama tipe komposisi tidak valid.</value>
+    </data>
+    <data name="Description_ErrorInvalidRootName" xml:space="preserve">
+        <value>Nama Root tidak valid.</value>
+    </data>
+    <data name="Description_ErrorDuplicateRootName" xml:space="preserve">
+        <value>Ditemukan nama Root duplikat.</value>
+    </data>
+    <data name="Description_ErrorInvalidArgumentName" xml:space="preserve">
+        <value>Nama argumen tidak valid.</value>
+    </data>
+    <data name="Description_ErrorCompositionArgGenericMarker" xml:space="preserve">
+        <value>Tipe argumen komposisi berbasis pada penanda generik.</value>
+    </data>
+    <data name="Description_ErrorAccumulatorTypeGenericMarker" xml:space="preserve">
+        <value>Tipe Accumulator berbasis pada penanda generik.</value>
+    </data>
+    <data name="Description_ErrorAccumulatorCannotAccumulateGenericMarker" xml:space="preserve">
+        <value>Accumulator tidak dapat mengakumulasi penanda generik.</value>
+    </data>
+    <data name="Description_ErrorSpecialTypeGenericMarker" xml:space="preserve">
+        <value>Tipe khusus tidak dapat menjadi penanda generik.</value>
+    </data>
+    <data name="Description_ErrorNotImplementedContract" xml:space="preserve">
+        <value>Implementasi tidak mengimplementasikan kontrak.</value>
+    </data>
+    <data name="Description_ErrorInvalidAttributeArgumentPosition" xml:space="preserve">
+        <value>Posisi argumen atribut tidak valid.</value>
+    </data>
+    <data name="Description_ErrorAttributeMemberCannotBeProcessed" xml:space="preserve">
+        <value>Anggota atribut tidak dapat diproses.</value>
+    </data>
+    <data name="Description_ErrorInvalidRootType" xml:space="preserve">
+        <value>Tipe Root tidak valid.</value>
+    </data>
+    <data name="Description_ErrorInvalidRootsType" xml:space="preserve">
+        <value>Tipe Roots tidak valid.</value>
+    </data>
+    <data name="Description_ErrorNoTypeForWildcard" xml:space="preserve">
+        <value>Tidak ada tipe yang cocok dengan filter wildcard.</value>
+    </data>
+    <data name="Description_ErrorInvalidBuildersType" xml:space="preserve">
+        <value>Tipe Builders tidak valid.</value>
+    </data>
+    <data name="Description_ErrorInvalidBuilderType" xml:space="preserve">
+        <value>Tipe Builder tidak valid.</value>
+    </data>
+    <data name="Description_ErrorTooManyTypeParameters" xml:space="preserve">
+        <value>Terlalu banyak parameter tipe yang diberikan.</value>
+    </data>
+    <data name="Description_ErrorAsyncFactoryNotSupported" xml:space="preserve">
+        <value>Factory asinkron tidak didukung.</value>
+    </data>
+    <data name="Description_ErrorNotSupportedSyntax" xml:space="preserve">
+        <value>Sintaks yang tidak didukung dalam API DI.</value>
+    </data>
+    <data name="Description_ErrorMustBeValueOfType" xml:space="preserve">
+        <value>Nilai harus berupa tipe tertentu.</value>
+    </data>
+    <data name="Description_ErrorInvalidIdentifier" xml:space="preserve">
+        <value>Identifier tidak valid.</value>
+    </data>
+    <data name="Description_ErrorCannotUseContextDirectly" xml:space="preserve">
+        <value>Konteks digunakan secara langsung di mana tidak diperbolehkan.</value>
+    </data>
+    <data name="Description_ErrorInvalidNumberOfInitializers" xml:space="preserve">
+        <value>Jumlah inisialisator tidak cocok.</value>
+    </data>
+    <data name="Description_ErrorLifetimeDoesNotSupportCyclicDependencies" xml:space="preserve">
+        <value>Lifetime tidak mendukung ketergantungan siklik.</value>
+    </data>
+    <data name="Description_ErrorTooLargeComposition" xml:space="preserve">
+        <value>Komposisi terlalu besar untuk dibangun.</value>
+    </data>
+    <data name="Description_ErrorCannotConstructAbstractType" xml:space="preserve">
+        <value>Tidak dapat membuat tipe abstrak.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructor" xml:space="preserve">
+        <value>Tidak ada konstruktor yang dapat diakses yang ditemukan.</value>
+    </data>
+    <data name="Description_ErrorCannotBuildDependencyGraph" xml:space="preserve">
+        <value>Dependency Graph tidak dapat dibangun.</value>
+    </data>
+    <data name="Description_ErrorMaximumNumberOfIterations" xml:space="preserve">
+        <value>Terlampaui jumlah iterasi maksimum.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructorForTagOn" xml:space="preserve">
+        <value>Tidak ada konstruktor yang dapat diakses yang ditemukan untuk Tag.On.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleMethodForTagOn" xml:space="preserve">
+        <value>Tidak ada metode yang dapat diakses yang ditemukan untuk Tag.On.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleFieldOrPropertyForTagOn" xml:space="preserve">
+        <value>Tidak ada field atau properti yang dapat diakses yang ditemukan untuk Tag.On.</value>
+    </data>
+    <data name="Description_ErrorMustBeApiCall" xml:space="preserve">
+        <value>Ekspresi harus berupa panggilan API yang valid.</value>
+    </data>
+    <data name="Description_ErrorInvalidRegularExpression" xml:space="preserve">
+        <value>Ekspresi reguler tidak valid.</value>
+    </data>
+    <data name="Description_ErrorInvalidWildcard" xml:space="preserve">
+        <value>Wildcard tidak valid.</value>
+    </data>
+    <data name="Description_ErrorCannotFindSetup" xml:space="preserve">
+        <value>Setup DI tidak dapat ditemukan.</value>
+    </data>
+    <data name="Description_ErrorCyclicDependency" xml:space="preserve">
+        <value>Ketergantungan siklik terdeteksi.</value>
+    </data>
+    <data name="Description_ErrorNotSupportedLanguageVersion" xml:space="preserve">
+        <value>Versi bahasa tidak didukung.</value>
+    </data>
+    <data name="Description_ErrorLifetimeDefect" xml:space="preserve">
+        <value>Kesalahan validasi Lifetime.</value>
+    </data>
+    <data name="Description_ErrorTypeCannotBeInferred" xml:space="preserve">
+        <value>Tipe tidak dapat disimpulkan.</value>
+    </data>
+    <data name="Description_WarningOverriddenBinding" xml:space="preserve">
+        <value>Binding telah diganti (overridden).</value>
+    </data>
+    <data name="Description_WarningNoRoots" xml:space="preserve">
+        <value>Tidak ada Composition Roots yang didefinisikan.</value>
+    </data>
+    <data name="Description_WarningNotImplementedContract" xml:space="preserve">
+        <value>Implementasi tidak mengimplementasikan kontrak.</value>
+    </data>
+    <data name="Description_WarningBindingNotUsed" xml:space="preserve">
+        <value>Binding tidak digunakan.</value>
+    </data>
+    <data name="Description_WarningInjectionSiteNotUsed" xml:space="preserve">
+        <value>Injection site Tag.On tidak digunakan.</value>
+    </data>
+    <data name="Description_WarningRootArgInResolveMethod" xml:space="preserve">
+        <value>Metode Resolve tidak kompatibel dengan argumen Root.</value>
+    </data>
+    <data name="Description_WarningTypeArgInResolveMethod" xml:space="preserve">
+        <value>Metode Resolve tidak kompatibel dengan argumen tipe.</value>
+    </data>
+    <data name="Description_WarningInstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>DependsOn menggunakan anggota instance.</value>
+    </data>
+    <data name="Description_InfoGenerationInterrupted" xml:space="preserve">
+        <value>Generasi terganggu.</value>
+    </data>
+    <data name="Description_InfoNotImplementedContract" xml:space="preserve">
+        <value>Implementasi tidak mengimplementasikan kontrak.</value>
+    </data>
+    <data name="Description_ErrorUnhandled" xml:space="preserve">
+        <value>Kesalahan generator yang tidak tertangani.</value>
     </data>
 </root>

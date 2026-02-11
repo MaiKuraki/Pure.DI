@@ -176,7 +176,172 @@
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>لا يمكن للجذر الثابت {0} من النوع {1} استخدام Lifetime {2} مباشرة أو من خلال تبعية.</value>
     </data>
+    <data name="Warning_Template_InstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>الارتباط يستخدم عضو مثيل "{0}" من الإعداد "{1}" الذي يتم تطبيقه عبر DependsOn أو CompositionKind.Internal/Global. لن يوجد هذا العضو في التكوين التابع. استخدم Arg/RootArg أو كائن سياق منفصل.</value>
+    </data>
+    <data name="Description_ErrorUnableToResolve" xml:space="preserve">
+        <value>تعذر حل تبعية في كائن الرسم البياني.</value>
+    </data>
+    <data name="Description_ErrorInvalidBinding" xml:space="preserve">
+        <value>لا يمكن إنشاء الارتباط بسبب فقدان بيانات تعريف الارتباط.</value>
+    </data>
+    <data name="Description_ErrorInvalidBindingDueToCompilation" xml:space="preserve">
+        <value>الارتباط غير صالح لأن المترجم أبلغ عن أخطاء.</value>
+    </data>
+    <data name="Description_ErrorInvalidCompositionTypeName" xml:space="preserve">
+        <value>اسم نوع التكوين غير صالح.</value>
+    </data>
+    <data name="Description_ErrorInvalidRootName" xml:space="preserve">
+        <value>اسم الجذر غير صالح.</value>
+    </data>
+    <data name="Description_ErrorDuplicateRootName" xml:space="preserve">
+        <value>تم اكتشاف أسماء جذور مكررة.</value>
+    </data>
+    <data name="Description_ErrorInvalidArgumentName" xml:space="preserve">
+        <value>اسم الوسيط غير صالح.</value>
+    </data>
+    <data name="Description_ErrorCompositionArgGenericMarker" xml:space="preserve">
+        <value>نوع وسيط التكوين يعتمد على علامة عامة.</value>
+    </data>
+    <data name="Description_ErrorAccumulatorTypeGenericMarker" xml:space="preserve">
+        <value>نوع المجمع يعتمد على علامة عامة.</value>
+    </data>
+    <data name="Description_ErrorAccumulatorCannotAccumulateGenericMarker" xml:space="preserve">
+        <value>لا يمكن للمجمع تراكم علامة عامة.</value>
+    </data>
+    <data name="Description_ErrorSpecialTypeGenericMarker" xml:space="preserve">
+        <value>لا يمكن أن يكون النوع الخاص علامة عامة.</value>
+    </data>
+    <data name="Description_ErrorNotImplementedContract" xml:space="preserve">
+        <value>التنفيذ لا يطبق العقد.</value>
+    </data>
+    <data name="Description_ErrorInvalidAttributeArgumentPosition" xml:space="preserve">
+        <value>موضع وسيط السمة غير صالح.</value>
+    </data>
+    <data name="Description_ErrorAttributeMemberCannotBeProcessed" xml:space="preserve">
+        <value>لا يمكن معالجة عضو السمة.</value>
+    </data>
+    <data name="Description_ErrorInvalidRootType" xml:space="preserve">
+        <value>نوع الجذر غير صالح.</value>
+    </data>
+    <data name="Description_ErrorInvalidRootsType" xml:space="preserve">
+        <value>نوع الجذور غير صالح.</value>
+    </data>
+    <data name="Description_ErrorNoTypeForWildcard" xml:space="preserve">
+        <value>لم يتطابق أي نوع مع فلتر wildcard.</value>
+    </data>
+    <data name="Description_ErrorInvalidBuildersType" xml:space="preserve">
+        <value>نوع البناة غير صالح.</value>
+    </data>
+    <data name="Description_ErrorInvalidBuilderType" xml:space="preserve">
+        <value>نوع البناء غير صالح.</value>
+    </data>
+    <data name="Description_ErrorTooManyTypeParameters" xml:space="preserve">
+        <value>تم توفير عدد كبير جدًا من معلمات النوع.</value>
+    </data>
+    <data name="Description_ErrorAsyncFactoryNotSupported" xml:space="preserve">
+        <value>المصانع غير المتزامنة غير مدعومة.</value>
+    </data>
+    <data name="Description_ErrorNotSupportedSyntax" xml:space="preserve">
+        <value>بناء جملة غير مدعوم في DI API.</value>
+    </data>
+    <data name="Description_ErrorMustBeValueOfType" xml:space="preserve">
+        <value>يجب أن تكون القيمة من نوع معين.</value>
+    </data>
+    <data name="Description_ErrorInvalidIdentifier" xml:space="preserve">
+        <value>المعرف غير صالح.</value>
+    </data>
+    <data name="Description_ErrorCannotUseContextDirectly" xml:space="preserve">
+        <value>يتم استخدام السياق بشكل مباشر حيث لا يُسمح بذلك.</value>
+    </data>
     <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
         <value>يتطلب DependsOn اسم سياق إعداد عند استخدام نوع سياق إعداد.</value>
+    </data>
+    <data name="Description_ErrorInvalidNumberOfInitializers" xml:space="preserve">
+        <value>عدد المبدئيات لا يتطابق.</value>
+    </data>
+    <data name="Description_ErrorLifetimeDoesNotSupportCyclicDependencies" xml:space="preserve">
+        <value>Lifetime لا يدعم التبعيات الدائرية.</value>
+    </data>
+    <data name="Description_ErrorTooLargeComposition" xml:space="preserve">
+        <value>التكوين كبير جدًا ليتم إنشاؤه.</value>
+    </data>
+    <data name="Description_ErrorCannotConstructAbstractType" xml:space="preserve">
+        <value>لا يمكن إنشاء نوع مجرد.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructor" xml:space="preserve">
+        <value>لم يتم العثور على منشئ يمكن الوصول إليه.</value>
+    </data>
+    <data name="Description_ErrorCannotBuildDependencyGraph" xml:space="preserve">
+        <value>لا يمكن إنشاء مخطط التبعيات.</value>
+    </data>
+    <data name="Description_ErrorMaximumNumberOfIterations" xml:space="preserve">
+        <value>تم الوصول إلى الحد الأقصى لعدد التكرارات.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructorForTagOn" xml:space="preserve">
+        <value>لم يتم العثور على منشئ يمكن الوصول إليه لـ Tag.On.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleMethodForTagOn" xml:space="preserve">
+        <value>لم يتم العثور على طريقة يمكن الوصول إليها لـ Tag.On.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleFieldOrPropertyForTagOn" xml:space="preserve">
+        <value>لم يتم العثور على حقل أو خاصية يمكن الوصول إليها لـ Tag.On.</value>
+    </data>
+    <data name="Description_ErrorMustBeApiCall" xml:space="preserve">
+        <value>يجب أن يكون التعبير استدعاء API صالحًا.</value>
+    </data>
+    <data name="Description_ErrorInvalidRegularExpression" xml:space="preserve">
+        <value>التعبير النمطي غير صالح.</value>
+    </data>
+    <data name="Description_ErrorInvalidWildcard" xml:space="preserve">
+        <value>ال wildcard غير صالح.</value>
+    </data>
+    <data name="Description_ErrorCannotFindSetup" xml:space="preserve">
+        <value>تعذر العثور على إعداد DI.</value>
+    </data>
+    <data name="Description_ErrorCyclicDependency" xml:space="preserve">
+        <value>تم اكتشاف تبعية دائرية.</value>
+    </data>
+    <data name="Description_ErrorNotSupportedLanguageVersion" xml:space="preserve">
+        <value>إصدار اللغة غير مدعوم.</value>
+    </data>
+    <data name="Description_ErrorLifetimeDefect" xml:space="preserve">
+        <value>خطأ في التحقق من Lifetime.</value>
+    </data>
+    <data name="Description_ErrorTypeCannotBeInferred" xml:space="preserve">
+        <value>لا يمكن استنتاج النوع.</value>
+    </data>
+    <data name="Description_WarningOverriddenBinding" xml:space="preserve">
+        <value>تم تجاوز الارتباط.</value>
+    </data>
+    <data name="Description_WarningNoRoots" xml:space="preserve">
+        <value>لم يتم تعريف جذور التكوين.</value>
+    </data>
+    <data name="Description_WarningNotImplementedContract" xml:space="preserve">
+        <value>التنفيذ لا يطبق العقد.</value>
+    </data>
+    <data name="Description_WarningBindingNotUsed" xml:space="preserve">
+        <value>الارتباط غير مستخدم.</value>
+    </data>
+    <data name="Description_WarningInjectionSiteNotUsed" xml:space="preserve">
+        <value>موقع الحقن Tag.On غير مستخدم.</value>
+    </data>
+    <data name="Description_WarningRootArgInResolveMethod" xml:space="preserve">
+        <value>طرق Resolve غير متوافقة مع وسيطات الجذر.</value>
+    </data>
+    <data name="Description_WarningTypeArgInResolveMethod" xml:space="preserve">
+        <value>طرق Resolve غير متوافقة مع وسيطات النوع.</value>
+    </data>
+    <data name="Description_WarningInstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>DependsOn يستخدم عضو مثيل.</value>
+    </data>
+    <data name="Description_InfoGenerationInterrupted" xml:space="preserve">
+        <value>تمت مقاطعة التوليد.</value>
+    </data>
+    <data name="Description_InfoNotImplementedContract" xml:space="preserve">
+        <value>التنفيذ لا يطبق العقد.</value>
+    </data>
+    <data name="Description_ErrorUnhandled" xml:space="preserve">
+        <value>خطأ مولج غير معالج.</value>
     </data>
 </root>

@@ -85,7 +85,9 @@
     <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
         <value>DependsOn にはセットアップ コンテキスト名の指定が必要です。</value>
     </data>
-
+    <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
+        <value>セットアップコンテキストタイプを使用する場合、DependsOn はセットアップコンテキスト名を必要とします。</value>
+    </data>
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>Root 型が無効です。</value>
     </data>
@@ -176,7 +178,169 @@
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>型 {1} の静的な root {0} は、直接または依存関係を介して Lifetime {2} を使用することはできません。</value>
     </data>
-    <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
-        <value>DependsOn は、セットアップ コンテキスト種別を使用する場合にセットアップ コンテキスト名が必要です。</value>
+    <data name="Warning_Template_InstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>バインディングは、DependsOn または CompositionKind.Internal/Global を通じて適用される setup "{1}" からインスタンスメンバー "{0}" を使用しています。このメンバーは、依存関係のあるコンポジションには存在しません。Arg/RootArg または別のコンテキストオブジェクトを使用してください。</value>
+    </data>
+    <data name="Description_ErrorUnableToResolve" xml:space="preserve">
+        <value>オブジェクトグラフ内で依存関係を解決できませんでした。</value>
+    </data>
+    <data name="Description_ErrorInvalidBinding" xml:space="preserve">
+        <value>バインディングメタデータが不足しているため、バインディングを作成できません。</value>
+    </data>
+    <data name="Description_ErrorInvalidBindingDueToCompilation" xml:space="preserve">
+        <value>コンパイラがエラーを報告したため、バインディングが無効です。</value>
+    </data>
+    <data name="Description_ErrorInvalidCompositionTypeName" xml:space="preserve">
+        <value>Composition 型名が無効です。</value>
+    </data>
+    <data name="Description_ErrorInvalidRootName" xml:space="preserve">
+        <value>Root 名が無効です。</value>
+    </data>
+    <data name="Description_ErrorDuplicateRootName" xml:space="preserve">
+        <value>重複する Root 名が検出されました。</value>
+    </data>
+    <data name="Description_ErrorInvalidArgumentName" xml:space="preserve">
+        <value>引数名が無効です。</value>
+    </data>
+    <data name="Description_ErrorCompositionArgGenericMarker" xml:space="preserve">
+        <value>Composition 引数型は generic type marker に基づいています。</value>
+    </data>
+    <data name="Description_ErrorAccumulatorTypeGenericMarker" xml:space="preserve">
+        <value>Accumulator 型は generic type marker に基づいています。</value>
+    </data>
+    <data name="Description_ErrorAccumulatorCannotAccumulateGenericMarker" xml:space="preserve">
+        <value>Accumulator は generic type marker を蓄積できません。</value>
+    </data>
+    <data name="Description_ErrorSpecialTypeGenericMarker" xml:space="preserve">
+        <value>特殊な型は generic type marker にできません。</value>
+    </data>
+    <data name="Description_ErrorNotImplementedContract" xml:space="preserve">
+        <value>実装がコントラクトを実装していません。</value>
+    </data>
+    <data name="Description_ErrorInvalidAttributeArgumentPosition" xml:space="preserve">
+        <value>属性の引数の位置が無効です。</value>
+    </data>
+    <data name="Description_ErrorAttributeMemberCannotBeProcessed" xml:space="preserve">
+        <value>属性メンバーを処理できません。</value>
+    </data>
+    <data name="Description_ErrorInvalidRootType" xml:space="preserve">
+        <value>Root 型が無効です。</value>
+    </data>
+    <data name="Description_ErrorInvalidRootsType" xml:space="preserve">
+        <value>Roots 型が無効です。</value>
+    </data>
+    <data name="Description_ErrorNoTypeForWildcard" xml:space="preserve">
+        <value>ワイルドカードフィルターに一致する型がありませんでした。</value>
+    </data>
+    <data name="Description_ErrorInvalidBuildersType" xml:space="preserve">
+        <value>Builders 型が無効です。</value>
+    </data>
+    <data name="Description_ErrorInvalidBuilderType" xml:space="preserve">
+        <value>Builder 型が無効です。</value>
+    </data>
+    <data name="Description_ErrorTooManyTypeParameters" xml:space="preserve">
+        <value>指定された型パラメーターが多すぎます。</value>
+    </data>
+    <data name="Description_ErrorAsyncFactoryNotSupported" xml:space="preserve">
+        <value>非同期ファクトリはサポートされていません。</value>
+    </data>
+    <data name="Description_ErrorNotSupportedSyntax" xml:space="preserve">
+        <value>DI API でサポートされていない構文です。</value>
+    </data>
+    <data name="Description_ErrorMustBeValueOfType" xml:space="preserve">
+        <value>値は特定の型である必要があります。</value>
+    </data>
+    <data name="Description_ErrorInvalidIdentifier" xml:space="preserve">
+        <value>識別子が無効です。</value>
+    </data>
+    <data name="Description_ErrorCannotUseContextDirectly" xml:space="preserve">
+        <value>許可されていない場所でコンテキストが直接使用されています。</value>
+    </data>
+    <data name="Description_ErrorInvalidNumberOfInitializers" xml:space="preserve">
+        <value>初期化子の数が一致しません。</value>
+    </data>
+    <data name="Description_ErrorLifetimeDoesNotSupportCyclicDependencies" xml:space="preserve">
+        <value>Lifetime は循環依存関係をサポートしていません。</value>
+    </data>
+    <data name="Description_ErrorTooLargeComposition" xml:space="preserve">
+        <value>Composition が大きすぎて作成できません。</value>
+    </data>
+    <data name="Description_ErrorCannotConstructAbstractType" xml:space="preserve">
+        <value>抽象型を作成できません。</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructor" xml:space="preserve">
+        <value>アクセス可能なコンストラクターが見つかりませんでした。</value>
+    </data>
+    <data name="Description_ErrorCannotBuildDependencyGraph" xml:space="preserve">
+        <value>Dependency graph を構築できません。</value>
+    </data>
+    <data name="Description_ErrorMaximumNumberOfIterations" xml:space="preserve">
+        <value>最大反復回数に達しました。</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructorForTagOn" xml:space="preserve">
+        <value>Tag.On 用のアクセス可能なコンストラクターが見つかりませんでした。</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleMethodForTagOn" xml:space="preserve">
+        <value>Tag.On 用のアクセス可能なメソッドが見つかりませんでした。</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleFieldOrPropertyForTagOn" xml:space="preserve">
+        <value>Tag.On 用のアクセス可能なフィールドまたはプロパティが見つかりませんでした。</value>
+    </data>
+    <data name="Description_ErrorMustBeApiCall" xml:space="preserve">
+        <value>式は有効な API 呼び出しである必要があります。</value>
+    </data>
+    <data name="Description_ErrorInvalidRegularExpression" xml:space="preserve">
+        <value>正規表現が無効です。</value>
+    </data>
+    <data name="Description_ErrorInvalidWildcard" xml:space="preserve">
+        <value>ワイルドカードが無効です。</value>
+    </data>
+    <data name="Description_ErrorCannotFindSetup" xml:space="preserve">
+        <value>DI セットアップが見つかりませんでした。</value>
+    </data>
+    <data name="Description_ErrorCyclicDependency" xml:space="preserve">
+        <value>循環依存関係が検出されました。</value>
+    </data>
+    <data name="Description_ErrorNotSupportedLanguageVersion" xml:space="preserve">
+        <value>言語バージョンがサポートされていません。</value>
+    </data>
+    <data name="Description_ErrorLifetimeDefect" xml:space="preserve">
+        <value>Lifetime 検証エラーです。</value>
+    </data>
+    <data name="Description_ErrorTypeCannotBeInferred" xml:space="preserve">
+        <value>型を推論できません。</value>
+    </data>
+    <data name="Description_WarningOverriddenBinding" xml:space="preserve">
+        <value>バインディングがオーバーライドされました。</value>
+    </data>
+    <data name="Description_WarningNoRoots" xml:space="preserve">
+        <value>Composition root が定義されていません。</value>
+    </data>
+    <data name="Description_WarningNotImplementedContract" xml:space="preserve">
+        <value>実装がコントラクトを実装していません。</value>
+    </data>
+    <data name="Description_WarningBindingNotUsed" xml:space="preserve">
+        <value>バインディングが使用されていません。</value>
+    </data>
+    <data name="Description_WarningInjectionSiteNotUsed" xml:space="preserve">
+        <value>Tag.On の注入サイトが使用されていません。</value>
+    </data>
+    <data name="Description_WarningRootArgInResolveMethod" xml:space="preserve">
+        <value>Resolve メソッドは root 引数と互換性がありません。</value>
+    </data>
+    <data name="Description_WarningTypeArgInResolveMethod" xml:space="preserve">
+        <value>Resolve メソッドは型引数と互換性がありません。</value>
+    </data>
+    <data name="Description_WarningInstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>DependsOn はインスタンスメンバーを使用しています。</value>
+    </data>
+    <data name="Description_InfoGenerationInterrupted" xml:space="preserve">
+        <value>生成が中断されました。</value>
+    </data>
+    <data name="Description_InfoNotImplementedContract" xml:space="preserve">
+        <value>実装がコントラクトを実装していません。</value>
+    </data>
+    <data name="Description_ErrorUnhandled" xml:space="preserve">
+        <value>未処理のジェネレーターエラーです。</value>
     </data>
 </root>

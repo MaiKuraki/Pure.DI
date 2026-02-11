@@ -178,8 +178,170 @@
     <data name="Warning_Template_InstanceMemberInDependsOnSetup" xml:space="preserve">
         <value>В привязке используется член экземпляра "{0}" из setup "{1}", который применяется через DependsOn или CompositionKind.Internal/Global. В зависимой композиции такого члена не будет. Перенесите значение в Arg/RootArg или отдельный контекст.</value>
     </data>
+    <data name="Description_ErrorUnableToResolve" xml:space="preserve">
+        <value>Не удалось разрешить зависимость в графе объектов.</value>
+    </data>
+    <data name="Description_ErrorInvalidBinding" xml:space="preserve">
+        <value>Привязку нельзя создать из-за отсутствия метаданных привязки.</value>
+    </data>
+    <data name="Description_ErrorInvalidBindingDueToCompilation" xml:space="preserve">
+        <value>Привязка недопустима, так как компилятор сообщил об ошибках.</value>
+    </data>
+    <data name="Description_ErrorInvalidCompositionTypeName" xml:space="preserve">
+        <value>Недопустимое имя типа композиции.</value>
+    </data>
+    <data name="Description_ErrorInvalidRootName" xml:space="preserve">
+        <value>Недопустимое имя корня.</value>
+    </data>
+    <data name="Description_ErrorDuplicateRootName" xml:space="preserve">
+        <value>Обнаружены дублирующиеся имена корней.</value>
+    </data>
+    <data name="Description_ErrorInvalidArgumentName" xml:space="preserve">
+        <value>Недопустимое имя аргумента.</value>
+    </data>
+    <data name="Description_ErrorCompositionArgGenericMarker" xml:space="preserve">
+        <value>Тип аргумента композиции основан на маркере обобщённого типа.</value>
+    </data>
+    <data name="Description_ErrorAccumulatorTypeGenericMarker" xml:space="preserve">
+        <value>Тип аккумулятора основан на маркере обобщённого типа.</value>
+    </data>
+    <data name="Description_ErrorAccumulatorCannotAccumulateGenericMarker" xml:space="preserve">
+        <value>Аккумулятор не может накапливать маркер обобщённого типа.</value>
+    </data>
+    <data name="Description_ErrorSpecialTypeGenericMarker" xml:space="preserve">
+        <value>Специальный тип не может быть маркером обобщённого типа.</value>
+    </data>
+    <data name="Description_ErrorNotImplementedContract" xml:space="preserve">
+        <value>Реализация не реализует контракт.</value>
+    </data>
+    <data name="Description_ErrorInvalidAttributeArgumentPosition" xml:space="preserve">
+        <value>Недопустимая позиция аргумента атрибута.</value>
+    </data>
+    <data name="Description_ErrorAttributeMemberCannotBeProcessed" xml:space="preserve">
+        <value>Член атрибута не может быть обработан.</value>
+    </data>
+    <data name="Description_ErrorInvalidRootType" xml:space="preserve">
+        <value>Недопустимый тип корня.</value>
+    </data>
+    <data name="Description_ErrorInvalidRootsType" xml:space="preserve">
+        <value>Недопустимый тип корней.</value>
+    </data>
+    <data name="Description_ErrorNoTypeForWildcard" xml:space="preserve">
+        <value>Ни один тип не соответствует фильтру шаблона.</value>
+    </data>
+    <data name="Description_ErrorInvalidBuildersType" xml:space="preserve">
+        <value>Недопустимый тип построителей.</value>
+    </data>
+    <data name="Description_ErrorInvalidBuilderType" xml:space="preserve">
+        <value>Недопустимый тип построителя.</value>
+    </data>
+    <data name="Description_ErrorTooManyTypeParameters" xml:space="preserve">
+        <value>Указано слишком много параметров типа.</value>
+    </data>
+    <data name="Description_ErrorAsyncFactoryNotSupported" xml:space="preserve">
+        <value>Асинхронные фабрики не поддерживаются.</value>
+    </data>
+    <data name="Description_ErrorNotSupportedSyntax" xml:space="preserve">
+        <value>Неподдерживаемый синтаксис в DI API.</value>
+    </data>
+    <data name="Description_ErrorMustBeValueOfType" xml:space="preserve">
+        <value>Значение должно быть определённого типа.</value>
+    </data>
+    <data name="Description_ErrorInvalidIdentifier" xml:space="preserve">
+        <value>Недопустимый идентификатор.</value>
+    </data>
+    <data name="Description_ErrorCannotUseContextDirectly" xml:space="preserve">
+        <value>Контекст используется напрямую там, где это недопустимо.</value>
+    </data>
     <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
         <value>DependsOn требует имя контекста при использовании вида контекста.</value>
+    </data>
+    <data name="Description_ErrorInvalidNumberOfInitializers" xml:space="preserve">
+        <value>Количество инициализаторов не совпадает.</value>
+    </data>
+    <data name="Description_ErrorLifetimeDoesNotSupportCyclicDependencies" xml:space="preserve">
+        <value>Время жизни не поддерживает циклические зависимости.</value>
+    </data>
+    <data name="Description_ErrorTooLargeComposition" xml:space="preserve">
+        <value>Композиция слишком велика для создания.</value>
+    </data>
+    <data name="Description_ErrorCannotConstructAbstractType" xml:space="preserve">
+        <value>Невозможно создать абстрактный тип.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructor" xml:space="preserve">
+        <value>Доступный конструктор не найден.</value>
+    </data>
+    <data name="Description_ErrorCannotBuildDependencyGraph" xml:space="preserve">
+        <value>Граф зависимостей не может быть построен.</value>
+    </data>
+    <data name="Description_ErrorMaximumNumberOfIterations" xml:space="preserve">
+        <value>Достигнуто максимальное количество итераций.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructorForTagOn" xml:space="preserve">
+        <value>Доступный конструктор для Tag.On не найден.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleMethodForTagOn" xml:space="preserve">
+        <value>Доступный метод для Tag.On не найден.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleFieldOrPropertyForTagOn" xml:space="preserve">
+        <value>Доступное поле или свойство для Tag.On не найдено.</value>
+    </data>
+    <data name="Description_ErrorMustBeApiCall" xml:space="preserve">
+        <value>Выражение должно быть корректным вызовом API.</value>
+    </data>
+    <data name="Description_ErrorInvalidRegularExpression" xml:space="preserve">
+        <value>Недопустимое регулярное выражение.</value>
+    </data>
+    <data name="Description_ErrorInvalidWildcard" xml:space="preserve">
+        <value>Недопустимый шаблон.</value>
+    </data>
+    <data name="Description_ErrorCannotFindSetup" xml:space="preserve">
+        <value>Настройка DI не найдена.</value>
+    </data>
+    <data name="Description_ErrorCyclicDependency" xml:space="preserve">
+        <value>Обнаружена циклическая зависимость.</value>
+    </data>
+    <data name="Description_ErrorNotSupportedLanguageVersion" xml:space="preserve">
+        <value>Версия языка не поддерживается.</value>
+    </data>
+    <data name="Description_ErrorLifetimeDefect" xml:space="preserve">
+        <value>Ошибка проверки времени жизни.</value>
+    </data>
+    <data name="Description_ErrorTypeCannotBeInferred" xml:space="preserve">
+        <value>Тип не может быть выведен.</value>
+    </data>
+    <data name="Description_WarningOverriddenBinding" xml:space="preserve">
+        <value>Привязка была переопределена.</value>
+    </data>
+    <data name="Description_WarningNoRoots" xml:space="preserve">
+        <value>Не определены корни композиции.</value>
+    </data>
+    <data name="Description_WarningNotImplementedContract" xml:space="preserve">
+        <value>Реализация не реализует контракт.</value>
+    </data>
+    <data name="Description_WarningBindingNotUsed" xml:space="preserve">
+        <value>Привязка не используется.</value>
+    </data>
+    <data name="Description_WarningInjectionSiteNotUsed" xml:space="preserve">
+        <value>Место инъекции Tag.On не используется.</value>
+    </data>
+    <data name="Description_WarningRootArgInResolveMethod" xml:space="preserve">
+        <value>Методы Resolve несовместимы с аргументами корня.</value>
+    </data>
+    <data name="Description_WarningTypeArgInResolveMethod" xml:space="preserve">
+        <value>Методы Resolve несовместимы с аргументами типа.</value>
+    </data>
+    <data name="Description_WarningInstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>DependsOn использует член экземпляра.</value>
+    </data>
+    <data name="Description_InfoGenerationInterrupted" xml:space="preserve">
+        <value>Генерация была прервана.</value>
+    </data>
+    <data name="Description_InfoNotImplementedContract" xml:space="preserve">
+        <value>Реализация не реализует контракт.</value>
+    </data>
+    <data name="Description_ErrorUnhandled" xml:space="preserve">
+        <value>Необработанная ошибка генератора.</value>
     </data>
 </root>
 

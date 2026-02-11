@@ -71,7 +71,7 @@
         <value>Die maximale Anzahl von Iterationen {0} wurde beim Erstellen des optimalen Dependency Graphs überschritten. Verfeinern Sie den Dependency Graph.</value>
     </data>
     <data name="Error_DependencyGraphConstractionFailure" xml:space="preserve">
-        <value>Der Dependency Graph kann не erstellt werden.</value>
+        <value>Der Dependency Graph kann nicht erstellt werden.</value>
     </data>
     <data name="Error_Template_LifetimeDoesNotSupportCyclicDependencies" xml:space="preserve">
         <value>Das Lifetime {0} unterstützt keine zyklischen Abhängigkeiten.</value>
@@ -159,7 +159,7 @@
         <value>Root {0} kann aufgrund der Argumente {1} nicht mit Resolve-Methoden aufgelöst werden; beim Versuch wird eine Ausnahme ausgelöst.</value>
     </data>
     <data name="Warning_Template_InjectionSiteIsNotUsed" xml:space="preserve">
-        <value>Das Tag "{0}" an der Injection Site wird не используется.</value>
+        <value>Das Tag "{0}" an der Injection Site wird nicht verwendet.</value>
     </data>
     <data name="Warning_Template_BindingHasBeenOverridden" xml:space="preserve">
         <value>Das Binding für {0} wurde überschrieben.</value>
@@ -176,7 +176,172 @@
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>Statischer Root {0} vom Typ {1} kann Lifetime {2} nicht direkt oder über eine Abhängigkeit verwenden.</value>
     </data>
+    <data name="Warning_Template_InstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>Das Binding verwendet ein Instanzmember "{0}" aus dem Setup "{1}", das über DependsOn oder CompositionKind.Internal/Global angewendet wird. Dieses Member wird in der abhängigen Composition nicht existieren. Verwenden Sie Arg/RootArg oder ein separates Kontextobjekt.</value>
+    </data>
+    <data name="Description_ErrorUnableToResolve" xml:space="preserve">
+        <value>Eine Abhängigkeit im Objektgraph konnte nicht aufgelöst werden.</value>
+    </data>
+    <data name="Description_ErrorInvalidBinding" xml:space="preserve">
+        <value>Binding kann aufgrund fehlender Binding-Metadaten nicht erstellt werden.</value>
+    </data>
+    <data name="Description_ErrorInvalidBindingDueToCompilation" xml:space="preserve">
+        <value>Binding ist ungültig, da der Compiler Fehler gemeldet hat.</value>
+    </data>
+    <data name="Description_ErrorInvalidCompositionTypeName" xml:space="preserve">
+        <value>Name des Composition-Typs ist ungültig.</value>
+    </data>
+    <data name="Description_ErrorInvalidRootName" xml:space="preserve">
+        <value>Root-Name ist ungültig.</value>
+    </data>
+    <data name="Description_ErrorDuplicateRootName" xml:space="preserve">
+        <value>Doppelte Root-Namen erkannt.</value>
+    </data>
+    <data name="Description_ErrorInvalidArgumentName" xml:space="preserve">
+        <value>Argumentname ist ungültig.</value>
+    </data>
+    <data name="Description_ErrorCompositionArgGenericMarker" xml:space="preserve">
+        <value>Composition-Argumenttyp basiert auf einem Generic-Marker.</value>
+    </data>
+    <data name="Description_ErrorAccumulatorTypeGenericMarker" xml:space="preserve">
+        <value>Accumulator-Typ basiert auf einem Generic-Marker.</value>
+    </data>
+    <data name="Description_ErrorAccumulatorCannotAccumulateGenericMarker" xml:space="preserve">
+        <value>Accumulator kann keinen Generic-Marker akkumulieren.</value>
+    </data>
+    <data name="Description_ErrorSpecialTypeGenericMarker" xml:space="preserve">
+        <value>Spezieller Typ kann kein Generic-Marker sein.</value>
+    </data>
+    <data name="Description_ErrorNotImplementedContract" xml:space="preserve">
+        <value>Implementierung implementiert den Vertrag nicht.</value>
+    </data>
+    <data name="Description_ErrorInvalidAttributeArgumentPosition" xml:space="preserve">
+        <value>Position des Attributarguments ist ungültig.</value>
+    </data>
+    <data name="Description_ErrorAttributeMemberCannotBeProcessed" xml:space="preserve">
+        <value>Attributmember kann nicht verarbeitet werden.</value>
+    </data>
+    <data name="Description_ErrorInvalidRootType" xml:space="preserve">
+        <value>Root-Typ ist ungültig.</value>
+    </data>
+    <data name="Description_ErrorInvalidRootsType" xml:space="preserve">
+        <value>Roots-Typ ist ungültig.</value>
+    </data>
+    <data name="Description_ErrorNoTypeForWildcard" xml:space="preserve">
+        <value>Kein Typ hat dem Wildcard-Filter entsprochen.</value>
+    </data>
+    <data name="Description_ErrorInvalidBuildersType" xml:space="preserve">
+        <value>Builders-Typ ist ungültig.</value>
+    </data>
+    <data name="Description_ErrorInvalidBuilderType" xml:space="preserve">
+        <value>Builder-Typ ist ungültig.</value>
+    </data>
+    <data name="Description_ErrorTooManyTypeParameters" xml:space="preserve">
+        <value>Zu viele Typparameter angegeben.</value>
+    </data>
+    <data name="Description_ErrorAsyncFactoryNotSupported" xml:space="preserve">
+        <value>Asynchrone Factorys werden nicht unterstützt.</value>
+    </data>
+    <data name="Description_ErrorNotSupportedSyntax" xml:space="preserve">
+        <value>Ununterstützte Syntax in DI-API.</value>
+    </data>
+    <data name="Description_ErrorMustBeValueOfType" xml:space="preserve">
+        <value>Wert muss von einem bestimmten Typ sein.</value>
+    </data>
+    <data name="Description_ErrorInvalidIdentifier" xml:space="preserve">
+        <value>Bezeichner ist ungültig.</value>
+    </data>
+    <data name="Description_ErrorCannotUseContextDirectly" xml:space="preserve">
+        <value>Kontext wird direkt verwendet, wo dies nicht zulässig ist.</value>
+    </data>
     <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
         <value>DependsOn erfordert einen Setup-Kontextnamen, wenn ein Setup-Kontexttyp verwendet wird.</value>
+    </data>
+    <data name="Description_ErrorInvalidNumberOfInitializers" xml:space="preserve">
+        <value>Anzahl der Initialisierer stimmt nicht überein.</value>
+    </data>
+    <data name="Description_ErrorLifetimeDoesNotSupportCyclicDependencies" xml:space="preserve">
+        <value>Lifetime unterstützt keine zyklischen Abhängigkeiten.</value>
+    </data>
+    <data name="Description_ErrorTooLargeComposition" xml:space="preserve">
+        <value>Composition ist zu groß zum Erstellen.</value>
+    </data>
+    <data name="Description_ErrorCannotConstructAbstractType" xml:space="preserve">
+        <value>Abstrakter Typ kann nicht erstellt werden.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructor" xml:space="preserve">
+        <value>Kein zugänglicher Konstruktor gefunden.</value>
+    </data>
+    <data name="Description_ErrorCannotBuildDependencyGraph" xml:space="preserve">
+        <value>Dependency Graph kann nicht erstellt werden.</value>
+    </data>
+    <data name="Description_ErrorMaximumNumberOfIterations" xml:space="preserve">
+        <value>Maximale Anzahl von Iterationen erreicht.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructorForTagOn" xml:space="preserve">
+        <value>Kein zugänglicher Konstruktor für Tag.On gefunden.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleMethodForTagOn" xml:space="preserve">
+        <value>Keine zugängliche Methode für Tag.On gefunden.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleFieldOrPropertyForTagOn" xml:space="preserve">
+        <value>Kein zugängliches Feld oder Eigenschaft für Tag.On gefunden.</value>
+    </data>
+    <data name="Description_ErrorMustBeApiCall" xml:space="preserve">
+        <value>Ausdruck muss ein gültiger API-Aufruf sein.</value>
+    </data>
+    <data name="Description_ErrorInvalidRegularExpression" xml:space="preserve">
+        <value>Regulärer Ausdruck ist ungültig.</value>
+    </data>
+    <data name="Description_ErrorInvalidWildcard" xml:space="preserve">
+        <value>Wildcard ist ungültig.</value>
+    </data>
+    <data name="Description_ErrorCannotFindSetup" xml:space="preserve">
+        <value>DI-Setup konnte nicht gefunden werden.</value>
+    </data>
+    <data name="Description_ErrorCyclicDependency" xml:space="preserve">
+        <value>Zyklische Abhängigkeit erkannt.</value>
+    </data>
+    <data name="Description_ErrorNotSupportedLanguageVersion" xml:space="preserve">
+        <value>Sprachversion wird nicht unterstützt.</value>
+    </data>
+    <data name="Description_ErrorLifetimeDefect" xml:space="preserve">
+        <value>Lebensdauer-Validierungsfehler.</value>
+    </data>
+    <data name="Description_ErrorTypeCannotBeInferred" xml:space="preserve">
+        <value>Typ kann nicht abgeleitet werden.</value>
+    </data>
+    <data name="Description_WarningOverriddenBinding" xml:space="preserve">
+        <value>Binding wurde überschrieben.</value>
+    </data>
+    <data name="Description_WarningNoRoots" xml:space="preserve">
+        <value>Keine Composition Roots definiert.</value>
+    </data>
+    <data name="Description_WarningNotImplementedContract" xml:space="preserve">
+        <value>Implementierung implementiert den Vertrag nicht.</value>
+    </data>
+    <data name="Description_WarningBindingNotUsed" xml:space="preserve">
+        <value>Binding wird nicht verwendet.</value>
+    </data>
+    <data name="Description_WarningInjectionSiteNotUsed" xml:space="preserve">
+        <value>Tag.On-Injection Site wird nicht verwendet.</value>
+    </data>
+    <data name="Description_WarningRootArgInResolveMethod" xml:space="preserve">
+        <value>Resolve-Methoden sind mit Root-Argumenten inkompatibel.</value>
+    </data>
+    <data name="Description_WarningTypeArgInResolveMethod" xml:space="preserve">
+        <value>Resolve-Methoden sind mit Typ-Argumenten inkompatibel.</value>
+    </data>
+    <data name="Description_WarningInstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>DependsOn verwendet einen Instanzmember.</value>
+    </data>
+    <data name="Description_InfoGenerationInterrupted" xml:space="preserve">
+        <value>Generierung wurde unterbrochen.</value>
+    </data>
+    <data name="Description_InfoNotImplementedContract" xml:space="preserve">
+        <value>Implementierung implementiert den Vertrag nicht.</value>
+    </data>
+    <data name="Description_ErrorUnhandled" xml:space="preserve">
+        <value>Unbehandelter Generatorfehler.</value>
     </data>
 </root>

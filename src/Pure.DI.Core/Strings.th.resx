@@ -85,7 +85,6 @@
     <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
         <value>จำเป็นต้องระบุชื่อบริบทการตั้งค่าสำหรับ DependsOn</value>
     </data>
-
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>ประเภทรูทไม่ถูกต้อง</value>
     </data>
@@ -176,7 +175,172 @@
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>Static root {0} ของประเภท {1} ไม่สามารถใช้ Lifetime {2} โดยตรงหรือผ่านการพึ่งพาได้</value>
     </data>
+    <data name="Warning_Template_InstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>Binding ใช้สมาชิกอินสแตนซ์ "{0}" จากการตั้งค่า "{1}" ที่ใช้ผ่าน DependsOn หรือ CompositionKind.Internal/Global สมาชิกนี้จะไม่มีอยู่ใน composition ที่พึ่งพา โปรดใช้ Arg/RootArg หรือออบเจกต์บริบทแยกต่างหาก</value>
+    </data>
     <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
         <value>DependsOn ต้องใช้ชื่อบริบทการตั้งค่าเมื่อใช้ชนิดบริบทการตั้งค่า</value>
+    </data>
+    <data name="Description_ErrorUnableToResolve" xml:space="preserve">
+        <value>ไม่สามารถแก้ไขการพึ่งพาในกราฟออบเจกต์ได้</value>
+    </data>
+    <data name="Description_ErrorInvalidBinding" xml:space="preserve">
+        <value>ไม่สามารถสร้าง Binding ได้เนื่องจากขาด metadata ของ Binding</value>
+    </data>
+    <data name="Description_ErrorInvalidBindingDueToCompilation" xml:space="preserve">
+        <value>Binding ไม่ถูกต้องเนื่องจากคอมไพเลอร์รายงานข้อผิดพลาด</value>
+    </data>
+    <data name="Description_ErrorInvalidCompositionTypeName" xml:space="preserve">
+        <value>ชื่อประเภท composition ไม่ถูกต้อง</value>
+    </data>
+    <data name="Description_ErrorInvalidRootName" xml:space="preserve">
+        <value>ชื่อ Root ไม่ถูกต้อง</value>
+    </data>
+    <data name="Description_ErrorDuplicateRootName" xml:space="preserve">
+        <value>พบชื่อ Root ซ้ำ</value>
+    </data>
+    <data name="Description_ErrorInvalidArgumentName" xml:space="preserve">
+        <value>ชื่ออาร์กิวเมนต์ไม่ถูกต้อง</value>
+    </data>
+    <data name="Description_ErrorCompositionArgGenericMarker" xml:space="preserve">
+        <value>ประเภทอาร์กิวเมนต์ของ composition อ้างอิงจาก generic marker</value>
+    </data>
+    <data name="Description_ErrorAccumulatorTypeGenericMarker" xml:space="preserve">
+        <value>ประเภท Accumulator อ้างอิงจาก generic marker</value>
+    </data>
+    <data name="Description_ErrorAccumulatorCannotAccumulateGenericMarker" xml:space="preserve">
+        <value>Accumulator ไม่สามารถสะสม generic marker ได้</value>
+    </data>
+    <data name="Description_ErrorSpecialTypeGenericMarker" xml:space="preserve">
+        <value>ประเภทพิเศษไม่สามารถเป็น generic marker ได้</value>
+    </data>
+    <data name="Description_ErrorNotImplementedContract" xml:space="preserve">
+        <value>การนำไปใช้งานไม่ได้นำสัญญาไปใช้</value>
+    </data>
+    <data name="Description_ErrorInvalidAttributeArgumentPosition" xml:space="preserve">
+        <value>ตำแหน่งอาร์กิวเมนต์ของ attribute ไม่ถูกต้อง</value>
+    </data>
+    <data name="Description_ErrorAttributeMemberCannotBeProcessed" xml:space="preserve">
+        <value>ไม่สามารถประมวลผลสมาชิก attribute ได้</value>
+    </data>
+    <data name="Description_ErrorInvalidRootType" xml:space="preserve">
+        <value>ประเภท Root ไม่ถูกต้อง</value>
+    </data>
+    <data name="Description_ErrorInvalidRootsType" xml:space="preserve">
+        <value>ประเภท Roots ไม่ถูกต้อง</value>
+    </data>
+    <data name="Description_ErrorNoTypeForWildcard" xml:space="preserve">
+        <value>ไม่พบประเภทที่ตรงกับตัวกรอง wildcard</value>
+    </data>
+    <data name="Description_ErrorInvalidBuildersType" xml:space="preserve">
+        <value>ประเภท Builders ไม่ถูกต้อง</value>
+    </data>
+    <data name="Description_ErrorInvalidBuilderType" xml:space="preserve">
+        <value>ประเภท Builder ไม่ถูกต้อง</value>
+    </data>
+    <data name="Description_ErrorTooManyTypeParameters" xml:space="preserve">
+        <value>มีการระบุพารามิเตอร์ประเภทมากเกินไป</value>
+    </data>
+    <data name="Description_ErrorAsyncFactoryNotSupported" xml:space="preserve">
+        <value>ไม่รองรับ async factories</value>
+    </data>
+    <data name="Description_ErrorNotSupportedSyntax" xml:space="preserve">
+        <value>ไวยากรณ์ที่ไม่รองรับใน DI API</value>
+    </data>
+    <data name="Description_ErrorMustBeValueOfType" xml:space="preserve">
+        <value>ค่าต้องเป็นประเภทเฉพาะ</value>
+    </data>
+    <data name="Description_ErrorInvalidIdentifier" xml:space="preserve">
+        <value>ตัวระบุไม่ถูกต้อง</value>
+    </data>
+    <data name="Description_ErrorCannotUseContextDirectly" xml:space="preserve">
+        <value>มีการใช้บริบทโดยตรงในที่ที่ไม่ได้รับอนุญาต</value>
+    </data>
+    <data name="Description_ErrorInvalidNumberOfInitializers" xml:space="preserve">
+        <value>จำนวนตัวเริ่มต้นไม่ตรงกัน</value>
+    </data>
+    <data name="Description_ErrorLifetimeDoesNotSupportCyclicDependencies" xml:space="preserve">
+        <value>Lifetime ไม่รองรับการพึ่งพาแบบวงกลม</value>
+    </data>
+    <data name="Description_ErrorTooLargeComposition" xml:space="preserve">
+        <value>Composition มีขนาดใหญ่เกินไปที่จะสร้าง</value>
+    </data>
+    <data name="Description_ErrorCannotConstructAbstractType" xml:space="preserve">
+        <value>ไม่สามารถสร้างประเภทนามธรรมได้</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructor" xml:space="preserve">
+        <value>ไม่พบคอนสตรัคเตอร์ที่เข้าถึงได้</value>
+    </data>
+    <data name="Description_ErrorCannotBuildDependencyGraph" xml:space="preserve">
+        <value>ไม่สามารถสร้าง Dependency Graph ได้</value>
+    </data>
+    <data name="Description_ErrorMaximumNumberOfIterations" xml:space="preserve">
+        <value>ถึงจำนวนรอบการทำงานสูงสุดแล้ว</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructorForTagOn" xml:space="preserve">
+        <value>ไม่พบคอนสตรัคเตอร์ที่เข้าถึงได้สำหรับ Tag.On</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleMethodForTagOn" xml:space="preserve">
+        <value>ไม่พบเมธอดที่เข้าถึงได้สำหรับ Tag.On</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleFieldOrPropertyForTagOn" xml:space="preserve">
+        <value>ไม่พบฟิลด์หรือคุณสมบัติที่เข้าถึงได้สำหรับ Tag.On</value>
+    </data>
+    <data name="Description_ErrorMustBeApiCall" xml:space="preserve">
+        <value>นิพจน์ต้องเป็นการเรียก API ที่ถูกต้อง</value>
+    </data>
+    <data name="Description_ErrorInvalidRegularExpression" xml:space="preserve">
+        <value>นิพจน์ระบุขอบเขต (regular expression) ไม่ถูกต้อง</value>
+    </data>
+    <data name="Description_ErrorInvalidWildcard" xml:space="preserve">
+        <value>Wildcard ไม่ถูกต้อง</value>
+    </data>
+    <data name="Description_ErrorCannotFindSetup" xml:space="preserve">
+        <value>ไม่พบการตั้งค่า DI</value>
+    </data>
+    <data name="Description_ErrorCyclicDependency" xml:space="preserve">
+        <value>ตรวจพบการพึ่งพาแบบวงกลม</value>
+    </data>
+    <data name="Description_ErrorNotSupportedLanguageVersion" xml:space="preserve">
+        <value>เวอร์ชันภาษาไม่ได้รับการรองรับ</value>
+    </data>
+    <data name="Description_ErrorLifetimeDefect" xml:space="preserve">
+        <value>ข้อผิดพลาดในการตรวจสอบ Lifetime</value>
+    </data>
+    <data name="Description_ErrorTypeCannotBeInferred" xml:space="preserve">
+        <value>ไม่สามารถอนุมานประเภทได้</value>
+    </data>
+    <data name="Description_WarningOverriddenBinding" xml:space="preserve">
+        <value>Binding ถูกเขียนทับ</value>
+    </data>
+    <data name="Description_WarningNoRoots" xml:space="preserve">
+        <value>ไม่มีการกำหนด Composition Roots</value>
+    </data>
+    <data name="Description_WarningNotImplementedContract" xml:space="preserve">
+        <value>การนำไปใช้งานไม่ได้นำสัญญาไปใช้</value>
+    </data>
+    <data name="Description_WarningBindingNotUsed" xml:space="preserve">
+        <value>ไม่มีการใช้ Binding</value>
+    </data>
+    <data name="Description_WarningInjectionSiteNotUsed" xml:space="preserve">
+        <value>Injection site ของ Tag.On ไม่ได้ถูกใช้งาน</value>
+    </data>
+    <data name="Description_WarningRootArgInResolveMethod" xml:space="preserve">
+        <value>เมธอด Resolve ไม่เข้ากันได้กับอาร์กิวเมนต์ Root</value>
+    </data>
+    <data name="Description_WarningTypeArgInResolveMethod" xml:space="preserve">
+        <value>เมธอด Resolve ไม่เข้ากันได้กับอาร์กิวเมนต์ประเภท</value>
+    </data>
+    <data name="Description_WarningInstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>DependsOn ใช้สมาชิกอินสแตนซ์</value>
+    </data>
+    <data name="Description_InfoGenerationInterrupted" xml:space="preserve">
+        <value>การสร้างถูกขัดจังหวะ</value>
+    </data>
+    <data name="Description_InfoNotImplementedContract" xml:space="preserve">
+        <value>การนำไปใช้งานไม่ได้นำสัญญาไปใช้</value>
+    </data>
+    <data name="Description_ErrorUnhandled" xml:space="preserve">
+        <value>ข้อผิดพลาดของเครื่องมือสร้างที่ไม่ได้รับการจัดการ</value>
     </data>
 </root>

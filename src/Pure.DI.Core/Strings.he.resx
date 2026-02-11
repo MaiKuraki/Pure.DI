@@ -85,7 +85,6 @@
     <data name="Error_SetupContextNameIsRequired" xml:space="preserve">
         <value>חובה לציין שם הקשר הגדרה עבור DependsOn.</value>
     </data>
-
     <data name="Error_InvalidRootType" xml:space="preserve">
         <value>סוג Root לא חוקי.</value>
     </data>
@@ -176,7 +175,172 @@
     <data name="Error_Template_StaticRootCannotUseLifetime" xml:space="preserve">
         <value>ה-Root הסטטי {0} מסוג {1} אינו יכול להשתמש ב-Lifetime {2} ישירות או דרך תלות.</value>
     </data>
+    <data name="Warning_Template_InstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>ה-Binding משתמש בחבר מופע "{0}" מההגדרה "{1}" המוחלת דרך DependsOn או CompositionKind.Internal/Global. חבר זה לא יהיה קיים בקומפוזיציה התלויה. השתמש ב-Arg/RootArg או באובייקט הקשר נפרד.</value>
+    </data>
     <data name="Description_ErrorSetupContextNameIsRequired" xml:space="preserve">
         <value>DependsOn דורש שם הקשר הגדרה כאשר משתמשים בסוג הקשר הגדרה.</value>
+    </data>
+    <data name="Description_ErrorUnableToResolve" xml:space="preserve">
+        <value>לא ניתן לפתור תלות בגרף האובייקטים.</value>
+    </data>
+    <data name="Description_ErrorInvalidBinding" xml:space="preserve">
+        <value>לא ניתן לבנות Binding עקב חסר ב-metadata של Binding.</value>
+    </data>
+    <data name="Description_ErrorInvalidBindingDueToCompilation" xml:space="preserve">
+        <value>ה-Binding אינו חוקי מכיוון שהמהדר דיווח על שגיאות.</value>
+    </data>
+    <data name="Description_ErrorInvalidCompositionTypeName" xml:space="preserve">
+        <value>שם סוג הקומפוזיציה אינו חוקי.</value>
+    </data>
+    <data name="Description_ErrorInvalidRootName" xml:space="preserve">
+        <value>שם ה-Root אינו חוקי.</value>
+    </data>
+    <data name="Description_ErrorDuplicateRootName" xml:space="preserve">
+        <value>זוהו שמות Root כפולים.</value>
+    </data>
+    <data name="Description_ErrorInvalidArgumentName" xml:space="preserve">
+        <value>שם הארגומנט אינו חוקי.</value>
+    </data>
+    <data name="Description_ErrorCompositionArgGenericMarker" xml:space="preserve">
+        <value>סוג ארגומנט הקומפוזיציה מבוסס על סמן גנרי.</value>
+    </data>
+    <data name="Description_ErrorAccumulatorTypeGenericMarker" xml:space="preserve">
+        <value>סוג ה-Accumulator מבוסס על סמן גנרי.</value>
+    </data>
+    <data name="Description_ErrorAccumulatorCannotAccumulateGenericMarker" xml:space="preserve">
+        <value>ה-Accumulator לא יכול לצבור סמן גנרי.</value>
+    </data>
+    <data name="Description_ErrorSpecialTypeGenericMarker" xml:space="preserve">
+        <value>הסוג המיוחד אינו יכול להיות סמן גנרי.</value>
+    </data>
+    <data name="Description_ErrorNotImplementedContract" xml:space="preserve">
+        <value>המימוש אינו מממש את החוזה.</value>
+    </data>
+    <data name="Description_ErrorInvalidAttributeArgumentPosition" xml:space="preserve">
+        <value>מיקום ארגומנט ה-Attribute אינו חוקי.</value>
+    </data>
+    <data name="Description_ErrorAttributeMemberCannotBeProcessed" xml:space="preserve">
+        <value>לא ניתן לעבד את חבר ה-Attribute.</value>
+    </data>
+    <data name="Description_ErrorInvalidRootType" xml:space="preserve">
+        <value>סוג ה-Root אינו חוקי.</value>
+    </data>
+    <data name="Description_ErrorInvalidRootsType" xml:space="preserve">
+        <value>סוג ה-Roots אינו חוקי.</value>
+    </data>
+    <data name="Description_ErrorNoTypeForWildcard" xml:space="preserve">
+        <value>לא נמצא סוג התואם למסנן ה-Wildcard.</value>
+    </data>
+    <data name="Description_ErrorInvalidBuildersType" xml:space="preserve">
+        <value>סוג ה-Builders אינו חוקי.</value>
+    </data>
+    <data name="Description_ErrorInvalidBuilderType" xml:space="preserve">
+        <value>סוג ה-Builder אינו חוקי.</value>
+    </data>
+    <data name="Description_ErrorTooManyTypeParameters" xml:space="preserve">
+        <value>סופקו יותר מדי פרמטרים של סוג.</value>
+    </data>
+    <data name="Description_ErrorAsyncFactoryNotSupported" xml:space="preserve">
+        <value>מפעלים אסינכרוניים אינם נתמכים.</value>
+    </data>
+    <data name="Description_ErrorNotSupportedSyntax" xml:space="preserve">
+        <value>תחביר לא נתמך ב-DI API.</value>
+    </data>
+    <data name="Description_ErrorMustBeValueOfType" xml:space="preserve">
+        <value>הערך חייב להיות מסוג מסוים.</value>
+    </data>
+    <data name="Description_ErrorInvalidIdentifier" xml:space="preserve">
+        <value>המזהה אינו חוקי.</value>
+    </data>
+    <data name="Description_ErrorCannotUseContextDirectly" xml:space="preserve">
+        <value>ה-Context נמצא בשימוש ישיר במקום שבו אסור.</value>
+    </data>
+    <data name="Description_ErrorInvalidNumberOfInitializers" xml:space="preserve">
+        <value>מספר האתחולים אינו תואם.</value>
+    </data>
+    <data name="Description_ErrorLifetimeDoesNotSupportCyclicDependencies" xml:space="preserve">
+        <value>ה-Lifetime אינו תומך בתלויות מחזוריות.</value>
+    </data>
+    <data name="Description_ErrorTooLargeComposition" xml:space="preserve">
+        <value>הקומפוזיציה גדולה מדי לבנייה.</value>
+    </data>
+    <data name="Description_ErrorCannotConstructAbstractType" xml:space="preserve">
+        <value>לא ניתן ליצור סוג מופשט.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructor" xml:space="preserve">
+        <value>לא נמצא קונסטרקטור נגיש.</value>
+    </data>
+    <data name="Description_ErrorCannotBuildDependencyGraph" xml:space="preserve">
+        <value>לא ניתן לבנות את ה-Dependency Graph.</value>
+    </data>
+    <data name="Description_ErrorMaximumNumberOfIterations" xml:space="preserve">
+        <value>הגיע למספר האיטרציות המרבי.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleConstructorForTagOn" xml:space="preserve">
+        <value>לא נמצא קונסטרקטור נגיש עבור Tag.On.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleMethodForTagOn" xml:space="preserve">
+        <value>לא נמצאה מתודה נגישה עבור Tag.On.</value>
+    </data>
+    <data name="Description_ErrorNoAccessibleFieldOrPropertyForTagOn" xml:space="preserve">
+        <value>לא נמצא שדה או מאפיין נגיש עבור Tag.On.</value>
+    </data>
+    <data name="Description_ErrorMustBeApiCall" xml:space="preserve">
+        <value>הביטוי חייב להיות קריאת API חוקית.</value>
+    </data>
+    <data name="Description_ErrorInvalidRegularExpression" xml:space="preserve">
+        <value>הביטוי הרגולרי אינו חוקי.</value>
+    </data>
+    <data name="Description_ErrorInvalidWildcard" xml:space="preserve">
+        <value>ה-Wildcard אינו חוקי.</value>
+    </data>
+    <data name="Description_ErrorCannotFindSetup" xml:space="preserve">
+        <value>לא ניתן למצוא את הגדרת ה-DI.</value>
+    </data>
+    <data name="Description_ErrorCyclicDependency" xml:space="preserve">
+        <value>זוהתה תלות מחזורית.</value>
+    </data>
+    <data name="Description_ErrorNotSupportedLanguageVersion" xml:space="preserve">
+        <value>גרסת השפה אינה נתמכת.</value>
+    </data>
+    <data name="Description_ErrorLifetimeDefect" xml:space="preserve">
+        <value>שגיאת בדיקת Lifetime.</value>
+    </data>
+    <data name="Description_ErrorTypeCannotBeInferred" xml:space="preserve">
+        <value>לא ניתן להסיק את הסוג.</value>
+    </data>
+    <data name="Description_WarningOverriddenBinding" xml:space="preserve">
+        <value>ה-Binding נדרס.</value>
+    </data>
+    <data name="Description_WarningNoRoots" xml:space="preserve">
+        <value>לא הוגדרו Composition Roots.</value>
+    </data>
+    <data name="Description_WarningNotImplementedContract" xml:space="preserve">
+        <value>המימוש אינו מממש את החוזה.</value>
+    </data>
+    <data name="Description_WarningBindingNotUsed" xml:space="preserve">
+        <value>ה-Binding אינו בשימוש.</value>
+    </data>
+    <data name="Description_WarningInjectionSiteNotUsed" xml:space="preserve">
+        <value>אתר ה-Injection של Tag.On אינו בשימוש.</value>
+    </data>
+    <data name="Description_WarningRootArgInResolveMethod" xml:space="preserve">
+        <value>מתודות Resolve אינן תואמות לארגומנטים של Root.</value>
+    </data>
+    <data name="Description_WarningTypeArgInResolveMethod" xml:space="preserve">
+        <value>מתודות Resolve אינן תואמות לארגומנטים של סוג.</value>
+    </data>
+    <data name="Description_WarningInstanceMemberInDependsOnSetup" xml:space="preserve">
+        <value>DependsOn משתמש בחבר מופע.</value>
+    </data>
+    <data name="Description_InfoGenerationInterrupted" xml:space="preserve">
+        <value>היצירה הופסקה.</value>
+    </data>
+    <data name="Description_InfoNotImplementedContract" xml:space="preserve">
+        <value>המימוש אינו מממש את החוזה.</value>
+    </data>
+    <data name="Description_ErrorUnhandled" xml:space="preserve">
+        <value>שגיאת המחולל לא מטופלת.</value>
     </data>
 </root>
