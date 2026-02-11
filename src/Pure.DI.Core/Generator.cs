@@ -4,6 +4,7 @@
 namespace Pure.DI;
 
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using Core.Code;
 using Core.Code.Parts;
 using static System.Text.RegularExpressions.RegexOptions;
@@ -57,6 +58,7 @@ public sealed partial class Generator
                 return new Logger(observersProvider, ctx.ConsumerType);
             })
             .Transient(_ => Compiled | CultureInvariant | Singleline | IgnoreCase)
+            .Transient((RegexOptions options) => new Func<string, Regex>(p => new Regex(p, options)))
             .Transient<ApiInvocationProcessor, DependencyGraphBuilder, TypeConstructor, BindingBuilder, SetupContextRewriter, SetupContextMembersCollector>()
 
             // Walkers

@@ -145,11 +145,22 @@ class DependenciesWalker<TContext>(
 
     public virtual void VisitParameter(in TContext ctx, in DpParameter parameter, int? position)
     {
+        var hasExplicitDefaultValue = parameter.ParameterSymbol.HasExplicitDefaultValue;
+        var explicitDefaultValue = hasExplicitDefaultValue ? parameter.ParameterSymbol.ExplicitDefaultValue : null;
+        if (!hasExplicitDefaultValue
+            && parameter.ParameterSymbol.IsOptional
+            && parameter.ParameterSymbol.Type.IsValueType
+            && !IsNullableValueType(parameter.ParameterSymbol.Type))
+        {
+            hasExplicitDefaultValue = true;
+            explicitDefaultValue = null;
+        }
+
         VisitInjection(
             ctx,
             parameter.Injection,
-            parameter.ParameterSymbol.HasExplicitDefaultValue,
-            parameter.ParameterSymbol.HasExplicitDefaultValue ? parameter.ParameterSymbol.ExplicitDefaultValue : null,
+            hasExplicitDefaultValue,
+            explicitDefaultValue,
             parameter.ParameterSymbol.Locations,
             position);
     }
@@ -192,4 +203,12 @@ class DependenciesWalker<TContext>(
             VisitMethod(ctx, method, initializer.Source.Position);
         }
     }
+
+    private static bool IsNullableValueType(ITypeSymbol type) =>
+        type is INamedTypeSymbol
+        {
+            IsGenericType: true,
+            Name: "Nullable",
+            ContainingNamespace: { Name: "System" }
+        };
 }

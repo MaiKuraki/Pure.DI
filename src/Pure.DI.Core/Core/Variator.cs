@@ -24,16 +24,13 @@ sealed class Variator<T> : IVariator<T>
             var initial = new List<T>(enumerators.Count);
             foreach (var enumerator in enumerators)
             {
-                if (!enumerator.MoveNext())
+                if (!enumerator.MoveNext() || enumerator.Current is null)
                 {
                     variants = null;
                     return false;
                 }
 
-                if (enumerator.Current is {} current)
-                {
-                    initial.Add(current);
-                }
+                initial.Add(enumerator.Current);
             }
 
             variants = initial;
@@ -43,7 +40,7 @@ sealed class Variator<T> : IVariator<T>
         for (var index = 0; index < enumerators.Count; index++)
         {
             var enumerator = enumerators[index];
-            if (!enumerator.MoveNext())
+            if (!enumerator.MoveNext() || enumerator.Current is null)
             {
                 continue;
             }
@@ -52,7 +49,7 @@ sealed class Variator<T> : IVariator<T>
             {
                 var resetEnumerator = enumerators[resetIndex];
                 resetEnumerator.Reset();
-                if (resetEnumerator.MoveNext())
+                if (resetEnumerator.MoveNext() && resetEnumerator.Current is not null)
                 {
                     continue;
                 }
@@ -61,7 +58,14 @@ sealed class Variator<T> : IVariator<T>
                 return false;
             }
 
-            variants = enumerators.Select(i => i.Current!).ToList();
+            var current = enumerators.Select(i => i.Current).ToList();
+            if (current.Any(i => i is null))
+            {
+                variants = null;
+                return false;
+            }
+
+            variants = current.Select(i => i!).ToList();
             return true;
         }
 

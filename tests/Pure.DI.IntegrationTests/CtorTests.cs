@@ -160,6 +160,54 @@ public class CtorTests
     }
 
     [Fact]
+    public async Task ShouldPreferCtorWithoutUnresolvableValueTypes()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               class Service
+                               {
+                                   public string Mode { get; }
+
+                                   public Service() => Mode = "default";
+
+                                   public Service(TimeSpan period) => Mode = $"period:{period}";
+                               }
+
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind<Service>().To<Service>()
+                                           .Root<Service>("Root");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var service = composition.Root;
+                                       Console.WriteLine(service.Mode);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["default"], result);
+    }
+
+    [Fact]
     public async Task ShouldPreferCtorWithOrdinalAttribute()
     {
         // Given

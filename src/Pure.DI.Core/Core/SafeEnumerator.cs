@@ -9,19 +9,7 @@ sealed class SafeEnumerator<T>(IEnumerator<T> source) : IEnumerator<T>
 
     public bool IsStarted { get; private set; }
 
-    public T? Current
-    {
-        get
-        {
-            if (!_result)
-            {
-                return _current;
-            }
-
-            _current = source.Current;
-            return _current;
-        }
-    }
+    public T? Current => _result ? _current : null;
 
     object? IEnumerator.Current => Current;
 
@@ -29,10 +17,7 @@ sealed class SafeEnumerator<T>(IEnumerator<T> source) : IEnumerator<T>
     {
         IsStarted = true;
         _result = source.MoveNext();
-        if (_result)
-        {
-            _current = source.Current;
-        }
+        _current = _result ? source.Current : null;
 
         return _result;
     }

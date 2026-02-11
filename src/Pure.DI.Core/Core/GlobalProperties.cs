@@ -18,12 +18,12 @@ sealed class GlobalProperties : IGlobalProperties
             if (options.GlobalOptions.TryGetValue(MaxIterationsProperty, out var maxIterationsStr)
                 && !string.IsNullOrWhiteSpace(maxIterationsStr)
                 && int.TryParse(maxIterationsStr, out var maxIterations)
-                && maxIterations >= 64)
+                && maxIterations >= 256)
             {
                 return maxIterations;
             }
 
-            return 1024;
+            return 8192;
         });
 
         _profilePath = new Lazy<string>(() =>
