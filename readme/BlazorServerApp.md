@@ -47,11 +47,11 @@ The [project file](/samples/BlazorServerApp/BlazorServerApp.csproj) looks like t
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.1">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.1" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
     </ItemGroup>
 
 </Project>

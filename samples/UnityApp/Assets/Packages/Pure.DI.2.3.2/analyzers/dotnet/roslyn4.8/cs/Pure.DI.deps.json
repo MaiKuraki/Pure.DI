@@ -243,44 +243,8 @@
           }
         },
         "resources": {
-          "ar/Pure.DI.Core.resources.dll": {
-            "locale": "ar"
-          },
-          "bn/Pure.DI.Core.resources.dll": {
-            "locale": "bn"
-          },
-          "de/Pure.DI.Core.resources.dll": {
-            "locale": "de"
-          },
-          "es/Pure.DI.Core.resources.dll": {
-            "locale": "es"
-          },
-          "fr/Pure.DI.Core.resources.dll": {
-            "locale": "fr"
-          },
-          "he/Pure.DI.Core.resources.dll": {
-            "locale": "he"
-          },
-          "hi/Pure.DI.Core.resources.dll": {
-            "locale": "hi"
-          },
-          "id/Pure.DI.Core.resources.dll": {
-            "locale": "id"
-          },
           "it/Pure.DI.Core.resources.dll": {
             "locale": "it"
-          },
-          "ja/Pure.DI.Core.resources.dll": {
-            "locale": "ja"
-          },
-          "ko/Pure.DI.Core.resources.dll": {
-            "locale": "ko"
-          },
-          "pt/Pure.DI.Core.resources.dll": {
-            "locale": "pt"
-          },
-          "ru/Pure.DI.Core.resources.dll": {
-            "locale": "ru"
           },
           "th/Pure.DI.Core.resources.dll": {
             "locale": "th"
@@ -288,8 +252,44 @@
           "vi/Pure.DI.Core.resources.dll": {
             "locale": "vi"
           },
+          "ja/Pure.DI.Core.resources.dll": {
+            "locale": "ja"
+          },
+          "es/Pure.DI.Core.resources.dll": {
+            "locale": "es"
+          },
+          "he/Pure.DI.Core.resources.dll": {
+            "locale": "he"
+          },
+          "bn/Pure.DI.Core.resources.dll": {
+            "locale": "bn"
+          },
+          "de/Pure.DI.Core.resources.dll": {
+            "locale": "de"
+          },
+          "pt/Pure.DI.Core.resources.dll": {
+            "locale": "pt"
+          },
+          "ar/Pure.DI.Core.resources.dll": {
+            "locale": "ar"
+          },
+          "fr/Pure.DI.Core.resources.dll": {
+            "locale": "fr"
+          },
+          "hi/Pure.DI.Core.resources.dll": {
+            "locale": "hi"
+          },
           "zh/Pure.DI.Core.resources.dll": {
             "locale": "zh"
+          },
+          "ko/Pure.DI.Core.resources.dll": {
+            "locale": "ko"
+          },
+          "ru/Pure.DI.Core.resources.dll": {
+            "locale": "ru"
+          },
+          "id/Pure.DI.Core.resources.dll": {
+            "locale": "id"
           }
         }
       }

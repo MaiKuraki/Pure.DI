@@ -4,12 +4,16 @@ This Markdown-formatted document contains information about working with Pure.DI
 
 ## Auto-bindings
 
-Injection of non-abstract types is possible without any additional effort.
+Auto-bindings are implicit bindings for non-abstract types, so the generator can build an object graph without explicit registrations.
+Pros: fast to get started and low ceremony in small demos or spikes.
+Cons: weaker adherence to dependency inversion and less explicit lifetime control, which can make larger graphs harder to reason about.
+Recommendation: prefer explicit bindings for abstractions in production code and use auto-bindings sparingly for simple leaf types.
+In this example, a composition is created with only a root; the `OrderService` and `Database` types are resolved implicitly.
 
 ```c#
 using Pure.DI;
 
-// Specifies to create a partial class with name "Composition"
+// Specifies to create a partial class named "Composition"
 DI.Setup("Composition")
     // with the root "Orders"
     .Root<OrderService>("Orders");
@@ -28,13 +32,25 @@ To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
 > [!WARNING]
-> But this approach cannot be recommended if you follow the dependency inversion principle and want your types to depend only on abstractions. Or you want to precisely control the lifetime of a dependency.
+> This approach is not recommended if you follow the dependency inversion principle or need precise lifetime control.
 
-It is better to inject abstract dependencies, for example, in the form of interfaces. Use bindings to map abstract types to their implementations as in almost all [other examples](injections-of-abstractions.md).
+Prefer injecting abstractions (for example, interfaces) and map them to implementations as in most [other examples](injections-of-abstractions.md).
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Injections of abstractions
 
-This example demonstrates the recommended approach of using abstractions instead of implementations when injecting dependencies.
+This example shows the recommended approach: depend on abstractions and bind them to implementations.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -89,18 +105,30 @@ partial class VehicleComputer(INavigationSystem navigationSystem)
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
-Usually the biggest block in the setup is the chain of bindings, which describes which implementation corresponds to which abstraction. This is necessary so that the code generator can build a composition of objects using only NOT abstract types. This is true because the cornerstone of DI technology implementation is the principle of abstraction-based programming rather than concrete class-based programming. Thanks to it, it is possible to replace one concrete implementation by another. And each implementation can correspond to an arbitrary number of abstractions.
+The binding chain maps abstractions to concrete types so the generator can build a fully concrete object graph. This keeps consumers decoupled and allows swapping implementations. A single implementation can satisfy multiple abstractions.
 > [!TIP]
-> Even if the binding is not defined, there is no problem with the injection, but obviously under the condition that the consumer requests an injection NOT of abstract type.
+> If a binding is missing, injection still works when the consumer requests a concrete type (not an abstraction).
+
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
 
 
 ## Composition roots
 
-This example demonstrates several ways to create a composition root.
+This example shows several ways to create a composition root.
 > [!TIP]
-> There is no limit to the number of roots, but you should consider limiting the number of roots. Ideally, an application should have a single composition root.
+> There is no hard limit on roots, but prefer a small number. Ideally, an application has a single composition root.
 
-If you use classic DI containers, the composition is resolved dynamically every time you call a method similar to `T Resolve<T>()` or `object GetService(Type type)`. The root of the composition there is simply the root type of the composition of objects in memory `T` or `Type` type. There can be as many of these as you like. In the case of Pure.DI, the number of composition roots is limited because for each composition root a separate property or method is created at compile time. Therefore, each root is defined explicitly by calling the `Root(string rootName)` method.
+In classic DI containers, the composition is resolved dynamically via calls like `T Resolve<T>()` or `object GetService(Type type)`. The root is simply the requested type, and you can have as many as you like. In Pure.DI, each root generates a property or method at compile time, so roots are explicit and defined via `Root(string rootName)`.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -180,10 +208,22 @@ DI.Setup("Composition")
   ...
 ```
 This can be done if these methods are not needed, in case only certain composition roots are used. It's not significant then, but it will help save resources during compilation.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Resolve methods
 
-This example shows how to resolve the roots of a composition using `Resolve` methods to use the composition as a _Service Locator_. The `Resolve` methods are generated automatically without additional effort.
+This example shows how to resolve composition roots via `Resolve` methods, using the composition as a _Service Locator_. The `Resolve` methods are generated automatically.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -212,7 +252,7 @@ var sensor3 = composition.Resolve(typeof(ISensor), null);
 // The next 3 lines of code do the same thing too:
 var humiditySensor1 = composition.Resolve<ISensor>("Humidity");
 var humiditySensor2 = composition.Resolve(typeof(ISensor), "Humidity");
-var humiditySensor3 = composition.HumiditySensor; // Gets the composition through the public root
+var humiditySensor3 = composition.HumiditySensor; // Resolve via the public root
 
 interface IDevice;
 
@@ -228,14 +268,26 @@ class HumiditySensor : ISensor;
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
-_Resolve_ methods are similar to calls to composition roots. Composition roots are properties (or methods). Their use is efficient and does not cause exceptions. This is why they are recommended to be used. In contrast, _Resolve_ methods have a number of disadvantages:
+_Resolve_ methods are similar to calling composition roots, which are properties (or methods). Roots are efficient and do not throw, so they are preferred. In contrast, _Resolve_ methods have drawbacks:
 - They provide access to an unlimited set of dependencies (_Service Locator_).
 - Their use can potentially lead to runtime exceptions. For example, when the corresponding root has not been defined.
-- Sometimes cannot be used directly, e.g., for MAUI/WPF/Avalonia binding.
+- They are awkward for some UI binding scenarios (e.g., MAUI/WPF/Avalonia).
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Simplified binding
 
-You can use the `Bind(...)` method without type parameters. In this case binding will be performed for the implementation type itself, and if the implementation is not an abstract type or structure, for all abstract but NOT special types that are directly implemented.
+You can call `Bind()` without type parameters. It binds the implementation type itself, and if it is not abstract, all directly implemented abstract types except special ones.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using System.Collections;
@@ -246,7 +298,7 @@ DI.Setup(nameof(Composition))
     // Begins the binding definition for the implementation type itself,
     // and if the implementation is not an abstract class or structure,
     // for all abstract but NOT special types that are directly implemented.
-    // So that's the equivalent of the following:
+    // Equivalent to:
     // .Bind<IOrderRepository, IOrderNotification, OrderManager>()
     //   .As(Lifetime.PerBlock)
     //   .To<OrderManager>()
@@ -294,12 +346,12 @@ class Shop(
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
-As practice has shown, in most cases it is possible to define abstraction types in bindings automatically. That's why we added API `Bind()` method without type parameters to define abstractions in bindings. It is the `Bind()` method that performs the binding:
+In practice, most abstraction types can be inferred. The parameterless `Bind()` binds:
 
-- with the implementation type itself
-- and if it is NOT an abstract type or structure
-  - with all abstract types that it directly implements
-  - exceptions are special types
+- the implementation type itself
+- and, if it is NOT abstract,
+  - all abstract types it directly implements
+  - except special types
 
 Special types will not be added to bindings:
 
@@ -319,7 +371,9 @@ Special types will not be added to bindings:
 - `System.IAsyncResult`
 - `System.AsyncCallback`
 
-For class `OrderManager`, the `Bind().To<OrderManager>()` binding will be equivalent to the `Bind<IOrderRepository, IOrderNotification, OrderManager>().To<OrderManager>()` binding. The types `IDisposable`, `IEnumerable<string>` did not get into the binding because they are special from the list above. `ManagerBase` did not get into the binding because it is not abstract. `IManager` is not included because it is not implemented directly by class `OrderManager`.
+If you want to add your own special type, use the `SpecialType<T>()` call.
+
+For class `OrderManager`, `Bind().To<OrderManager>()` is equivalent to `Bind<IOrderRepository, IOrderNotification, OrderManager>().To<OrderManager>()`. The types `IDisposable` and `IEnumerable<string>` are excluded because they are special. `ManagerBase` is excluded because it is not abstract. `IManager` is excluded because it is not implemented directly by `OrderManager`.
 
 |    |                       |                                                   |
 |----|-----------------------|---------------------------------------------------|
@@ -330,10 +384,22 @@ For class `OrderManager`, the `Bind().To<OrderManager>()` binding will be equiva
 | ❌ | `IEnumerable<string>` | special type                                      |
 | ❌ | `ManagerBase`         | non-abstract                                      |
 | ❌ | `IManager`            | is not directly implemented by class OrderManager |
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Factory
 
-This example demonstrates how to create and initialize an instance manually. At the compilation stage, the set of dependencies that the object to be created needs is determined. In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts. But sometimes it is necessary to manually create and/or initialize an object, as in lines of code:
+This example shows manual creation and initialization. The generator usually infers dependencies from constructors, but sometimes you need custom creation or setup logic.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -390,21 +456,32 @@ There are scenarios where manual control over the creation process is required, 
 - When specific object states need to be set during creation
 
 > [!IMPORTANT]
-> The method `Inject()`cannot be used outside of the binding setup.
+> The method `Inject()` cannot be used outside of the binding setup.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Simplified factory
 
-This example shows how to create and initialize an instance manually in a simplified form. When you use a lambda function to specify custom instance initialization logic, each parameter of that function represents an injection of a dependency. Starting with C# 10, you can also put the `Tag(...)` attribute in front of the parameter to specify the tag of the injected dependency.
+This example shows a simplified manual factory. Each lambda parameter represents an injected dependency, and starting with C# 10 you can add `Tag(...)` to specify a tagged dependency.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind("today").To(_ => DateTime.Today)
-    // Injects FileLogger and DateTime instances
-    // and performs further initialization logic
-    // defined in the lambda function to set up the log file name
+    .Bind("today").To(() => DateTime.Today)
+    // Injects FileLogger and DateTime
+    // and applies additional initialization logic
     .Bind<IFileLogger>().To((
         FileLogger logger,
         [Tag("today")] DateTime date) => {
@@ -455,11 +532,23 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-The example creates a `service` that depends on a `logger` initialized with a specific file name based on the current date. The `Tag` attribute allows specifying named dependencies for more complex scenarios.
+The example creates a service that depends on a logger initialized with a date-based file name. The `Tag` attribute enables named dependencies for more complex setups.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Injection on demand
 
-This example demonstrates using dependency injection with Pure.DI to dynamically create dependencies as needed via a factory function. The code defines a service (`GameLevel`) that requires multiple instances of a dependency (`Enemy`). Instead of injecting pre-created instances, the service receives a `Func<IEnemy>` factory delegate, allowing it to generate entities on demand.
+This example creates dependencies on demand using a factory delegate. The service (`GameLevel`) needs multiple instances of `IEnemy`, so it receives a `Func<IEnemy>` that can create new instances when needed.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -492,8 +581,7 @@ interface IGameLevel
 
 class GameLevel(Func<IEnemy> enemySpawner) : IGameLevel
 {
-    // The factory acts as a "spawner" to create new enemy instances on demand.
-    // Calling 'enemySpawner()' creates a fresh instance of Enemy each time.
+    // The factory spawns a fresh enemy instance on each call.
     public IReadOnlyList<IEnemy> Enemies { get; } =
     [
         enemySpawner(),
@@ -511,11 +599,20 @@ Key elements:
 - The `GameLevel` constructor accepts `Func<IEnemy>`, enabling deferred creation of entities.
 - The `GameLevel` calls the factory twice, resulting in two distinct `Enemy` instances stored in its `Enemies` collection.
 
-This approach showcases how factories can control dependency lifetime and instance creation timing in a DI container. The Pure.DI configuration ensures the factory resolves new `IEnemy` instances each time it's invoked, achieving "injections as required" functionality.
+This approach lets factories control lifetime and instantiation timing. Pure.DI resolves a new `IEnemy` each time the factory is invoked.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Injections on demand with arguments
 
-This example illustrates dependency injection with parameterized factory functions using Pure.DI, where dependencies are created with runtime-provided arguments. The scenario features a service that generates dependencies with specific IDs passed during instantiation.
+This example uses a parameterized factory so dependencies can be created with runtime arguments. The service creates sensors with specific IDs at instantiation time.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -556,10 +653,10 @@ class SmartHome(Func<int, ISensor> sensorFactory) : ISmartHome
 {
     public IReadOnlyList<ISensor> Sensors { get; } =
     [
-        // Use the injected factory to create a sensor with ID 101 (e.g., Kitchen Temperature)
+        // Use the injected factory to create a sensor with ID 101
         sensorFactory(101),
 
-        // Create another sensor with ID 102 (e.g., Living Room Humidity)
+        // Create another sensor with ID 102
         sensorFactory(102)
     ];
 }
@@ -573,13 +670,25 @@ Delayed dependency instantiation:
 - Injection of dependencies requiring runtime parameters
 - Creation of distinct instances with different configurations
 - Type-safe resolution of dependencies with constructor arguments
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Composition arguments
 
-Sometimes you need to pass some state to a composition class to use it when resolving dependencies. To do this, just use the `Arg<T>(string argName)` method, specify the type of argument and its name. You can also specify a tag for each argument. You can then use them as dependencies when building the object graph. If you have multiple arguments of the same type, just use tags to distinguish them. The values of the arguments are manipulated when you create a composition class by calling its constructor. It is important to remember that only those arguments that are used in the object graph will appear in the constructor. Arguments that are not involved will not be added to the constructor arguments.
+Use composition arguments when you need to pass state into the composition. Define them with `Arg<T>(string argName)` (optionally with tags) and use them like any other dependency. Only arguments that are used in the object graph become constructor parameters.
 > [!NOTE]
 > Actually, composition arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
 
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -601,7 +710,7 @@ DI.Setup(nameof(Composition))
     // Composition argument: Bank gateway address
     .Arg<string>("gatewayUrl");
 
-// Create the composition, passing real settings from "outside"
+// Create the composition, passing real settings from outside
 var composition = new Composition(
     timeoutSeconds: 30,
     authToken: "secret_token_123",
@@ -651,13 +760,25 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Root arguments
 
-Sometimes it is necessary to pass some state to the composition to use it when resolving dependencies. To do this, just use the `RootArg<T>(string argName)` method, specify the type of argument and its name. You can also specify a tag for each argument. You can then use them as dependencies when building the object graph. If you have multiple arguments of the same type, just use tags to distinguish them. The root of a composition that uses at least one root argument is prepended as a method, not a property. It is important to remember that the method will only display arguments that are used in the object graph of that composition root. Arguments that are not involved will not be added to the method arguments. It is best to use unique argument names so that there are no collisions.
+Use root arguments when you need to pass state into a specific root. Define them with `RootArg<T>(string argName)` (optionally with tags) and use them like any other dependency. A root that uses at least one root argument becomes a method, and only arguments used in that root's object graph appear in the method signature. Use unique argument names to avoid collisions.
 > [!NOTE]
 > Actually, root arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
 
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -665,7 +786,7 @@ using Pure.DI;
 using static Pure.DI.Tag;
 
 DI.Setup(nameof(Composition))
-    // This hint indicates to not generate methods such as Resolve
+    // Disable Resolve methods because root arguments are not compatible
     .Hint(Hint.Resolve, "Off")
     .Bind<IDatabaseService>().To<DatabaseService>()
     .Bind<IApplication>().To<Application>()
@@ -730,19 +851,30 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-When using composition root arguments, compilation warnings are shown if `Resolve` methods are generated, since these methods will not be able to create these roots. You can disable the creation of `Resolve` methods using the `Hint(Hint.Resolve, "Off")` hint, or ignore them but remember the risks of using `Resolve` methods.
+When using root arguments, compilation warnings are emitted if `Resolve` methods are generated because these methods cannot create such roots. Disable `Resolve` via `Hint(Hint.Resolve, "Off")`, or ignore the warnings and accept the risks.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tags
 
-Sometimes it's important to take control of building a dependency graph. For example, when there are different implementations of the same interface. In this case, _tags_ will help:
+Tags let you control dependency selection when multiple implementations exist:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    // The `default` tag is used to resolve dependencies
-    // when the tag was not specified by the consumer
+    // The `default` tag is used when the consumer does not specify a tag
     .Bind<IApiClient>("Public", default).To<RestApiClient>()
     .Bind<IApiClient>("Internal").As(Lifetime.Singleton).To<InternalApiClient>()
     .Bind<IApiFacade>().To<ApiFacade>()
@@ -800,12 +932,21 @@ The example shows how to:
 - Inject tagged dependencies into constructors
 
 The tag can be a constant, a type, a [smart tag](smart-tags.md), or a value of an `Enum` type. The _default_ and _null_ tags are also supported.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Smart tags
 
-When you have a large graph of objects, you may need a lot of tags to neatly define all the dependencies in it. Strings or other constant values are not always convenient to use, because they have too much variability. And there are often cases when you specify one tag in the binding, but the same tag in the dependency, but with a typo, which leads to a compilation error when checking the dependency graph. The solution to this problem is to create an `Enum` type and use its values as tags. Pure.DI makes it easier to solve this problem.
+Large object graphs often need many tags. String tags are error-prone and easy to mistype. Prefer `Enum` values as tags, and Pure.DI helps make this safe.
 
-When you specify a tag in a binding and the compiler can't determine what that value is, Pure.DI will automatically create a constant for it inside the `Pure.DI.Tag` type. For the example below, the set of constants would look like this:
+When the compiler cannot determine a tag value, Pure.DI generates a constant inside `Pure.DI.Tag`. For the example below, the generated constants would look like this:
 
 ```c#
 namespace Pure.DI
@@ -817,11 +958,14 @@ namespace Pure.DI
   }
 }
 ```
-So you can apply refactoring in the development environment. And also tag changes in bindings will be automatically checked by the compiler. This will reduce the number of errors.
+This enables safe refactoring and compiler-checked tag usage, reducing errors.
 
 ![](smart_tags.gif)
 
 The example below also uses the `using static Pure.DI.Tag;` directive to access tags in `Pure.DI.Tag` without specifying a type name:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -883,10 +1027,229 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
+## Simplified lifetime-specific bindings
+
+You can use the `Transient<>()`, `Singleton<>()`, `PerResolve<>()`, etc. methods. In this case binding will be performed for the implementation type itself, and if the implementation is not an abstract type or structure, for all abstract but NOT special types that are directly implemented.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
+```c#
+using System.Collections;
+using Pure.DI;
+
+// Specifies to create a partial class "Composition"
+DI.Setup(nameof(Composition))
+    // The equivalent of the following:
+    // .Bind<IOrderRepository, IOrderNotification, OrderManager>()
+    //   .As(Lifetime.PerBlock)
+    //   .To<OrderManager>()
+    .PerBlock<OrderManager>()
+    // The equivalent of the following:
+    // .Bind<IShop, Shop>()
+    //   .As(Lifetime.Transient)
+    //   .To<Shop>()
+    // .Bind<IOrderNameFormatter, OrderNameFormatter>()
+    //   .As(Lifetime.Transient)
+    //   .To<OrderNameFormatter>()
+    .Transient<Shop, OrderNameFormatter>()
+
+    // Specifies to create a property "MyShop"
+    .Root<IShop>("MyShop");
+
+var composition = new Composition();
+var shop = composition.MyShop;
+
+interface IManager;
+
+class ManagerBase : IManager;
+
+interface IOrderRepository;
+
+interface IOrderNotification;
+
+class OrderManager(IOrderNameFormatter orderNameFormatter) :
+    ManagerBase,
+    IOrderRepository,
+    IOrderNotification,
+    IDisposable,
+    IEnumerable<string>
+{
+    public void Dispose() {}
+
+    public IEnumerator<string> GetEnumerator() =>
+        new List<string>
+        {
+            orderNameFormatter.Format(1),
+            orderNameFormatter.Format(2)
+        }.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+interface IOrderNameFormatter
+{
+    string Format(int orderId);
+}
+
+class OrderNameFormatter : IOrderNameFormatter
+{
+    public string Format(int orderId) => $"Order #{orderId}";
+}
+
+interface IShop;
+
+class Shop(
+    OrderManager manager,
+    IOrderRepository repository,
+    IOrderNotification notification)
+    : IShop;
+```
+
+To run the above code, the following NuGet package must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+
+These methods perform the binding with appropriate lifetime:
+
+- with the implementation type itself
+- and if it is NOT an abstract type or structure
+  - with all abstract types that it directly implements
+  - exceptions are special types
+
+Special types will not be added to bindings:
+
+- `System.Object`
+- `System.Enum`
+- `System.MulticastDelegate`
+- `System.Delegate`
+- `System.Collections.IEnumerable`
+- `System.Collections.Generic.IEnumerable<T>`
+- `System.Collections.Generic.IList<T>`
+- `System.Collections.Generic.ICollection<T>`
+- `System.Collections.IEnumerator`
+- `System.Collections.Generic.IEnumerator<T>`
+- `System.Collections.Generic.IReadOnlyList<T>`
+- `System.Collections.Generic.IReadOnlyCollection<T>`
+- `System.IDisposable`
+- `System.IAsyncResult`
+- `System.AsyncCallback`
+
+If you want to add your own special type, use the `SpecialType<T>()` call.
+
+For class `OrderManager`, the `PerBlock<OrderManager>()` binding will be equivalent to the `Bind<IOrderRepository, IOrderNotification, OrderManager>().As(Lifetime.PerBlock).To<OrderManager>()` binding. The types `IDisposable`, `IEnumerable<string>` did not get into the binding because they are special from the list above. `ManagerBase` did not get into the binding because it is not abstract. `IManager` is not included because it is not implemented directly by class `OrderManager`.
+
+|    |                       |                                                   |
+|----|-----------------------|---------------------------------------------------|
+| ✅ | `OrderManager`        | implementation type itself                        |
+| ✅ | `IOrderRepository`    | directly implements                               |
+| ✅ | `IOrderNotification`  | directly implements                               |
+| ❌ | `IDisposable`         | special type                                      |
+| ❌ | `IEnumerable<string>` | special type                                      |
+| ❌ | `ManagerBase`         | non-abstract                                      |
+| ❌ | `IManager`            | is not directly implemented by class OrderManager |
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
+## Simplified lifetime-specific factory
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
+
+```c#
+using Shouldly;
+using Pure.DI;
+
+DI.Setup(nameof(Composition))
+    .Transient(Guid.NewGuid)
+    .Transient(() => DateTime.Today, "today")
+    // Injects FileLogger and DateTime instances
+    // and performs further initialization logic
+    // defined in the lambda function to set up the log file name
+    .Singleton<FileLogger, DateTime, IFileLogger>((
+        FileLogger logger,
+        [Tag("today")] DateTime date) => {
+        logger.Init($"app-{date:yyyy-MM-dd}.log");
+        return logger;
+    })
+    .Transient<OrderProcessingService>()
+
+    // Composition root
+    .Root<IOrderProcessingService>("OrderService");
+
+var composition = new Composition();
+var service = composition.OrderService;
+
+service.Logger.FileName.ShouldBe($"app-{DateTime.Today:yyyy-MM-dd}.log");
+
+interface IFileLogger
+{
+    string FileName { get; }
+
+    void Log(string message);
+}
+
+class FileLogger(Func<Guid> idFactory) : IFileLogger
+{
+    public string FileName { get; private set; } = "";
+
+    public void Init(string fileName) => FileName = fileName;
+
+    public void Log(string message)
+    {
+        var id = idFactory();
+        // Write to file
+    }
+}
+
+interface IOrderProcessingService
+{
+    IFileLogger Logger { get; }
+}
+
+class OrderProcessingService(IFileLogger logger) : IOrderProcessingService
+{
+    public IFileLogger Logger { get; } = logger;
+}
+```
+
+To run the above code, the following NuGet packages must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+ - [Shouldly](https://www.nuget.org/packages/Shouldly)
+
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Build up of an existing object
 
-This example demonstrates the Build-Up pattern in dependency injection, where an existing object is injected with necessary dependencies through its properties, methods, or fields.
+This example shows the Build-Up pattern in dependency injection, where an existing object is injected with necessary dependencies through its properties, methods, or fields.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -894,7 +1257,7 @@ using Pure.DI;
 
 DI.Setup(nameof(Composition))
     .RootArg<string>("name")
-    .Bind().To(_ => Guid.NewGuid())
+    .Bind().To(Guid.NewGuid)
     .Bind().To(ctx => {
         var person = new Person();
         // Injects dependencies into an existing object
@@ -945,17 +1308,29 @@ To run the above code, the following NuGet packages must be added:
 Key Concepts:
 **Build-Up** - injecting dependencies into an already created object
 **Dependency Attribute** - marker for identifying injectable members
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Builder
 
 Sometimes you need to build up an existing composition root and inject all of its dependencies, in which case the `Builder` method will be useful, as in the example below:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind().To(_ => Guid.NewGuid())
+    .Bind().To(Guid.NewGuid)
     .Bind().To<PhotonBlaster>()
     .Builder<Player>("Equip");
 
@@ -1011,10 +1386,19 @@ Use Cases:
 - For working with third-party libraries
 - When migrating existing code to DI
 - For complex object graphs where full construction is not feasible
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Builder with arguments
 
-This example demonstrates how to use builders with custom arguments in dependency injection. It shows how to pass additional parameters during the build-up process.
+This example shows how to use builders with custom arguments in dependency injection. It shows how to pass additional parameters during the build-up process.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1075,17 +1459,26 @@ Use Cases:
 Best Practices
 - Keep the number of builder arguments minimal
 - Use meaningful names for root arguments
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Builders
 
-Sometimes you need builders for all types inherited from <see cref=“T”/> available at compile time at the point where the method is called.
+Sometimes you need builders for all types derived from `T` that are known at compile time.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind().To(_ => Guid.NewGuid())
+    .Bind().To(Guid.NewGuid)
     .Bind().To<PlutoniumBattery>()
     // Creates a builder for each type inherited from IRobot.
     // These types must be available at this point in the code.
@@ -1147,17 +1540,26 @@ To run the above code, the following NuGet packages must be added:
 Important Notes:
 - The default builder method name is `BuildUp`
 - The first argument to the builder method is always the instance to be built
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Builders with a name template
 
 Sometimes you need to build up an existing composition root and inject all of its dependencies, in which case the `Builder` method will be useful, as in the example below:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind().To(_ => Guid.NewGuid())
+    .Bind().To(Guid.NewGuid)
     .Bind().To<WiFi>()
     // Creates a builder based on the name template
     // for each type inherited from IDevice.
@@ -1219,10 +1621,22 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 The default builder method name is `BuildUp`. The first argument to this method will always be the instance to be built.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Field injection
 
 To use dependency injection for a field, make sure the field is writable and simply add the _Ordinal_ attribute to that field, specifying an ordinal that will be used to determine the injection order:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1269,10 +1683,22 @@ The key points are:
 - The field must be writable
 - The `Dependency` (or `Ordinal`) attribute is used to mark the field for injection
 - The container automatically injects the dependency when resolving the object graph
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Method injection
 
 To use dependency implementation for a method, simply add the _Ordinal_ attribute to that method, specifying the sequence number that will be used to define the call to that method:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1318,10 +1744,22 @@ The key points are:
 - The method must be available to be called from a composition class
 - The `Dependency` (or `Ordinal`) attribute is used to mark the method for injection
 - The container automatically calls the method to inject dependencies
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Property injection
 
 To use dependency injection on a property, make sure the property is writable and simply add the _Ordinal_ attribute to that property, specifying the ordinal that will be used to determine the injection order:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1365,10 +1803,22 @@ The key points are:
 - The property must be writable
 - The `Dependency` (or `Ordinal`) attribute is used to mark the property for injection
 - The container automatically injects the dependency when resolving the object graph
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Default values
 
-This example demonstrates how to use default values in dependency injection when explicit injection is not possible.
+This example shows how to use default values in dependency injection when explicit injection is not possible.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1418,15 +1868,27 @@ The key points are:
 - Default constructor arguments can be used for simple values
 - The DI container will use these defaults if no explicit bindings are provided
 
-This example illustrates how to handle default values in a dependency injection scenario:
+This example shows how to handle default values in a dependency injection scenario:
 - **Constructor Default Argument**: The `SecuritySystem` class has a constructor with a default value for the name parameter. If no value is provided, "Home Guard" will be used.
 - **Required Property with Default**: The `Sensor` property is marked as required but has a default instantiation. This ensures that:
   - The property must be set
   - If no explicit injection occurs, a default value will be used
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Required properties or fields
 
-This example demonstrates how the `required` modifier can be used to automatically inject dependencies into properties and fields. When a property or field is marked with `required`, the DI will automatically inject the dependency without additional effort.
+This example shows how the `required` modifier can be used to automatically inject dependencies into properties and fields. When a property or field is marked with `required`, the DI will automatically inject the dependency without additional effort.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1477,10 +1939,22 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 This approach simplifies dependency injection by eliminating the need to manually configure bindings for required dependencies, making the code more concise and easier to maintain.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Overrides
 
-This example demonstrates advanced dependency injection techniques using Pure.DI's override mechanism to customize dependency instantiation with runtime arguments and tagged parameters. The implementation creates multiple `IDependency` instances with values manipulated through explicit overrides.
+This example shows advanced dependency injection techniques using Pure.DI's override mechanism to customize dependency instantiation with runtime arguments and tagged parameters. The implementation creates multiple `IDependency` instances with values manipulated through explicit overrides.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1489,7 +1963,7 @@ using System.Collections.Immutable;
 using System.Drawing;
 
 DI.Setup(nameof(Composition))
-    .Bind(Tag.Red).To(_ => Color.Red)
+    .Bind(Tag.Red).To(() => Color.Red)
     .Bind().As(Lifetime.Singleton).To<Clock>()
     // The factory accepts the widget ID and the layer index
     .Bind().To<Func<int, int, IWidget>>(ctx =>
@@ -1585,10 +2059,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Root binding
 
-In general, it is recommended to define one composition root for the entire application. But sometimes it is necessary to have multiple roots. To simplify the definition of composition roots, a "hybrid" API method `RootBind<T>(string rootName)` was added. It allows you to define a binding and at the same time the root of the composition. You can it in order to reduce repetitions. The registration `composition.RootBind<IDependency>().To<Dependency>()` is an equivalent to `composition.Bind<IDependency>().To<Dependency>().Root<IDependency>()`.
+In general, it is recommended to define one composition root for the entire application. But Sometimes you need to have multiple roots. To simplify the definition of composition roots, a "hybrid" API method `RootBind<T>(string rootName)` was added. It lets you define a binding and at the same time the root of the composition. You can it in order to reduce repetitions. The registration `composition.RootBind<IDependency>().To<Dependency>()` is an equivalent to `composition.Bind<IDependency>().To<Dependency>().Root<IDependency>()`.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1596,7 +2082,7 @@ using Pure.DI;
 
 DI.Setup(nameof(Composition))
     .Bind().As(Lifetime.Singleton).To<DbConnection>()
-    // RootBind allows you to define a binding and a composition root
+    // RootBind lets you define a binding and a composition root
     // simultaneously. This is useful for creating public entry points
     // for your application components while keeping the configuration concise.
     .RootBind<IOrderService>("OrderService").To<OrderService>();
@@ -1622,8 +2108,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Static root
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1650,8 +2149,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Async Root
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -1684,10 +2196,22 @@ class BackupService(IFileStore fileStore) : IBackupService;
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Consumer type
 
 `ConsumerType` is used to get the consumer type of the given dependency. The use of `ConsumerType` is demonstrated on the example of [Serilog library](https://serilog.net/):
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1754,8 +2278,21 @@ To run the above code, the following NuGet packages must be added:
  - [Serilog.Core](https://www.nuget.org/packages/Serilog.Core)
  - [Serilog.Events](https://www.nuget.org/packages/Serilog.Events)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Ref dependencies
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1763,7 +2300,7 @@ using Pure.DI;
 
 DI.Setup("Composition")
     // Represents a large data set or buffer
-    .Bind().To<int[]>(_ => [10, 20, 30])
+    .Bind().To<int[]>(() => [10, 20, 30])
     .Root<Service>("MyService");
 
 var composition = new Composition();
@@ -1796,10 +2333,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Roots
 
 Sometimes you need roots for all types inherited from <see cref="T"/> available at compile time at the point where the method is called.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1829,8 +2378,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Roots with filter
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1860,10 +2422,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Transient
 
 The _Transient_ lifetime specifies to create a new dependency instance each time. It is the default lifetime and can be omitted.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1921,10 +2495,22 @@ The _Transient_ lifetime is the safest and is used by default. Yes, its widespre
 
 > [!IMPORTANT]
 > The following very important rule, in my opinion, will help in the last point. Now, when a constructor is used to implement dependencies, it should not be loaded with other tasks. Accordingly, constructors should be free of all logic except for checking arguments and saving them for later use. Following this rule, even the largest compositions of objects will be built quickly.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Singleton
 
 The _Singleton_ lifetime ensures that there will be a single instance of the dependency for each composition.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2012,10 +2598,22 @@ Some articles advise using objects with a _Singleton_ lifetime as often as possi
 - _Singleton_ can retain dependency references longer than their expected lifetime, this is especially significant for objects that hold "non-renewable" resources, such as the operating system Handler.
 
 - Sometimes additional logic is required to dispose of _Singleton_.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## PerResolve
 
 The _PerResolve_ lifetime ensures that there will be one instance of the dependency for each composition root instance.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2078,7 +2676,7 @@ class TrainTripPlanner(
 
     public IRoutePlanningSession SessionForReturn { get; } = sessionForReturn;
 
-    // These come from a singleton tuple — effectively "global cached" instances.
+    // These come from a singleton tuple - effectively "global cached" instances.
     public IRoutePlanningSession CapturedSessionA { get; } = capturedSessions.capturedA;
 
     public IRoutePlanningSession CapturedSessionB { get; } = capturedSessions.capturedB;
@@ -2089,10 +2687,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## PerBlock
 
-The _PreBlock_ lifetime does not guarantee that there will be a single dependency instance for each instance of the composition root (as for the _PreResolve_ lifetime), but is useful for reducing the number of instances of a type.
+The _PerBlock_ lifetime does not guarantee that there will be a single dependency instance for each instance of the composition root (as for the _PerResolve_ lifetime), but is useful for reducing the number of instances of a type.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2161,10 +2771,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Scope
 
 The _Scoped_ lifetime ensures that there will be a single instance of the dependency for each scope.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2266,10 +2888,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Auto scoped
 
 You can use the following example to automatically create a session when creating instances of a particular type:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2362,10 +2996,22 @@ To run the above code, the following NuGet packages must be added:
 
 > [!IMPORTANT]
 > The method `Inject()`cannot be used outside of the binding setup.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Default lifetime
 
 For example, if some lifetime is used more often than others, you can make it the default lifetime:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2432,10 +3078,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Default lifetime for a type
 
 For example, if a certain lifetime is used more often than others, you can make it the default lifetime for a certain type:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2517,10 +3175,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Default lifetime for a type and a tag
 
 For example, if a certain lifetime is used more often than others, you can make it the default lifetime for a certain type:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2598,10 +3268,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Disposable singleton
 
 To dispose all created singleton instances, simply dispose the composition instance:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2609,7 +3291,7 @@ using Pure.DI;
 using static Pure.DI.Lifetime;
 
 DI.Setup(nameof(Composition))
-    // This hint indicates to not generate methods such as Resolve
+    // Disable Resolve methods to keep the public API minimal
     .Hint(Hint.Resolve, "Off")
 
     // A realistic example:
@@ -2669,10 +3351,22 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 A composition class becomes disposable if it creates at least one disposable singleton instance.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Async disposable singleton
 
 If at least one of these objects implements the `IAsyncDisposable` interface, then the composition implements `IAsyncDisposable` as well. To dispose of all created singleton instances in an asynchronous manner, simply dispose of the composition instance in an asynchronous manner:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2750,8 +3444,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Async disposable scope
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2840,10 +3547,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Func
 
 _Func<T>_ helps when the logic must enter instances of some type on demand or more than once. This is a very handy mechanism for instance replication. For example it is used when implementing the `Lazy<T>` injection.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2909,10 +3628,22 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 Be careful, replication takes into account the lifetime of the object.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Enumerable
 
-Specifying `IEnumerable<T>` as the injection type allows you to inject instances of all bindings that implement type `T` in a lazy fashion - the instances will be provided one by one, in order corresponding to the sequence of bindings.
+Specifying `IEnumerable<T>` as the injection type lets you inject instances of all bindings that implement type `T` in a lazy fashion - the instances will be provided one by one, in order corresponding to the sequence of bindings.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2982,8 +3713,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Enumerable generics
+
+Shows how generic middleware pipelines collect all matching implementations.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2991,49 +3736,49 @@ using Pure.DI;
 using System.Collections.Immutable;
 
 DI.Setup(nameof(Composition))
-    // Регистрируем обобщенные компоненты middleware.
-    // LoggingMiddleware<T> регистрируется как стандартная реализация.
+    // Register generic middleware components.
+    // LoggingMiddleware<T> is registered as the default implementation.
     .Bind<IMiddleware<TT>>().To<LoggingMiddleware<TT>>()
-    // MetricsMiddleware<T> регистрируется с тегом "Metrics".
+    // MetricsMiddleware<T> is registered with the "Metrics" tag.
     .Bind<IMiddleware<TT>>("Metrics").To<MetricsMiddleware<TT>>()
 
-    // Регистрируем сам конвейер, который будет принимать коллекцию всех middleware.
+    // Register the pipeline that takes the collection of all middleware.
     .Bind<IPipeline<TT>>().To<Pipeline<TT>>()
 
-    // Корни композиции для разных типов данных (int и string)
+    // Composition roots for different data types (int and string)
     .Root<IPipeline<int>>("IntPipeline")
     .Root<IPipeline<string>>("StringPipeline");
 
 var composition = new Composition();
 
-// Проверяем конвейер для обработки int
+// Validate the pipeline for int
 var intPipeline = composition.IntPipeline;
 intPipeline.Middlewares.Length.ShouldBe(2);
 intPipeline.Middlewares[0].ShouldBeOfType<LoggingMiddleware<int>>();
 intPipeline.Middlewares[1].ShouldBeOfType<MetricsMiddleware<int>>();
 
-// Проверяем конвейер для обработки string
+// Validate the pipeline for string
 var stringPipeline = composition.StringPipeline;
 stringPipeline.Middlewares.Length.ShouldBe(2);
 stringPipeline.Middlewares[0].ShouldBeOfType<LoggingMiddleware<string>>();
 stringPipeline.Middlewares[1].ShouldBeOfType<MetricsMiddleware<string>>();
 
-// Интерфейс для промежуточного ПО (middleware)
+// Middleware interface
 interface IMiddleware<T>;
 
-// Реализация для логирования
+// Logging implementation
 class LoggingMiddleware<T> : IMiddleware<T>;
 
-// Реализация для сбора метрик
+// Metrics implementation
 class MetricsMiddleware<T> : IMiddleware<T>;
 
-// Интерфейс конвейера обработки
+// Pipeline interface
 interface IPipeline<T>
 {
     ImmutableArray<IMiddleware<T>> Middlewares { get; }
 }
 
-// Реализация конвейера, собирающая все доступные middleware
+// Pipeline implementation that aggregates all available middleware
 class Pipeline<T>(IEnumerable<IMiddleware<T>> middlewares) : IPipeline<T>
 {
     public ImmutableArray<IMiddleware<T>> Middlewares { get; }
@@ -3045,10 +3790,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Array
 
 Specifying `T[]` as the injection type allows instances from all bindings that implement the `T` type to be injected.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3117,8 +3874,21 @@ In addition to arrays, other collection types are also supported, such as:
 - System.Collections.Immutable.ImmutableQueue<T>
 - System.Collections.Immutable.IImmutableStack<T>
 And of course this list can easily be supplemented on its own.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Lazy
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3156,6 +3926,15 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Task
 
@@ -3167,6 +3946,9 @@ By default, tasks are started automatically when they are injected. It is recomm
 - TaskContinuationOptions.None
 
 But you can always override them, as in the example below for <c>TaskScheduler.Current</c>.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3175,7 +3957,7 @@ using Pure.DI;
 DI.Setup(nameof(Composition))
     .Hint(Hint.Resolve, "Off")
     // Overrides TaskScheduler.Default if necessary
-    .Bind<TaskScheduler>().To(_ => TaskScheduler.Current)
+    .Bind<TaskScheduler>().To(() => TaskScheduler.Current)
     // Specifies to use CancellationToken from the composition root argument,
     // if not specified, then CancellationToken.None will be used
     .RootArg<CancellationToken>("cancellationToken")
@@ -3227,8 +4009,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## ValueTask
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -3274,10 +4069,22 @@ class DataProcessor(ValueTask<IConnection> connectionTask) : IDataProcessor
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Manually started tasks
 
 By default, tasks are started automatically when they are injected. But you can override this behavior as shown in the example below. It is also recommended to add a binding for <c>CancellationToken</c> to be able to cancel the execution of a task.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -3349,19 +4156,31 @@ To run the above code, the following NuGet package must be added:
 
 > [!IMPORTANT]
 > The method `Inject()`cannot be used outside of the binding setup.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Span and ReadOnlySpan
 
 Specifying `Span<T>` and `ReadOnlySpan<T>` work the same as with the array `T[]`.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind<Point>('a').To(_ => new Point(1, 1))
-    .Bind<Point>('b').To(_ => new Point(2, 2))
-    .Bind<Point>('c').To(_ => new Point(3, 3))
+    .Bind<Point>('a').To(() => new Point(1, 1))
+    .Bind<Point>('b').To(() => new Point(2, 2))
+    .Bind<Point>('c').To(() => new Point(3, 3))
     .Bind<IPath>().To<Path>()
 
     // Composition root
@@ -3407,17 +4226,29 @@ public IPath Path
   }
 }
 ```
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tuple
 
 The tuples feature provides concise syntax to group multiple data elements in a lightweight data structure. The following example shows how a type can ask to inject a tuple argument into it:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
     .Bind<IEngine>().To<ElectricEngine>()
-    .Bind<Coordinates>().To(_ => new Coordinates(10, 20))
+    .Bind<Coordinates>().To(() => new Coordinates(10, 20))
     .Bind<IVehicle>().To<Car>()
 
     // Composition root
@@ -3448,8 +4279,21 @@ class Car((Coordinates StartPosition, IEngine Engine) specs) : IVehicle
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Weak Reference
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -3485,10 +4329,22 @@ class Service(WeakReference<ILargeCache> cache) : IService
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Async Enumerable
 
 Specifying `IAsyncEnumerable<T>` as the injection type allows instances of all bindings implementing type `T` to be injected in an asynchronous-lazy manner - the instances will be provided one at a time, in an order corresponding to the sequence of the bindings.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3539,10 +4395,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Service collection
 
 The `// OnNewRoot = On` hint specifies to create a static method that will be called for each registered composition root. This method can be used, for example, to create an _IServiceCollection_ object:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI.MS;
@@ -3591,8 +4459,21 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
  - [Microsoft.Extensions.DependencyInjection](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Func with arguments
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3666,14 +4547,26 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Func with tag
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
 using Pure.DI;
 using System.Collections.Immutable;
-using Shouldly;
 
 DI.Setup(nameof(Composition))
     .Bind<IDbConnection>("postgres").To<NpgsqlConnection>()
@@ -3715,8 +4608,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Keyed service provider
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3788,6 +4694,15 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
  - [Microsoft.Extensions.DependencyInjection](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Service provider
 
@@ -3795,7 +4710,10 @@ The `// ObjectResolveMethodName = GetService` hint overriding the `object Resolv
 > [!IMPORTANT]
 > Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface. These roots must be registered using `Root(...)` or `RootBind()` calls.
 
-This example demonstrates how to implement a custom `IServiceProvider` using a partial class, utilizing a specific hint to override the default `Resolve()` method name:
+This example shows how to implement a custom `IServiceProvider` using a partial class, utilizing a specific hint to override the default `Resolve()` method name:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3850,11 +4768,20 @@ To run the above code, the following NuGet packages must be added:
 Important Notes:
 - Hint Overriding: The `ObjectResolveMethodName = GetService` hint overrides the default object `Resolve(Type type)` method name to implement `IServiceProvider` interface
 - Roots: Only roots can be resolved. Use `Root(...)` or `RootBind()` calls for registration
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Service provider with scope
 
 > [!IMPORTANT]
 > Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface. These roots must be registered using `Root(...)` or `RootBind()` calls.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3943,17 +4870,29 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
  - [Microsoft.Extensions.DependencyInjection](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Overriding the BCL binding
 
 At any time, the default binding to the BCL type can be changed to your own:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind<IMessageSender[]>().To<IMessageSender[]>(_ =>
+    .Bind<IMessageSender[]>().To<IMessageSender[]>(() =>
         [new EmailSender(), new SmsSender(), new EmailSender()]
     )
     .Bind<INotificationService>().To<NotificationService>()
@@ -3989,6 +4928,15 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Generics
 
@@ -3997,13 +4945,16 @@ Generic types are also supported.
 > Instead of open generic types, as in classical DI container libraries, regular generic types with _marker_ types as type parameters are used here. Such "marker" types allow to define dependency graph more precisely.
 
 For the case of `IDependency<TT>`, `TT` is a _marker_ type, which allows the usual `IDependency<TT>` to be used instead of an open generic type like `IDependency<>`. This makes it easy to bind generic types by specifying _marker_ types such as `TT`, `TT1`, etc. as parameters of generic types:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    // This hint indicates to not generate methods such as Resolve
+    // Disable Resolve methods to keep the public API minimal
     .Hint(Hint.Resolve, "Off")
     // Binding a generic interface to a generic implementation
     // using the marker type TT. This allows Pure.DI to match
@@ -4094,18 +5045,30 @@ internal interface TTDisposable: IDisposable { }
 [GenericTypeArgument]
 internal interface TTEnumerator<out T>: IEnumerator<T> { }
 ```
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Generic composition roots
 
 Sometimes you want to be able to create composition roots with type parameters. In this case, the composition root can only be represented by a method.
 > [!IMPORTANT]
-> `Resolve()' methods cannot be used to resolve generic composition roots.
+> ``Resolve()` methods cannot be used to resolve generic composition roots.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    // This hint indicates to not generate methods such as Resolve
+    // Disable Resolve methods to keep the public API minimal
     .Hint(Hint.Resolve, "Off")
     .Bind().To<Repository<TT>>()
     .Bind().To<CreateCommandHandler<TT>>()
@@ -4151,17 +5114,29 @@ To run the above code, the following NuGet package must be added:
 
 > [!IMPORTANT]
 > The method `Inject()`cannot be used outside of the binding setup.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Complex generics
 
 Defining generic type arguments using particular marker types like ```TT``` in this sample is a distinguishing and outstanding feature. This allows binding complex generic types with nested generic types and with any type constraints. For instance ```IService<T1, T2, TList, TDictionary> where T2: struct where TList: IList<T1> where TDictionary: IDictionary<T1, T2> { }``` and its binding to the some implementation ```.Bind<IService<TT1, TTS2, TTList<TT1>, TTDictionary<TT1, TTS2>>>().To<Service<TT1, TTS2, TTList<TT1>, TTDictionary<TT1, TTS2>>>()``` with all checks and code-generation at the compile time. It is clear that this example is exaggerated, it just demonstrates the ease of working with marker types like ```TT, TTEnumerable, TTSet``` and etc. for binding complex generic types.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    // This hint indicates to not generate methods such as Resolve
+    // Disable Resolve methods to keep the public API minimal
     .Hint(Hint.Resolve, "Off")
     .RootArg<TT>("name")
     .Bind<IConsumer<TT>>().To<Consumer<TT>>()
@@ -4223,17 +5198,29 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 It can also be useful in a very simple scenario where, for example, the sequence of type arguments does not match the sequence of arguments of the contract that implements the type.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Generic composition roots with constraints
 
 > [!IMPORTANT]
-> `Resolve' methods cannot be used to resolve generic composition roots.
+> ``Resolve` methods cannot be used to resolve generic composition roots.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    // This hint indicates to not generate methods such as Resolve
+    // Disable Resolve methods to keep the public API minimal
     .Hint(Hint.Resolve, "Off")
     .Bind().To<StreamSource<TTDisposable>>()
     .Bind().To<DataProcessor<TTDisposable, TTS>>()
@@ -4289,17 +5276,29 @@ To run the above code, the following NuGet package must be added:
 
 > [!IMPORTANT]
 > The method `Inject()`cannot be used outside of the binding setup.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Generic async composition roots with constraints
 
 > [!IMPORTANT]
-> `Resolve' methods cannot be used to resolve generic composition roots.
+> ``Resolve` methods cannot be used to resolve generic composition roots.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    // This hint indicates to not generate methods such as Resolve
+    // Disable Resolve methods to keep the public API minimal
     .Hint(Hint.Resolve, "Off")
     .Bind().To<ConnectionProvider<TTDisposable>>()
     .Bind().To<DataQuery<TTDisposable, TTS>>()
@@ -4356,8 +5355,21 @@ To run the above code, the following NuGet package must be added:
 
 > [!IMPORTANT]
 > The method `Inject()`cannot be used outside of the binding setup.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Custom generic argument
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -4407,10 +5419,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Build up of an existing generic object
 
 In other words, injecting the necessary dependencies via methods, properties, or fields into an existing object.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -4418,7 +5442,7 @@ using Pure.DI;
 
 DI.Setup(nameof(Composition))
     .RootArg<string>("userName")
-    .Bind().To(_ => Guid.NewGuid())
+    .Bind().To(Guid.NewGuid)
     .Bind().To(ctx => {
         // The "BuildUp" method injects dependencies into an existing object.
         // This is useful when the object is created externally (e.g., by a UI framework
@@ -4474,8 +5498,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Generic root arguments
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -4516,8 +5553,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Complex generic root arguments
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -4573,15 +5623,28 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Generic builder
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind(Tag.Id).To<TT>(_ => (TT)(object)Guid.NewGuid())
+    .Bind(Tag.Id).To(() => (TT)(object)Guid.NewGuid())
     .Bind().To<Repository<TT>>()
     // Generic service builder
     // Defines a generic builder "BuildUp".
@@ -4634,15 +5697,28 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Generic builders
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    .Bind(Tag.Id).To<TT>(_ => (TT)(object)Guid.NewGuid())
+    .Bind(Tag.Id).To(() => (TT)(object)Guid.NewGuid())
     .Bind().To<MessageTracker<TT>>()
     // Generic builder to inject dependencies into existing messages
     .Builders<IMessage<TT, TT2>>("BuildUp");
@@ -4713,14 +5789,27 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Generic roots
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
-    // This hint indicates to not generate methods such as Resolve
+    // Disable Resolve methods to keep the public API minimal
     .Hint(Hint.Resolve, "Off")
     .Bind().To<JsonFormatter<TT>>()
     .Bind().To<FileExporter<TT>>()
@@ -4757,8 +5846,21 @@ class NetworkExporter<T>(IFormatter<T> formatter) : IExporter<T>;
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Generic injections on demand
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -4803,8 +5905,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Generic injections on demand with arguments
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -4854,10 +5969,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Constructor ordinal attribute
 
-When applied to any constructor in a type, automatic injection constructor selection is disabled. The selection will only focus on constructors marked with this attribute, in the appropriate order from smallest value to largest.
+Applying this attribute disables automatic constructor selection. Only constructors marked with this attribute are considered, ordered by ordinal (ascending).
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -4913,11 +6040,23 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-The attribute `Ordinal` is part of the API, but you can use your own attribute at any time, and this allows you to define them in the assembly and namespace you want.
+The `Ordinal` attribute is part of the API, but you can define your own in any assembly or namespace.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Dependency attribute
 
-When applied to a property or field, these type members will also participate in dependency injection in the appropriate order from smallest value to largest.
+When applied to a property or field, the member participates in DI, ordered by ordinal (ascending).
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -4984,11 +6123,23 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-The attribute `Dependency` is part of the API, but you can use your own attribute at any time, and this allows you to define them in the assembly and namespace you want.
+The `Dependency` attribute is part of the API, but you can define your own in any assembly or namespace.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Member ordinal attribute
 
-When applied to a property or field, these type members will also participate in dependency injection in the appropriate order from smallest value to largest.
+When applied to a property or field, the member participates in DI, ordered by ordinal (ascending).
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -5055,11 +6206,23 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-The attribute `Ordinal` is part of the API, but you can use your own attribute at any time, and this allows you to define them in the assembly and namespace you want.
+The `Ordinal` attribute is part of the API, but you can define your own in any assembly or namespace.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tag attribute
 
-Sometimes it's important to take control of building a dependency graph. For example, when there are multiple implementations of the same contract. In this case, _tags_ will help:
+Tags let you choose among multiple implementations of the same contract.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -5106,11 +6269,23 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-The tag can be a constant, a type, a [smart tag](smart-tags.md), or a value of an `Enum` type. This attribute is part of the API, but you can use your own attribute at any time, and this allows you to define them in the assembly and namespace you want.
+A tag can be a constant, a type, a [smart tag](smart-tags.md), or an enum value. The `Tag` attribute is part of the API, but you can define your own in any assembly or namespace.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Type attribute
 
-The injection type can be defined manually using the `Type` attribute. This attribute explicitly overrides an injected type, otherwise it would be determined automatically based on the type of the constructor/method, property, or field parameter.
+Use the `Type` attribute to force a specific injected type, overriding the inferred type from the parameter or member.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -5157,15 +6332,27 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-This attribute is part of the API, but you can use your own attribute at any time, and this allows you to define them in the assembly and namespace you want.
+The `Type` attribute is part of the API, but you can define your own in any assembly or namespace.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Inject attribute
 
-If you want to use attributes in your libraries but don't want to create your own, you can add this package to your projects:
+If you want attributes without defining your own, add this package:
 
 [![NuGet](https://img.shields.io/nuget/v/Pure.DI.Abstractions)](https://www.nuget.org/packages/Pure.DI.Abstractions)
 
-It contains attributes like `Inject` and `Inject<T>` that work for constructors and their arguments, methods and their arguments, properties and fields. They allow you to setup all injection parameters.
+It provides `Inject` and `Inject<T>` for constructors, methods, properties, and fields, letting you configure injection metadata.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -5174,8 +6361,8 @@ using Pure.DI;
 
 DI.Setup(nameof(PersonComposition))
     .Arg<int>("personId")
-    .Bind<Uri>("Person Uri").To(_ => new Uri("https://github.com/DevTeam/Pure.DI"))
-    .Bind("NikName").To(_ => "Nik")
+    .Bind<Uri>("Person Uri").To(() => new Uri("https://github.com/DevTeam/Pure.DI"))
+    .Bind("NikName").To(() => "Nik")
     .Bind().To<Person>()
 
     // Composition root
@@ -5208,14 +6395,26 @@ To run the above code, the following NuGet packages must be added:
 This package should also be included in a project:
 
 [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Custom attributes
 
-It's very easy to use your attributes. To do this, you need to create a descendant of the `System.Attribute` class and register it using one of the appropriate methods:
+To use custom attributes, derive from `System.Attribute` and register them with the setup API:
 - `TagAttribute`
 - `OrdinalAttribute`
-- `TagAttribute`
-You can also use combined attributes, and each method in the list above has an optional parameter that defines the argument number (the default is 0) from where to get the appropriate metadata for _tag_, _ordinal_, or _type_.
+- `TypeAttribute`
+You can also use combined attributes. Each registration method can take an optional argument index (default is 0) that specifies where to read _tag_, _ordinal_, or _type_ metadata.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -5227,8 +6426,8 @@ DI.Setup(nameof(PersonComposition))
     .TypeAttribute<MyTypeAttribute>()
     .TypeAttribute<MyGenericTypeAttribute<TT>>()
     .Arg<int>("personId")
-    .Bind().To(_ => new Uri("https://github.com/DevTeam/Pure.DI"))
-    .Bind("NikName").To(_ => "Nik")
+    .Bind().To(() => new Uri("https://github.com/DevTeam/Pure.DI"))
+    .Bind("NikName").To(() => "Nik")
     .Bind().To<Person>()
 
     // Composition root
@@ -5283,10 +6482,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Custom universal attribute
 
-You can use a combined attribute, and each method in the list above has an optional parameter that defines the argument number (the default is 0) from where to get the appropriate metadata for _tag_, _ordinal_, or _type_.
+A combined attribute can supply _tag_, _ordinal_, and _type_ metadata. Each registration method can take an optional argument index (default is 0) that specifies where to read the metadata.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -5297,8 +6508,8 @@ DI.Setup(nameof(PersonComposition))
     .OrdinalAttribute<InjectAttribute<TT>>(1)
     .TypeAttribute<InjectAttribute<TT>>()
     .Arg<int>("personId")
-    .Bind().To(_ => new Uri("https://github.com/DevTeam/Pure.DI"))
-    .Bind("NikName").To(_ => "Nik")
+    .Bind().To(() => new Uri("https://github.com/DevTeam/Pure.DI"))
+    .Bind("NikName").To(() => "Nik")
     .Bind().To<Person>()
 
     // Composition root
@@ -5335,8 +6546,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Custom generic argument attribute
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -5392,10 +6616,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Bind attribute
 
-`BindAttribute` allows you to perform automatic binding to properties, fields or methods that belong to the type of the binding involved.
+`BindAttribute` lets you bind properties, fields, or methods declared on the bound type.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -5457,9 +6693,22 @@ class PhotoService(IGps gps, Func<ICamera> cameraFactory) : IPhotoService
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
-This attribute `BindAttribute` applies to field properties and methods, to regular, static, and even returning generalized types.
+It applies to instance or static members, including members that return generic types.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Bind attribute with lifetime and tag
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -5508,8 +6757,21 @@ class RayTracer([Tag("HighPerformance")] IGpu gpu) : IRenderer
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Bind attribute for a generic type
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -5564,11 +6826,23 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Decorator
 
 Interception is the ability to intercept calls between objects in order to enrich or change their behavior, but without having to change their code. A prerequisite for interception is weak binding. That is, if programming is abstraction-based, the underlying implementation can be transformed or improved by "packaging" it into other implementations of the same abstraction. At its core, intercept is an application of the Decorator design pattern. This pattern provides a flexible alternative to inheritance by dynamically "attaching" additional responsibility to an object. Decorator "packs" one implementation of an abstraction into another implementation of the same abstraction like a "matryoshka doll".
 _Decorator_ is a well-known and useful design pattern. It is convenient to use tagged dependencies to build a chain of nested decorators, as in the example below:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -5604,10 +6878,22 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 Here an instance of the _TextWidget_ type, labeled _"base"_, is injected in the decorator _BoxWidget_. You can use any tag that semantically reflects the feature of the abstraction being embedded. The tag can be a constant, a type, or a value of an enumerated type.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Interception
 
-Interception allows you to enrich or change the behavior of a certain set of objects from the object graph being created without changing the code of the corresponding types.
+Interception lets you enrich or change the behavior of a certain set of objects from the object graph being created without changing the code of the corresponding types.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -5698,10 +6984,22 @@ Using an intercept gives you the ability to add end-to-end functionality such as
 - Error handling
 
 - Providing resistance to failures, etc.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Advanced interception
 
 This approach of interception maximizes performance by precompiling the proxy object factory.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -5721,7 +7019,7 @@ var log = new List<string>();
 var composition = new Composition(log);
 var businessService = composition.BusinessService;
 
-// Взаимодействие с сервисами для проверки перехвата
+// Use the services to verify interception.
 businessService.Process();
 businessService.DataService.Count();
 
@@ -5823,11 +7121,23 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
  - [Castle.DynamicProxy](https://www.nuget.org/packages/Castle.DynamicProxy)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Resolve hint
 
 Hints are used to fine-tune code generation. The _Resolve_ hint determines whether to generate _Resolve_ methods. By default, a set of four _Resolve_ methods are generated. Set this hint to _Off_ to disable the generation of resolve methods. This will reduce class composition generation time, and no anonymous composition roots will be generated in this case. When the _Resolve_ hint is disabled, only the regular root properties are available, so be sure to define them explicitly with the `Root<T>(...)` method.
 In addition, setup hints can be comments before the _Setup_ method in the form ```hint = value```, for example: `// Resolve = Off`.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -5865,20 +7175,32 @@ To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
 For more hints, see [this](README.md#setup-hints) page.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## ThreadSafe hint
 
 Hints are used to fine-tune code generation. The _ThreadSafe_ hint determines whether object composition will be created in a thread-safe manner. This hint is _On_ by default. It is good practice not to use threads when creating an object graph, in which case this hint can be turned off, which will lead to a slight increase in performance.
 In addition, setup hints can be comments before the _Setup_ method in the form ```hint = value```, for example: `// ThreadSafe = Off`.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
 using static Pure.DI.Hint;
 
 DI.Setup(nameof(Composition))
-    // Отключение потокобезопасности в композиции может повысить производительность.
-    // Это безопасно, если граф объектов разрешается в одном потоке,
-    // например, при запуске приложения.
+    // Disabling thread-safety can improve performance.
+    // This is safe when the object graph is resolved on a single thread,
+    // for example at application startup.
     .Hint(ThreadSafe, "Off")
     .Bind().To<SqlDatabaseConnection>()
     .Bind().As(Lifetime.Singleton).To<ReportGenerator>()
@@ -5900,11 +7222,23 @@ To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
 For more hints, see [this](README.md#setup-hints) page.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## OnDependencyInjection regular expression hint
 
 Hints are used to fine-tune code generation. The _OnDependencyInjection_ hint determines whether to generate partial _OnDependencyInjection_ method to control of dependency injection.
 In addition, setup hints can be comments before the _Setup_ method in the form ```hint = value```, for example: `// OnDependencyInjection = On`.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -5970,11 +7304,23 @@ To run the above code, the following NuGet packages must be added:
 
 The `OnDependencyInjectionContractTypeNameRegularExpression` hint helps identify the set of types that require injection control. You can use it to specify a regular expression to filter the full name of a type.
 For more hints, see [this](README.md#setup-hints) page.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## OnDependencyInjection wildcard hint
 
 Hints are used to fine-tune code generation. The _OnDependencyInjection_ hint determines whether to generate partial _OnDependencyInjection_ method to control of dependency injection.
 In addition, setup hints can be comments before the _Setup_ method in the form ```hint = value```, for example: `// OnDependencyInjection = On`.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -6032,11 +7378,23 @@ To run the above code, the following NuGet packages must be added:
 
 The `OnDependencyInjectionContractTypeNameWildcard` hint helps identify the set of types that require injection control. You can use it to specify a wildcard to filter the full name of a type.
 For more hints, see [this](README.md#setup-hints) page.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## OnCannotResolve regular expression hint
 
 Hints are used to fine-tune code generation. The _OnCannotResolve_ hint determines whether to generate a partial `OnCannotResolve<T>(...)` method to handle a scenario where an instance which cannot be resolved.
 In addition, setup hints can be comments before the _Setup_ method in the form ```hint = value```, for example: `// OnCannotResolveContractTypeNameRegularExpression = string`.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -6109,11 +7467,23 @@ To run the above code, the following NuGet packages must be added:
 
 The `OnCannotResolveContractTypeNameRegularExpression` hint helps define the set of types that require manual dependency resolution. You can use it to specify a regular expression to filter the full type name.
 For more hints, see [this](README.md#setup-hints) page.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## OnCannotResolve wildcard hint
 
 Hints are used to fine-tune code generation. The _OnCannotResolve_ hint determines whether to generate a partial `OnCannotResolve<T>(...)` method to handle a scenario where an instance which cannot be resolved.
 In addition, setup hints can be comments before the _Setup_ method in the form ```hint = value```, for example: `// OnCannotResolveContractTypeNameWildcard = string`.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -6175,11 +7545,23 @@ To run the above code, the following NuGet packages must be added:
 
 The `OnCannotResolveContractTypeNameWildcard` hint helps define the set of types that require manual dependency resolution. You can use it to specify a wildcard to filter the full type name.
 For more hints, see [this](README.md#setup-hints) page.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## OnNewInstance regular expression hint
 
 Hints are used to fine-tune code generation. The _OnNewInstance_ hint determines whether to generate partial _OnNewInstance_ method.
 In addition, setup hints can be comments before the _Setup_ method in the form ```hint = value```, for example: `// OnNewInstance = On`.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -6236,11 +7618,23 @@ To run the above code, the following NuGet packages must be added:
 
 The `OnNewInstanceLifetimeRegularExpression` hint helps you define a set of lifetimes that require instance creation control. You can use it to specify a regular expression to filter bindings by lifetime name.
 For more hints, see [this](README.md#setup-hints) page.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## OnNewInstance wildcard hint
 
 Hints are used to fine-tune code generation. The _OnNewInstance_ hint determines whether to generate partial _OnNewInstance_ method.
 In addition, setup hints can be comments before the _Setup_ method in the form ```hint = value```, for example: `// OnNewInstance = On`.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -6317,11 +7711,23 @@ To run the above code, the following NuGet packages must be added:
 
 The `OnNewInstanceImplementationTypeNameWildcard` hint helps you define a set of implementation types that require instance creation control. You can use it to specify a wildcard to filter bindings by implementation name.
 For more hints, see [this](README.md#setup-hints) page.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## ToString hint
 
 Hints are used to fine-tune code generation. The _ToString_ hint determines if the _ToString()_ method should be generated. This method provides a text-based class diagram in the format [mermaid](https://mermaid.js.org/). To see this diagram, just call the ToString method and copy the text to [this site](https://mermaid.live/). An example class diagram can be seen below.
 In addition, setup hints can be comments before the _Setup_ method in the form ```hint = value```, for example: `// ToString = On`.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -6350,10 +7756,22 @@ To run the above code, the following NuGet package must be added:
 
 Developers who start using DI technology often complain that they stop seeing the structure of the application because it is difficult to understand how it is built. To make life easier, you can add the _ToString_ hint by telling the generator to create a `ToString()` method.
 For more hints, see [this](README.md#setup-hints) page.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Check for a root
 
 Sometimes you need to check if you can get the root of a composition using the _Resolve_ method before calling it, this example will show you how to do it:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -6427,8 +7845,21 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 For more hints, see [this](README.md#setup-hints) page.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Composition root kinds
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -6480,10 +7911,22 @@ partial class Composition
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Factory with thread synchronization
 
 In some cases, initialization of objects requires synchronization of the overall composition flow.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -6537,8 +7980,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Root with name template
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -6572,8 +8028,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tag Any
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -6637,10 +8106,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tag Type
 
 `Tag.Type` in bindings replaces the expression `typeof(T)`, where `T` is the type of the implementation in a binding.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -6701,10 +8182,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tag Unique
 
 `Tag.Unique` is useful to register a binding with a unique tag. It will not be available through the composition root or `Resolve` methods directly, but can be injected in compositions as some kind of enumeration.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -6746,10 +8239,19 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tag on injection site
 
-Sometimes it is necessary to determine which binding will be used to inject explicitly. To do this, use a special tag created by calling the `Tag.On()` method. Tag on injection site is specified in a special format: `Tag.On("<namespace>.<type>.<member>[:argument]")`. The argument is specified only for the constructor and methods. For example, for namespace _MyNamespace_ and type _Class1_:
+Sometimes you need to determine which binding will be used to inject explicitly. To do this, use a special tag created by calling the `Tag.On()` method. Tag on injection site is specified in a special format: `Tag.On("<namespace>.<type>.<member>[:argument]")`. The argument is specified only for the constructor and methods. For example, for namespace _MyNamespace_ and type _Class1_:
 
 - `Tag.On("MyNamespace.Class1.Class1:state1") - the tag corresponds to the constructor argument named _state_ of type _MyNamespace.Class1_
 - `Tag.On("MyNamespace.Class1.DoSomething:myArg")` - the tag corresponds to the _myArg_ argument of the _DoSomething_ method
@@ -6758,6 +8260,9 @@ Sometimes it is necessary to determine which binding will be used to inject expl
 The wildcards `*` and `?` are supported. All names are case-sensitive. The global namespace prefix `global::` must be omitted. You can also combine multiple tags in a single `Tag.On("...", "...")` call.
 
 For generic types, the type name also contains the number of type parameters, e.g., for the `myDep` constructor argument of the `Consumer<T>` class, the tag on the injection site would be ``MyNamespace.Consumer`1.Consumer:myDep``:
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -6831,10 +8336,22 @@ To run the above code, the following NuGet packages must be added:
 
 > [!WARNING]
 > Each potentially injectable argument, property, or field contains an additional tag. This tag can be used to specify what can be injected there. This will only work if the binding type and the tag match. So while this approach can be useful for specifying what to enter, it can be more expensive to maintain and less reliable, so it is recommended to use attributes like `[Tag(...)]` instead.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tag on a constructor argument
 
-The wildcards ‘*’ and ‘?’ are supported.
+The wildcards `*` and `?` are supported.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -6890,10 +8407,22 @@ To run the above code, the following NuGet packages must be added:
 
 > [!WARNING]
 > Each potentially injectable argument, property, or field contains an additional tag. This tag can be used to specify what can be injected there. This will only work if the binding type and the tag match. So while this approach can be useful for specifying what to enter, it can be more expensive to maintain and less reliable, so it is recommended to use attributes like `[Tag(...)]` instead.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tag on a member
 
-The wildcards ‘*’ and ‘?’ are supported.
+The wildcards `*` and `?` are supported.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -6902,7 +8431,7 @@ using Pure.DI;
 DI.Setup(nameof(Composition))
     .Bind().To<PayPalGateway>()
     // Binds StripeGateway to the "Gateway" property of the "CheckoutService" class.
-    // This allows you to override the injected dependency for a specific member
+    // This lets you override the injected dependency for a specific member
     // without changing the class definition.
     .Bind(Tag.OnMember<CheckoutService>(nameof(CheckoutService.Gateway)))
     .To<StripeGateway>()
@@ -6940,10 +8469,22 @@ To run the above code, the following NuGet packages must be added:
 
 > [!WARNING]
 > Each potentially injectable argument, property, or field contains an additional tag. This tag can be used to specify what can be injected there. This will only work if the binding type and the tag match. So while this approach can be useful for specifying what to enter, it can be more expensive to maintain and less reliable, so it is recommended to use attributes like `[Tag(...)]` instead.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tag on a method argument
 
-The wildcards ‘*’ and ‘?’ are supported.
+The wildcards `*` and `?` are supported.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -6992,10 +8533,22 @@ To run the above code, the following NuGet packages must be added:
 
 > [!WARNING]
 > Each potentially injectable argument, property, or field contains an additional tag. This tag can be used to specify what can be injected there. This will only work if the binding type and the tag match. So while this approach can be useful for specifying what to enter, it can be more expensive to maintain and less reliable, so it is recommended to use attributes like `[Tag(...)]` instead.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tag on injection site with wildcards
 
-The wildcards ‘*’ and ‘?’ are supported.
+The wildcards `*` and `?` are supported.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -7075,6 +8628,15 @@ To run the above code, the following NuGet packages must be added:
 
 > [!WARNING]
 > Each potentially injectable argument, property, or field contains an additional tag. This tag can be used to specify what can be injected there. This will only work if the binding type and the tag match. So while this approach can be useful for specifying what to enter, it can be more expensive to maintain and less reliable, so it is recommended to use attributes like `[Tag(...)]` instead.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Dependent compositions
 
@@ -7082,6 +8644,9 @@ The _Setup_ method has an additional argument _kind_, which defines the type of 
 - _CompositionKind.Public_ - will create a normal composition class, this is the default setting and can be omitted, it can also use the _DependsOn_ method to use it as a dependency in other compositions
 - _CompositionKind.Internal_ - the composition class will not be created, but that composition can be used to create other compositions by calling the _DependsOn_ method with its name
 - _CompositionKind.Global_ - the composition class will also not be created, but that composition will automatically be used to create other compositions
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -7128,8 +8693,418 @@ partial class Ui(IUserService userService)
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
+## Dependent compositions with setup context
+
+This scenario shows how to pass an explicit setup context when a dependent setup uses instance members.
+When this occurs: you need base setup state (e.g., Unity-initialized fields) inside a dependent composition.
+What it solves: avoids missing instance members in dependent compositions and keeps state access explicit.
+How it is solved in the example: uses DependsOn(setupName, kind, name) and passes the base setup instance into the dependent composition.
+
+```c#
+using Pure.DI;
+using static Pure.DI.CompositionKind;
+
+var baseContext = new BaseComposition { Settings = new AppSettings("prod", 3) };
+var composition = new Composition(baseContext);
+var service = composition.Service;
+
+interface IService
+{
+    string Report { get; }
+}
+
+class Service(IAppSettings settings) : IService
+{
+    public string Report { get; } = $"env={settings.Environment}, retries={settings.RetryCount}";
+}
+
+internal partial class BaseComposition
+{
+    internal AppSettings Settings { get; set; } = new("", 0);
+
+    private void Setup()
+    {
+        DI.Setup(nameof(BaseComposition), Internal)
+            .Bind<IAppSettings>().To(_ => Settings);
+    }
+}
+
+internal partial class Composition
+{
+    private void Setup()
+    {
+        DI.Setup(nameof(Composition))
+            .DependsOn(nameof(BaseComposition), SetupContextKind.Argument, "baseContext")
+            .Bind<IService>().To<Service>()
+            .Root<IService>("Service");
+    }
+}
+
+record AppSettings(string Environment, int RetryCount) : IAppSettings;
+
+interface IAppSettings
+{
+    string Environment { get; }
+
+    int RetryCount { get; }
+}
+```
+
+To run the above code, the following NuGet package must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+
+What it shows:
+- Explicit setup context injection for dependent compositions.
+
+Important points:
+- The dependent composition receives the base setup instance via a constructor argument.
+
+Useful when:
+- Base setup has instance members initialized externally (e.g., Unity).
+
+
+## Dependent compositions with setup context members
+
+This scenario shows how to copy referenced members from a base setup into the dependent composition.
+When this occurs: you want to reuse base setup state without passing a separate context instance.
+What it solves: lets dependent compositions access base setup members directly (Unity-friendly, no constructor args).
+How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and sets members on the composition instance. The name parameter is optional; methods are declared partial and implemented by the user.
+
+```c#
+using Pure.DI;
+using static Pure.DI.CompositionKind;
+
+var composition = new Composition
+{
+    ConnectionSettings = new DatabaseConnectionSettings("prod-db.example.com", 5432, "app_database"),
+    LogLevel = "Info",
+    MaxRetries = 5
+};
+
+var service = composition.DataService;
+
+interface IDataService
+{
+    string GetStatus();
+}
+
+/// <summary>
+/// Data service using connection settings and logging configuration
+/// </summary>
+class DataService(
+    IDatabaseConnectionSettings connectionSettings,
+    [Tag("logLevel")] string logLevel,
+    [Tag("maxRetries")] int maxRetries,
+    [Tag("timeout")] int timeoutMs,
+    [Tag("enableDiagnostics")] bool enableDiagnostics) : IDataService
+{
+    public string GetStatus() => enableDiagnostics
+        ? $"Database: {connectionSettings.DatabaseName}@{connectionSettings.Host}:{connectionSettings.Port}, " +
+          $"LogLevel: {logLevel}, " +
+          $"MaxRetries: {maxRetries}, " +
+          $"Timeout: {timeoutMs}ms"
+        : "OK";
+}
+
+/// <summary>
+/// Base composition providing database connection settings, default timeout, and diagnostics flag
+/// </summary>
+internal partial class BaseComposition
+{
+    /// <summary>
+    /// Enable detailed diagnostics logging (protected field accessible in derived compositions via DependsOn)
+    /// </summary>
+    protected bool EnableDiagnostics = false;
+
+    public DatabaseConnectionSettings ConnectionSettings { get; set; } = new("", 0, "");
+
+    int GetDefaultTimeout() => 5000;
+
+    private void Setup()
+    {
+        DI.Setup(nameof(BaseComposition), Internal)
+            .Bind<IDatabaseConnectionSettings>().To(_ => ConnectionSettings)
+            .Bind("enableDiagnostics").To(_ => EnableDiagnostics)
+            .Bind("timeout").To(_ => GetDefaultTimeout());
+    }
+}
+
+/// <summary>
+/// Dependent composition extending the base with logging level and max retries, and enabling diagnostics
+/// </summary>
+internal partial class Composition
+{
+    /// <summary>
+    /// Constructor enables diagnostics by default
+    /// </summary>
+    public Composition() => EnableDiagnostics = true;
+
+    /// <summary>
+    /// Application logging level
+    /// </summary>
+    public string LogLevel { get; set; } = "Warning";
+
+    /// <summary>
+    /// Maximum number of retry attempts
+    /// </summary>
+    public int MaxRetries { get; set; } = 3;
+
+    private void Setup()
+    {
+        DI.Setup(nameof(Composition))
+            .DependsOn(nameof(BaseComposition), SetupContextKind.Members)
+            .Bind<string>("logLevel").To(_ => LogLevel)
+            .Bind<int>("maxRetries").To(_ => MaxRetries)
+            .Bind<IDataService>().To<DataService>()
+            .Root<IDataService>("DataService");
+    }
+
+    /// <summary>
+    /// Implementation of partial method from base composition
+    /// </summary>
+    private partial int GetDefaultTimeout() => 5000;
+}
+
+/// <summary>
+/// Database connection settings
+/// </summary>
+record DatabaseConnectionSettings(string Host, int Port, string DatabaseName) : IDatabaseConnectionSettings;
+
+/// <summary>
+/// Database connection settings interface
+/// </summary>
+interface IDatabaseConnectionSettings
+{
+    string Host { get; }
+
+    int Port { get; }
+
+    string DatabaseName { get; }
+}
+```
+
+To run the above code, the following NuGet package must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+
+What it shows:
+- Setup context members copied into the dependent composition.
+- Realistic scenario: configuring database connection and logging for a data service.
+
+Important points:
+- The composition remains parameterless and can be configured via its own members.
+
+Example demonstrates:
+  1. BaseComposition provides database connection settings, default timeout, and a protected diagnostics field
+  2. Dependent Composition adds logging level and max retries configuration
+  3. DataService uses all settings including the protected field for conditional output
+  4. Protected field 'EnableDiagnostics' from BaseComposition is accessible in Composition via DependsOn
+  5. Composition's constructor sets EnableDiagnostics to true to enable detailed status
+
+Note: SetupContextKind.Members copies both public and protected members to the dependent composition.
+
+Useful when:
+- Base setup has instance members initialized by the host or framework.
+- You need to extend configuration with additional settings in derived compositions.
+
+
+## Dependent compositions with setup context members and property accessors
+
+This scenario shows how to copy referenced members and implement custom property accessors via partial methods.
+When this occurs: you need base setup properties with logic, but the dependent composition must remain parameterless.
+What it solves: keeps Unity-friendly composition while letting the user implement property logic.
+How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and implements partial get_ methods.
+
+```c#
+using Pure.DI;
+using static Pure.DI.CompositionKind;
+
+var composition = new Composition
+{
+	ConnectionString = "Server=prod-db.example.com;Database=AppDb;"
+};
+
+var service = composition.DatabaseService;
+
+interface IDatabaseService
+{
+	string ConnectionString { get; }
+	int MaxConnections { get; }
+}
+
+class DatabaseService(
+	[Tag("connectionString")] string connectionString,
+	[Tag("maxConnections")] int maxConnections) : IDatabaseService
+{
+	public string ConnectionString { get; } = connectionString;
+	public int MaxConnections { get; } = maxConnections;
+}
+
+/// <summary>
+/// Base composition providing database configuration properties
+/// </summary>
+internal partial class BaseComposition
+{
+	/// <summary>
+	/// Connection string - simple property with field-backed accessor (no custom logic)
+	/// </summary>
+	public string ConnectionString { get; set; } = "";
+
+	/// <summary>
+	/// Maximum number of connections - property with custom getter logic
+	/// </summary>
+	private int _maxConnections = 100;
+
+	public int MaxConnections
+	{
+		get => _maxConnections;
+		set => _maxConnections = value;
+	}
+
+	private void Setup()
+	{
+		DI.Setup(nameof(BaseComposition), Internal)
+			.Bind<string>("connectionString").To(_ => ConnectionString)
+			.Bind<int>("maxConnections").To(_ => MaxConnections);
+	}
+}
+
+/// <summary>
+/// Dependent composition implementing custom accessor logic for properties
+/// </summary>
+internal partial class Composition
+{
+	/// <summary>
+	/// MaxConnections backing field
+	/// </summary>
+	private int _maxConnections = 100;
+
+	/// <summary>
+	/// Custom accessor logic: returns configured value + 1 to ensure minimum buffer
+	/// </summary>
+	private partial int get__MaxConnections() => _maxConnections + 1;
+
+	/// <summary>
+	/// Setter for MaxConnections
+	/// </summary>
+	public void SetMaxConnections(int value) => _maxConnections = value;
+
+	private void Setup()
+	{
+		DI.Setup(nameof(Composition))
+			.DependsOn(nameof(BaseComposition), SetupContextKind.Members)
+			.Bind<IDatabaseService>().To<DatabaseService>()
+			.Root<IDatabaseService>("DatabaseService");
+	}
+}
+```
+
+To run the above code, the following NuGet package must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+
+What it shows:
+- Custom property logic via partial accessor methods.
+- Properties with simple field-backed accessors (no logic).
+
+Important points:
+- Accessor logic is not copied; the user provides partial implementations.
+- Simple property accessors (field-backed) can be used without partial methods.
+
+Example demonstrates:
+  1. BaseComposition provides connection string and max connections properties
+  2. ConnectionString has simple field-backed accessor (no logic)
+  3. MaxConnections has custom getter logic via partial method
+  4. Dependent Composition implements custom accessor logic for MaxConnections
+
+Useful when:
+- Properties include custom logic and are referenced by bindings in a dependent setup.
+- Some properties are simple field-backed while others have custom logic.
+
+
+## Dependent compositions with setup context root argument
+
+This scenario shows how to pass an explicit setup context as a root argument.
+When this occurs: you need external state from the base setup but cannot use a constructor (e.g., Unity MonoBehaviour).
+What it solves: keeps the dependent composition safe while avoiding constructor arguments.
+How it is solved in the example: uses DependsOn(..., SetupContextKind.RootArgument, name) and passes the base setup instance to the root method.
+
+```c#
+using Pure.DI;
+using static Pure.DI.CompositionKind;
+
+var baseContext = new BaseComposition { Settings = new AppSettings("staging", 2) };
+var composition = new Composition();
+var service = composition.Service(baseContext: baseContext);
+
+interface IService
+{
+    string Report { get; }
+}
+
+class Service(IAppSettings settings) : IService
+{
+    public string Report { get; } = $"env={settings.Environment}, retries={settings.RetryCount}";
+}
+
+internal partial class BaseComposition
+{
+    internal AppSettings Settings { get; set; } = new("", 0);
+
+    private void Setup()
+    {
+        DI.Setup(nameof(BaseComposition), Internal)
+            .Bind<IAppSettings>().To(_ => Settings);
+    }
+}
+
+internal partial class Composition
+{
+    private void Setup()
+    {
+        // Resolve = Off
+        DI.Setup(nameof(Composition))
+            .DependsOn(nameof(BaseComposition), SetupContextKind.RootArgument, "baseContext")
+            .Bind<IService>().To<Service>()
+            .Root<IService>("Service");
+    }
+}
+
+record AppSettings(string Environment, int RetryCount) : IAppSettings;
+
+interface IAppSettings
+{
+    string Environment { get; }
+
+    int RetryCount { get; }
+}
+```
+
+To run the above code, the following NuGet package must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+
+What it shows:
+- Passing setup context into a root method.
+
+Important points:
+- The composition itself can still be created with a parameterless constructor.
+
+Useful when:
+- The host (like Unity) creates the composition instance.
 
 ## Inheritance of compositions
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -7176,10 +9151,22 @@ partial class App(IUserManager userManager)
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Accumulators
 
 Accumulators allow you to accumulate instances of certain types and lifetimes.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -7241,10 +9228,22 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Global compositions
 
 When the `Setup(name, kind)` method is called, the second optional parameter specifies the composition kind. If you set it as `CompositionKind.Global`, no composition class will be created, but this setup will be the base setup for all others in the current project, and `DependsOn(...)` is not required. The setups will be applied in the sort order of their names.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -7271,10 +9270,22 @@ class MyGlobalComposition2
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Partial class
 
 A partial class can contain setup code.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -7326,9 +9337,9 @@ public partial class Composition(string storeName)
 
         DI.Setup()
             .Bind<IOrder>().To<Order>()
-            .Bind<long>().To(_ => GenerateId())
+            .Bind<long>().To(GenerateId)
             // Binds the string with the tag "Order details"
-            .Bind<string>("Order details").To(_ => $"{storeName}_{GenerateId()}")
+            .Bind<string>("Order details").To(() => $"{storeName}_{GenerateId()}")
             .Root<OrderService>("OrderService", kind: Internal);
 }
 ```
@@ -7338,10 +9349,22 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 The partial class is also useful for specifying access modifiers to the generated class.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## A few partial classes
 
 The setting code for one Composition can be located in several methods and/or in several partial classes.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -7391,8 +9414,21 @@ partial class Composition
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Thread-safe overrides
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -7400,7 +9436,7 @@ using Pure.DI;
 using System.Collections.Immutable;
 
 DI.Setup(nameof(Composition))
-    .Bind("Global").To(_ => new ProcessingToken("TOKEN-123"))
+    .Bind("Global").To(() => new ProcessingToken("TOKEN-123"))
     .Bind().As(Lifetime.Singleton).To<TimeProvider>()
     .Bind().To<Func<int, int, IOrderHandler>>(ctx =>
         (orderId, customerId) => {
@@ -7500,10 +9536,90 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
+## Override depth
+
+When this occurs: you need to control how far override values propagate in a factory.
+What it solves: keeps overrides local to a single injection level without affecting nested dependencies.
+How it is solved in the example: uses Let to keep overrides local and verifies the scope.
+
+```c#
+using Shouldly;
+using Pure.DI;
+
+DI.Setup(nameof(DeepComposition))
+    .Bind().To<int>(_ => 7)
+    .Bind().To<Dependency>()
+    .Bind().To<Service>(ctx =>
+    {
+        ctx.Override(42);
+        ctx.Inject(out Service service);
+        return service;
+    })
+    .Root<Service>("Service");
+
+DI.Setup(nameof(ShallowComposition))
+    .Bind().To<int>(_ => 7)
+    .Bind().To<Dependency>()
+    .Bind().To<Service>(ctx =>
+    {
+        ctx.Let(42);
+        ctx.Inject(out Service service);
+        return service;
+    })
+    .Root<Service>("Service");
+
+var deep = new DeepComposition().Service;
+var shallow = new ShallowComposition().Service;
+
+deep.Id.ShouldBe(42);
+deep.Dependency.Id.ShouldBe(42);
+
+shallow.Id.ShouldBe(42);
+shallow.Dependency.Id.ShouldBe(7);
+
+class Dependency(int id)
+{
+    public int Id { get; } = id;
+}
+
+class Service(int id, Dependency dependency)
+{
+    public int Id { get; } = id;
+
+    public Dependency Dependency { get; } = dependency;
+}
+```
+
+To run the above code, the following NuGet packages must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+ - [Shouldly](https://www.nuget.org/packages/Shouldly)
+
+What it shows:
+- Demonstrates deep vs one-level override behavior.
+
+Important points:
+- Deep overrides propagate into nested dependency graphs.
+- One-level overrides affect only the immediate injection.
+
+Useful when:
+- You want to override a constructor parameter without affecting deeper object graphs.
 
 ## Consumer types
 
 `ConsumerTypes` is used to get the list of consumer types of a given dependency. It contains an array of types and guarantees that it will contain at least one element. The use of `ConsumerTypes` is demonstrated on the example of [Serilog library](https://serilog.net/):
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -7569,8 +9685,21 @@ To run the above code, the following NuGet packages must be added:
  - [Serilog.Core](https://www.nuget.org/packages/Serilog.Core)
  - [Serilog.Events](https://www.nuget.org/packages/Serilog.Events)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tracking disposable instances per a composition root
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -7636,8 +9765,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tracking disposable instances in delegates
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -7707,6 +9849,15 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tracking disposable instances using pre-built classes
 
@@ -7715,6 +9866,9 @@ If you want ready-made classes for tracking disposable objects in your libraries
 [![NuGet](https://img.shields.io/nuget/v/Pure.DI.Abstractions)](https://www.nuget.org/packages/Pure.DI.Abstractions)
 
 It contains attributes like `Inject` and `Inject<T>` that work for constructors and their arguments, methods and their arguments, properties and fields. They allow you to setup all injection parameters.
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -7827,8 +9981,21 @@ To run the above code, the following NuGet packages must be added:
 This package should also be included in a project:
 
 [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tracking disposable instances with different lifetimes
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -7936,8 +10103,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tracking async disposable instances per a composition root
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -8008,8 +10188,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Tracking async disposable instances in delegates
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -8059,7 +10252,7 @@ interface IQueryService
 class QueryService(Func<Owned<IConnection>> connectionFactory)
     : IQueryService, IAsyncDisposable
 {
-    // The Owned<T> generic type allows you to manage the lifetime of a dependency
+    // The Owned<T> generic type lets you manage the lifetime of a dependency
     // explicitly. In this case, the QueryService creates the connection
     // using a factory and takes ownership of it.
     private readonly Owned<IConnection> _connection = connectionFactory();
@@ -8090,6 +10283,15 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Exposed roots
 
@@ -8104,6 +10306,9 @@ public partial class CompositionInOtherProject
             .Root<IMyService>("MyService", kind: RootKinds.Exposed);
 }
 ```
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -8130,6 +10335,15 @@ To run the above code, the following NuGet package must be added:
 
 > [!IMPORTANT]
 > At this point, a composition from another assembly or another project can be used for this purpose. Compositions from the current project cannot be used in this way due to limitations of the source code generators.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Exposed roots with tags
 
@@ -8144,6 +10358,9 @@ public partial class CompositionWithTagsInOtherProject
             .Root<IMyService>("MyService", "Some tag", RootKinds.Exposed);
 }
 ```
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -8168,6 +10385,15 @@ partial class Program([Tag("Some tag")] IMyService myService)
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Exposed roots via arg
 
@@ -8182,6 +10408,9 @@ public partial class CompositionInOtherProject
             .Root<IMyService>("MyService", kind: RootKinds.Exposed);
 }
 ```
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -8206,6 +10435,15 @@ partial class Program(IMyService myService)
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Exposed roots via root arg
 
@@ -8220,6 +10458,9 @@ public partial class CompositionInOtherProject
             .Root<IMyService>("MyService", kind: RootKinds.Exposed);
 }
 ```
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -8244,6 +10485,15 @@ partial class Program(IMyService myService)
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Exposed generic roots
 
@@ -8254,12 +10504,15 @@ public partial class CompositionInOtherProject
     private static void Setup() =>
     DI.Setup()
         .Hint(Hint.Resolve, "Off")
-        .Bind().To(_ => 99)
+        .Bind().To(() => 99)
         .Bind().As(Lifetime.Singleton).To<MyDependency>()
         .Bind().To<MyGenericService<TT>>()
         .Root<IMyGenericService<TT>>("GetMyService", kind: RootKinds.Exposed);
 }
 ```
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -8286,6 +10539,15 @@ To run the above code, the following NuGet package must be added:
 
 > [!IMPORTANT]
 > At this point, a composition from another assembly or another project can be used for this purpose. Compositions from the current project cannot be used in this way due to limitations of the source code generators.
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Exposed generic roots with args
 
@@ -8302,6 +10564,9 @@ public partial class CompositionWithGenericRootsAndArgsInOtherProject
             .Root<IMyGenericService<TT>>("GetMyService", kind: RootKinds.Exposed);
 }
 ```
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -8327,8 +10592,21 @@ partial class Program(IMyGenericService<int> myService)
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## AutoMapper
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -8472,8 +10750,21 @@ To run the above code, the following NuGet packages must be added:
  - [Microsoft.Extensions.DependencyInjection](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection)
  - [Pure.DI.Abstractions](https://www.nuget.org/packages/Pure.DI.Abstractions)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## JSON serialization
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -8548,7 +10839,7 @@ partial class Composition
             .Root<ISettingsService>(nameof(Settings))
             .Bind().To<SettingsService>()
             .DefaultLifetime(Singleton)
-            .Bind().To(_ => new JsonSerializerOptions { WriteIndented = true })
+            .Bind().To(() => new JsonSerializerOptions { WriteIndented = true })
             .Bind(JSON).To<JsonSerializerOptions, Func<string, TT?>>(options => json => JsonSerializer.Deserialize<TT>(json, options))
             .Bind(JSON).To<JsonSerializerOptions, Func<TT, string>>(options => value => JsonSerializer.Serialize(value, options))
             .Bind().To<Storage>();
@@ -8559,8 +10850,21 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Serilog
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Serilog.Core;
@@ -8633,8 +10937,133 @@ To run the above code, the following NuGet packages must be added:
  - [Serilog.Core](https://www.nuget.org/packages/Serilog.Core)
  - [Serilog.Events](https://www.nuget.org/packages/Serilog.Events)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
+
+## Request overrides
+
+When this occurs: you need per-request overrides with different scopes for nested services.
+What it solves: applies request data to the main workflow while keeping background or system dependencies isolated.
+How it is solved in the example: uses nested factories and overrides to select the nearest context.
+
+```c#
+using Pure.DI;
+
+var composition = new Composition();
+
+var handler = composition.CreateHandler(new Request("tenant-a", "user-1"));
+
+record Request(string TenantId, string UserId);
+
+interface IRequestContext
+{
+    string TenantId { get; }
+
+    string UserId { get; }
+
+    bool IsSystem { get; }
+}
+
+class RequestContext(string tenantId, string userId, bool isSystem) : IRequestContext
+{
+    public static RequestContext System => new("system", "system", true);
+
+    public string TenantId { get; } = tenantId;
+
+    public string UserId { get; } = userId;
+
+    public bool IsSystem { get; } = isSystem;
+}
+
+interface IRepository
+{
+    IRequestContext Context { get; }
+}
+
+class Repository(IRequestContext context) : IRepository
+{
+    public IRequestContext Context { get; } = context;
+}
+
+interface IAuditWriter
+{
+    IRequestContext Context { get; }
+}
+
+class AuditWriter(IRequestContext context) : IAuditWriter
+{
+    public IRequestContext Context { get; } = context;
+}
+
+class Service(
+    IRequestContext context,
+    Func<IRepository> repositoryFactory,
+    IAuditWriter audit)
+{
+    public IRequestContext Context { get; } = context;
+
+    public IRepository Repository { get; } = repositoryFactory();
+
+    public IAuditWriter Audit { get; } = audit;
+}
+
+class Handler(Service service)
+{
+    public Service Service { get; } = service;
+}
+
+partial class Composition
+{
+    private void Setup() =>
+        DI.Setup(nameof(Composition))
+            .Bind<IRepository>().To<Repository>()
+            .Bind<IAuditWriter>().To<AuditWriter>()
+            .Bind().To<Service>()
+            .Bind().To<Handler>()
+            .Bind().To<Func<IRepository>>(ctx => () =>
+            {
+                // Inner override applies to repository dependencies only.
+                ctx.Override<IRequestContext>(RequestContext.System);
+                ctx.Inject(out IRepository repository);
+                return repository;
+            })
+            .Bind().To<Func<Request, Handler>>(ctx => request =>
+            {
+                // Outer override applies to the request handler and its main workflow.
+                ctx.Override<IRequestContext>(new RequestContext(request.TenantId, request.UserId, false));
+                ctx.Inject(out Handler handler);
+                return handler;
+            })
+            .Root<Func<Request, Handler>>(nameof(CreateHandler));
+}
+```
+
+To run the above code, the following NuGet package must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+
+What it shows:
+- Demonstrates override precedence across nested factories.
+- Shows that the closest override wins for deeper dependencies.
+
+Important points:
+- Multiple overrides for the same type pick the nearest one in the graph.
+- The last override on the same level wins.
+
+Useful when:
+- You handle multi-tenant requests and need system services to run under a system context.
 
 ## Unity Basics
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -8706,7 +11135,7 @@ public partial class Scope : MonoBehaviour
 
     void Setup() =>
         DI.Setup()
-        .Bind().To(_ => clockConfig)
+        .Bind().To(() => clockConfig)
         .Bind().As(Lifetime.Singleton).To<ClockService>()
         .Builders<MonoBehaviour>();
 
@@ -8720,8 +11149,21 @@ public partial class Scope : MonoBehaviour
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 ## Unity with prefabs
+
+When this occurs: you need this feature while building the composition and calling roots.
+What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
+How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -8840,7 +11282,7 @@ public partial class Scope : MonoBehaviour
     [SerializeField]  ClockConfig clockConfig;
 
     void Setup() => DI.Setup()
-        .Bind().To(_ => clockConfig)
+        .Bind().To(() => clockConfig)
         .Bind().As(Lifetime.Singleton).To<ClockService>()
         .Root<ClockManager>(nameof(ClockManager))
         .Builders<MonoBehaviour>();
@@ -8860,6 +11302,15 @@ public partial class Scope : MonoBehaviour
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
+What it shows:
+- Demonstrates the scenario setup and resulting object graph in Pure.DI.
+
+Important points:
+- Highlights the key configuration choices and their effect on resolution.
+
+Useful when:
+- You want a concrete template for applying this feature in a composition.
+
 
 # Examples of using Pure.DI for different types of .NET projects.
 
@@ -8867,12 +11318,12 @@ To run the above code, the following NuGet package must be added:
 
 [![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/AvaloniaApp)
 
-This example demonstrates the creation of a [Avalonia](https://avaloniaui.net/) application in the pure DI paradigm using the Pure.DI code generator.
+This example demonstrates the creation of an [Avalonia](https://avaloniaui.net/) application in the pure DI paradigm using the Pure.DI code generator.
 
 > [!NOTE]
 > [Another example](samples/SingleRootAvaloniaApp) with Avalonia shows how to create an application with a single composition root.
 
-The definition of the composition is in [Composition.cs](/samples/AvaloniaApp/Composition.cs). This class setups how the composition of objects will be created for the application. You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
+The definition of the composition is in [Composition.cs](/samples/AvaloniaApp/Composition.cs). This class sets up how the object graphs will be created for the application. Do not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
 
 ```c#
 using Pure.DI;
@@ -8900,12 +11351,12 @@ partial class Composition
 ```
 
 Advantages over classical DI container libraries:
-- No performance impact or side effects when creating composition of objects.
+- No performance impact or side effects when creating object graphs.
 - All logic for analyzing the graph of objects, constructors and methods takes place at compile time. Pure.DI notifies the developer at compile time of missing or cyclic dependencies, cases when some dependencies are not suitable for injection, etc.
-- Does not add dependencies to any additional assembly.
-- Since the generated code uses primitive language constructs to create object compositions and does not use any libraries, you can easily debug the object composition code as regular code in your application.
+- Does not add dependencies to additional assemblies.
+- Since the generated code uses primitive language constructs to create object graphs and does not use any libraries, you can easily debug the object graph code as regular code in your application.
 
-A single instance of the _Composition_ class is defined as a static resource in [App.xaml](/samples/AvaloniaApp/App.axaml) for later use within the _xaml_ markup everywhere:
+A single instance of the _Composition_ class is defined as a static resource in [App.xaml](/samples/AvaloniaApp/App.axaml) for later use within the _XAML_ markup everywhere:
 
 ```xml
 <Application xmlns="https://github.com/avaloniaui"
@@ -8939,7 +11390,7 @@ This markup fragment
 
 creates a shared resource of type `Composition` with key _"Composition"_, which will be further used as a data context in the views.
 
-The associated application [App.axaml.cs](/samples/AvaloniaApp/App.axaml.cs) class is looking like:
+The associated application [App.axaml.cs](/samples/AvaloniaApp/App.axaml.cs) class looks like:
 
 ```c#
 public class App : Application
@@ -8975,11 +11426,11 @@ public class App : Application
 ```
 
 Advantages over classical DI container libraries:
-- No explicit initialisation of data contexts is required. Data contexts are configured directly in `.axaml` files according to the MVVM approach.
+- No explicit initialization of data contexts is required. Data contexts are configured directly in `.axaml` files according to the MVVM approach.
 - The code is simpler, more compact, and requires less maintenance effort.
 - The main window is created in a pure DI paradigm, and it can be easily supplied with all necessary dependencies via DI as regular types.
 
-You can now use bindings and use the code-behind file-less approach. All previously defined composition roots are now available from [markup](/samples/AvaloniaApp/Views/MainWindow.xaml) without any effort, e.g. _Clock_:
+You can now use bindings and the code-behind-free approach. All previously defined composition roots are now available from [markup](/samples/AvaloniaApp/Views/MainWindow.xaml) without any effort, e.g. _Clock_:
 
 ```xml
 <Window xmlns="https://github.com/avaloniaui"
@@ -9040,7 +11491,7 @@ The [project file](/samples/AvaloniaApp/AvaloniaApp.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -9059,9 +11510,9 @@ It contains an additional reference to the NuGet package:
 
 [![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/BlazorServerApp)
 
-This example demonstrates the creation of a [Blazor server](https://learn.microsoft.com/en-us/aspnet/core/blazor/hosting-models#blazor-server) application in the pure DI paradigm using the Pure.DI code generator.
+This example demonstrates the creation of a [Blazor Server](https://learn.microsoft.com/en-us/aspnet/core/blazor/hosting-models#blazor-server) application in the pure DI paradigm using the Pure.DI code generator.
 
-Composition setup file is [Composition.cs](/samples/BlazorServerApp/Composition.cs):
+The composition setup file is [Composition.cs](/samples/BlazorServerApp/Composition.cs):
 
 ```c#
 using Pure.DI;
@@ -9070,7 +11521,7 @@ using static Pure.DI.Lifetime;
 
 namespace BlazorServerApp;
 
-partial class Composition: ServiceProviderFactory<Composition>
+partial class Composition : ServiceProviderFactory<Composition>
 {
     private void Setup() => DI.Setup()
         .Root<IAppViewModel>()
@@ -9086,7 +11537,7 @@ partial class Composition: ServiceProviderFactory<Composition>
 }
 ```
 
-The composition class inherits from the `ServiceProviderFactory<T>` class, where T is the composition class itself.
+The composition class inherits from `ServiceProviderFactory<T>`, where `T` is the composition class itself.
 
 The web application entry point is in the [Program.cs](/samples/BlazorServerApp/Program.cs) file:
 
@@ -9104,11 +11555,11 @@ The [project file](/samples/BlazorServerApp/BlazorServerApp.csproj) looks like t
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
     </ItemGroup>
 
 </Project>
@@ -9116,20 +11567,20 @@ The [project file](/samples/BlazorServerApp/BlazorServerApp.csproj) looks like t
 
 It contains additional references to NuGet packages:
 
-|            |                                                                                                  |                                              |
-|------------|--------------------------------------------------------------------------------------------------|:---------------------------------------------|
-| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                     |
-| Pure.DI.MS | [![NuGet](https://img.shields.io/nuget/v/Pure.DI.MS)](https://www.nuget.org/packages/Pure.DI.MS) | Add-ons on Pure.DI to work with Microsoft DI |
+|            |                                                                                                  |                                               |
+|------------|--------------------------------------------------------------------------------------------------|:----------------------------------------------|
+| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                      |
+| Pure.DI.MS | [![NuGet](https://img.shields.io/nuget/v/Pure.DI.MS)](https://www.nuget.org/packages/Pure.DI.MS) | Add-ons for Pure.DI to work with Microsoft DI |
 
 #### Blazor WebAssembly application
 
-[![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/BlazorServerApp)
+[![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/BlazorWebAssemblyApp)
 
-[Here's an example](https://devteam.github.io/Pure.DI/) on github.io
+[Here's an example](https://devteam.github.io/Pure.DI/) on GitHub Pages.
 
 This example demonstrates the creation of a [Blazor WebAssembly](https://learn.microsoft.com/en-us/aspnet/core/blazor/hosting-models#blazor-webassembly) application in the pure DI paradigm using the Pure.DI code generator.
 
-Composition setup file is [Composition.cs](/samples/BlazorWebAssemblyApp/Composition.cs):
+The composition setup file is [Composition.cs](/samples/BlazorWebAssemblyApp/Composition.cs):
 
 ```c#
 using Pure.DI;
@@ -9138,7 +11589,7 @@ using static Pure.DI.Lifetime;
 
 namespace BlazorWebAssemblyApp;
 
-partial class Composition: ServiceProviderFactory<Composition>
+partial class Composition : ServiceProviderFactory<Composition>
 {
     private void Setup() => DI.Setup()
         .Root<IAppViewModel>()
@@ -9154,7 +11605,7 @@ partial class Composition: ServiceProviderFactory<Composition>
 }
 ```
 
-The composition class inherits from the `ServiceProviderFactory<T>` class, where T is the composition class itself.
+The composition class inherits from `ServiceProviderFactory<T>`, where `T` is the composition class itself.
 
 The web application entry point is in the [Program.cs](/samples/BlazorWebAssemblyApp/Program.cs) file:
 
@@ -9172,11 +11623,11 @@ The [project file](/samples/BlazorWebAssemblyApp/BlazorWebAssemblyApp.csproj) lo
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
     </ItemGroup>
 
 </Project>
@@ -9184,16 +11635,16 @@ The [project file](/samples/BlazorWebAssemblyApp/BlazorWebAssemblyApp.csproj) lo
 
 It contains additional references to NuGet packages:
 
-|            |                                                                                                  |                                              |
-|------------|--------------------------------------------------------------------------------------------------|:---------------------------------------------|
-| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                     |
-| Pure.DI.MS | [![NuGet](https://img.shields.io/nuget/v/Pure.DI.MS)](https://www.nuget.org/packages/Pure.DI.MS) | Add-ons on Pure.DI to work with Microsoft DI |
+|            |                                                                                                  |                                               |
+|------------|--------------------------------------------------------------------------------------------------|:----------------------------------------------|
+| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                      |
+| Pure.DI.MS | [![NuGet](https://img.shields.io/nuget/v/Pure.DI.MS)](https://www.nuget.org/packages/Pure.DI.MS) | Add-ons for Pure.DI to work with Microsoft DI |
 
-#### Console native AOT application
+#### Console Native AOT application
 
 [![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/ShroedingersCatNativeAOT)
 
-This example is very similar to [simple console application](ConsoleTemplate.md), except that this is [native AOT](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/) application.
+This example is very similar to the [simple console application](ConsoleTemplate.md), except that this is a [native AOT](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/) application.
 
 The [project file](/samples/ShroedingersCatNativeAOT/ShroedingersCatNativeAOT.csproj) looks like this:
 
@@ -9201,7 +11652,7 @@ The [project file](/samples/ShroedingersCatNativeAOT/ShroedingersCatNativeAOT.cs
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -9220,7 +11671,7 @@ It contains an additional reference to the NuGet package:
 
 [![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/ShroedingersCat)
 
-This example demonstrates the creation of a simple console application in the pure DI paradigm using the Pure.DI code generator. All code is in [one file](/samples/ShroedingersCat/Program.cs) for easy perception:
+This example demonstrates the creation of a simple console application in the pure DI paradigm using the Pure.DI code generator. All code is in [one file](/samples/ShroedingersCat/Program.cs) for easy reading:
 
 ```c#
 using Pure.DI;
@@ -9264,7 +11715,7 @@ public class ShroedingersCat(Lazy<State> superposition) : ICat
     public override string ToString() => $"{State} cat";
 }
 
-// Let's glue all together
+// Let's glue it all together
 
 internal partial class Composition
 {
@@ -9276,7 +11727,7 @@ internal partial class Composition
         .Bind().As(Singleton).To<Random>()
         // Represents a quantum superposition of 2 states: Alive or Dead
         .Bind().To((Random random) => (State)random.Next(2))
-        // Represents schrodinger's cat
+        // Represents Schrodinger's cat
         .Bind().To<ShroedingersCat>()
         // Represents a cardboard box with any content
         .Bind().To<CardboardBox<TT>>()
@@ -9289,7 +11740,7 @@ internal partial class Composition
 public class Program(IBox<ICat> box)
 {
     // Composition Root, a single place in an application
-    // where the composition of the object graphs for an application take place
+    // where the composition of the object graphs for an application takes place
     public static void Main() => new Composition().Root.Run();
 
     private void Run() => Console.WriteLine(box);
@@ -9302,7 +11753,7 @@ The [project file](/samples/ShroedingersCat/ShroedingersCat.csproj) looks like t
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -9317,11 +11768,11 @@ It contains an additional reference to the NuGet package:
 |---------|--------------------------------------------------------------------------------------------|:-------------------------|
 | Pure.DI | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI) | DI source code generator |
 
-#### Top level statements console application
+#### Top-level statements console application
 
 [![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/ShroedingersCatTopLevelStatements)
 
-This example is very similar to [simple console application](ConsoleTemplate.md), except that the composition is [defined](/samples/ShroedingersCatTopLevelStatements/Program.cs) as top-level statements and looks a little less verbose:
+This example is very similar to the [simple console application](ConsoleTemplate.md), except that the composition is [defined](/samples/ShroedingersCatTopLevelStatements/Program.cs) as top-level statements and looks a little less verbose:
 
 ```c#
 using Pure.DI;
@@ -9337,7 +11788,7 @@ DI.Setup("Composition")
     .Bind().As(Singleton).To<Random>()
     // Represents a quantum superposition of 2 states: Alive or Dead
     .Bind().To((Random random) => (State)random.Next(2))
-    // Represents schrodinger's cat
+    // Represents Schrodinger's cat
     .Bind().To<ShroedingersCat>()
     // Represents a cardboard box with any content
     .Bind().To<CardboardBox<TT>>()
@@ -9388,7 +11839,7 @@ The [project file](/samples/ShroedingersCatTopLevelStatements/ShroedingersCatTop
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -9403,13 +11854,13 @@ It contains an additional reference to the NuGet package:
 |---------|--------------------------------------------------------------------------------------------|:-------------------------|
 | Pure.DI | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI) | DI source code generator |
 
-#### gRPC service
+#### Entity Framework
 
 [![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/EF)
 
 This example demonstrates the creation of an Entity Framework application in the pure DI paradigm using the Pure.DI code generator.
 
-Composition setup file is [Composition.cs](/samples/EF/Composition.cs):
+The composition setup file is [Composition.cs](/samples/EF/Composition.cs):
 
 ```c#
 using System.Diagnostics;
@@ -9418,7 +11869,7 @@ using Pure.DI.MS;
 
 namespace EF;
 
-partial class Composition: ServiceProviderFactory<Composition>
+partial class Composition : ServiceProviderFactory<Composition>
 {
     private void Setup() => DI.Setup()
         .Root<Program>(nameof(Root))
@@ -9428,7 +11879,7 @@ partial class Composition: ServiceProviderFactory<Composition>
 }
 ```
 
-The composition class inherits from the `ServiceProviderFactory<T>` class, where T is the composition class itself.
+The composition class inherits from `ServiceProviderFactory<T>`, where `T` is the composition class itself.
 
 The console application entry point is in the [Program.cs](/samples/EF/Program.cs) file:
 
@@ -9490,11 +11941,11 @@ The [project file](/samples/EF/EF.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
     </ItemGroup>
 
 </Project>
@@ -9502,18 +11953,18 @@ The [project file](/samples/EF/EF.csproj) looks like this:
 
 It contains additional references to NuGet packages:
 
-|            |                                                                                                  |                                              |
-|------------|--------------------------------------------------------------------------------------------------|:---------------------------------------------|
-| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                     |
-| Pure.DI.MS | [![NuGet](https://img.shields.io/nuget/v/Pure.DI.MS)](https://www.nuget.org/packages/Pure.DI.MS) | Add-ons on Pure.DI to work with Microsoft DI |
+|            |                                                                                                  |                                               |
+|------------|--------------------------------------------------------------------------------------------------|:----------------------------------------------|
+| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                      |
+| Pure.DI.MS | [![NuGet](https://img.shields.io/nuget/v/Pure.DI.MS)](https://www.nuget.org/packages/Pure.DI.MS) | Add-ons for Pure.DI to work with Microsoft DI |
 
 #### gRPC service
 
 [![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/GrpcService)
 
-This example demonstrates the creation of a Web API application in the pure DI paradigm using the Pure.DI code generator.
+This example demonstrates the creation of a gRPC service in the pure DI paradigm using the Pure.DI code generator.
 
-Composition setup file is [Composition.cs](/samples/GrpcService/Composition.cs):
+The composition setup file is [Composition.cs](/samples/GrpcService/Composition.cs):
 
 ```c#
 using Pure.DI;
@@ -9537,7 +11988,7 @@ partial class Composition : ServiceProviderFactory<Composition>
 }
 ```
 
-The composition class inherits from the `ServiceProviderFactory<T>` class, where T is the composition class itself.
+The composition class inherits from `ServiceProviderFactory<T>`, where `T` is the composition class itself.
 
 The web application entry point is in the [Program.cs](/samples/GrpcService/Program.cs) file:
 
@@ -9558,11 +12009,11 @@ The [project file](/samples/GrpcService/GrpcService.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
     </ItemGroup>
 
 </Project>
@@ -9570,10 +12021,10 @@ The [project file](/samples/GrpcService/GrpcService.csproj) looks like this:
 
 It contains additional references to NuGet packages:
 
-|            |                                                                                                  |                                              |
-|------------|--------------------------------------------------------------------------------------------------|:---------------------------------------------|
-| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                     |
-| Pure.DI.MS | [![NuGet](https://img.shields.io/nuget/v/Pure.DI.MS)](https://www.nuget.org/packages/Pure.DI.MS) | Add-ons on Pure.DI to work with Microsoft DI |
+|            |                                                                                                  |                                               |
+|------------|--------------------------------------------------------------------------------------------------|:----------------------------------------------|
+| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                      |
+| Pure.DI.MS | [![NuGet](https://img.shields.io/nuget/v/Pure.DI.MS)](https://www.nuget.org/packages/Pure.DI.MS) | Add-ons for Pure.DI to work with Microsoft DI |
 
 #### MAUI application
 
@@ -9581,7 +12032,7 @@ It contains additional references to NuGet packages:
 
 This example demonstrates the creation of a [MAUI application](https://learn.microsoft.com/en-us/dotnet/maui/what-is-maui) in the pure DI paradigm using the Pure.DI code generator.
 
-The definition of the composition is in [Composition.cs](/samples/MAUIApp/Composition.cs). You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
+The definition of the composition is in [Composition.cs](/samples/MAUIApp/Composition.cs). Do not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
 
 ```c#
 using Pure.DI;
@@ -9590,7 +12041,7 @@ using static Pure.DI.Lifetime;
 
 namespace MAUIApp;
 
-partial class Composition: ServiceProviderFactory<Composition>
+partial class Composition : ServiceProviderFactory<Composition>
 {
     private void Setup() => DI.Setup()
         .Root<IAppViewModel>(nameof(App))
@@ -9606,9 +12057,9 @@ partial class Composition: ServiceProviderFactory<Composition>
 }
 ```
 
-The composition class inherits from the `ServiceProviderFactory<T>` class, where T is the composition class itself.
+The composition class inherits from `ServiceProviderFactory<T>`, where `T` is the composition class itself.
 
-The web application entry point is in the [MauiProgram.cs](/samples/MAUIApp/MauiProgram.cs) file:
+The application entry point is in the [MauiProgram.cs](/samples/MAUIApp/MauiProgram.cs) file:
 
 ```c#
 namespace MAUIApp;
@@ -9656,7 +12107,7 @@ public static class MauiProgram
 }
 ```
 
-A single instance of the _Composition_ class is defined as a static resource in [App.xaml](/samples/MAUIApp/App.xaml) for later use within the _xaml_ markup everywhere:
+A single instance of the _Composition_ class is defined as a static resource in [App.xaml](/samples/MAUIApp/App.xaml) for later use within the _XAML_ markup everywhere:
 
 ```xaml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -9723,11 +12174,11 @@ The [project file](/samples/MAUIApp/MAUIApp.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
     </ItemGroup>
 
 </Project>
@@ -9740,13 +12191,13 @@ It contains additional references to NuGet packages:
 | Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                     |
 
 
-#### Minimal Wep API
+#### Minimal Web API
 
 [![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/MinimalWebAPI)
 
 This example demonstrates the creation of a Minimal Web API application in the pure DI paradigm using the Pure.DI code generator.
 
-Composition setup file is [Composition.cs](/samples/MinimalWebAPI/Composition.cs):
+The composition setup file is [Composition.cs](/samples/MinimalWebAPI/Composition.cs):
 
 ```c#
 using Pure.DI;
@@ -9772,7 +12223,7 @@ partial class Composition : ServiceProviderFactory<Composition>
 }
 ```
 
-The composition class inherits from the `ServiceProviderFactory<T>` class, where T is the composition class itself.
+The composition class inherits from `ServiceProviderFactory<T>`, where `T` is the composition class itself.
 
 The web application entry point is in the [Program.cs](/samples/MinimalWebAPI/Program.cs) file:
 
@@ -9809,17 +12260,17 @@ partial class Program(
 }
 ```
 
-The [project file](/samples/WebAPI/WebAPI.csproj) looks like this:
+The [project file](/samples/MinimalWebAPI/MinimalWebAPI.csproj) looks like this:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
     </ItemGroup>
 
 </Project>
@@ -9827,10 +12278,10 @@ The [project file](/samples/WebAPI/WebAPI.csproj) looks like this:
 
 It contains additional references to NuGet packages:
 
-|            |                                                                                                  |                                              |
-|------------|--------------------------------------------------------------------------------------------------|:---------------------------------------------|
-| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                     |
-| Pure.DI.MS | [![NuGet](https://img.shields.io/nuget/v/Pure.DI.MS)](https://www.nuget.org/packages/Pure.DI.MS) | Add-ons on Pure.DI to work with Microsoft DI |
+|            |                                                                                                  |                                               |
+|------------|--------------------------------------------------------------------------------------------------|:----------------------------------------------|
+| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                      |
+| Pure.DI.MS | [![NuGet](https://img.shields.io/nuget/v/Pure.DI.MS)](https://www.nuget.org/packages/Pure.DI.MS) | Add-ons for Pure.DI to work with Microsoft DI |
 
 #### Unity
 
@@ -9840,44 +12291,61 @@ This example demonstrates the creation of a [Unity](https://unity.com/) applicat
 
 ![Unity](https://cdn.sanity.io/images/fuvbjjlp/production/01c082f3046cc45548249c31406aeffd0a9a738e-296x100.png)
 
-The definition of the composition is in [Composition.cs](/samples/UnityApp/Assets/Scripts/Composition.cs). This class setups how the composition of objects will be created for the application. Don't forget to define builders for types inherited from `MonoBehaviour`:
+The definition of the composition is in [Scope.cs](/samples/UnityApp/Assets/Scripts/Scope.cs). This class sets up how the object graphs will be created for the application. Remember to define builders for types derived from `MonoBehaviour`:
 
 ```c#
-using Pure.DI;
-using UnityEngine;
-using static Pure.DI.Lifetime;
-
-internal partial class Composition
+internal class ClocksComposition
 {
-    public static readonly Composition Shared = new();
+    [SerializeField] private ClockConfig clockConfig;
 
-    private void Setup() => DI.Setup()
-        .Bind().As(Singleton).To<ClockService>()
+    void Setup() => DI.Setup(kind: CompositionKind.Internal)
+        .Transient(() => clockConfig)
+        .Singleton<ClockService>();
+}
+
+public partial class Scope : MonoBehaviour
+{
+    void Setup() => DI.Setup()
+        .DependsOn(nameof(ClocksComposition), SetupContextKind.Members)
+        .Root<ClockManager>(nameof(ClockManager))
         .Builders<MonoBehaviour>();
+
+    void Start()
+    {
+        ClockManager.Start();
+    }
+
+    void OnDestroy()
+    {
+        Dispose();
+    }
 }
 ```
 
 Advantages over classical DI container libraries:
-- No performance impact or side effects when creating composition of objects.
+- No performance impact or side effects when creating object graphs.
 - All logic for analyzing the graph of objects, constructors and methods takes place at compile time. Pure.DI notifies the developer at compile time of missing or cyclic dependencies, cases when some dependencies are not suitable for injection, etc.
-- Does not add dependencies to any additional assembly.
-- Since the generated code uses primitive language constructs to create object compositions and does not use any libraries, you can easily debug the object composition code as regular code in your application.
+- Does not add dependencies to additional assemblies.
+- Since the generated code uses primitive language constructs to create object graphs and does not use any libraries, you can debug the object graph code as regular code in your application.
 
-For types inherited from `MonoBehaviour`, a `BuildUp` composition method will be generated. This method will look as follows:
+For types derived from `MonoBehaviour`, a `BuildUp` composition method will be generated. This method looks like:
 
 ```c#
-public Clock BuildUp(Clock buildingInstance)
+private ClockService _singletonClockService;
+[SerializeField] private ClockConfig clockConfig;
+    
+public global::Clock BuildUp(global::Clock buildingInstance)
 {
-    if (buildingInstance is null) 
-        throw new ArgumentNullException(nameof(buildingInstance));
-
-    if (_clockService is null)
-        lock (_lock)
-            if (_clockService is null)
-                _clockService = new ClockService();
-
-    buildingInstance.ClockService = _clockService;
-    return buildingInstance;
+    if (buildingInstance is null) throw new global::System.ArgumentNullException(nameof(buildingInstance));
+    
+    if (_singletonClockService is null)
+    {
+        _singletonClockService = new global::ClockService(clockConfig);
+        _disposables45d[_disposeIndex45d++] = _singletonClockService;
+    }
+    
+    buildingInstance.ClockService = _singletonClockService;
+    return transientClock;
 }
 ```
 
@@ -9892,23 +12360,17 @@ using UnityEngine;
 public class Clock : MonoBehaviour
 {
     const float HoursToDegrees = -30f, MinutesToDegrees = -6f, SecondsToDegrees = -6f;
-
-    [SerializeField]
-    private Transform hoursPivot;
-    
-    [SerializeField]
-    private Transform minutesPivot;
-
-    [SerializeField]
-    private Transform secondsPivot;
+    [SerializeField] Scope scope;
+    [SerializeField] Transform hoursPivot;
+    [SerializeField] Transform minutesPivot;
+    [SerializeField] Transform secondsPivot;
 
     [Dependency]
     public IClockService ClockService { private get; set; }
 
-    void Start()
+    void Awake()
     {
-        // Injects dependencies
-        Composition.Shared.BuildUp(this);
+        scope.BuildUp(this);
     }
 
     void Update()
@@ -9929,13 +12391,13 @@ The Unity project should reference the NuGet package:
 
 The Unity example uses the Unity editor version 6000.0.35f1
 
-#### Wep API
+#### Web API
 
 [![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/WebAPI)
 
 This example demonstrates the creation of a Web API application in the pure DI paradigm using the Pure.DI code generator.
 
-Composition setup file is [Composition.cs](/samples/WebAPI/Composition.cs):
+The composition setup file is [Composition.cs](/samples/WebAPI/Composition.cs):
 
 ```c#
 using Pure.DI;
@@ -9944,7 +12406,7 @@ using static Pure.DI.Lifetime;
 
 namespace WebAPI;
 
-partial class Composition: ServiceProviderFactory<Composition>
+partial class Composition : ServiceProviderFactory<Composition>
 {
     private void Setup() => DI.Setup()
         .Roots<ControllerBase>()
@@ -9959,7 +12421,7 @@ partial class Composition: ServiceProviderFactory<Composition>
 }
 ```
 
-The composition class inherits from the `ServiceProviderFactory<T>` class, where T is the composition class itself.
+The composition class inherits from `ServiceProviderFactory<T>`, where `T` is the composition class itself.
 
 The web application entry point is in the [Program.cs](/samples/WebAPI/Program.cs) file:
 
@@ -9978,11 +12440,11 @@ The [project file](/samples/WebAPI/WebAPI.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
     </ItemGroup>
 
 </Project>
@@ -9990,18 +12452,18 @@ The [project file](/samples/WebAPI/WebAPI.csproj) looks like this:
 
 It contains additional references to NuGet packages:
 
-|            |                                                                                                  |                                              |
-|------------|--------------------------------------------------------------------------------------------------|:---------------------------------------------|
-| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                     |
-| Pure.DI.MS | [![NuGet](https://img.shields.io/nuget/v/Pure.DI.MS)](https://www.nuget.org/packages/Pure.DI.MS) | Add-ons on Pure.DI to work with Microsoft DI |
+|            |                                                                                                  |                                               |
+|------------|--------------------------------------------------------------------------------------------------|:----------------------------------------------|
+| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                      |
+| Pure.DI.MS | [![NuGet](https://img.shields.io/nuget/v/Pure.DI.MS)](https://www.nuget.org/packages/Pure.DI.MS) | Add-ons for Pure.DI to work with Microsoft DI |
 
-#### Wep application
+#### Web application
 
 [![CSharp](https://img.shields.io/badge/C%23-code-blue.svg)](/samples/WebApp)
 
 This example demonstrates the creation of a Web application in the pure DI paradigm using the Pure.DI code generator.
 
-Composition setup file is [Composition.cs](/samples/WebApp/Composition.cs):
+The composition setup file is [Composition.cs](/samples/WebApp/Composition.cs):
 
 ```c#
 using Pure.DI;
@@ -10010,7 +12472,7 @@ using static Pure.DI.Lifetime;
 
 namespace WebApp;
 
-partial class Composition: ServiceProviderFactory<Composition>
+partial class Composition : ServiceProviderFactory<Composition>
 {
     private void Setup() => DI.Setup()
         .Roots<ControllerBase>()
@@ -10025,7 +12487,7 @@ partial class Composition: ServiceProviderFactory<Composition>
 }
 ```
 
-The composition class inherits from the `ServiceProviderFactory<T>` class, where T is the composition class itself.
+The composition class inherits from `ServiceProviderFactory<T>`, where `T` is the composition class itself.
 
 The web application entry point is in the [Program.cs](/samples/WebApp/Program.cs) file:
 
@@ -10047,11 +12509,11 @@ The [project file](/samples/WebApp/WebApp.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.3.0" />
+        <PackageReference Include="Pure.DI.MS" Version="2.3.2" />
     </ItemGroup>
 
 </Project>
@@ -10059,10 +12521,10 @@ The [project file](/samples/WebApp/WebApp.csproj) looks like this:
 
 It contains additional references to NuGet packages:
 
-|            |                                                                                                  |                                              |
-|------------|--------------------------------------------------------------------------------------------------|:---------------------------------------------|
-| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                     |
-| Pure.DI.MS | [![NuGet](https://img.shields.io/nuget/v/Pure.DI.MS)](https://www.nuget.org/packages/Pure.DI.MS) | Add-ons on Pure.DI to work with Microsoft DI |
+|            |                                                                                                  |                                               |
+|------------|--------------------------------------------------------------------------------------------------|:----------------------------------------------|
+| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                      |
+| Pure.DI.MS | [![NuGet](https://img.shields.io/nuget/v/Pure.DI.MS)](https://www.nuget.org/packages/Pure.DI.MS) | Add-ons for Pure.DI to work with Microsoft DI |
 
 #### WinForms application
 
@@ -10070,7 +12532,7 @@ It contains additional references to NuGet packages:
 
 This example demonstrates the creation of a WinForms application in the pure DI paradigm using the Pure.DI code generator.
 
-The composition definition is in the file [Composition.cs](/samples/WinFormsAppNetCore/Composition.cs). Remember to define all the necessary roots of the composition, for example, this could be a main form such as _FormMain_:
+The composition definition is in the file [Composition.cs](/samples/WinFormsAppNetCore/Composition.cs). Remember to define all the necessary composition roots, for example, this could be a main form such as _FormMain_:
 
 ```c#
 using Pure.DI;
@@ -10119,7 +12581,7 @@ The [project file](/samples/WinFormsAppNetCore/WinFormsAppNetCore.csproj) looks 
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -10140,7 +12602,7 @@ It contains an additional reference to the NuGet package:
 
 This example demonstrates the creation of a WinForms application in the pure DI paradigm using the Pure.DI code generator.
 
-The composition definition is in the file [Composition.cs](/samples/WinFormsApp/Composition.cs). Remember to define all the necessary roots of the composition, for example, this could be a main form such as _FormMain_:
+The composition definition is in the file [Composition.cs](/samples/WinFormsApp/Composition.cs). Remember to define all the necessary composition roots, for example, this could be a main form such as _FormMain_:
 
 ```c#
 using Pure.DI;
@@ -10192,7 +12654,7 @@ The [project file](/samples/WinFormsApp/WinFormsApp.csproj) looks like this:
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -10213,7 +12675,7 @@ It contains an additional reference to the NuGet package:
 
 This example demonstrates the creation of a WPF application in the pure DI paradigm using the Pure.DI code generator.
 
-The definition of the composition is in [Composition.cs](/samples/WpfAppNetCore/Composition.cs). This class setups how the composition of objects will be created for the application. You must not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
+The definition of the composition is in [Composition.cs](/samples/WpfAppNetCore/Composition.cs). This class sets up how the object graphs will be created for the application. Do not forget to define any necessary composition roots, for example, these can be view models such as _ClockViewModel_:
 
 ```c#
 using Pure.DI;
@@ -10238,12 +12700,12 @@ partial class Composition
 ```
 
 Advantages over classical DI container libraries:
-- No performance impact or side effects when creating composition of objects.
+- No performance impact or side effects when creating object graphs.
 - All logic for analyzing the graph of objects, constructors and methods takes place at compile time. Pure.DI notifies the developer at compile time of missing or cyclic dependencies, cases when some dependencies are not suitable for injection, etc.
 - Does not add dependencies to any additional assembly.
-- Since the generated code uses primitive language constructs to create object compositions and does not use any libraries, you can easily debug the object composition code as regular code in your application.
+- Since the generated code uses primitive language constructs to create object graphs and does not use any libraries, you can easily debug the object graph code as regular code in your application.
 
-A single instance of the _Composition_ class is defined as a static resource in [App.xaml](/samples/WpfAppNetCore/App.xaml) for later use within the _xaml_ markup everywhere:
+A single instance of the _Composition_ class is defined as a static resource in [App.xaml](/samples/WpfAppNetCore/App.xaml) for later use within the _XAML_ markup everywhere:
 
 ```xaml
 <Application x:Class="WpfAppNetCore.App" x:ClassModifier="internal"
@@ -10273,7 +12735,7 @@ This markup fragment
 creates a shared resource of type `Composition` and with key _"Composition"_, which will be further used as a data context in the views.
 
 Advantages over classical DI container libraries:
-- No explicit initialisation of data contexts is required. Data contexts are configured directly in `.axaml` files according to the MVVM approach.
+- No explicit initialization of data contexts is required. Data contexts are configured directly in `\.xaml` files according to the MVVM approach.
 - The code is simpler, more compact, and requires less maintenance effort.
 - The main window is created in a pure DI paradigm, and it can be easily supplied with all necessary dependencies via DI as regular types.
 
@@ -10320,7 +12782,7 @@ The [project file](/samples/WpfAppNetCore/WpfAppNetCore.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk">
    ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.3.0">
+        <PackageReference Include="Pure.DI" Version="2.3.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -10334,5223 +12796,4 @@ It contains an additional reference to the NuGet package:
 |         |                                                                                            |                          |
 |---------|--------------------------------------------------------------------------------------------|:-------------------------|
 | Pure.DI | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI) | DI source code generator |
-
-
-# Pure.DI API
-
-
-<details><summary>Pure.DI</summary><blockquote>
-
-
-<details><summary>BindAttribute</summary><blockquote>
-
-Indicates that a property or method can be automatically added as a binding.
-            
-```c#
-
-internal class DependencyProvider
-            {
-                [Bind()]
-                public Dependency Dep => new Dependency();
-            }
-            
-```
-
-
-```c#
-
-internal class DependencyProvider
-            {
-                [Bind(typeof(IDependency<TT>), Lifetime.Singleton)]
-                public Dependency GetDep<T>() => new Dependency();
-            }
-            
-```
-
-
-```c#
-
-internal class DependencyProvider
-            {
-                [Bind(typeof(IDependency), Lifetime.PerResolve, "some tag")]
-                public Dependency GetDep(int id) => new Dependency(id);
-            }
-            
-```
-
-
-See also _Exposed_.
-
-<details><summary>Constructor BindAttribute(System.Type,Pure.DI.Lifetime,System.Object[])</summary><blockquote>
-
-Creates an attribute instance.
-            
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>Buckets`1</summary><blockquote>
-
-For internal use. 
-            
-</blockquote></details>
-
-
-<details><summary>CannotResolveException</summary><blockquote>
-
-Represents an exception thrown when a required composition root cannot be resolved.
-            
-<details><summary>Constructor CannotResolveException(System.String,System.Type,System.Object)</summary><blockquote>
-
-Initializes a new instance of the _CannotResolveException_ class with a specified error message, type, and optional tag describing the resolution failure.
-            
- - parameter _message_ - A user-friendly message that describes the error that occurred during the
-            resolution process. The message should be clear and informative, providing
-            enough context to understand the nature of the failure.
-            
-
- - parameter _type_ - The _Type_ used to resolve a composition root.
-            
-
- - parameter _tag_ - The tag used to resolve a composition root.
-            
-
-</blockquote></details>
-
-
-<details><summary>Constructor CannotResolveException(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)</summary><blockquote>
-
-Initializes a new instance of the _CannotResolveException_ class with serialized data.
- - parameter _info_ - The object that holds the serialized object data.
-
- - parameter _context_ - The contextual information about the source or destination.
-
-</blockquote></details>
-
-
-<details><summary>Property Type</summary><blockquote>
-
-Gets the type used to resolve a composition root.
-            
-</blockquote></details>
-
-
-<details><summary>Property Tag</summary><blockquote>
-
-Gets the tag used to resolve a composition root.
-            
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>CompositionKind</summary><blockquote>
-
-Determines how the partial class will be generated. The _Setup(System.String,Pure.DI.CompositionKind)_ method has an additional argument  `kind` , which defines the type of composition:
-            
-```c#
-
-DI.Setup("BaseComposition", CompositionKind.Internal);
-            
-```
-
-
-See also _Setup(System.String,Pure.DI.CompositionKind)_.
-
-<details><summary>Field Public</summary><blockquote>
-
-This value is used by default. If this value is specified, a normal partial class will be generated.
-            
-</blockquote></details>
-
-
-<details><summary>Field Internal</summary><blockquote>
-
-If this value is specified, the class will not be generated, but this setting can be used by other users as a baseline. The API call _DependsOn(System.String[])_ is mandatory.
-            
-</blockquote></details>
-
-
-<details><summary>Field Global</summary><blockquote>
-
-No partial classes will be created when this value is specified, but this setting is the baseline for all installations in the current project, and the API call _DependsOn(System.String[])_ is not required.
-            
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>DependencyAttribute</summary><blockquote>
-
-Combines injection tagging and ordering capabilities in a single attribute.
-            Allows simultaneous specification of both tag and ordinal for dependency injection points.
-            
- - parameter _tag_ - Identifies the specific dependency variation to inject. See also _Tags(System.Object[])_.
-
- - parameter _ordinal_ - Determines injection order priority (lower values execute first).
-
-See also _OrdinalAttribute_.
-
-See also _TagAttribute_.
-
-<details><summary>Constructor DependencyAttribute(System.Object,System.Int32)</summary><blockquote>
-
-Initializes an attribute instance with optional tag and priority.
-            
- - parameter _tag_ - Identifies a specific dependency variation. See also _Tags(System.Object[])_.
-
- - parameter _ordinal_ - Injection execution priority (0 = highest priority). Default: 0.
-
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>DI</summary><blockquote>
-
-An API for a Dependency Injection setup.
-            
-See also _Setup(System.String,Pure.DI.CompositionKind)_.
-
-<details><summary>Method Setup(System.String,Pure.DI.CompositionKind)</summary><blockquote>
-
-Begins the definitions of the Dependency Injection setup chain.
-             
-```c#
-
-interface IDependency;
-            
-             
-             class Dependency: IDependency;
-            
-             
-             interface IService;
-            
-             
-             class Service(IDependency dependency): IService;
-            
-             
-             DI.Setup("Composition")
-               .Bind<IDependency>().To<Dependency>()
-               .Bind<IService>().To<Service>()
-               .Root<IService>("Root");
-             
-```
-
-
- - parameter _compositionTypeName_ - An optional argument specifying the partial class name to generate.
-
- - parameter _kind_ - An optional argument specifying the kind of setup. Please _CompositionKind_ for details. It defaults to  `Public` .
-
- - returns Reference to the setup continuation chain.
-
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>GenericTypeArgumentAttribute</summary><blockquote>
-
-Represents a generic type argument attribute. It allows you to create custom generic type argument such as _TTS_, _TTDictionary`2_, etc.
-            
-```c#
-
-[GenericTypeArgument]
-            internal interface TTMy: IMy { }
-            
-```
-
-
-See also _GenericTypeArgumentAttribute``1_.
-
-See also _GenericTypeArgument``1_.
-
-</blockquote></details>
-
-
-<details><summary>Hint</summary><blockquote>
-
-Provides configuration hints for fine-tuning code generation behavior.
-            
-```c#
-
-// Resolve = Off
-            DI.Setup("Composition")
-                .Bind<IDependency>().To<Dependency>();
-            
-```
-
-
-            or using the API call _Hint(Pure.DI.Hint,System.String)_:
-            
-```c#
-
-DI.Setup("Composition")
-                .Hint(Hint.Resolve, "Off")
-                .Bind<IDependency>().To<Dependency>();
-            
-```
-
-
-See also _Hint(Pure.DI.Hint,System.String)_.
-
-<details><summary>Field Resolve</summary><blockquote>
-
-Enables/disables generation of Resolve methods. Default:  `On` .
-             
-```c#
-
-// Resolve = Off
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.Resolve, "Off")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnNewInstance</summary><blockquote>
-
-Enables/disables generation of OnNewInstance hooks. Default:  `Off` .
-             
-```c#
-
-// OnNewInstance = On
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnNewInstance, "On")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnNewInstancePartial</summary><blockquote>
-
-Enables/disables partial method generation for OnNewInstance. Default:  `On` .
-             
-```c#
-
-// OnNewInstancePartial = On
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnNewInstancePartial, "On")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnNewInstanceImplementationTypeNameRegularExpression</summary><blockquote>
-
-Regex filter for instance types in OnNewInstance hooks. Default:  `.+` .
-             
-```c#
-
-// OnNewInstanceImplementationTypeNameRegularExpression = Dependency
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnNewInstanceImplementationTypeNameRegularExpression, "Dependency")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnNewInstanceImplementationTypeNameWildcard</summary><blockquote>
-
-Wildcard filter for instance types in OnNewInstance hooks. Default:  `*` .
-             
-```c#
-
-// OnNewInstanceImplementationTypeNameWildcard = *Dependency
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnNewInstanceImplementationTypeNameWildcard, "*Dependency")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnNewInstanceTagRegularExpression</summary><blockquote>
-
-Regex filter for tags in OnNewInstance hooks. Default:  `.+` .
-             
-```c#
-
-// OnNewInstanceTagRegularExpression = IDependency
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnNewInstanceTagRegularExpression, "IDependency")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnNewInstanceTagWildcard</summary><blockquote>
-
-Wildcard filter for tags in OnNewInstance hooks. Default:  `*` .
-             
-```c#
-
-// OnNewInstanceTagWildcard = *IDependency
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnNewInstanceTagWildcard, "*IDependency")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnNewInstanceLifetimeRegularExpression</summary><blockquote>
-
-Regex filter for lifetimes in OnNewInstance hooks. Default:  `.+` .
-             
-```c#
-
-// OnNewInstanceLifetimeRegularExpression = Singleton
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnNewInstanceLifetimeRegularExpression, "Singleton")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnNewInstanceLifetimeWildcard</summary><blockquote>
-
-Wildcard filter for lifetimes in OnNewInstance hooks. Default:  `*` .
-             
-```c#
-
-// OnNewInstanceLifetimeWildcard = *Singleton
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnNewInstanceLifetimeWildcard, "*Singleton")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnDependencyInjection</summary><blockquote>
-
-Enables/disables dependency injection interception hooks. Default:  `Off` .
-             
-```c#
-
-// OnDependencyInjection = On
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnDependencyInjection, "On")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnDependencyInjectionPartial</summary><blockquote>
-
-Enables/disables partial method generation for dependency injection hooks. Default:  `On` .
-             
-```c#
-
-// OnDependencyInjectionPartial = On
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnDependencyInjectionPartial, "On")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnDependencyInjectionImplementationTypeNameRegularExpression</summary><blockquote>
-
-Regex filter for implementation types in dependency injection hooks. Default:  `.+` .
-             
-```c#
-
-// OnDependencyInjectionImplementationTypeNameRegularExpression = Dependency
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnDependencyInjectionImplementationTypeNameRegularExpression, "Dependency")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnDependencyInjectionImplementationTypeNameWildcard</summary><blockquote>
-
-Wildcard filter for implementation types in dependency injection hooks. Default:  `*` .
-             
-```c#
-
-// OnDependencyInjectionImplementationTypeNameWildcard = *Dependency
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnDependencyInjectionImplementationTypeNameWildcard, "*Dependency")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnDependencyInjectionContractTypeNameRegularExpression</summary><blockquote>
-
-Regex filter for contract types in dependency injection hooks. Default:  `.+` .
-             
-```c#
-
-// OnDependencyInjectionContractTypeNameRegularExpression = IDependency
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnDependencyInjectionContractTypeNameRegularExpression, "IDependency")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnDependencyInjectionContractTypeNameWildcard</summary><blockquote>
-
-Wildcard filter for contract types in dependency injection hooks. Default:  `*` .
-             
-```c#
-
-// OnDependencyInjectionContractTypeNameWildcard = *IDependency
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnDependencyInjectionContractTypeNameWildcard, "*IDependency")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnDependencyInjectionTagRegularExpression</summary><blockquote>
-
-Regex filter for tags in dependency injection hooks. Default:  `.+` .
-             
-```c#
-
-// OnDependencyInjectionTagRegularExpression = MyTag
-             DI.Setup("Composition")
-                 .Bind<IDependency>("MyTag").To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnDependencyInjectionTagRegularExpression, "MyTag")
-                 .Bind<IDependency>("MyTag").To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnDependencyInjectionTagWildcard</summary><blockquote>
-
-Wildcard filter for tags in dependency injection hooks. Default:  `*` .
-             
-```c#
-
-// OnDependencyInjectionTagWildcard = MyTag
-             DI.Setup("Composition")
-                 .Bind<IDependency>("MyTag").To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnDependencyInjectionTagWildcard, "MyTag")
-                 .Bind<IDependency>("MyTag").To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnDependencyInjectionLifetimeRegularExpression</summary><blockquote>
-
-Regex filter for lifetimes in dependency injection hooks. Default:  `.+` .
-             
-```c#
-
-// OnDependencyInjectionLifetimeRegularExpression = Singleton
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnDependencyInjectionLifetimeRegularExpression, "Singleton")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnDependencyInjectionLifetimeWildcard</summary><blockquote>
-
-Wildcard filter for lifetimes in dependency injection hooks. Default:  `*` .
-             
-```c#
-
-// OnDependencyInjectionLifetimeWildcard = *Singleton
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnDependencyInjectionLifetimeWildcard, "*Singleton")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnCannotResolve</summary><blockquote>
-
-Enables/disables unresolved dependency handlers. Default:  `Off` .
-             
-```c#
-
-// OnCannotResolve = On
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnCannotResolve, "On")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnCannotResolvePartial</summary><blockquote>
-
-Enables/disables partial method generation for unresolved dependency handlers. Default:  `On` .
-             
-```c#
-
-// OnCannotResolvePartial = On
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnCannotResolvePartial, "On")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnCannotResolveContractTypeNameRegularExpression</summary><blockquote>
-
-Regex filter for contract types in unresolved dependency handlers. Default:  `.+` .
-             
-```c#
-
-// OnCannotResolveContractTypeNameRegularExpression = OtherType
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnCannotResolveContractTypeNameRegularExpression, "OtherType")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnCannotResolveContractTypeNameWildcard</summary><blockquote>
-
-Wildcard filter for contract types in unresolved dependency handlers. Default:  `*` .
-             
-```c#
-
-// OnCannotResolveContractTypeNameWildcard = *OtherType
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnCannotResolveContractTypeNameWildcard, "*OtherType")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnCannotResolveTagRegularExpression</summary><blockquote>
-
-Regex filter for tags in unresolved dependency handlers. Default:  `.+` .
-             
-```c#
-
-// OnCannotResolveTagRegularExpression = MyTag
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnCannotResolveTagRegularExpression, "MyTag")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnCannotResolveTagWildcard</summary><blockquote>
-
-Wildcard filter for tags in unresolved dependency handlers. Default:  `*` .
-             
-```c#
-
-// OnCannotResolveTagWildcard = MyTag
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnCannotResolveTagWildcard, "MyTag")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnCannotResolveLifetimeRegularExpression</summary><blockquote>
-
-Regex filter for lifetimes in unresolved dependency handlers. Default:  `.+` .
-             
-```c#
-
-// OnCannotResolveLifetimeRegularExpression = Singleton
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnCannotResolveLifetimeRegularExpression, "Singleton")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnCannotResolveLifetimeWildcard</summary><blockquote>
-
-Wildcard filter for lifetimes in unresolved dependency handlers. Default:  `*` .
-             
-```c#
-
-// OnCannotResolveLifetimeWildcard = *Singleton
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnCannotResolveLifetimeWildcard, "*Singleton")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnNewRoot</summary><blockquote>
-
-Enables/disables composition root registration event handlers. Default:  `Off` .
-             
-```c#
-
-// OnNewRoot = On
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnNewRoot, "On")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field OnNewRootPartial</summary><blockquote>
-
-Enables/disables partial method generation for composition root events. Default:  `Off` .
-             
-```c#
-
-// OnNewRootPartial = On
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.OnNewRootPartial, "On")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field ToString</summary><blockquote>
-
-Enables/disables generation of mermaid-format class diagram via ToString(). Default:  `Off` .
-             
-```c#
-
-// ToString = On
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.ToString, "On")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field ThreadSafe</summary><blockquote>
-
-Enables/disables thread-safe composition object creation. Default:  `On` .
-             
-```c#
-
-// ThreadSafe = Off
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.ThreadSafe, "Off")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field ResolveMethodModifiers</summary><blockquote>
-
-Modifier override for Resolve<T>() method. Default:  `public` .
-             
-```c#
-
-// ResolveMethodModifiers = internal
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.ResolveMethodModifiers, "internal")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field ResolveMethodName</summary><blockquote>
-
-Name override for Resolve<T>() method. Default:  `Resolve` .
-             
-```c#
-
-// ResolveMethodName = GetService
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.ResolveMethodName, "GetService")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field ResolveByTagMethodModifiers</summary><blockquote>
-
-Modifier override for Resolve<T>(tag) method. Default:  `public` .
-             
-```c#
-
-// ResolveByTagMethodModifiers = internal
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.ResolveByTagMethodModifiers, "internal")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field ResolveByTagMethodName</summary><blockquote>
-
-Name override for Resolve<T>(tag) method. Default:  `Resolve` .
-             For example
-             
-```c#
-
-// ResolveByTagMethodName = GetService
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.ResolveByTagMethodName, "GetService")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field ObjectResolveMethodModifiers</summary><blockquote>
-
-Modifier override for Resolve(Type) method. Default:  `public` .
-             
-```c#
-
-// ObjectResolveMethodModifiers = internal
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.ObjectResolveMethodModifiers, "internal")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field ObjectResolveMethodName</summary><blockquote>
-
-Name override for Resolve(Type) method. Default:  `Resolve` .
-             
-```c#
-
-// ObjectResolveMethodName = GetService
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.ObjectResolveMethodName, "GetService")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field ObjectResolveByTagMethodModifiers</summary><blockquote>
-
-Modifier override for Resolve(Type, tag) method. Default:  `public` .
-             
-```c#
-
-// ObjectResolveByTagMethodModifiers = internal
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.ObjectResolveByTagMethodModifiers, "internal")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field ObjectResolveByTagMethodName</summary><blockquote>
-
-Name override for Resolve(Type, tag) method. Default:  `Resolve` .
-             
-```c#
-
-// ObjectResolveByTagMethodName = GetService
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.ObjectResolveByTagMethodName, "GetService")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field DisposeMethodModifiers</summary><blockquote>
-
-Modifier override for Dispose() method. Default:  `public` .
-             
-```c#
-
-// DisposeMethodModifiers = internal
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.DisposeMethodModifiers, "internal")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field DisposeAsyncMethodModifiers</summary><blockquote>
-
-Modifier override for DisposeAsync() method. Default:  `public` .
-             
-```c#
-
-// DisposeAsyncMethodModifiers = internal
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.DisposeAsyncMethodModifiers, "internal")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field FormatCode</summary><blockquote>
-
-Enables/disables code formatting (CPU intensive). Default:  `Off` .
-             
-```c#
-
-// FormatCode = On
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.FormatCode, "On")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field SeverityOfNotImplementedContract</summary><blockquote>
-
-Severity level for unimplemented contract errors. Default:  `Error` .
-             
-```c#
-
-// SeverityOfNotImplementedContract = Warning
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.SeverityOfNotImplementedContract, "Warning")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field Comments</summary><blockquote>
-
-Enables/disables generated code comments. Default:  `On` .
-             
-```c#
-
-// Comments = Off
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.Comments, "Off")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field SkipDefaultConstructor</summary><blockquote>
-
-Enables/disables skipping the default constructor. Default:  `Off`  (meaning the default constructor is used when available).
-             
-```c#
-
-// SkipDefaultConstructor = On
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.UseDefaultConstructor, "Off")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field SkipDefaultConstructorImplementationTypeNameRegularExpression</summary><blockquote>
-
-Regex filter for types to skip default constructors. Default:  `.+` .
-             
-```c#
-
-// SkipDefaultConstructorImplementationTypeNameRegularExpression = Dependency
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.SkipDefaultConstructorImplementationTypeNameRegularExpression, "Dependency")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field SkipDefaultConstructorImplementationTypeNameWildcard</summary><blockquote>
-
-Wildcard filter for types to skip default constructors. Default:  `*` .
-             
-```c#
-
-// SkipDefaultConstructorImplementationTypeNameWildcard = *Dependency
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.SkipDefaultConstructorImplementationTypeNameWildcard, "*Dependency")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field SkipDefaultConstructorLifetimeRegularExpression</summary><blockquote>
-
-Regex filter for lifetimes to skip default constructors. Default:  `.+` .
-             
-```c#
-
-// SkipDefaultConstructorLifetimeRegularExpression = Singleton
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.SkipDefaultConstructorLifetimeRegularExpression, "Singleton")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field SkipDefaultConstructorLifetimeWildcard</summary><blockquote>
-
-Wildcard filter for lifetimes to skip default constructors. Default:  `*` .
-             
-```c#
-
-// SkipDefaultConstructorLifetimeWildcard = *Singleton
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.SkipDefaultConstructorLifetimeWildcard, "*Singleton")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field DisableAutoBinding</summary><blockquote>
-
-Disables automatic binding when no explicit binding exists. Default:  `Off` .
-             
-```c#
-
-// DisableAutoBinding = On
-             DI.Setup("Composition")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.DisableAutoBinding, "Off")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field DisableAutoBindingImplementationTypeNameRegularExpression</summary><blockquote>
-
-Regex filter for implementation types to disable auto-binding. Default:  `.+` .
-             
-```c#
-
-// DisableAutoBindingImplementationTypeNameRegularExpression = Dependency
-             DI.Setup("Composition")
-                 .Hint(Hint.DisableAutoBinding, "Off")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.DisableAutoBinding, "Off")
-                 .Hint(Hint.DisableAutoBindingImplementationTypeNameRegularExpression, "Dependency")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field DisableAutoBindingImplementationTypeNameWildcard</summary><blockquote>
-
-Wildcard filter for implementation types to disable auto-binding. Default:  `*` .
-             
-```c#
-
-// DisableAutoBindingImplementationTypeNameWildcard = *Dependency
-             DI.Setup("Composition")
-                 .Hint(Hint.DisableAutoBinding, "Off")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.DisableAutoBinding, "Off")
-                 .Hint(Hint.DisableAutoBindingImplementationTypeNameWildcard, "*Dependency")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field DisableAutoBindingLifetimeRegularExpression</summary><blockquote>
-
-Regex filter for lifetimes to disable auto-binding. Default:  `.+` .
-             
-```c#
-
-// DisableAutoBindingLifetimeRegularExpression = Singleton
-             DI.Setup("Composition")
-                 .Hint(Hint.DisableAutoBinding, "Off")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.DisableAutoBinding, "Off")
-                 .Hint(Hint.DisableAutoBindingLifetimeRegularExpression, "Singleton")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field DisableAutoBindingLifetimeWildcard</summary><blockquote>
-
-Wildcard filter for lifetimes to disable auto-binding. Default:  `*` .
-             
-```c#
-
-// DisableAutoBindingLifetimeWildcard = *Singleton
-             DI.Setup("Composition")
-                 .Hint(Hint.DisableAutoBinding, "Off")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-            
-             or using the API call _Hint(Pure.DI.Hint,System.String)_:
-             
-```c#
-
-DI.Setup("Composition")
-                 .Hint(Hint.DisableAutoBinding, "Off")
-                 .Hint(Hint.DisableAutoBindingLifetimeWildcard, "*Singleton")
-                 .Bind<IDependency>().To<Dependency>();
-             
-```
-
-
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>IBinding</summary><blockquote>
-
-Defines the API for configuring dependency bindings in the composition.
-            
-<details><summary>Method Bind(System.Object[])</summary><blockquote>
-
-Starts binding definition for the implementation type itself. Also binds all directly implemented abstract types excluding special system interfaces.
-            Special system interfaces are excluded from binding:
-            System.ObjectSystem.EnumSystem.MulticastDelegateSystem.DelegateSystem.Collections.IEnumerableSystem.Collections.Generic.IEnumerable<T>System.Collections.Generic.IList<T>System.Collections.Generic.ICollection<T>System.Collections.IEnumeratorSystem.Collections.Generic.IEnumerator<T>System.Collections.Generic.IReadOnlyList<T>System.Collections.Generic.IReadOnlyCollection<T>System.IDisposableSystem.IAsyncResultSystem.AsyncCallback
-```c#
-
-DI.Setup("Composition")
-                .Bind().To<Service>();
-            
-```
-
-
- - parameter _tags_ - Optional tags to associate with this binding.
-
- - returns Binding configuration interface for method chaining.
-
-See also _To``1_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _!:To<T1,T>()_.
-
-See also _!:To<T1,T2,T>()_.
-
-See also _Tags(System.Object[])_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method Bind``1(System.Object[])</summary><blockquote>
-
-Starts binding definition for a specific dependency type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency>().To<Dependency>();
-            
-```
-
-Dependency type to bind. Supports type markers like _TT_ and _TTList`1_.
- - parameter _tags_ - Optional tags to associate with this binding.
-
- - returns Binding configuration interface for method chaining.
-
-See also _To``1_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _!:To<T1,T>()_.
-
-See also _!:To<T1,T2,T>()_.
-
-See also _Tags(System.Object[])_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method Bind``2(System.Object[])</summary><blockquote>
-
-Starts binding definition for multiple dependency types simultaneously.
-            See _Bind``1(System.Object[])_ for detailed usage.
-            First dependency type to bind.Second dependency type to bind.
- - parameter _tags_ - Optional tags to associate with these bindings.
-
- - returns Binding configuration interface for method chaining.
-
-See also _To``1_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _!:To<T1,T>()_.
-
-See also _!:To<T1,T2,T>()_.
-
-See also _Tags(System.Object[])_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method Bind``3(System.Object[])</summary><blockquote>
-
-Starts binding definition for multiple dependency types simultaneously.
-            See _Bind``1(System.Object[])_ for detailed usage.
-            First dependency type to bind.Second dependency type to bind.Third dependency type to bind.
- - parameter _tags_ - Optional tags to associate with these bindings.
-
- - returns Binding configuration interface for method chaining.
-
-See also _To``1_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _!:To<T1,T>()_.
-
-See also _!:To<T1,T2,T>()_.
-
-See also _Tags(System.Object[])_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method Bind``4(System.Object[])</summary><blockquote>
-
-Starts binding definition for multiple dependency types simultaneously.
-            See _Bind``1(System.Object[])_ for detailed usage.
-            First dependency type to bind.Second dependency type to bind.Third dependency type to bind.Fourth dependency type to bind.
- - parameter _tags_ - Optional tags to associate with these bindings.
-
- - returns Binding configuration interface for method chaining.
-
-See also _To``1_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _!:To<T1,T>()_.
-
-See also _!:To<T1,T2,T>()_.
-
-See also _Tags(System.Object[])_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method As(Pure.DI.Lifetime)</summary><blockquote>
-
-Specifies the lifetime scope for the binding.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency>().As(Lifetime.Singleton).To<Dependency>();
-            
-```
-
-
- - parameter _lifetime_ - Lifetime scope for the binding.
-
- - returns Binding configuration interface for method chaining.
-
-See also _Bind``1(System.Object[])_.
-
-See also _To``1_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _!:To<T1,T>()_.
-
-See also _!:To<T1,T2,T>()_.
-
-See also _Tags(System.Object[])_.
-
-</blockquote></details>
-
-
-<details><summary>Method Tags(System.Object[])</summary><blockquote>
-
-Specifies binding tags to differentiate between multiple implementations of the same interface.
-             
-```c#
-
-interface IDependency { }
-            
-             class AbcDependency: IDependency { }
-            
-             class XyzDependency: IDependency { }
-            
-             class Dependency: IDependency { }
-            
-             interface IService
-             {
-                 IDependency Dependency1 { get; }
-                 IDependency Dependency2 { get; }
-             }
-            
-             class Service: IService
-             {
-                 public Service(
-                     [Tag("Abc")] IDependency dependency1,
-                     [Tag("Xyz")] IDependency dependency2)
-                 {
-                     Dependency1 = dependency1;
-                     Dependency2 = dependency2;
-                 }
-            
-                 public IDependency Dependency1 { get; }
-                 public IDependency Dependency2 { get; }
-             }
-            
-             DI.Setup("Composition")
-                 .Bind<IDependency>().Tags("Abc").To<AbcDependency>()
-                 .Bind<IDependency>().Tags("Xyz").To<XyzDependency>()
-                 .Bind<IService>().To<Service>().Root<IService>("Root");
-             
-```
-
-
- - parameter _tags_ - Tags to associate with this binding.
-
- - returns Binding configuration interface for method chaining.
-
-See also _Bind``1(System.Object[])_.
-
-See also _To``1_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _!:To<T1,T>()_.
-
-See also _!:To<T1,T2,T>()_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method To``1</summary><blockquote>
-
-Specifies the implementation type for the binding.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency>().To<Dependency>();
-            
-```
-
-Implementation type. Supports generic type markers.
- - returns Configuration interface for method chaining.
-
-See also _Bind``1(System.Object[])_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _!:To<T1,T>()_.
-
-See also _!:To<T1,T2,T>()_.
-
-See also _Tags(System.Object[])_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method To``1(System.Func{Pure.DI.IContext,``0})</summary><blockquote>
-
-Specifies a factory method to create the implementation instance.
-             
-```c#
-
-DI.Setup("Composition")
-                 .Bind<IService>()
-                 To(_ =>
-                 {
-                     var service = new Service("My Service");
-                     service.Initialize();
-                     return service;
-                 })
-            
-             // Another example:
-             DI.Setup("Composition")
-                 .Bind<IService>()
-                 To(ctx =>
-                 {
-                     ctx.Inject<IDependency>(out var dependency);
-                     return new Service(dependency);
-                 })
-            
-             // And another example:
-             DI.Setup("Composition")
-                 .Bind<IService>()
-                 To(ctx =>
-                 {
-                     // Builds up an instance with all necessary dependencies
-                     ctx.Inject<Service>(out var service);
-                     service.Initialize();
-                     return service;
-                 })
-             
-```
-
-
- - parameter _factory_ - Factory method to create and initialize the instance.
-Implementation type.
- - returns Configuration interface for method chaining.
-
-See also _Bind``1(System.Object[])_.
-
-See also _To``1_.
-
-See also _!:To<T1,T>()_.
-
-See also _!:To<T1,T2,T>()_.
-
-See also _Tags(System.Object[])_.
-
-See also _As(Pure.DI.Lifetime)_.
-This method is useful for creating and initializing an instance manually.
-             At the compilation stage, the set of dependencies that the object to be created needs is determined.
-             In most cases, this happens automatically, according to the set of constructors and their arguments, and does not require additional customization efforts.
-             But sometimes it is necessary to manually create and/or initialize an object.
-             There are scenarios where manual control over the creation process is required, such as
-             when additional initialization logic is neededwhen complex construction steps are requiredwhen specific object states need to be set during creation
-</blockquote></details>
-
-
-<details><summary>Method To``1(System.String)</summary><blockquote>
-
-Specifies a source code statement to create the implementation.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<int>().To<int>("dependencyId")
-                .Bind<Func<int, IDependency>>()
-                    .To<Func<int, IDependency>>(ctx =>
-                        dependencyId =>
-                        {
-                            ctx.Inject<Dependency>(out var dependency);
-                            return dependency;
-                        });
-            
-```
-
-
- - parameter _sourceCodeStatement_ - Source code expression to create the instance.
-Implementation type.
- - returns Configuration interface for method chaining.
-
-See also _Bind``1(System.Object[])_.
-
-</blockquote></details>
-
-
-<details><summary>Method To``2(System.Func{``0,``1})</summary><blockquote>
-
-Specifies a simplified factory method with dependency parameters.
-             
-```c#
-
-DI.Setup(nameof(Composition))
-                 .Bind<IDependency>().To((
-                     Dependency dependency) =>
-                 {
-                     dependency.Initialize();
-                     return dependency;
-                 });
-            
-             // Variant using TagAttribute:
-             DI.Setup(nameof(Composition))
-                 .Bind<IDependency>().To((
-                     [Tag("some tag")] Dependency dependency) =>
-                 {
-                     dependency.Initialize();
-                     return dependency;
-                 });
-             
-```
-
-
- - parameter _factory_ - Factory method with injected dependencies.
-Type of the first dependency parameter.Implementation type.
- - returns Configuration interface for method chaining.
-
-See also _Bind``1(System.Object[])_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _To``1_.
-
-See also _Tags(System.Object[])_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method To``3(System.Func{``0,``1,``2})</summary><blockquote>
-
-Specifies a simplified factory method with multiple dependency parameters.
-             
-```c#
-
-DI.Setup(nameof(Composition))
-                 .Bind<IDependency>().To((
-                     Dependency dependency,
-                     DateTimeOffset time) =>
-                 {
-                     dependency.Initialize(time);
-                     return dependency;
-                 });
-            
-             // Variant using TagAttribute:
-             DI.Setup(nameof(Composition))
-                 .Bind("now datetime").To(_ => DateTimeOffset.Now)
-                 .Bind<IDependency>().To((
-                     Dependency dependency,
-                     [Tag("now datetime")] DateTimeOffset time) =>
-                 {
-                     dependency.Initialize(time);
-                     return dependency;
-                 });
-             
-```
-
-
- - parameter _factory_ - Factory method with injected dependencies.
-Type of the first dependency parameter.Type of second dependency parameter.Implementation type.
- - returns Configuration interface for method chaining.
-
-See also _Bind``1(System.Object[])_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _To``1_.
-
-See also _Tags(System.Object[])_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method To``4(System.Func{``0,``1,``2,``3})</summary><blockquote>
-
-Specifies a simplified factory method with multiple dependency parameters.
-            
- - parameter _factory_ - Factory method with injected dependencies.
-Type of the first dependency parameter.Type of the second dependency parameter.Type of the third dependency parameter.Implementation type.
- - returns Configuration interface for method chaining.
-
-See also _Bind``1(System.Object[])_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _To``1_.
-
-See also _Tags(System.Object[])_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>IConfiguration</summary><blockquote>
-
-Defines an API for configuring Dependency Injection bindings.
-            
-See also _Setup(System.String,Pure.DI.CompositionKind)_.
-
-<details><summary>Method Bind(System.Object[])</summary><blockquote>
-
-Starts binding definition for the implementation type itself. Also binds all directly implemented abstract types excluding special system interfaces.
-            Special system interfaces are excluded from binding:
-            System.ObjectSystem.EnumSystem.MulticastDelegateSystem.DelegateSystem.Collections.IEnumerableSystem.Collections.Generic.IEnumerable<T>System.Collections.Generic.IList<T>System.Collections.Generic.ICollection<T>System.Collections.IEnumeratorSystem.Collections.Generic.IEnumerator<T>System.Collections.Generic.IReadOnlyList<T>System.Collections.Generic.IReadOnlyCollection<T>System.IDisposableSystem.IAsyncResultSystem.AsyncCallback
-```c#
-
-DI.Setup("Composition")
-                .Bind().To<Service>();
-            
-```
-
-
- - parameter _tags_ - Optional tags to associate with the binding.
-
- - returns Binding configuration interface for method chaining.
-
-See also _To``1_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _To<T1,T>()_.
-
-See also _To<T1,T2,T>()_.
-
-See also _Tags(System.Object[])_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method Bind``1(System.Object[])</summary><blockquote>
-
-Starts binding definition for a specific dependency type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IService>().To<Service>();
-            
-```
-
-Dependency type to bind.
- - parameter _tags_ - Optional tags to associate with the binding.
-
- - returns Binding configuration interface for method chaining.
-
-See also _To``1_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _To<T1,T>()_.
-
-See also _To<T1,T2,T>()_.
-
-See also _Tags(System.Object[])_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method Bind``2(System.Object[])</summary><blockquote>
-
-Starts binding definition for multiple dependency types simultaneously.
-             See _Bind``1(System.Object[])_ for detailed usage.
-             First dependency type to bind.Second dependency type to bind.
- - parameter _tags_ - Optional tags to associate with the binding.
-
- - returns Binding configuration interface for method chaining.
-
-See also _To``1_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _To<T1,T>()_.
-
-See also _To<T1,T2,T>()_.
-
-See also _Tags(System.Object[])_.
-
-            seealso cref="IBinding.As"/>
-        
-</blockquote></details>
-
-
-<details><summary>Method Bind``3(System.Object[])</summary><blockquote>
-
-Starts binding definition for multiple dependency types simultaneously.
-            See _Bind``1(System.Object[])_ for detailed usage.
-            First dependency type to bind.Second dependency type to bind.Third dependency type to bind.
- - parameter _tags_ - Optional tags to associate with the binding.
-
- - returns Binding configuration interface for method chaining.
-
-See also _To``1_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _To<T1,T>()_.
-
-See also _To<T1,T2,T>()_.
-
-See also _Tags(System.Object[])_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method Bind``4(System.Object[])</summary><blockquote>
-
-Starts binding definition for multiple dependency types simultaneously.
-            See _Bind``1(System.Object[])_ for detailed usage.
-            First dependency type to bind.Second dependency type to bind.Third dependency type to bind.Fourth dependency type to bind.
- - parameter _tags_ - Optional tags to associate with the binding.
-
- - returns Binding configuration interface for method chaining.
-
-See also _To``1_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _To<T1,T>()_.
-
-See also _To<T1,T2,T>()_.
-
-See also _Tags(System.Object[])_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method RootBind``1(System.String,Pure.DI.RootKinds,System.Object[])</summary><blockquote>
-
-Starts binding definition with automatic root creation for a dependency type.
-            
-```c#
-
-DI.Setup("Composition")
-                .RootBind<IService>();
-            
-```
-
-Dependency type to bind and expose as root.
- - parameter _name_ - Root name template (supports {type}, {TYPE}, {tag} placeholders).
-            Empty name creates a private root accessible only via Resolve methods.
-            
-
- - parameter _kind_ - Specifies root accessibility and creation method.
-
- - parameter _tags_ - Tags for binding (first tag used for {tag} placeholder).
-
- - returns Binding configuration interface for method chaining.
-
-See also _To``1_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _To<T1,T>()_.
-
-See also _To<T1,T2,T>()_.
-
-See also _Tags(System.Object[])_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method DependsOn(System.String[])</summary><blockquote>
-
-Specifies base setups to inherit bindings from.
-            
-```c#
-
-DI.Setup("Composition")
-                .DependsOn(nameof(CompositionBase));
-            
-```
-
-
- - parameter _setupNames_ - Names of base composition setups.
-
- - returns Configuration interface for method chaining.
-
-See also _Setup(System.String,Pure.DI.CompositionKind)_.
-
-</blockquote></details>
-
-
-<details><summary>Method GenericTypeArgumentAttribute``1</summary><blockquote>
-
-Registers custom generic type markers.
-             
-```c#
-
-[AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Struct)]
-             class MyGenericTypeArgumentAttribute: Attribute;
-            
-             [MyGenericTypeArgument]
-             interface TTMy;
-            
-             DI.Setup("Composition")
-                 .GenericTypeAttribute<MyGenericTypeArgumentAttribute>()
-                 .Bind<IDependency<TTMy>>().To<Dependency<TTMy>>();
-             
-```
-
-Custom attribute type.
- - returns Configuration interface for method chaining.
-
-See also _GenericTypeArgumentAttribute``1_.
-
-</blockquote></details>
-
-
-<details><summary>Method TypeAttribute``1(System.Int32)</summary><blockquote>
-
-Registers a custom attribute to override injection types.
-            
-```c#
-
-DI.Setup("Composition")
-                .TypeAttribute<MyTypeAttribute>();
-            
-```
-
-
- - parameter _typeArgumentPosition_ - Position of type parameter in attribute constructor (default: 0).
-Custom attribute type.
- - returns Configuration interface for method chaining.
-
-See also _TypeAttribute_.
-
-</blockquote></details>
-
-
-<details><summary>Method TagAttribute``1(System.Int32)</summary><blockquote>
-
-Registers a custom attribute to override injection tags.
-            
-```c#
-
-DI.Setup("Composition")
-                .TagAttribute<MyTagAttribute>();
-            
-```
-
-
- - parameter _tagArgumentPosition_ - Position of tag parameter in attribute constructor (default: 0).
-Custom attribute type.
- - returns Configuration interface for method chaining.
-
-See also _TagAttribute_.
-
-</blockquote></details>
-
-
-<details><summary>Method OrdinalAttribute``1(System.Int32)</summary><blockquote>
-
-Registers a custom attribute to override injection priority.
-            
-```c#
-
-DI.Setup("Composition")
-                .OrdinalAttribute<MyOrdinalAttribute>();
-            
-```
-
-
- - parameter _ordinalArgumentPosition_ - Position of ordinal parameter in attribute constructor (default: 0).
-Custom attribute type.
- - returns Configuration interface for method chaining.
-
-See also _OrdinalAttribute_.
-
-</blockquote></details>
-
-
-<details><summary>Method DefaultLifetime(Pure.DI.Lifetime)</summary><blockquote>
-
-Sets the default lifetime for the following bindings.
-            
-```c#
-
-DI.Setup("Composition")
-                .DefaultLifetime(Lifetime.Singleton);
-            
-```
-
-
- - parameter _lifetime_ - Default lifetime to apply.
-
- - returns Configuration interface for method chaining.
-
-See also _Lifetime_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method DefaultLifetime``1(Pure.DI.Lifetime,System.Object[])</summary><blockquote>
-
-Sets the default lifetime for bindings of specific types for the following bindings.
-            
-```c#
-
-DI.Setup("Composition")
-                .DefaultLifetime<IMySingleton>(Lifetime.Singleton);
-            
-```
-
-
-```c#
-
-DI.Setup("Composition")
-                .DefaultLifetime<IMySingleton>(Lifetime.Singleton, "my tag");
-            
-```
-
-
- - parameter _lifetime_ - Default lifetime to apply.
-
- - parameter _tags_ - Tags specifying which bindings to apply this lifetime to.
-Type filter for applicable bindings.
- - returns Configuration interface for method chaining.
-
-See also _Lifetime_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-</blockquote></details>
-
-
-<details><summary>Method Arg``1(System.String,System.Object[])</summary><blockquote>
-
-Adds a composition argument to be injected.
-            
-```c#
-
-DI.Setup("Composition")
-                .Arg<int>("id");
-            
-```
-
-Argument type.
- - parameter _name_ - Argument name template (supports {type}, {TYPE}, {tag} placeholders).
-            
-
- - parameter _tags_ - Tags to associate with the argument.
-
- - returns Configuration interface for method chaining.
-
-See also _RootArg``1(System.String,System.Object[])_.
-
-</blockquote></details>
-
-
-<details><summary>Method RootArg``1(System.String,System.Object[])</summary><blockquote>
-
-Adds a root argument to be injected.
-            
-```c#
-
-DI.Setup("Composition")
-                .RootArg<int>("id");
-            
-```
-
-Argument type.
- - parameter _name_ - Argument name template (supports {type}, {TYPE}, {tag} placeholders).
-            
-
- - parameter _tags_ - Tags to associate with the argument.
-
- - returns Configuration interface for method chaining.
-
-See also _Arg``1(System.String,System.Object[])_.
-
-</blockquote></details>
-
-
-<details><summary>Method Root``1(System.String,System.Object,Pure.DI.RootKinds)</summary><blockquote>
-
-Defines the composition root.
-            
-```c#
-
-DI.Setup("Composition")
-                .Root<Service>("MyService");
-            
-```
-
-
-```c#
-
-DI.Setup("Composition")
-                .Root<Service>("My{type}");
-            
-```
-
-Root type to expose.
- - parameter _name_ - Root name template (supports {type}, {TYPE}, {tag} placeholders).
-            Empty name creates the private root accessible only via  `Resolve`  methods.
-            
-
- - parameter _tag_ - Tag to associate with the root.
-
- - parameter _kind_ - Specifies root accessibility and creation method.
-
- - returns Configuration interface for method chaining.
-
-See also _RootBind``1(System.String,Pure.DI.RootKinds,System.Object[])_.
-
-See also _Roots``1(System.String,Pure.DI.RootKinds,System.String)_.
-
-</blockquote></details>
-
-
-<details><summary>Method Roots``1(System.String,Pure.DI.RootKinds,System.String)</summary><blockquote>
-
-Automatically creates roots for all base type implementations found at the time the method is called.
-            
-```c#
-
-DI.Setup("Composition")
-                .Roots<IService>();
-            
-```
-
-
-```c#
-
-DI.Setup("Composition")
-                .Roots<IService>("Root{type}", filter: "*MyService");
-            
-```
-
-Base type for auto-root discovery.
- - parameter _name_ - Root name template (supports {type}, {TYPE} placeholders).
-            Empty name creates private roots accessible only via Resolve methods.
-            
-
- - parameter _kind_ - Specifies root accessibility and creation method.
-
- - parameter _filter_ - Wildcard pattern to filter types by full name.
-
- - returns Configuration interface for method chaining.
-
-See also _Root``1(System.String,System.Object,Pure.DI.RootKinds)_.
-
-</blockquote></details>
-
-
-<details><summary>Method Builder``1(System.String,Pure.DI.RootKinds)</summary><blockquote>
-
-Defines a builder method for initializing instances post-creation.
-            
-```c#
-
-DI.Setup("Composition")
-                .Builder<Service>("BuildUpMyService");
-            
-```
-
-Type the builder method applies to.
- - parameter _name_ - Builder method name template (supports {type}, {TYPE} placeholders).
-            Default: "BuildUp".
-            
-
- - parameter _kind_ - Specifies builder accessibility.
-
- - returns Configuration interface for method chaining.
-
-See also _Builders``1(System.String,Pure.DI.RootKinds,System.String)_.
-
-</blockquote></details>
-
-
-<details><summary>Method Builders``1(System.String,Pure.DI.RootKinds,System.String)</summary><blockquote>
-
-Automatically creates builders for all discoverable implementations of a base type found at the time the method is called.
-            
-```c#
-
-DI.Setup("Composition")
-                .Builders<Service>();
-            
-```
-
-
-```c#
-
-DI.Setup("Composition")
-                .Builder<Service>("BuildUp");
-            
-```
-
-
-```c#
-
-DI.Setup("Composition")
-                .Builder<Service>("BuildUp{type}", filter: "*MyService");
-            
-```
-
-Base type for builder discovery.
- - parameter _name_ - Builder method name template (supports {type}, {TYPE} placeholders).
-            Default: "BuildUp".
-            
-
- - parameter _kind_ - Specifies builder accessibility.
-
- - parameter _filter_ - Wildcard pattern to filter types by full name.
-
- - returns Configuration interface for method chaining.
-
-See also _Builder``1(System.String,Pure.DI.RootKinds)_.
-
-</blockquote></details>
-
-
-<details><summary>Method Hint(Pure.DI.Hint,System.String)</summary><blockquote>
-
-Configures code generation options.
-            
-```c#
-
-DI.Setup("Composition")
-                .Hint(Resolve, "Off");
-            
-```
-
-
- - parameter _hint_ - Hint type to configure.
-
- - parameter _value_ - Value to set for the hint.
-
- - returns Configuration interface for method chaining.
-
-See also _Hint_.
-
-</blockquote></details>
-
-
-<details><summary>Method Accumulate``2(Pure.DI.Lifetime[])</summary><blockquote>
-
-Registers an accumulator for collecting instances of specific lifetimes. If no lifetime is specified, it works for all.
-            
-```c#
-
-DI.Setup("Composition")
-                .Accumulate<IDisposable, MyAccumulator>(Lifetime.Transient);
-            
-```
-
-
- - parameter _lifetimes_ - Lifetimes of instances to accumulate.
-Type of instances to collect.Accumulator type (requires parameterless constructor and Add(T) method).
-            
- - returns Configuration interface for method chaining.
-
-See also _Lifetime_.
-
-</blockquote></details>
-
-
-<details><summary>Method GenericTypeArgument``1</summary><blockquote>
-
-Defines a generic type marker for generic bindings.
-             
-```c#
-
-interface TTMy;
-            
-             DI.Setup("Composition")
-                 .GenericTypeArgument<TTMy>()
-                 .Bind<IDependency<TTMy>>().To<Dependency<TTMy>>();
-             
-```
-
-Generic type marker.
- - returns Configuration interface for method chaining.
-
-See also _GenericTypeArgumentAttribute``1_.
-
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>IContext</summary><blockquote>
-
-Injection context. Cannot be used outside the binding setup.
-            
-<details><summary>Property Tag</summary><blockquote>
-
-The tag that was used to inject the current object in the object graph. Cannot be used outside the binding setup. See also _Tags(System.Object[])_
-```c#
-
-DI.Setup("Composition")
-                .Bind<Lazy<TT>>()
-                .To(ctx =>
-                {
-                    ctx.Inject<Func<TT>>(ctx.Tag, out var func);
-                    return new Lazy<TT>(func, false);
-                };
-            
-```
-
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-See also _Tags(System.Object[])_.
-
-</blockquote></details>
-
-
-<details><summary>Property ConsumerTypes</summary><blockquote>
-
-The chain of consumer types for which an instance is created, from the immediate consumer down to the composition type. Cannot be used outside the binding setup. Guaranteed to contain at least one element.
-             
-```c#
-
-var box = new Composition().Box;
-             // Output: ShroedingersCat, CardboardBox`1, Composition
-            
-             static void Setup() =>
-                 DI.Setup(nameof(Composition))
-                 .Bind().To(ctx => new Log(ctx.ConsumerTypes))
-                 .Bind().To<ShroedingersCat>()
-                 .Bind().To<CardboardBox<TT>>()
-                 .Root<CardboardBox<ShroedingersCat>>("Box");
-            
-             public class Log
-             {
-                 public Log(Type[] types) =>
-                     Console.WriteLine(string.Join(", ", types.Select(type => type.Name)));
-             }
-            
-             public record CardboardBox<T>(T Content);
-            
-             public record ShroedingersCat(Log log);
-             
-```
-
-
-See also _ConsumerType_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-</blockquote></details>
-
-
-<details><summary>Property ConsumerType</summary><blockquote>
-
-The immediate consumer type for which the instance is created. Cannot be used outside the binding setup.
-             
-```c#
-
-var box = new Composition().Box;
-             // Output: ShroedingersCat
-            
-             static void Setup() =>
-                 DI.Setup(nameof(Composition))
-                 .Bind().To(ctx => new Log(ctx.ConsumerType))
-                 .Bind().To<ShroedingersCat>()
-                 .Bind().To<CardboardBox<TT>>()
-                 .Root<CardboardBox<ShroedingersCat>>("Box");
-            
-             public class Log
-             {
-                 public Log(Type type) =>
-                     Console.WriteLine(type.Name);
-             }
-            
-             public record CardboardBox<T>(T Content);
-            
-             public record ShroedingersCat(Log log);
-             
-```
-
-
-See also _ConsumerTypes_.
-
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-</blockquote></details>
-
-
-<details><summary>Property Lock</summary><blockquote>
-
-Gets the synchronization object used to control thread-safe access during composition.
-            Used to prevent race conditions during dependency resolution and override operations.
-            
-```c#
-
-DI.Setup(nameof(Composition))
-                .Bind<IDependency>().To<IDependency>(ctx =>
-                {
-                    lock (ctx.Lock)
-                    {
-                        ctx.Inject(out Dependency dependency);
-                        dependency.Initialize();
-                        return dependency;
-                    }
-                })
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Method Inject``1(``0@)</summary><blockquote>
-
-Injects an instance of type  `T` . Cannot be used outside the binding setup.
-             
-```c#
-
-DI.Setup("Composition")
-                 .Bind<IService>()
-                 To(ctx =>
-                 {
-                     ctx.Inject<IDependency>(out var dependency);
-                     return new Service(dependency);
-                 })
-             
-```
-
-
-             and another example:
-```c#
-
-DI.Setup("Composition")
-                 .Bind<IService>()
-                 To(ctx =>
-                 {
-                     // Builds up an instance with all necessary dependencies
-                     ctx.Inject<Service>(out var service);
-            
-                     service.Initialize();
-                     return service;
-                 })
-             
-```
-
-
- - parameter _value_ - Injectable instance.
-.
-             Instance type.
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-</blockquote></details>
-
-
-<details><summary>Method Inject``1(System.Object,``0@)</summary><blockquote>
-
-Injects an instance of type  `T`  marked with a tag. Cannot be used outside the binding setup.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IService>()
-                To(ctx =>
-                {
-                    ctx.Inject<IDependency>("MyTag", out var dependency);
-                    return new Service(dependency);
-                })
-            
-```
-
-
- - parameter _tag_ - The injection tag. See also _Tags(System.Object[])_
-.
-            
- - parameter _value_ - Injectable instance.
-.
-            Instance type.
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-</blockquote></details>
-
-
-<details><summary>Method BuildUp``1(``0)</summary><blockquote>
-
-Builds up of an existing object. In other words, injects the necessary dependencies via methods, properties, or fields into an existing object. Cannot be used outside the binding setup.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IService>()
-                To(ctx =>
-                {
-                    var service = new Service();
-                    // Initialize an instance with all necessary dependencies
-                    ctx.BuildUp(service);
-                    return service;
-                })
-            
-```
-
-
- - parameter _value_ - An existing object for which the injection(s) is to be performed.
-Object type.
-See also _To``1(System.Func{Pure.DI.IContext,``0})_.
-
-</blockquote></details>
-
-
-<details><summary>Method Override``1(``0,System.Object[])</summary><blockquote>
-
-Overrides the binding with the specified value. Cannot be used outside the binding setup.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind().To<Func<int, int, IDependency>>(ctx =>
-                    (dependencyId, subId) =>
-                    {
-                        // Overrides with a lambda argument
-                        ctx.Override(dependencyId);
-                        // Overrides with tag using lambda argument
-                        ctx.Override(subId, "sub");
-                        // Overrides with some value
-                        ctx.Override($"Dep {dependencyId} {subId}");
-                        // Overrides with injected value
-                        ctx.Inject(Tag.Red, out Color red);
-                        ctx.Override(red);
-                        ctx.Inject<Dependency>(out var dependency);
-                        return dependency;
-                    })
-            
-```
-
-
-            Overrides uses a shared state to override values. And if this code is supposed to run in multiple threads at once, then you need to ensure their synchronization, for example
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind().To<Func<int, int, IDependency>>(ctx =>
-                    (dependencyId, subId) =>
-                    {
-                        lock (ctx.Lock)
-                        {
-                            // Overrides with a lambda argument
-                            ctx.Override(dependencyId);
-                            // Overrides with tag using lambda argument
-                            ctx.Override(subId, "sub");
-                            // Overrides with some value
-                            ctx.Override($"Dep {dependencyId} {subId}");
-                            // Overrides with injected value
-                            ctx.Inject(Tag.Red, out Color red);
-                            ctx.Override(red);
-                            ctx.Inject<Dependency>(out var dependency);
-                            return dependency;
-                        }
-                    })
-            
-```
-
-
-            An alternative to synchronizing thread yourself is to use types like _Func`3_this. There, threads synchronization is performed automatically.
-            
- - parameter _value_ - The object that will be used to override a binding.
-Object type that will be used to override a binding.
- - parameter _tags_ - Injection tags that will be used to override a binding. See also _Tags(System.Object[])_
-.
-            
-See also _To<T>(System.Func<TArg1,T>)_.
-
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>IOwned</summary><blockquote>
-
-Represents an owned resource whose lifetime is managed by its owner.
-            Provides both synchronous and asynchronous disposal capabilities for proper resource cleanup.
-            
-See also _Owned_.
-
-See also _Accumulate``2(Pure.DI.Lifetime[])_.
-
-</blockquote></details>
-
-
-<details><summary>Lifetime</summary><blockquote>
-
-Defines binding lifetimes for dependencies.
-            Binding as Singleton:
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency>().As(Lifetime.Singleton).To<Dependency>();
-            
-```
-
-
-See also _Setup(System.String,Pure.DI.CompositionKind)_.
-
-See also _As(Pure.DI.Lifetime)_.
-
-See also _DefaultLifetime(Pure.DI.Lifetime)_.
-
-See also _DefaultLifetime``1(Pure.DI.Lifetime,System.Object[])_.
-
-<details><summary>Field Transient</summary><blockquote>
-
-Creates a new dependency instance for each injection (default behavior). Default behavior can be changed by _DefaultLifetime(Pure.DI.Lifetime)_ and _DefaultLifetime``1(Pure.DI.Lifetime,System.Object[])_.
-            Explicit transient binding:
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency>().As(Lifetime.Transient).To<Dependency>();
-            
-```
-
-
-            Default behavior (equivalent):
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency>().To<Dependency>();
-            
-```
-
-
-See also _DefaultLifetime(Pure.DI.Lifetime)_.
-
-See also _DefaultLifetime``1(Pure.DI.Lifetime,System.Object[])_.
-
-</blockquote></details>
-
-
-<details><summary>Field Singleton</summary><blockquote>
-
-Maintains a single instance per composition.
-            Singleton binding:
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IService>().As(Lifetime.Singleton).To<Service>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field PerResolve</summary><blockquote>
-
-Single instance per composition root.
-            Per-resolve binding:
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IProcessor>().As(Lifetime.PerResolve).To<Processor>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field PerBlock</summary><blockquote>
-
-Reuses instances within code blocks to reduce allocations.
-            Per-block binding:
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<ILogger>().As(Lifetime.PerBlock).To<Logger>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field Scoped</summary><blockquote>
-
-Single instance per dependency scope.
-            Scoped binding:
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDatabase>().As(Lifetime.Scoped).To<Database>();
-            
-```
-
-
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>Name</summary><blockquote>
-
-Provides well-known names used throughout the dependency injection configuration.
-            These names serve as standardized identifiers for common DI components and behaviors.
-            
-</blockquote></details>
-
-
-<details><summary>OrdinalAttribute</summary><blockquote>
-
-Specifies injection order priority for constructors, methods, properties, and fields.
-             While this attribute is part of the DI API, you can implement custom ordering attributes in any namespace.
-             For constructors, it defines the sequence of attempts to use a particular constructor to create an object:
-             
-```c#
-
-class Service: IService
-             {
-                 private readonly string _name;
-            
-                 [Ordinal(1)]
-                 public Service(IDependency dependency) =>
-                     _name = "with dependency";
-            
-                 [Ordinal(0)]
-                 public Service(string name) => _name = name;
-             }
-             
-```
-
-
-            
-             For fields, properties and methods, it specifies to perform dependency injection and defines the sequence:
-             
-```c#
-
-class Person: IPerson
-             {
-                 private readonly string _name = "";
-            
-                 [Ordinal(0)]
-                 public int Id;
-            
-                 [Ordinal(1)]
-                 public string FirstName
-                 {
-                     set
-                     {
-                         _name = value;
-                     }
-                 }
-            
-                 public IDependency? Dependency { get; private set; }
-            
-                 [Ordinal(2)]
-                 public void SetDependency(IDependency dependency) =>
-                     Dependency = dependency;
-             }
-             
-```
-
-
-See also _DependencyAttribute_.
-
-See also _TagAttribute_.
-
-See also _TypeAttribute_.
-
-<details><summary>Constructor OrdinalAttribute(System.Int32)</summary><blockquote>
-
-Initializes an attribute instance with the specified injection priority.
-            
- - parameter _ordinal_ - Lower values indicate higher priority (0 executes before 1). Default: 0.
-
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>Owned</summary><blockquote>
-
-Manages lifetime of disposable objects by accumulating them and providing deterministic disposal.
-            Implements both synchronous and asynchronous disposal patterns for comprehensive resource cleanup.
-            
-See also _IOwned_.
-
-See also _Accumulate``2(Pure.DI.Lifetime[])_.
-
-<details><summary>Method Dispose</summary><blockquote>
-
-
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>Owned`1</summary><blockquote>
-
-Represents an owned resource of type  that combines a value with its disposal mechanism.
-            Provides deterministic lifetime management through both synchronous and asynchronous disposal patterns.
-            The type of the owned value.
-See also _IOwned_.
-
-See also _Owned_.
-
-See also _Accumulate``2(Pure.DI.Lifetime[])_.
-
-<details><summary>Field Value</summary><blockquote>
-
-The owned value instance.
-            
-</blockquote></details>
-
-
-<details><summary>Constructor Owned`1(`0,Pure.DI.IOwned)</summary><blockquote>
-
-Initializes a new owned value with its associated disposal mechanism.
-            
- - parameter _value_ - The value to be owned and managed.
-
- - parameter _owned_ - The disposal mechanism responsible for cleaning up the owned value.
-
-</blockquote></details>
-
-
-<details><summary>Method Dispose</summary><blockquote>
-
-
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>Pair`1</summary><blockquote>
-
-For internal use.
-            
-</blockquote></details>
-
-
-<details><summary>RootKinds</summary><blockquote>
-
-Specifies configuration flags for composition root members, controlling their access level, modifiers, and representation.
-            Flags can be combined to define complex root behaviors.
-            
-See also _Root``1(System.String,System.Object,Pure.DI.RootKinds)_.
-
-See also _RootBind``1(System.String,Pure.DI.RootKinds,System.Object[])_.
-
-See also _Roots``1(System.String,Pure.DI.RootKinds,System.String)_.
-
-See also _Builder``1(System.String,Pure.DI.RootKinds)_.
-
-See also _Builders``1(System.String,Pure.DI.RootKinds,System.String)_.
-
-<details><summary>Field Default</summary><blockquote>
-
-Default configuration: Public access modifier and property representation.
-            
-</blockquote></details>
-
-
-<details><summary>Field Public</summary><blockquote>
-
-Public access modifier for the composition root.
-            
-</blockquote></details>
-
-
-<details><summary>Field Internal</summary><blockquote>
-
-Internal access modifier for the composition root.
-            
-</blockquote></details>
-
-
-<details><summary>Field Private</summary><blockquote>
-
-Private access modifier for the composition root.
-            
-</blockquote></details>
-
-
-<details><summary>Field Property</summary><blockquote>
-
-Represents the composition root as a property.
-            
-</blockquote></details>
-
-
-<details><summary>Field Method</summary><blockquote>
-
-Represents the composition root as a method.
-             
-</blockquote></details>
-
-
-<details><summary>Field Static</summary><blockquote>
-
-Defines the composition root as static.
-            
-</blockquote></details>
-
-
-<details><summary>Field Partial</summary><blockquote>
-
-Defines the composition root as partial.
-            
-</blockquote></details>
-
-
-<details><summary>Field Exposed</summary><blockquote>
-
-Exposes the root for external binding via attributes.
-            
-See also _BindAttribute_.
-
-</blockquote></details>
-
-
-<details><summary>Field Protected</summary><blockquote>
-
-Protected access modifier for the composition root.
-            
-</blockquote></details>
-
-
-<details><summary>Field Virtual</summary><blockquote>
-
-Applies virtual modifier to enable overriding in derived classes.
-            
-</blockquote></details>
-
-
-<details><summary>Field Override</summary><blockquote>
-
-Applies override modifier to redefine a base implementation.
-            
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>Tag</summary><blockquote>
-
-Provides standardized tags for dependency binding scenarios, including special tags for unique bindings, type-based identification, and injection targeting.
-            
-See also _Bind``1(System.Object[])_.
-
-See also _Tags(System.Object[])_.
-
-<details><summary>Field Unique</summary><blockquote>
-
-Enables multiple distinct bindings for the same instance type. Used for collection injection.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IService>(Tag.Unique).To<Service1>()
-                .Bind<IService>(Tag.Unique).To<Service1>()
-                .Root<IEnumerable<IService>>("Root");
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field Type</summary><blockquote>
-
-Tags bindings by their implementation type for explicit injection.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IService>(Tag.Type).To<Service>()
-                .Root<IService>("Root", typeof(Service));
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Field Any</summary><blockquote>
-
-Matches any tag during resolution. Used for conditional bindings that accept any tag.
-            
-```c#
-
-DI.Setup("Composition")
-             DI.Setup(nameof(Composition))
-                 .Bind<IDependency>(Tag.Any).To(ctx => new Dependency(ctx.Tag))
-                 .Bind<IService>().To<Service>()
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>Method On(System.String[])</summary><blockquote>
-
-Creates a tag targeting specific injection sites using member identifiers.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind(Tag.On("MyNamespace.Service.Service:dep"))
-                    .To<Dependency>()
-                .Bind().To<Service>()
-                .Root<<IService>("Root");
-            
-```
-
-
- - parameter _injectionSites_ - Member identifiers in format: [namespace].[type].[member][:argument]. Case-sensitive. Wildcards (*, ?) supported. Omit 'global::'.
-
-</blockquote></details>
-
-
-<details><summary>Method OnConstructorArg``1(System.String)</summary><blockquote>
-
-Creates a tag targeting a specific constructor parameter by name.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind(Tag.OnConstructorArg<Service>("dep"))
-                    .To<Dependency>()
-                .Bind().To<Service>()
-                .Root<IService>("Root");
-            
-```
-
-
- - parameter _argName_ - Constructor parameter name
-
-</blockquote></details>
-
-
-<details><summary>Method OnMember``1(System.String)</summary><blockquote>
-
-Creates a tag targeting a specific field or property by name.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind(Tag.OnMember<Service>("DepProperty"))
-                    .To<Dependency>()
-                .Bind().To<Service>()
-                .Root<IService>("Root");
-            
-```
-
-
- - parameter _memberName_ - Field or property name
-
-</blockquote></details>
-
-
-<details><summary>Method OnMethodArg``1(System.String,System.String)</summary><blockquote>
-
-Creates a tag targeting a specific method parameter by method and argument names.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind(Tag.OnMethodArg<Service>("DoSomething", "state"))
-                    .To<Dependency>()
-                .Bind().To<Service>()
-                .Root<IService>("Root");
-            
-```
-
-
- - parameter _methodName_ - Method name
-
- - parameter _argName_ - Argument name
-
-</blockquote></details>
-
-
-<details><summary>Field UsingDeclarations</summary><blockquote>
-
-Atomically generated smart tag with value "UsingDeclarations".
-            It's used for:
-            
-            class _Generator__CompositionClassBuilder_ <-- _IBuilder{TData, T}_(UsingDeclarations) -- _UsingDeclarationsBuilder_ as _PerBlock_
-</blockquote></details>
-
-
-<details><summary>Field VarName</summary><blockquote>
-
-Atomically generated smart tag with value "VarName".
-            It's used for:
-            
-            class _Generator__VarsMap_ <-- _IIdGenerator_(VarName) -- _IdGenerator_ as _Transient_
-</blockquote></details>
-
-
-<details><summary>Field UniqueTag</summary><blockquote>
-
-Atomically generated smart tag with value "UniqueTag".
-            It's used for:
-            
-            class _Generator__ApiInvocationProcessor_ <-- _IIdGenerator_(UniqueTag) -- _IdGenerator_ as _PerResolve__BindingBuilder_ <-- _IIdGenerator_(UniqueTag) -- _IdGenerator_ as _PerResolve_
-</blockquote></details>
-
-
-<details><summary>Field Overrider</summary><blockquote>
-
-Atomically generated smart tag with value "Overrider".
-            It's used for:
-            
-            class _Generator__DependencyGraphBuilder_ <-- _IGraphRewriter_(Overrider) -- _GraphOverrider_ as _PerBlock_
-</blockquote></details>
-
-
-<details><summary>Field Override</summary><blockquote>
-
-Atomically generated smart tag with value "Override".
-            It's used for:
-            
-            class _Generator__OverrideIdProvider_ <-- _IIdGenerator_(Override) -- _IdGenerator_ as _PerResolve_
-</blockquote></details>
-
-
-<details><summary>Field Cleaner</summary><blockquote>
-
-Atomically generated smart tag with value "Cleaner".
-            It's used for:
-            
-            class _Generator__DependencyGraphBuilder_ <-- _IGraphRewriter_(Cleaner) -- _GraphCleaner_ as _PerBlock_
-</blockquote></details>
-
-
-<details><summary>Field SpecialBinding</summary><blockquote>
-
-Atomically generated smart tag with value "SpecialBinding".
-            It's used for:
-            
-            class _Generator__BindingBuilder_ <-- _IIdGenerator_(SpecialBinding) -- _IdGenerator_ as _PerResolve_
-</blockquote></details>
-
-
-<details><summary>Field CompositionClass</summary><blockquote>
-
-Atomically generated smart tag with value "CompositionClass".
-            It's used for:
-            
-            class _Generator__CodeBuilder_ <-- _IBuilder{TData, T}_(CompositionClass) -- _CompositionClassBuilder_ as _PerBlock_
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>TagAttribute</summary><blockquote>
-
-Represents a tag attribute overriding an injection tag. The tag can be a constant, a type, or a value of an enumerated type.
-             This attribute is part of the API, but you can use your own attribute at any time, and this allows you to define them in the assembly and namespace you want.
-             Sometimes it's important to take control of building a dependency graph. For example, when there are multiple implementations of the same contract. In this case, tags will help:
-             
-```c#
-
-interface IDependency { }
-             
-            
-             class AbcDependency: IDependency { }
-             
-            
-             class XyzDependency: IDependency { }
-             
-            
-             class Dependency: IDependency { }
-             
-            
-             interface IService
-             {
-                 IDependency Dependency1 { get; }
-             
-            
-                 IDependency Dependency2 { get; }
-             }
-            
-             
-             class Service: IService
-             {
-                 public Service(
-                     [Tag("Abc")] IDependency dependency1,
-                     [Tag("Xyz")] IDependency dependency2)
-                 {
-                     Dependency1 = dependency1;
-                     Dependency2 = dependency2;
-                 }
-            
-                 public IDependency Dependency1 { get; }
-            
-             
-                 public IDependency Dependency2 { get; }
-             }
-            
-             
-             DI.Setup("Composition")
-                 .Bind<IDependency>("Abc").To<AbcDependency>()
-                 .Bind<IDependency>("Xyz").To<XyzDependency>()
-                 .Bind<IService>().To<Service>().Root<IService>("Root");
-             
-```
-
-
-See also _DependencyAttribute_.
-
-See also _OrdinalAttribute_.
-
-See also _TypeAttribute_.
-
-<details><summary>Constructor TagAttribute(System.Object)</summary><blockquote>
-
-Creates an attribute instance.
-            
- - parameter _tag_ - The injection tag. See also _Tags(System.Object[])_
-.
-        
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-<details><summary>TT</summary><blockquote>
-
-Represents the generic type arguments marker for a reference type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TT>>().To<Dependency<TT>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TT1</summary><blockquote>
-
-Represents the generic type arguments marker for a reference type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TT1>>().To<Dependency<TT1>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TT2</summary><blockquote>
-
-Represents the generic type arguments marker for a reference type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TT2>>().To<Dependency<TT2>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TT3</summary><blockquote>
-
-Represents the generic type arguments marker for a reference type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TT3>>().To<Dependency<TT3>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TT4</summary><blockquote>
-
-Represents the generic type arguments marker for a reference type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TT4>>().To<Dependency<TT4>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTCollection`1</summary><blockquote>
-
-Represents the generic type arguments marker for _ICollection`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTCollection<TT>>>().To<Dependency<TTCollection<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTCollection1`1</summary><blockquote>
-
-Represents the generic type arguments marker for _ICollection`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTCollection1<TT>>>().To<Dependency<TTCollection1<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTCollection2`1</summary><blockquote>
-
-Represents the generic type arguments marker for _ICollection`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTCollection2<TT>>>().To<Dependency<TTCollection2<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTCollection3`1</summary><blockquote>
-
-Represents the generic type arguments marker for _ICollection`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTCollection3<TT>>>().To<Dependency<TTCollection3<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTCollection4`1</summary><blockquote>
-
-Represents the generic type arguments marker for _ICollection`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTCollection4<TT>>>().To<Dependency<TTCollection4<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTComparable</summary><blockquote>
-
-Represents the generic type arguments marker for _IComparable_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTComparable>>().To<Dependency<TTComparable>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTComparable`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IComparable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTComparable<TT>>>().To<Dependency<TTComparable<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTComparable1</summary><blockquote>
-
-Represents the generic type arguments marker for _IComparable_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTComparable1>>().To<Dependency<TTComparable1>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTComparable1`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IComparable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTComparable1<TT>>>().To<Dependency<TTComparable1<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTComparable2</summary><blockquote>
-
-Represents the generic type arguments marker for _IComparable_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTComparable2>>().To<Dependency<TTComparable2>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTComparable2`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IComparable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTComparable2<TT>>>().To<Dependency<TTComparable2<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTComparable3</summary><blockquote>
-
-Represents the generic type arguments marker for _IComparable_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTComparable3>>().To<Dependency<TTComparable3>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTComparable3`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IComparable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTComparable3<TT>>>().To<Dependency<TTComparable3<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTComparable4</summary><blockquote>
-
-Represents the generic type arguments marker for _IComparable_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTComparable4>>().To<Dependency<TTComparable4>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTComparable4`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IComparable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTComparable4<TT>>>().To<Dependency<TTComparable4<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTComparer`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IComparer`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTComparer<TT>>>().To<Dependency<TTComparer<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTComparer1`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IComparer`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTComparer1<TT>>>().To<Dependency<TTComparer1<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTComparer2`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IComparer`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTComparer2<TT>>>().To<Dependency<TTComparer2<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTComparer3`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IComparer`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTComparer3<TT>>>().To<Dependency<TTComparer3<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTComparer4`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IComparer`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTComparer4<TT>>>().To<Dependency<TTComparer4<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTDisposable</summary><blockquote>
-
-Represents the generic type arguments marker for _IDisposable_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTDisposable>>().To<Dependency<TTDisposable>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTDisposable1</summary><blockquote>
-
-Represents the generic type arguments marker for _IDisposable_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTDisposable1>>().To<Dependency<TTDisposable1>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTDisposable2</summary><blockquote>
-
-Represents the generic type arguments marker for _IDisposable_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTDisposable2>>().To<Dependency<TTDisposable2>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTDisposable3</summary><blockquote>
-
-Represents the generic type arguments marker for _IDisposable_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTDisposable3>>().To<Dependency<TTDisposable3>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTDisposable4</summary><blockquote>
-
-Represents the generic type arguments marker for _IDisposable_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTDisposable4>>().To<Dependency<TTDisposable4>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTE</summary><blockquote>
-
-Represents the generic type arguments marker for a enum type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTE>>().To<Dependency<TTE>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTE1</summary><blockquote>
-
-Represents the generic type arguments marker for a enum type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTE1>>().To<Dependency<TTE1>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTE2</summary><blockquote>
-
-Represents the generic type arguments marker for a enum type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTE2>>().To<Dependency<TTE2>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTE3</summary><blockquote>
-
-Represents the generic type arguments marker for a enum type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTE3>>().To<Dependency<TTE3>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTE4</summary><blockquote>
-
-Represents the generic type arguments marker for a enum type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTE4>>().To<Dependency<TTE4>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEnumerable`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEnumerable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEnumerable<TT>>>().To<Dependency<TTEnumerable<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEnumerable1`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEnumerable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEnumerable1<TT>>>().To<Dependency<TTEnumerable1<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEnumerable2`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEnumerable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEnumerable2<TT>>>().To<Dependency<TTEnumerable2<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEnumerable3`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEnumerable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEnumerable3<TT>>>().To<Dependency<TTEnumerable3<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEnumerable4`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEnumerable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEnumerable4<TT>>>().To<Dependency<TTEnumerable4<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEnumerator`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEnumerator`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEnumerator<TT>>>().To<Dependency<TTEnumerator<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEnumerator1`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEnumerator`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEnumerator1<TT>>>().To<Dependency<TTEnumerator1<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEnumerator2`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEnumerator`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEnumerator2<TT>>>().To<Dependency<TTEnumerator2<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEnumerator3`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEnumerator`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEnumerator3<TT>>>().To<Dependency<TTEnumerator3<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEnumerator4`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEnumerator`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEnumerator4<TT>>>().To<Dependency<TTEnumerator4<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEqualityComparer`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEqualityComparer`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEqualityComparer<TT>>>().To<Dependency<TTEqualityComparer<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEqualityComparer1`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEqualityComparer`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEqualityComparer1<TT>>>().To<Dependency<TTEqualityComparer1<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEqualityComparer2`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEqualityComparer`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEqualityComparer2<TT>>>().To<Dependency<TTEqualityComparer2<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEqualityComparer3`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEqualityComparer`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEqualityComparer3<TT>>>().To<Dependency<TTEqualityComparer3<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEqualityComparer4`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEqualityComparer`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEqualityComparer4<TT>>>().To<Dependency<TTEqualityComparer4<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEquatable`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEquatable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEquatable<TT>>>().To<Dependency<TTEquatable<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEquatable1`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEquatable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEquatable1<TT>>>().To<Dependency<TTEquatable1<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEquatable2`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEquatable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEquatable2<TT>>>().To<Dependency<TTEquatable2<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEquatable3`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEquatable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEquatable3<TT>>>().To<Dependency<TTEquatable3<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTEquatable4`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IEquatable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTEquatable4<TT>>>().To<Dependency<TTEquatable4<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTList`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IList`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTList<TT>>>().To<Dependency<TTList<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTList1`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IList`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTList1<TT>>>().To<Dependency<TTList1<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTList2`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IList`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTList2<TT>>>().To<Dependency<TTList2<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTList3`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IList`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTList3<TT>>>().To<Dependency<TTList3<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTList4`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IList`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTList4<TT>>>().To<Dependency<TTList4<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTN</summary><blockquote>
-
-Represents a generic type argument marker for a reference type that has a public parameterless constructor.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTN>>().To<Dependency<TTN>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTN1</summary><blockquote>
-
-Represents a generic type argument marker for a reference type that has a public parameterless constructor.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTN1>>().To<Dependency<TTN1>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTN2</summary><blockquote>
-
-Represents a generic type argument marker for a reference type that has a public parameterless constructor.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTN2>>().To<Dependency<TTN2>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTN3</summary><blockquote>
-
-Represents a generic type argument marker for a reference type that has a public parameterless constructor.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTN3>>().To<Dependency<TTN3>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTN4</summary><blockquote>
-
-Represents a generic type argument marker for a reference type that has a public parameterless constructor.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTN4>>().To<Dependency<TTN4>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTObservable`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IObservable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTObservable<TT>>>().To<Dependency<TTObservable<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTObservable1`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IObservable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTObservable1<TT>>>().To<Dependency<TTObservable1<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTObservable2`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IObservable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTObservable2<TT>>>().To<Dependency<TTObservable2<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTObservable3`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IObservable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTObservable3<TT>>>().To<Dependency<TTObservable3<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTObservable4`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IObservable`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTObservable4<TT>>>().To<Dependency<TTObservable4<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTObserver`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IObserver`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTObserver<TT>>>().To<Dependency<TTObserver<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTObserver1`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IObserver`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTObserver1<TT>>>().To<Dependency<TTObserver1<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTObserver2`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IObserver`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTObserver2<TT>>>().To<Dependency<TTObserver2<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTObserver3`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IObserver`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTObserver3<TT>>>().To<Dependency<TTObserver3<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTObserver4`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IObserver`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTObserver4<TT>>>().To<Dependency<TTObserver4<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTReadOnlyCollection`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IReadOnlyCollection`1_.
-            
-</blockquote></details>
-
-
-<details><summary>TTReadOnlyCollection1`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IReadOnlyCollection`1_.
-            
-</blockquote></details>
-
-
-<details><summary>TTReadOnlyCollection2`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IReadOnlyCollection`1_.
-            
-</blockquote></details>
-
-
-<details><summary>TTReadOnlyCollection3`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IReadOnlyCollection`1_.
-            
-</blockquote></details>
-
-
-<details><summary>TTReadOnlyCollection4`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IReadOnlyCollection`1_.
-            
-</blockquote></details>
-
-
-<details><summary>TTReadOnlyList`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IReadOnlyList`1_.
-            
-</blockquote></details>
-
-
-<details><summary>TTReadOnlyList1`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IReadOnlyList`1_.
-            
-</blockquote></details>
-
-
-<details><summary>TTReadOnlyList2`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IReadOnlyList`1_.
-            
-</blockquote></details>
-
-
-<details><summary>TTReadOnlyList3`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IReadOnlyList`1_.
-            
-</blockquote></details>
-
-
-<details><summary>TTReadOnlyList4`1</summary><blockquote>
-
-Represents the generic type arguments marker for _IReadOnlyList`1_.
-            
-</blockquote></details>
-
-
-<details><summary>TTS</summary><blockquote>
-
-Represents the generic type arguments marker for a value type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTS>>().To<Dependency<TTS>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTS1</summary><blockquote>
-
-Represents the generic type arguments marker for a value type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTS1>>().To<Dependency<TTS1>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTS2</summary><blockquote>
-
-Represents the generic type arguments marker for a value type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTS2>>().To<Dependency<TTS2>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTS3</summary><blockquote>
-
-Represents the generic type arguments marker for a value type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTS3>>().To<Dependency<TTS3>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTS4</summary><blockquote>
-
-Represents the generic type arguments marker for a value type.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTS4>>().To<Dependency<TTS4>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTSet`1</summary><blockquote>
-
-Represents the generic type arguments marker for _ISet`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTSet<TT>>>().To<Dependency<TTSet<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTSet1`1</summary><blockquote>
-
-Represents the generic type arguments marker for _ISet`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTSet1<TT>>>().To<Dependency<TTSet1<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTSet2`1</summary><blockquote>
-
-Represents the generic type arguments marker for _ISet`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTSet2<TT>>>().To<Dependency<TTSet2<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTSet3`1</summary><blockquote>
-
-Represents the generic type arguments marker for _ISet`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTSet3<TT>>>().To<Dependency<TTSet3<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TTSet4`1</summary><blockquote>
-
-Represents the generic type arguments marker for _ISet`1_.
-            
-```c#
-
-DI.Setup("Composition")
-                .Bind<IDependency<TTSet4<TT>>>().To<Dependency<TTSet4<TT>>>();
-            
-```
-
-
-</blockquote></details>
-
-
-<details><summary>TypeAttribute</summary><blockquote>
-
-The injection type can be defined manually using the  `Type`  attribute. This attribute explicitly overrides an injected type, otherwise it would be determined automatically based on the type of the constructor/method, property, or field parameter.
-             This attribute is part of the API, but you can use your own attribute at any time, and this allows you to define them in the assembly and namespace you want.
-             
-```c#
-
-interface IDependency { }
-             
-            
-             class AbcDependency: IDependency { }
-            
-            
-             class XyzDependency: IDependency { }
-            
-            
-             interface IService
-             {
-                 IDependency Dependency1 { get; }
-            
-                 IDependency Dependency2 { get; }
-             }
-            
-            
-             class Service: IService
-             {
-                 public Service(
-                     [Type(typeof(AbcDependency))] IDependency dependency1,
-                     [Type(typeof(XyzDependency))] IDependency dependency2)
-                 {
-                     Dependency1 = dependency1;
-                     Dependency2 = dependency2;
-                 }
-            
-            
-                 public IDependency Dependency1 { get; }
-            
-            
-                 public IDependency Dependency2 { get; }
-             }
-            
-            
-             DI.Setup("Composition")
-                 .Bind<IService>().To<Service>().Root<IService>("Root");
-             
-```
-
-
-See also _DependencyAttribute_.
-
-See also _TagAttribute_.
-
-See also _OrdinalAttribute_.
-
-<details><summary>Constructor TypeAttribute(System.Type)</summary><blockquote>
-
-Creates an attribute instance.
-            
- - parameter _type_ - The injection type. See also _Bind``1(System.Object[])_ and _Bind``1(System.Object[])_.
-
-</blockquote></details>
-
-
-</blockquote></details>
-
-
-</blockquote></details>
 
