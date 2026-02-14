@@ -1,8 +1,6 @@
 using Pure.DI;
 using UnityEngine;
 
-#pragma warning disable CS0649
-
 public class Clock : MonoBehaviour
 {
     const float HoursToDegrees = -30f, MinutesToDegrees = -6f, SecondsToDegrees = -6f;

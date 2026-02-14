@@ -9,13 +9,19 @@ This example demonstrates the creation of a [Unity](https://unity.com/) applicat
 The definition of the composition is in [Scope.cs](/samples/UnityApp/Assets/Scripts/Scope.cs). This class sets up how the object graphs will be created for the application. Remember to define builders for types derived from `MonoBehaviour`:
 
 ```c#
+internal class ClocksComposition
+{
+    [SerializeField] private ClockConfig clockConfig;
+
+    void Setup() => DI.Setup(kind: CompositionKind.Internal)
+        .Transient(() => clockConfig)
+        .Singleton<ClockService>();
+}
+
 public partial class Scope : MonoBehaviour
 {
-    [SerializeField] public ClockConfig clockConfig;
-
     void Setup() => DI.Setup()
-        .Bind().To(_ => clockConfig)
-        .Bind().As(Singleton).To<ClockService>()
+        .DependsOn(nameof(ClocksComposition), SetupContextKind.Members)
         .Root<ClockManager>(nameof(ClockManager))
         .Builders<MonoBehaviour>();
 
@@ -66,23 +72,17 @@ using UnityEngine;
 public class Clock : MonoBehaviour
 {
     const float HoursToDegrees = -30f, MinutesToDegrees = -6f, SecondsToDegrees = -6f;
-
-    [SerializeField]
-    private Transform hoursPivot;
-    
-    [SerializeField]
-    private Transform minutesPivot;
-
-    [SerializeField]
-    private Transform secondsPivot;
+    [SerializeField] Scope scope;
+    [SerializeField] Transform hoursPivot;
+    [SerializeField] Transform minutesPivot;
+    [SerializeField] Transform secondsPivot;
 
     [Dependency]
     public IClockService ClockService { private get; set; }
 
-    void Start()
+    void Awake()
     {
-        // Injects dependencies
-        Composition.Shared.BuildUp(this);
+        scope.BuildUp(this);
     }
 
     void Update()

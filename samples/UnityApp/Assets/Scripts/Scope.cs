@@ -1,8 +1,13 @@
 using Pure.DI;
 using UnityEngine;
+// ReSharper disable InconsistentNaming
+// ReSharper disable RequiredBaseTypesIsNotInherited
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable Unity.RedundantSerializeFieldAttribute
+// ReSharper disable ArrangeTypeMemberModifiers
+// ReSharper disable UnusedMember.Local
 
-[CreateAssetMenu(menuName = "Clock/Clocks Composition", fileName = "ClocksComposition", order = 0)]
-class ClocksComposition : ScriptableObject
+internal class ClocksComposition
 {
     [SerializeField] private ClockConfig clockConfig;
 
