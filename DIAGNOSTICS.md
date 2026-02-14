@@ -316,7 +316,7 @@ example scenarios. IDs and anchors are stable; message text is localized.
 - Description: DependsOn requires a setup context name when using a setup context kind (except Members).
 - Problem: `DependsOn` was called with a setup context kind but without a context name.
 - Fix: Provide a non-empty `name` value or use `DependsOn(params string[] setupNames)` when a context is not needed. `SetupContextKind.Members` allows omitting `name`.
-- Examples: Unexpected exception during generation.
+- Examples: `DependsOn(setupName, contextKind)` without providing `name` parameter.
 
 ## Warnings
 
