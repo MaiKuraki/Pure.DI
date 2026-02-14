@@ -15,7 +15,8 @@ public partial class Scope : MonoBehaviour
 {
     void Setup() => DI.Setup()
         .DependsOn(nameof(ClocksComposition), SetupContextKind.Members)
-        .Root<ClockManager>(nameof(ClockManager));
+        .Root<ClockManager>(nameof(ClockManager))
+        .Builders<MonoBehaviour>();
 
     void Start()
     {

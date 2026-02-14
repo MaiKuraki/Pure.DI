@@ -12,6 +12,7 @@ benchmarks/data/results/*.md
 *.user
 _ReSharper.Caches/
 .idea
+.vscode
 .logs
 .packages
 /src/Pure.DI.Core/Pure.DI.xml
@@ -22,3 +23,5 @@ _ReSharper.Caches/
 /samples/UnityApp/Temp
 /samples/UnityApp/*.csproj
 /samples/UnityApp/*.sln
+/samples/UnityApp/*.slnx
+
