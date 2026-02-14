@@ -2,6 +2,8 @@
 
 namespace Pure.DI.Core;
 
+using System.ComponentModel;
+using System.Reflection;
 using Microsoft.CodeAnalysis.Operations;
 
 sealed class Semantic(
@@ -240,13 +242,13 @@ sealed class Semantic(
         if (semanticModel.SyntaxTree == node.SyntaxTree)
         {
             var optionalValue = semanticModel.GetConstantValue(node);
-            if (optionalValue.Value is not null)
+            if (TryGetValueOf<T>(optionalValue.Value, out var val))
             {
-                return (T)optionalValue.Value;
+                return val;
             }
 
             var operation = semanticModel.GetOperation(node);
-            if (operation?.ConstantValue.Value is T val2)
+            if (TryGetValueOf<T>(operation?.ConstantValue.Value, out var val2))
             {
                 return val2;
             }
@@ -262,6 +264,31 @@ sealed class Semantic(
             ImmutableArray.Create(locationProvider.GetLocation(node)),
             LogId.ErrorMustBeApiCall,
             nameof(Strings.Error_Template_MustBeApiCall));
+    }
+
+    private static bool TryGetValueOf<T>(object? obj, [NotNullWhen(true)] out T? val)
+    {
+        // ReSharper disable once ConvertIfStatementToSwitchStatement
+        if (obj is null)
+        {
+            val = default;
+            return false;
+        }
+
+        if (obj is T valOfT)
+        {
+            val = valOfT;
+            return true;
+        }
+
+        if (typeof(T).IsEnum)
+        {
+            val = (T)Enum.ToObject(typeof(T), obj);
+            return true;
+        }
+
+        val = default;
+        return false;
     }
 
     private T? GetConstantValue<T>(SemanticModel semanticModel, SyntaxNode node, SmartTagKind smartTagKind, string text)

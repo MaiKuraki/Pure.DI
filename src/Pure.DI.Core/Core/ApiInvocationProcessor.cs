@@ -390,6 +390,7 @@ sealed class ApiInvocationProcessor(
                                             nameof(Strings.Error_SetupContextNameIsRequired));
                                     }
                                 }
+
                                 metadataVisitor.VisitDependsOn(
                                     new MdDependsOn(
                                         semanticModel,
