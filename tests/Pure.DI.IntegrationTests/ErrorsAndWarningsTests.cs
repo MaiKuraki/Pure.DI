@@ -376,7 +376,7 @@ public class ErrorsAndWarningsTests
                            """.RunAsync();
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["13"], result);
@@ -444,7 +444,7 @@ public class ErrorsAndWarningsTests
                            """.RunAsync();
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["21"], result);
@@ -512,7 +512,7 @@ public class ErrorsAndWarningsTests
                            """.RunAsync();
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["34"], result);
@@ -581,7 +581,7 @@ public class ErrorsAndWarningsTests
                            """.RunAsync();
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["88"], result);
@@ -649,7 +649,7 @@ public class ErrorsAndWarningsTests
                            """.RunAsync();
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["55"], result);
@@ -716,7 +716,7 @@ public class ErrorsAndWarningsTests
                            """.RunAsync();
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["True"], result);
@@ -851,7 +851,7 @@ public class ErrorsAndWarningsTests
                            """.RunAsync();
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["7"], result);

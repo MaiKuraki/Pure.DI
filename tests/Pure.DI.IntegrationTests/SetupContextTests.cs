@@ -196,7 +196,7 @@ public class SetupContextTests
                            """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["41"], result);
@@ -274,7 +274,7 @@ public class SetupContextTests
                            """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["5"], result);
@@ -400,7 +400,7 @@ public class SetupContextTests
                            """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["45"], result);
@@ -480,7 +480,7 @@ public class SetupContextTests
                            """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["5"], result);
@@ -583,7 +583,7 @@ public class SetupContextTests
                            """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["12"], result);
@@ -681,7 +681,7 @@ public class SetupContextTests
                            """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["9"], result);
@@ -772,7 +772,7 @@ public class SetupContextTests
                            """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["8"], result);
@@ -862,7 +862,7 @@ public class SetupContextTests
                            """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["42"], result);
@@ -956,7 +956,7 @@ public class SetupContextTests
                            """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["88"], result);
@@ -1050,7 +1050,7 @@ public class SetupContextTests
                            """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["66"], result);
@@ -1126,7 +1126,7 @@ public class SetupContextTests
                            """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["4"], result);
@@ -1214,7 +1214,7 @@ public class SetupContextTests
                            """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["7"], result);
@@ -1289,7 +1289,7 @@ public class SetupContextTests
                            """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["42"], result);
@@ -1379,12 +1379,90 @@ public class SetupContextTests
                            """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
 
         // Then
-        result.Success.ShouldBeTrue(result.Errors.FirstOrDefault().Exception?.ToString() ?? result.ToString());
+        result.Success.ShouldBeTrue(result);
         result.Errors.Count.ShouldBe(0, result);
         result.Warnings.Count.ShouldBe(0, result);
         result.StdOut.ShouldBe(["15"], result);
         result.GeneratedCode.Contains("// count expression-bodied property").ShouldBeTrue(result);
         result.GeneratedCode.Contains("internal int Count { get => get__Count(); }").ShouldBeTrue(result);
         result.GeneratedCode.Contains("partial int get__Count()").ShouldBeTrue(result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportSingleBindingWithFieldPropertyAndMethod()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               internal partial class BaseComposition
+                               {
+                                   // instance field
+                                   private int _baseField = 1;
+
+                                   // instance property
+                                   private int BaseProperty { get { return 2; } }
+                                   
+                                   // instance property
+                                   internal int BaseProperty2 { get; } = 4;
+
+                                   // instance method
+                                   private int GetBaseValue() => 3;
+
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(BaseComposition), CompositionKind.Internal)
+                                           .Bind<int>().To(_ => _baseField + BaseProperty + GetBaseValue() + BaseProperty2);
+                                   }
+                               }
+
+                               internal partial class Composition
+                               {
+                                   private void Setup()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .DependsOn(nameof(BaseComposition), SetupContextKind.Members)
+                                           .Bind<IService>().To<Service>()
+                                           .Root<IService>("Service");
+                                   }
+
+                                   private partial int get__BaseProperty() => 20;
+                                   private partial int GetBaseValue() => 30;
+                               }
+
+                               interface IService
+                               {
+                                   int Value { get; }
+                               }
+
+                               class Service : IService
+                               {
+                                   public Service(int value)
+                                   {
+                                       Value = value;
+                                   }
+
+                                   public int Value { get; }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       Console.WriteLine(composition.Service.Value);
+                                   }
+                               }
+                           }
+                           """.RunAsync(new Options(LanguageVersion: LanguageVersion.CSharp9));
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["55"], result);
     }
 }
