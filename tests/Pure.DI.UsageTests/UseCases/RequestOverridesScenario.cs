@@ -117,7 +117,6 @@ class Handler(Service service)
 partial class Composition
 {
     private void Setup() =>
-// }
         DI.Setup(nameof(Composition))
             .Bind<IRepository>().To<Repository>()
             .Bind<IAuditWriter>().To<AuditWriter>()

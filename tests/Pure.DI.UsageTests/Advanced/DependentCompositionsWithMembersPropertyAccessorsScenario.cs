@@ -43,6 +43,11 @@ using Shouldly;
 using Xunit;
 using static CompositionKind;
 
+// {
+//# using Pure.DI;
+//# using static Pure.DI.CompositionKind;
+// }
+
 public class Scenario
 {
 	[Fact]

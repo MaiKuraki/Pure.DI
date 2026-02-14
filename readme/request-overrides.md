@@ -74,7 +74,27 @@ class Handler(Service service)
 partial class Composition
 {
     private void Setup() =>
-
+        DI.Setup(nameof(Composition))
+            .Bind<IRepository>().To<Repository>()
+            .Bind<IAuditWriter>().To<AuditWriter>()
+            .Bind().To<Service>()
+            .Bind().To<Handler>()
+            .Bind().To<Func<IRepository>>(ctx => () =>
+            {
+                // Inner override applies to repository dependencies only.
+                ctx.Override<IRequestContext>(RequestContext.System);
+                ctx.Inject(out IRepository repository);
+                return repository;
+            })
+            .Bind().To<Func<Request, Handler>>(ctx => request =>
+            {
+                // Outer override applies to the request handler and its main workflow.
+                ctx.Override<IRequestContext>(new RequestContext(request.TenantId, request.UserId, false));
+                ctx.Inject(out Handler handler);
+                return handler;
+            })
+            .Root<Func<Request, Handler>>(nameof(CreateHandler));
+}
 ```
 
 <details>

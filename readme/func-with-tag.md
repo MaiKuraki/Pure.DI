@@ -9,7 +9,6 @@ How it is solved in the example: shows the minimal DI configuration and how the 
 using Shouldly;
 using Pure.DI;
 using System.Collections.Immutable;
-using Shouldly;
 
 DI.Setup(nameof(Composition))
     .Bind<IDbConnection>("postgres").To<NpgsqlConnection>()

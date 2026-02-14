@@ -4567,7 +4567,6 @@ How it is solved in the example: shows the minimal DI configuration and how the 
 using Shouldly;
 using Pure.DI;
 using System.Collections.Immutable;
-using Shouldly;
 
 DI.Setup(nameof(Composition))
     .Bind<IDbConnection>("postgres").To<NpgsqlConnection>()
@@ -8712,6 +8711,9 @@ What it solves: avoids missing instance members in dependent compositions and ke
 How it is solved in the example: uses DependsOn(setupName, kind, name) and passes the base setup instance into the dependent composition.
 
 ```c#
+using Pure.DI;
+using static Pure.DI.CompositionKind;
+
 var baseContext = new BaseComposition { Settings = new AppSettings("prod", 3) };
 var composition = new Composition(baseContext);
 var service = composition.Service;
@@ -8742,7 +8744,7 @@ internal partial class Composition
     private void Setup()
     {
         DI.Setup(nameof(Composition))
-            .DependsOn(setupName: nameof(BaseComposition), kind: SetupContextKind.Argument, name: "baseContext")
+            .DependsOn(nameof(BaseComposition), SetupContextKind.Argument, "baseContext")
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }
@@ -8779,6 +8781,9 @@ What it solves: lets dependent compositions access base setup members directly (
 How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and sets members on the composition instance. The name parameter is optional; methods are declared partial and implemented by the user.
 
 ```c#
+using Pure.DI;
+using static Pure.DI.CompositionKind;
+
 var composition = new Composition
 {
     ConnectionSettings = new DatabaseConnectionSettings("prod-db.example.com", 5432, "app_database"),
@@ -8920,6 +8925,9 @@ What it solves: keeps Unity-friendly composition while letting the user implemen
 How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) and implements partial get_ methods.
 
 ```c#
+using Pure.DI;
+using static Pure.DI.CompositionKind;
+
 var composition = new Composition
 {
 	ConnectionString = "Server=prod-db.example.com;Database=AppDb;"
@@ -9030,6 +9038,9 @@ What it solves: keeps the dependent composition safe while avoiding constructor 
 How it is solved in the example: uses DependsOn(..., SetupContextKind.RootArgument, name) and passes the base setup instance to the root method.
 
 ```c#
+using Pure.DI;
+using static Pure.DI.CompositionKind;
+
 var baseContext = new BaseComposition { Settings = new AppSettings("staging", 2) };
 var composition = new Composition();
 var service = composition.Service(baseContext: baseContext);
@@ -9088,7 +9099,6 @@ Important points:
 
 Useful when:
 - The host (like Unity) creates the composition instance.
-
 
 ## Inheritance of compositions
 
@@ -11012,7 +11022,27 @@ class Handler(Service service)
 partial class Composition
 {
     private void Setup() =>
-
+        DI.Setup(nameof(Composition))
+            .Bind<IRepository>().To<Repository>()
+            .Bind<IAuditWriter>().To<AuditWriter>()
+            .Bind().To<Service>()
+            .Bind().To<Handler>()
+            .Bind().To<Func<IRepository>>(ctx => () =>
+            {
+                // Inner override applies to repository dependencies only.
+                ctx.Override<IRequestContext>(RequestContext.System);
+                ctx.Inject(out IRepository repository);
+                return repository;
+            })
+            .Bind().To<Func<Request, Handler>>(ctx => request =>
+            {
+                // Outer override applies to the request handler and its main workflow.
+                ctx.Override<IRequestContext>(new RequestContext(request.TenantId, request.UserId, false));
+                ctx.Inject(out Handler handler);
+                return handler;
+            })
+            .Root<Func<Request, Handler>>(nameof(CreateHandler));
+}
 ```
 
 To run the above code, the following NuGet package must be added:
@@ -12264,13 +12294,19 @@ This example demonstrates the creation of a [Unity](https://unity.com/) applicat
 The definition of the composition is in [Scope.cs](/samples/UnityApp/Assets/Scripts/Scope.cs). This class sets up how the object graphs will be created for the application. Remember to define builders for types derived from `MonoBehaviour`:
 
 ```c#
+internal class ClocksComposition
+{
+    [SerializeField] private ClockConfig clockConfig;
+
+    void Setup() => DI.Setup(kind: CompositionKind.Internal)
+        .Transient(() => clockConfig)
+        .Singleton<ClockService>();
+}
+
 public partial class Scope : MonoBehaviour
 {
-    [SerializeField] public ClockConfig clockConfig;
-
     void Setup() => DI.Setup()
-        .Bind().To(_ => clockConfig)
-        .Bind().As(Singleton).To<ClockService>()
+        .DependsOn(nameof(ClocksComposition), SetupContextKind.Members)
         .Root<ClockManager>(nameof(ClockManager))
         .Builders<MonoBehaviour>();
 
@@ -12295,18 +12331,21 @@ Advantages over classical DI container libraries:
 For types derived from `MonoBehaviour`, a `BuildUp` composition method will be generated. This method looks like:
 
 ```c#
-public Clock BuildUp(Clock buildingInstance)
+private ClockService _singletonClockService;
+[SerializeField] private ClockConfig clockConfig;
+    
+public global::Clock BuildUp(global::Clock buildingInstance)
 {
-    if (buildingInstance is null) 
-        throw new ArgumentNullException(nameof(buildingInstance));
-
-    if (_clockService is null)
-        lock (_lock)
-            if (_clockService is null)
-                _clockService = new ClockService();
-
-    buildingInstance.ClockService = _clockService;
-    return buildingInstance;
+    if (buildingInstance is null) throw new global::System.ArgumentNullException(nameof(buildingInstance));
+    
+    if (_singletonClockService is null)
+    {
+        _singletonClockService = new global::ClockService(clockConfig);
+        _disposables45d[_disposeIndex45d++] = _singletonClockService;
+    }
+    
+    buildingInstance.ClockService = _singletonClockService;
+    return transientClock;
 }
 ```
 
@@ -12321,23 +12360,17 @@ using UnityEngine;
 public class Clock : MonoBehaviour
 {
     const float HoursToDegrees = -30f, MinutesToDegrees = -6f, SecondsToDegrees = -6f;
-
-    [SerializeField]
-    private Transform hoursPivot;
-    
-    [SerializeField]
-    private Transform minutesPivot;
-
-    [SerializeField]
-    private Transform secondsPivot;
+    [SerializeField] Scope scope;
+    [SerializeField] Transform hoursPivot;
+    [SerializeField] Transform minutesPivot;
+    [SerializeField] Transform secondsPivot;
 
     [Dependency]
     public IClockService ClockService { private get; set; }
 
-    void Start()
+    void Awake()
     {
-        // Injects dependencies
-        Composition.Shared.BuildUp(this);
+        scope.BuildUp(this);
     }
 
     void Update()

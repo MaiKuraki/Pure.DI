@@ -7,6 +7,9 @@ How it is solved in the example: uses DependsOn(..., SetupContextKind.RootArgume
 
 
 ```c#
+using Pure.DI;
+using static Pure.DI.CompositionKind;
+
 var baseContext = new BaseComposition { Settings = new AppSettings("staging", 2) };
 var composition = new Composition();
 var service = composition.Service(baseContext: baseContext);
@@ -87,7 +90,6 @@ Important points:
 
 Useful when:
 - The host (like Unity) creates the composition instance.
-
 
 The following partial class will be generated:
 

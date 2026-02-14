@@ -46,18 +46,21 @@ Advantages over classical DI container libraries:
 For types derived from `MonoBehaviour`, a `BuildUp` composition method will be generated. This method looks like:
 
 ```c#
-public Clock BuildUp(Clock buildingInstance)
+private ClockService _singletonClockService;
+[SerializeField] private ClockConfig clockConfig;
+    
+public global::Clock BuildUp(global::Clock buildingInstance)
 {
-    if (buildingInstance is null) 
-        throw new ArgumentNullException(nameof(buildingInstance));
-
-    if (_clockService is null)
-        lock (_lock)
-            if (_clockService is null)
-                _clockService = new ClockService();
-
-    buildingInstance.ClockService = _clockService;
-    return buildingInstance;
+    if (buildingInstance is null) throw new global::System.ArgumentNullException(nameof(buildingInstance));
+    
+    if (_singletonClockService is null)
+    {
+        _singletonClockService = new global::ClockService(clockConfig);
+        _disposables45d[_disposeIndex45d++] = _singletonClockService;
+    }
+    
+    buildingInstance.ClockService = _singletonClockService;
+    return transientClock;
 }
 ```
 

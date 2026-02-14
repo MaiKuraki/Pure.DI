@@ -34,6 +34,11 @@ using Shouldly;
 using Xunit;
 using static CompositionKind;
 
+// {
+//# using Pure.DI;
+//# using static Pure.DI.CompositionKind;
+// }
+
 public class Scenario
 {
     [Fact]
@@ -77,7 +82,7 @@ internal partial class Composition
     private void Setup()
     {
         DI.Setup(nameof(Composition))
-            .DependsOn(setupName: nameof(BaseComposition), kind: SetupContextKind.Argument, name: "baseContext")
+            .DependsOn(nameof(BaseComposition), SetupContextKind.Argument, "baseContext")
             .Bind<IService>().To<Service>()
             .Root<IService>("Service");
     }

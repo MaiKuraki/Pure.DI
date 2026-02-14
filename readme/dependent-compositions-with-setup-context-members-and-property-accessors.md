@@ -7,6 +7,9 @@ How it is solved in the example: uses DependsOn(..., SetupContextKind.Members) a
 
 
 ```c#
+using Pure.DI;
+using static Pure.DI.CompositionKind;
+
 var composition = new Composition
 {
 	ConnectionString = "Server=prod-db.example.com;Database=AppDb;"
