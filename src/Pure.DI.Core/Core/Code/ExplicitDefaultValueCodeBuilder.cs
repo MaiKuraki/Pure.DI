@@ -9,6 +9,11 @@ sealed class ExplicitDefaultValueCodeBuilder(ITypeResolver typeResolver)
     {
         var var = data.Context.VarInjection.Var;
         var construct = var.AbstractNode.Construct!;
+        if (!construct.Source.HasExplicitDefaultValue)
+        {
+            yield break;
+        }
+
         var explicitDefaultValue = construct.Source.ExplicitDefaultValue;
         if (explicitDefaultValue is null
             && var.InstanceType.IsValueType
@@ -16,13 +21,10 @@ sealed class ExplicitDefaultValueCodeBuilder(ITypeResolver typeResolver)
         {
             var setup = data.Context.RootContext.Graph.Source;
             var.CodeExpression = $"default({typeResolver.Resolve(setup, var.InstanceType)})";
-        }
-        else
-        {
-            var.CodeExpression = explicitDefaultValue.ValueToString();
+            yield break;
         }
 
-        yield break;
+        var.CodeExpression = explicitDefaultValue.ValueToString();
     }
 
     private static bool IsNullableValueType(ITypeSymbol type) =>

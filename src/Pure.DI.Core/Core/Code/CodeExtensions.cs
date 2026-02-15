@@ -3,6 +3,7 @@
 namespace Pure.DI.Core.Code;
 
 using System.Globalization;
+using Microsoft.CodeAnalysis;
 
 static class CodeExtensions
 {
@@ -24,6 +25,8 @@ static class CodeExtensions
             nuint => $"(nuint){tag}",
             char val => $"'{val}'",
             Enum val => $"{val.GetType()}.{val}",
+            IFieldSymbol val when val.ContainingType.TypeKind == TypeKind.Enum
+                => $"{val.ContainingType.ToDisplayString()}.{val.Name}",
             ITypeSymbol val => $"typeof({val.ToDisplayString()})",
             MdTagOnSites => defaultValue,
             not null => tag.ToString(),

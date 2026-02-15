@@ -145,14 +145,29 @@ class DependenciesWalker<TContext>(
 
     public virtual void VisitParameter(in TContext ctx, in DpParameter parameter, int? position)
     {
-        var hasExplicitDefaultValue = parameter.ParameterSymbol.HasExplicitDefaultValue;
-        var explicitDefaultValue = hasExplicitDefaultValue ? parameter.ParameterSymbol.ExplicitDefaultValue : null;
-        if (!hasExplicitDefaultValue
-            && parameter.ParameterSymbol is { IsOptional: true, Type.IsValueType: true }
-            && !IsNullableValueType(parameter.ParameterSymbol.Type))
+        var hasExplicitDefaultValue = parameter.ParameterSymbol.HasExplicitDefaultValue
+                                      && parameter.ParameterSymbol is { IsOptional: true };
+
+        object? explicitDefaultValue = null;
+        if (hasExplicitDefaultValue)
         {
-            hasExplicitDefaultValue = true;
-            explicitDefaultValue = null;
+            var defaultValue = parameter.ParameterSymbol.ExplicitDefaultValue;
+            explicitDefaultValue = defaultValue;
+
+            // For enum types, ExplicitDefaultValue returns the underlying type (e.g., int)
+            // We need to convert it back to the actual enum value
+            if (parameter.ParameterSymbol.Type.TypeKind == TypeKind.Enum && defaultValue is not null && parameter.ParameterSymbol.Type is INamedTypeSymbol enumType)
+            {
+                // For enum types, we need to find the enum member with the matching value
+                var enumMember = enumType.GetMembers()
+                    .OfType<IFieldSymbol>()
+                    .FirstOrDefault(m => m.HasConstantValue && Equals(m.ConstantValue, defaultValue));
+
+                if (enumMember is not null)
+                {
+                    explicitDefaultValue = enumMember;
+                }
+            }
         }
 
         VisitInjection(
@@ -202,12 +217,4 @@ class DependenciesWalker<TContext>(
             VisitMethod(ctx, method, initializer.Source.Position);
         }
     }
-
-    private static bool IsNullableValueType(ITypeSymbol type) =>
-        type is INamedTypeSymbol
-        {
-            IsGenericType: true,
-            Name: "Nullable",
-            ContainingNamespace.Name: "System"
-        };
 }
