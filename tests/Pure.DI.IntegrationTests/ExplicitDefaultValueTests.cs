@@ -316,4 +316,489 @@ public class ExplicitDefaultValueTests
         result.Success.ShouldBeFalse(result);
         result.StdOut.Any(line => line.Contains("InitSecond", StringComparison.Ordinal)).ShouldBeTrue(result);
     }
+
+    [Fact]
+    public async Task ShouldUseCtorWhenItHasDayOfWeekDefaultValue()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IService
+                               {
+                                   DayOfWeek Day { get; }
+                               }
+                           
+                               class Service : IService
+                               {
+                                   public DayOfWeek Day { get; }
+                               
+                                   public Service(DayOfWeek day = DayOfWeek.Monday)
+                                   {
+                                       Day = day;
+                                   }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .Bind().To<Service>()
+                                           .Root<IService>("Root");
+                                   }
+                               }
+                               
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                       Console.WriteLine(root.Day);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Monday"], result);
+    }
+
+    [Fact]
+    public async Task ShouldUseCtorWhenItHasSeveralEnumDefaultValuesFromSystem()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IService
+                               {
+                                   ConsoleColor Color { get; }
+                                   DayOfWeek Day { get; }
+                               }
+                           
+                               class Service : IService
+                               {
+                                   public ConsoleColor Color { get; }
+                                   public DayOfWeek Day { get; }
+                               
+                                   public Service(ConsoleColor color = ConsoleColor.Green, DayOfWeek day = DayOfWeek.Friday)
+                                   {
+                                       Color = color;
+                                       Day = day;
+                                   }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .Bind().To<Service>()
+                                           .Root<IService>("Root");
+                                   }
+                               }
+                               
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                       Console.WriteLine(root.Color);
+                                       Console.WriteLine(root.Day);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Green", "Friday"], result);
+    }
+
+    [Fact]
+    public async Task ShouldUseCtorWhenItHasNullableEnumDefaultValue()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IService
+                               {
+                                   ConsoleColor? Color { get; }
+                               }
+                           
+                               class Service : IService
+                               {
+                                   public ConsoleColor? Color { get; }
+                               
+                                   public Service(ConsoleColor? color = null)
+                                   {
+                                       Color = color;
+                                   }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .Bind().To<Service>()
+                                           .Root<IService>("Root");
+                                   }
+                               }
+                               
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                       Console.WriteLine(root.Color.HasValue ? root.Color.Value.ToString() : "null");
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["null"], result);
+    }
+
+    [Fact]
+    public async Task ShouldUseCtorWhenItHasStringComparisonDefaultValue()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IService
+                               {
+                                   StringComparison Comparison { get; }
+                               }
+                           
+                               class Service : IService
+                               {
+                                   public StringComparison Comparison { get; }
+                               
+                                   public Service(StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+                                   {
+                                       Comparison = comparison;
+                                   }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .Bind().To<Service>()
+                                           .Root<IService>("Root");
+                                   }
+                               }
+                               
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                       Console.WriteLine(root.Comparison);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["OrdinalIgnoreCase"], result);
+    }
+
+    [Fact]
+    public async Task ShouldUseCtorWhenItHasCustomEnumDefaultValue()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               enum MyStatus
+                               {
+                                   Pending,
+                                   Active,
+                                   Completed
+                               }
+                           
+                               interface IService
+                               {
+                                   MyStatus Status { get; }
+                               }
+                           
+                               class Service : IService
+                               {
+                                   public MyStatus Status { get; }
+                               
+                                   public Service(MyStatus status = MyStatus.Active)
+                                   {
+                                       Status = status;
+                                   }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .Bind().To<Service>()
+                                           .Root<IService>("Root");
+                                   }
+                               }
+                               
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                       Console.WriteLine(root.Status);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Active"], result);
+    }
+
+    [Fact]
+    public async Task ShouldUseCtorWhenItHasSeveralCustomEnumDefaultValues()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               enum Priority
+                               {
+                                   Low,
+                                   Medium,
+                                   High
+                               }
+                               
+                               enum Status
+                               {
+                                   Draft,
+                                   Published,
+                                   Archived
+                               }
+                           
+                               interface IService
+                               {
+                                   Priority Priority { get; }
+                                   Status Status { get; }
+                               }
+                           
+                               class Service : IService
+                               {
+                                   public Priority Priority { get; }
+                                   public Status Status { get; }
+                               
+                                   public Service(Priority priority = Priority.High, Status status = Status.Published)
+                                   {
+                                       Priority = priority;
+                                       Status = status;
+                                   }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .Bind().To<Service>()
+                                           .Root<IService>("Root");
+                                   }
+                               }
+                               
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                       Console.WriteLine(root.Priority);
+                                       Console.WriteLine(root.Status);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["High", "Published"], result);
+    }
+
+    [Fact]
+    public async Task ShouldUseCtorWhenItHasNullableCustomEnumDefaultValue()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               enum MyStatus
+                               {
+                                   Pending,
+                                   Active,
+                                   Completed
+                               }
+                           
+                               interface IService
+                               {
+                                   MyStatus? Status { get; }
+                               }
+                           
+                               class Service : IService
+                               {
+                                   public MyStatus? Status { get; }
+                               
+                                   public Service(MyStatus? status = null)
+                                   {
+                                       Status = status;
+                                   }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .Bind().To<Service>()
+                                           .Root<IService>("Root");
+                                   }
+                               }
+                               
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                       Console.WriteLine(root.Status.HasValue ? root.Status.Value.ToString() : "null");
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["null"], result);
+    }
+
+    [Fact]
+    public async Task ShouldUseCtorWhenItHasCustomEnumDefaultValueWithDependency()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency
+                               {
+                               }
+                               
+                               sealed class Dependency : IDependency
+                               {
+                               }
+                               
+                               enum LogLevel
+                               {
+                                   Debug,
+                                   Info,
+                                   Warning,
+                                   Error
+                               }
+                           
+                               interface IService
+                               {
+                                   LogLevel Level { get; }
+                               }
+                           
+                               class Service : IService
+                               {
+                                   public LogLevel Level { get; }
+                               
+                                   public Service(IDependency dependency, LogLevel level = LogLevel.Warning)
+                                   {
+                                       Level = level;
+                                   }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup(nameof(Composition))
+                                           .Bind().To<Dependency>()
+                                           .Bind().To<Service>()
+                                           .Root<IService>("Root");
+                                   }
+                               }
+                               
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       var root = composition.Root;
+                                       Console.WriteLine(root.Level);
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Warning"], result);
+    }
 }
