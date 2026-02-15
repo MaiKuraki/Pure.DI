@@ -21,6 +21,8 @@ $h=
 $h=![](smart_tags.gif)
 $h=
 $h=The example below also uses the `using static Pure.DI.Tag;` directive to access tags in `Pure.DI.Tag` without specifying a type name:
+$f=> [!NOTE]
+$f=> Smart tags provide compile-time safety for tag values, reducing runtime errors and improving code maintainability.
 $r=Shouldly
 */
 

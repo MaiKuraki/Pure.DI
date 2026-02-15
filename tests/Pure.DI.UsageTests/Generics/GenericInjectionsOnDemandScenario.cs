@@ -2,6 +2,9 @@
 $v=true
 $p=14
 $d=Generic injections on demand
+$h=Demonstrates how to create generic dependencies on demand using factory delegates with generic type parameters.
+$f=> [!NOTE]
+$f=> Generic on-demand injection provides flexibility for creating instances with different type parameters as needed.
 $r=Shouldly
 */
 

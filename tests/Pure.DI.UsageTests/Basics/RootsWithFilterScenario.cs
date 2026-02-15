@@ -2,6 +2,9 @@
 $v=true
 $p=20
 $d=Roots with filter
+$h=Demonstrates how to create roots for types that match specific filter criteria, allowing selective exposure of implementations.
+$f=> [!NOTE]
+$f=> Filtering roots provides fine-grained control over which implementations are exposed, useful for conditional feature activation.
 $r=Shouldly
 */
 

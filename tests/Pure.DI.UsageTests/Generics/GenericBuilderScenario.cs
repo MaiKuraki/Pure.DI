@@ -2,6 +2,9 @@
 $v=true
 $p=9
 $d=Generic builder
+$h=Demonstrates how to create generic builders for build-up patterns with type parameters.
+$f=> [!NOTE]
+$f=> Generic builders enable flexible object initialization while maintaining type safety across different generic types.
 $r=Shouldly
 */
 

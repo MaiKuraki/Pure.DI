@@ -2,6 +2,9 @@
 $v=true
 $p=17
 $d=Static root
+$h=Demonstrates how to create static composition roots that don't require instantiation of the composition class.
+$f=> [!NOTE]
+$f=> Static roots are useful when you want to access services without creating a composition instance.
 $r=Shouldly
 */
 

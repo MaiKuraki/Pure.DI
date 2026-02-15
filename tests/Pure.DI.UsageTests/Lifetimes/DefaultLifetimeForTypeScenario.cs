@@ -3,6 +3,8 @@ $v=true
 $p=6
 $d=Default lifetime for a type
 $h=For example, if a certain lifetime is used more often than others, you can make it the default lifetime for a certain type:
+$f=> [!NOTE]
+$f=> Setting default lifetime for types simplifies configuration when the same lifetime is consistently applied.
 $r=Shouldly
 */
 

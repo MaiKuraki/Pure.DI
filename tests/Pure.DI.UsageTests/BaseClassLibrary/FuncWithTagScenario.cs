@@ -2,6 +2,9 @@
 $v=true
 $p=99
 $d=Func with tag
+$h=Demonstrates how to use Func<T> with tags for dynamic creation of tagged instances.
+$f=> [!NOTE]
+$f=> Func with tags allows you to create instances with specific tags dynamically, useful for factory patterns with multiple implementations.
 $r=Shouldly
 */
 

@@ -2,6 +2,9 @@
 $v=true
 $p=11
 $d=Thread-safe overrides
+$h=Demonstrates how to create thread-safe overrides in compositions, ensuring that override operations work correctly in multi-threaded scenarios.
+$f=> [!IMPORTANT]
+$f=> Thread-safe overrides are essential when composition instances are shared across multiple threads or when parallel resolution is required.
 $r=Shouldly
 */
 

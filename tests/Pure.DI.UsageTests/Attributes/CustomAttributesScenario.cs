@@ -7,6 +7,8 @@ $h=- `TagAttribute`
 $h=- `OrdinalAttribute`
 $h=- `TypeAttribute`
 $h=You can also use combined attributes. Each registration method can take an optional argument index (default is 0) that specifies where to read _tag_, _ordinal_, or _type_ metadata.
+$f=> [!NOTE]
+$f=> Custom attributes provide extensibility for advanced scenarios where standard attributes don't meet specific requirements.
 $r=Shouldly
 */
 

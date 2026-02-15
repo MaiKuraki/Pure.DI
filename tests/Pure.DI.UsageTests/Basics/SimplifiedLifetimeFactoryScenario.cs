@@ -2,6 +2,9 @@
 $v=true
 $p=8
 $d=Simplified lifetime-specific factory
+$h=Demonstrates how to create factories with lifetime-specific bindings, providing a concise way to define factories with proper lifetime semantics.
+$f=> [!NOTE]
+$f=> Lifetime-specific factories combine the convenience of simplified syntax with explicit lifetime control for optimal performance and correctness.
 $r=Shouldly
 */
 

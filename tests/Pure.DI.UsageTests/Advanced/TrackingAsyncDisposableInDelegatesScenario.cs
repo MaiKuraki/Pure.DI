@@ -2,6 +2,9 @@
 $v=true
 $p=103
 $d=Tracking async disposable instances in delegates
+$h=Demonstrates how async disposable instances created within delegate factories are tracked and disposed properly when the composition is disposed.
+$f=> [!NOTE]
+$f=> Async disposable tracking in delegates ensures proper async cleanup even when instances are created dynamically through factory delegates.
 $r=Shouldly
 */
 

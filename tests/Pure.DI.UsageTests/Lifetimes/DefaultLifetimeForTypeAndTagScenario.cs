@@ -3,6 +3,8 @@ $v=true
 $p=6
 $d=Default lifetime for a type and a tag
 $h=For example, if a certain lifetime is used more often than others, you can make it the default lifetime for a certain type:
+$f=> [!NOTE]
+$f=> Default lifetime configuration reduces boilerplate when the same lifetime is consistently used for specific types.
 $r=Shouldly
 */
 

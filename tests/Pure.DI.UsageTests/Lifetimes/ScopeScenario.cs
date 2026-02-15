@@ -3,6 +3,8 @@ $v=true
 $p=4
 $d=Scope
 $h=The _Scoped_ lifetime ensures that there will be a single instance of the dependency for each scope.
+$f=> [!NOTE]
+$f=> _Scoped_ lifetime is essential for request-based or session-based scenarios where instances should be shared within a scope but isolated between scopes.
 $r=Shouldly
 */
 

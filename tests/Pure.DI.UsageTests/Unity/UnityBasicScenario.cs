@@ -3,6 +3,10 @@ $v=true
 $p=1
 $i=false
 $d=Unity Basics
+$h=Demonstrates basic integration with Unity game engine, showing how Pure.DI can be used for dependency injection in Unity projects.
+$f=> [!NOTE]
+$f=> Unity integration requires special considerations due to Unity's component-based architecture and lifecycle management.
+$r=Shouldly
 */
 
 // ReSharper disable ClassNeverInstantiated.Local

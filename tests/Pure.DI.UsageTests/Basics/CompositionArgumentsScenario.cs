@@ -6,6 +6,8 @@ $h=Use composition arguments when you need to pass state into the composition. D
 $h=> [!NOTE]
 $h=> Actually, composition arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
 $h=
+$f=> [!NOTE]
+$f=> Composition arguments provide a way to inject runtime values into the composition, making your DI configuration more flexible.
 $r=Shouldly
 */
 

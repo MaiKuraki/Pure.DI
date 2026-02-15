@@ -2,6 +2,9 @@
 $v=true
 $p=99
 $d=Func with arguments
+$h=Demonstrates how to use Func<T> with arguments for dynamic creation of instances with runtime parameters.
+$f=> [!NOTE]
+$f=> Func with arguments provides flexibility for scenarios where you need to pass runtime parameters during instance creation.
 $r=Shouldly
 */
 

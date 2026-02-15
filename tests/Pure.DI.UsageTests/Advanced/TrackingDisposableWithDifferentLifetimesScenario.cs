@@ -2,6 +2,9 @@
 $v=true
 $p=101
 $d=Tracking disposable instances with different lifetimes
+$h=Demonstrates how disposable instances with different lifetimes are tracked and disposed correctly according to their respective lifetime scopes.
+$f=> [!NOTE]
+$f=> The tracking mechanism respects lifetime semantics, ensuring that transient instances are disposed immediately while singleton instances persist until composition disposal.
 $r=Shouldly
 */
 

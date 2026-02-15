@@ -2,6 +2,10 @@
 $v=true
 $p=3
 $d=ValueTask
+$h=Demonstrates `ValueTask<T>` injection, which provides a more efficient alternative to `Task<T>` for scenarios where the result is often already available synchronously.
+$f=> [!NOTE]
+$f=> `ValueTask<T>` reduces allocations compared to `Task<T>` when operations complete synchronously, making it ideal for high-performance scenarios.
+$r=Shouldly
 */
 
 // ReSharper disable ClassNeverInstantiated.Local

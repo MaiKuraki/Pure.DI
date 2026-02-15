@@ -3,6 +3,8 @@ $v=true
 $p=2
 $d=PerResolve
 $h=The _PerResolve_ lifetime ensures that there will be one instance of the dependency for each composition root instance.
+$f=> [!NOTE]
+$f=> `PerResolve` lifetime is useful when you want to share a dependency instance within a single composition root resolution.
 $r=Shouldly
 */
 

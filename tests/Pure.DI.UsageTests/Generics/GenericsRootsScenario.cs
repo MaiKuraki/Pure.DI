@@ -2,6 +2,10 @@
 $v=true
 $p=10
 $d=Generic roots
+$h=Demonstrates how to create roots for all generic types that inherit from a given base type at compile time.
+$f=> [!NOTE]
+$f=> Generic roots enable exposing multiple generic implementations without explicitly registering each one.
+$r=Shouldly
 */
 
 // ReSharper disable ClassNeverInstantiated.Local

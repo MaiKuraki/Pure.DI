@@ -2,6 +2,9 @@
 $v=true
 $p=6
 $d=Custom generic argument
+$h=Demonstrates how to create custom generic arguments for advanced generic binding scenarios.
+$f=> [!NOTE]
+$f=> Custom generic arguments provide flexibility for complex generic scenarios beyond standard marker types.
 $r=Shouldly
 */
 

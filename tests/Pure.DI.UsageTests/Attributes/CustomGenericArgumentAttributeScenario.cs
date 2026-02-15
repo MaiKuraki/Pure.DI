@@ -2,6 +2,9 @@
 $v=true
 $p=12
 $d=Custom generic argument attribute
+$h=Demonstrates how to create and use custom attributes for generic type arguments, enabling advanced generic binding scenarios.
+$f=> [!NOTE]
+$f=> Custom generic argument attributes are useful when you need to pass metadata specific to generic type parameters during binding resolution.
 $r=Shouldly
 */
 

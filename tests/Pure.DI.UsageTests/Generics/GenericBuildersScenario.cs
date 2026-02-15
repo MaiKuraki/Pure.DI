@@ -2,6 +2,9 @@
 $v=true
 $p=9
 $d=Generic builders
+$h=Demonstrates how to create generic builders for all types derived from a generic base type known at compile time.
+$f=> [!NOTE]
+$f=> Generic builders provide compile-time type safety while allowing flexible object graph construction.
 $r=Shouldly
 */
 

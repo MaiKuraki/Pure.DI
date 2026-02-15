@@ -2,6 +2,9 @@
 $v=true
 $p=3
 $d=Lazy
+$h=Demonstrates lazy injection using Lazy<T>, delaying instance creation until the Value property is accessed.
+$f=> [!NOTE]
+$f=> Lazy<T> is useful for expensive-to-create objects or when the instance may never be needed, improving application startup performance.
 $r=Shouldly
 */
 

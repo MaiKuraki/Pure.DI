@@ -2,6 +2,9 @@
 $v=true
 $p=9
 $d=Complex generic root arguments
+$h=Demonstrates complex generic root argument scenarios with multiple type parameters and constraints.
+$f=> [!NOTE]
+$f=> Complex generic scenarios require careful attention to type constraints and argument order for correct resolution.
 $r=Shouldly
 */
 

@@ -15,6 +15,9 @@ $h=            .Bind().To<MyGenericService<TT>>()
 $h=            .Root<IMyGenericService<TT>>("GetMyService", kind: RootKinds.Exposed);
 $h=}
 $h=```
+$f=> [!IMPORTANT]
+$f=> At this point, a composition from another assembly or another project can be used for this purpose. Compositions from the current project cannot be used in this way due to limitations of the source code generators.
+$r=Shouldly
 */
 
 // ReSharper disable ClassNeverInstantiated.Local
