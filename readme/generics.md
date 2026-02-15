@@ -5,9 +5,6 @@ Generic types are also supported.
 > Instead of open generic types, as in classical DI container libraries, regular generic types with _marker_ types as type parameters are used here. Such "marker" types allow to define dependency graph more precisely.
 
 For the case of `IDependency<TT>`, `TT` is a _marker_ type, which allows the usual `IDependency<TT>` to be used instead of an open generic type like `IDependency<>`. This makes it easy to bind generic types by specifying _marker_ types such as `TT`, `TT1`, etc. as parameters of generic types:
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -129,15 +126,6 @@ internal interface TTDisposable: IDisposable { }
 [GenericTypeArgument]
 internal interface TTEnumerator<out T>: IEnumerator<T> { }
 ```
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 The following partial class will be generated:
 

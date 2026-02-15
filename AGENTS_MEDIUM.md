@@ -4,11 +4,7 @@ This Markdown-formatted document contains information about working with Pure.DI
 
 ## Auto-bindings
 
-Auto-bindings are implicit bindings for non-abstract types, so the generator can build an object graph without explicit registrations.
-Pros: fast to get started and low ceremony in small demos or spikes.
-Cons: weaker adherence to dependency inversion and less explicit lifetime control, which can make larger graphs harder to reason about.
-Recommendation: prefer explicit bindings for abstractions in production code and use auto-bindings sparingly for simple leaf types.
-In this example, a composition is created with only a root; the `OrderService` and `Database` types are resolved implicitly.
+Non-abstract types can be injected without any additional bindings.
 
 ```c#
 using Pure.DI;
@@ -35,22 +31,10 @@ To run the above code, the following NuGet package must be added:
 > This approach is not recommended if you follow the dependency inversion principle or need precise lifetime control.
 
 Prefer injecting abstractions (for example, interfaces) and map them to implementations as in most [other examples](injections-of-abstractions.md).
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Injections of abstractions
 
 This example shows the recommended approach: depend on abstractions and bind them to implementations.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -109,15 +93,6 @@ The binding chain maps abstractions to concrete types so the generator can build
 > [!TIP]
 > If a binding is missing, injection still works when the consumer requests a concrete type (not an abstraction).
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Composition roots
 
@@ -126,9 +101,6 @@ This example shows several ways to create a composition root.
 > There is no hard limit on roots, but prefer a small number. Ideally, an application has a single composition root.
 
 In classic DI containers, the composition is resolved dynamically via calls like `T Resolve<T>()` or `object GetService(Type type)`. The root is simply the requested type, and you can have as many as you like. In Pure.DI, each root generates a property or method at compile time, so roots are explicit and defined via `Root(string rootName)`.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -208,22 +180,10 @@ DI.Setup("Composition")
   ...
 ```
 This can be done if these methods are not needed, in case only certain composition roots are used. It's not significant then, but it will help save resources during compilation.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Resolve methods
 
 This example shows how to resolve composition roots via `Resolve` methods, using the composition as a _Service Locator_. The `Resolve` methods are generated automatically.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -272,22 +232,10 @@ _Resolve_ methods are similar to calling composition roots, which are properties
 - They provide access to an unlimited set of dependencies (_Service Locator_).
 - Their use can potentially lead to runtime exceptions. For example, when the corresponding root has not been defined.
 - They are awkward for some UI binding scenarios (e.g., MAUI/WPF/Avalonia).
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Simplified binding
 
 You can call `Bind()` without type parameters. It binds the implementation type itself, and if it is not abstract, all directly implemented abstract types except special ones.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using System.Collections;
@@ -384,22 +332,10 @@ For class `OrderManager`, `Bind().To<OrderManager>()` is equivalent to `Bind<IOr
 | ❌ | `IEnumerable<string>` | special type                                      |
 | ❌ | `ManagerBase`         | non-abstract                                      |
 | ❌ | `IManager`            | is not directly implemented by class OrderManager |
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Factory
 
 This example shows manual creation and initialization. The generator usually infers dependencies from constructors, but sometimes you need custom creation or setup logic.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -457,22 +393,10 @@ There are scenarios where manual control over the creation process is required, 
 
 > [!IMPORTANT]
 > The method `Inject()` cannot be used outside of the binding setup.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Simplified factory
 
 This example shows a simplified manual factory. Each lambda parameter represents an injected dependency, and starting with C# 10 you can add `Tag(...)` to specify a tagged dependency.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -533,22 +457,10 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 The example creates a service that depends on a logger initialized with a date-based file name. The `Tag` attribute enables named dependencies for more complex setups.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Injection on demand
 
 This example creates dependencies on demand using a factory delegate. The service (`GameLevel`) needs multiple instances of `IEnemy`, so it receives a `Func<IEnemy>` that can create new instances when needed.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -600,19 +512,10 @@ Key elements:
 - The `GameLevel` calls the factory twice, resulting in two distinct `Enemy` instances stored in its `Enemies` collection.
 
 This approach lets factories control lifetime and instantiation timing. Pure.DI resolves a new `IEnemy` each time the factory is invoked.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Injections on demand with arguments
 
 This example uses a parameterized factory so dependencies can be created with runtime arguments. The service creates sensors with specific IDs at instantiation time.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -670,15 +573,6 @@ Delayed dependency instantiation:
 - Injection of dependencies requiring runtime parameters
 - Creation of distinct instances with different configurations
 - Type-safe resolution of dependencies with constructor arguments
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Composition arguments
 
@@ -686,9 +580,6 @@ Use composition arguments when you need to pass state into the composition. Defi
 > [!NOTE]
 > Actually, composition arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
 
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -760,15 +651,6 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Root arguments
 
@@ -776,9 +658,6 @@ Use root arguments when you need to pass state into a specific root. Define them
 > [!NOTE]
 > Actually, root arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
 
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -852,22 +731,10 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 When using root arguments, compilation warnings are emitted if `Resolve` methods are generated because these methods cannot create such roots. Disable `Resolve` via `Hint(Hint.Resolve, "Off")`, or ignore the warnings and accept the risks.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Tags
 
 Tags let you control dependency selection when multiple implementations exist:
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -932,15 +799,6 @@ The example shows how to:
 - Inject tagged dependencies into constructors
 
 The tag can be a constant, a type, a [smart tag](smart-tags.md), or a value of an `Enum` type. The _default_ and _null_ tags are also supported.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Smart tags
 
@@ -963,9 +821,6 @@ This enables safe refactoring and compiler-checked tag usage, reducing errors.
 ![](smart_tags.gif)
 
 The example below also uses the `using static Pure.DI.Tag;` directive to access tags in `Pure.DI.Tag` without specifying a type name:
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1027,22 +882,10 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Simplified lifetime-specific bindings
 
 You can use the `Transient<>()`, `Singleton<>()`, `PerResolve<>()`, etc. methods. In this case binding will be performed for the implementation type itself, and if the implementation is not an abstract type or structure, for all abstract but NOT special types that are directly implemented.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using System.Collections;
@@ -1157,21 +1000,8 @@ For class `OrderManager`, the `PerBlock<OrderManager>()` binding will be equival
 | ❌ | `IEnumerable<string>` | special type                                      |
 | ❌ | `ManagerBase`         | non-abstract                                      |
 | ❌ | `IManager`            | is not directly implemented by class OrderManager |
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Simplified lifetime-specific factory
-
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1234,22 +1064,10 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Build up of an existing object
 
 This example shows the Build-Up pattern in dependency injection, where an existing object is injected with necessary dependencies through its properties, methods, or fields.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1308,22 +1126,10 @@ To run the above code, the following NuGet packages must be added:
 Key Concepts:
 **Build-Up** - injecting dependencies into an already created object
 **Dependency Attribute** - marker for identifying injectable members
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Builder
 
 Sometimes you need to build up an existing composition root and inject all of its dependencies, in which case the `Builder` method will be useful, as in the example below:
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1386,19 +1192,10 @@ Use Cases:
 - For working with third-party libraries
 - When migrating existing code to DI
 - For complex object graphs where full construction is not feasible
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Builder with arguments
 
 This example shows how to use builders with custom arguments in dependency injection. It shows how to pass additional parameters during the build-up process.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1459,19 +1256,10 @@ Use Cases:
 Best Practices
 - Keep the number of builder arguments minimal
 - Use meaningful names for root arguments
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Builders
 
 Sometimes you need builders for all types derived from `T` that are known at compile time.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1540,19 +1328,10 @@ To run the above code, the following NuGet packages must be added:
 Important Notes:
 - The default builder method name is `BuildUp`
 - The first argument to the builder method is always the instance to be built
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Builders with a name template
 
 Sometimes you need to build up an existing composition root and inject all of its dependencies, in which case the `Builder` method will be useful, as in the example below:
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1621,22 +1400,10 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 The default builder method name is `BuildUp`. The first argument to this method will always be the instance to be built.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Field injection
 
 To use dependency injection for a field, make sure the field is writable and simply add the _Ordinal_ attribute to that field, specifying an ordinal that will be used to determine the injection order:
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1683,22 +1450,10 @@ The key points are:
 - The field must be writable
 - The `Dependency` (or `Ordinal`) attribute is used to mark the field for injection
 - The container automatically injects the dependency when resolving the object graph
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Method injection
 
 To use dependency implementation for a method, simply add the _Ordinal_ attribute to that method, specifying the sequence number that will be used to define the call to that method:
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1744,22 +1499,10 @@ The key points are:
 - The method must be available to be called from a composition class
 - The `Dependency` (or `Ordinal`) attribute is used to mark the method for injection
 - The container automatically calls the method to inject dependencies
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Property injection
 
 To use dependency injection on a property, make sure the property is writable and simply add the _Ordinal_ attribute to that property, specifying the ordinal that will be used to determine the injection order:
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1803,22 +1546,10 @@ The key points are:
 - The property must be writable
 - The `Dependency` (or `Ordinal`) attribute is used to mark the property for injection
 - The container automatically injects the dependency when resolving the object graph
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Default values
 
 This example shows how to use default values in dependency injection when explicit injection is not possible.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1873,22 +1604,10 @@ This example shows how to handle default values in a dependency injection scenar
 - **Required Property with Default**: The `Sensor` property is marked as required but has a default instantiation. This ensures that:
   - The property must be set
   - If no explicit injection occurs, a default value will be used
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Required properties or fields
 
 This example shows how the `required` modifier can be used to automatically inject dependencies into properties and fields. When a property or field is marked with `required`, the DI will automatically inject the dependency without additional effort.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -1939,22 +1658,10 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 This approach simplifies dependency injection by eliminating the need to manually configure bindings for required dependencies, making the code more concise and easier to maintain.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Overrides
 
 This example shows advanced dependency injection techniques using Pure.DI's override mechanism to customize dependency instantiation with runtime arguments and tagged parameters. The implementation creates multiple `IDependency` instances with values manipulated through explicit overrides.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2059,22 +1766,10 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Root binding
 
 In general, it is recommended to define one composition root for the entire application. But Sometimes you need to have multiple roots. To simplify the definition of composition roots, a "hybrid" API method `RootBind<T>(string rootName)` was added. It lets you define a binding and at the same time the root of the composition. You can it in order to reduce repetitions. The registration `composition.RootBind<IDependency>().To<Dependency>()` is an equivalent to `composition.Bind<IDependency>().To<Dependency>().Root<IDependency>()`.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2108,21 +1803,8 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Static root
-
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2149,21 +1831,8 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Async Root
-
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -2196,22 +1865,10 @@ class BackupService(IFileStore fileStore) : IBackupService;
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Consumer type
 
 `ConsumerType` is used to get the consumer type of the given dependency. The use of `ConsumerType` is demonstrated on the example of [Serilog library](https://serilog.net/):
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2278,21 +1935,8 @@ To run the above code, the following NuGet packages must be added:
  - [Serilog.Core](https://www.nuget.org/packages/Serilog.Core)
  - [Serilog.Events](https://www.nuget.org/packages/Serilog.Events)
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Ref dependencies
-
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2333,22 +1977,10 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Roots
 
 Sometimes you need roots for all types inherited from <see cref="T"/> available at compile time at the point where the method is called.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2378,21 +2010,8 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Roots with filter
-
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2422,22 +2041,10 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Transient
 
 The _Transient_ lifetime specifies to create a new dependency instance each time. It is the default lifetime and can be omitted.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2495,22 +2102,10 @@ The _Transient_ lifetime is the safest and is used by default. Yes, its widespre
 
 > [!IMPORTANT]
 > The following very important rule, in my opinion, will help in the last point. Now, when a constructor is used to implement dependencies, it should not be loaded with other tasks. Accordingly, constructors should be free of all logic except for checking arguments and saving them for later use. Following this rule, even the largest compositions of objects will be built quickly.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Singleton
 
 The _Singleton_ lifetime ensures that there will be a single instance of the dependency for each composition.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2598,22 +2193,10 @@ Some articles advise using objects with a _Singleton_ lifetime as often as possi
 - _Singleton_ can retain dependency references longer than their expected lifetime, this is especially significant for objects that hold "non-renewable" resources, such as the operating system Handler.
 
 - Sometimes additional logic is required to dispose of _Singleton_.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## PerResolve
 
 The _PerResolve_ lifetime ensures that there will be one instance of the dependency for each composition root instance.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2687,22 +2270,10 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Func
 
 _Func<T>_ helps when the logic must enter instances of some type on demand or more than once. This is a very handy mechanism for instance replication. For example it is used when implementing the `Lazy<T>` injection.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2768,22 +2339,10 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 Be careful, replication takes into account the lifetime of the object.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Enumerable
 
 Specifying `IEnumerable<T>` as the injection type lets you inject instances of all bindings that implement type `T` in a lazy fashion - the instances will be provided one by one, in order corresponding to the sequence of bindings.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2853,22 +2412,10 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Enumerable generics
 
 Shows how generic middleware pipelines collect all matching implementations.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -2930,22 +2477,10 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Array
 
 Specifying `T[]` as the injection type allows instances from all bindings that implement the `T` type to be injected.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3014,15 +2549,6 @@ In addition to arrays, other collection types are also supported, such as:
 - System.Collections.Immutable.ImmutableQueue<T>
 - System.Collections.Immutable.IImmutableStack<T>
 And of course this list can easily be supplemented on its own.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Generics
 
@@ -3031,9 +2557,6 @@ Generic types are also supported.
 > Instead of open generic types, as in classical DI container libraries, regular generic types with _marker_ types as type parameters are used here. Such "marker" types allow to define dependency graph more precisely.
 
 For the case of `IDependency<TT>`, `TT` is a _marker_ type, which allows the usual `IDependency<TT>` to be used instead of an open generic type like `IDependency<>`. This makes it easy to bind generic types by specifying _marker_ types such as `TT`, `TT1`, etc. as parameters of generic types:
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3131,24 +2654,12 @@ internal interface TTDisposable: IDisposable { }
 [GenericTypeArgument]
 internal interface TTEnumerator<out T>: IEnumerator<T> { }
 ```
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Generic composition roots
 
 Sometimes you want to be able to create composition roots with type parameters. In this case, the composition root can only be represented by a method.
 > [!IMPORTANT]
 > ``Resolve()` methods cannot be used to resolve generic composition roots.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Pure.DI;
@@ -3200,22 +2711,10 @@ To run the above code, the following NuGet package must be added:
 
 > [!IMPORTANT]
 > The method `Inject()`cannot be used outside of the binding setup.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Constructor ordinal attribute
 
 Applying this attribute disables automatic constructor selection. Only constructors marked with this attribute are considered, ordered by ordinal (ascending).
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3272,22 +2771,10 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 The `Ordinal` attribute is part of the API, but you can define your own in any assembly or namespace.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Dependency attribute
 
 When applied to a property or field, the member participates in DI, ordered by ordinal (ascending).
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3355,22 +2842,10 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 The `Dependency` attribute is part of the API, but you can define your own in any assembly or namespace.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Member ordinal attribute
 
 When applied to a property or field, the member participates in DI, ordered by ordinal (ascending).
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3438,23 +2913,11 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 The `Ordinal` attribute is part of the API, but you can define your own in any assembly or namespace.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Decorator
 
 Interception is the ability to intercept calls between objects in order to enrich or change their behavior, but without having to change their code. A prerequisite for interception is weak binding. That is, if programming is abstraction-based, the underlying implementation can be transformed or improved by "packaging" it into other implementations of the same abstraction. At its core, intercept is an application of the Decorator design pattern. This pattern provides a flexible alternative to inheritance by dynamically "attaching" additional responsibility to an object. Decorator "packs" one implementation of an abstraction into another implementation of the same abstraction like a "matryoshka doll".
 _Decorator_ is a well-known and useful design pattern. It is convenient to use tagged dependencies to build a chain of nested decorators, as in the example below:
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3490,22 +2953,10 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
 Here an instance of the _TextWidget_ type, labeled _"base"_, is injected in the decorator _BoxWidget_. You can use any tag that semantically reflects the feature of the abstraction being embedded. The tag can be a constant, a type, or a value of an enumerated type.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Interception
 
 Interception lets you enrich or change the behavior of a certain set of objects from the object graph being created without changing the code of the corresponding types.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3596,22 +3047,10 @@ Using an intercept gives you the ability to add end-to-end functionality such as
 - Error handling
 
 - Providing resistance to failures, etc.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 ## Advanced interception
 
 This approach of interception maximizes performance by precompiling the proxy object factory.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 ```c#
 using Shouldly;
@@ -3732,13 +3171,4 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
  - [Castle.DynamicProxy](https://www.nuget.org/packages/Castle.DynamicProxy)
-
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
 

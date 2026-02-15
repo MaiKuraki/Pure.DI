@@ -1,9 +1,6 @@
 #### Injection on demand
 
 This example creates dependencies on demand using a factory delegate. The service (`GameLevel`) needs multiple instances of `IEnemy`, so it receives a `Func<IEnemy>` that can create new instances when needed.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -79,12 +76,6 @@ Key elements:
 - The `GameLevel` calls the factory twice, resulting in two distinct `Enemy` instances stored in its `Enemies` collection.
 
 This approach lets factories control lifetime and instantiation timing. Pure.DI resolves a new `IEnemy` each time the factory is invoked.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 The following partial class will be generated:
 

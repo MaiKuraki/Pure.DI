@@ -2,9 +2,6 @@
 
 Hints are used to fine-tune code generation. The _Resolve_ hint determines whether to generate _Resolve_ methods. By default, a set of four _Resolve_ methods are generated. Set this hint to _Off_ to disable the generation of resolve methods. This will reduce class composition generation time, and no anonymous composition roots will be generated in this case. When the _Resolve_ hint is disabled, only the regular root properties are available, so be sure to define them explicitly with the `Root<T>(...)` method.
 In addition, setup hints can be comments before the _Setup_ method in the form ```hint = value```, for example: `// Resolve = Off`.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -65,15 +62,6 @@ dotnet run
 </details>
 
 For more hints, see [this](README.md#setup-hints) page.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 The following partial class will be generated:
 

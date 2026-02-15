@@ -1,9 +1,6 @@
 #### Simplified binding
 
 You can call `Bind()` without type parameters. It binds the implementation type itself, and if it is not abstract, all directly implemented abstract types except special ones.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -123,15 +120,6 @@ For class `OrderManager`, `Bind().To<OrderManager>()` is equivalent to `Bind<IOr
 | ❌ | `IEnumerable<string>` | special type                                      |
 | ❌ | `ManagerBase`         | non-abstract                                      |
 | ❌ | `IManager`            | is not directly implemented by class OrderManager |
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 The following partial class will be generated:
 

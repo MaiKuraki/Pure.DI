@@ -1,9 +1,6 @@
 #### Default values
 
 This example shows how to use default values in dependency injection when explicit injection is not possible.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -82,15 +79,6 @@ This example shows how to handle default values in a dependency injection scenar
 - **Required Property with Default**: The `Sensor` property is marked as required but has a default instantiation. This ensures that:
   - The property must be set
   - If no explicit injection occurs, a default value will be used
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 The following partial class will be generated:
 

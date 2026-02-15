@@ -1,9 +1,6 @@
 #### Interception
 
 Interception lets you enrich or change the behavior of a certain set of objects from the object graph being created without changing the code of the corresponding types.
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -119,15 +116,6 @@ Using an intercept gives you the ability to add end-to-end functionality such as
 - Error handling
 
 - Providing resistance to failures, etc.
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 The following partial class will be generated:
 

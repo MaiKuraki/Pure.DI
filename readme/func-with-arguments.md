@@ -1,9 +1,5 @@
 #### Func with arguments
 
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
-
 
 ```c#
 using Shouldly;
@@ -100,16 +96,6 @@ dotnet run
 
 </details>
 
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Important points:
-- Highlights the key configuration choices and their effect on resolution.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
-
 The following partial class will be generated:
 
 ```c#
@@ -129,12 +115,12 @@ partial class Composition
     get
     {
       Func<int, string, IPerson> transientFunc365;
-      Func<int, string, IPerson> localFactory2 = new Func<int, string, IPerson>((int localArg111, string localArg210) =>
+      Func<int, string, IPerson> localFactory2 = new Func<int, string, IPerson>((int localArg115, string localArg213) =>
       {
         lock (_lock)
         {
-          int overriddenInt32 = localArg111;
-          string overriddenString2 = localArg210;
+          int overriddenInt32 = localArg115;
+          string overriddenString2 = localArg213;
           if (_singletonClock51 is null)
             lock (_lock)
               if (_singletonClock51 is null)

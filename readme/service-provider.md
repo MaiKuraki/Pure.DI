@@ -5,9 +5,6 @@ The `// ObjectResolveMethodName = GetService` hint overriding the `object Resolv
 > Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface. These roots must be registered using `Root(...)` or `RootBind()` calls.
 
 This example shows how to implement a custom `IServiceProvider` using a partial class, utilizing a specific hint to override the default `Resolve()` method name:
-When this occurs: you need this feature while building the composition and calling roots.
-What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
 
 
 ```c#
@@ -87,12 +84,6 @@ dotnet run
 Important Notes:
 - Hint Overriding: The `ObjectResolveMethodName = GetService` hint overrides the default object `Resolve(Type type)` method name to implement `IServiceProvider` interface
 - Roots: Only roots can be resolved. Use `Root(...)` or `RootBind()` calls for registration
-What it shows:
-- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-
-Useful when:
-- You want a concrete template for applying this feature in a composition.
-
 
 The following partial class will be generated:
 
