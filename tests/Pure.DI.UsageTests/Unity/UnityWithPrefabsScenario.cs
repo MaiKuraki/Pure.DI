@@ -4,8 +4,8 @@ $p=2
 $i=false
 $d=Unity with prefabs
 $h=Demonstrates advanced Unity integration showing how Pure.DI works with Unity prefabs and component lifecycle.
-$f=> [!NOTE]
-$f=> Prefab integration with DI requires careful handling of Unity's instantiation and component initialization phases.
+$f=>[!NOTE]
+$f=>Prefab integration with DI requires careful handling of Unity's instantiation and component initialization phases.
 $r=Shouldly
 */
 

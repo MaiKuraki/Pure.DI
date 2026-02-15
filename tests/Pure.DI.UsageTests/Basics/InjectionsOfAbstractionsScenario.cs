@@ -4,8 +4,8 @@ $p=0
 $d=Injections of abstractions
 $h=This example shows the recommended approach: depend on abstractions and bind them to implementations.
 $f=The binding chain maps abstractions to concrete types so the generator can build a fully concrete object graph. This keeps consumers decoupled and allows swapping implementations. A single implementation can satisfy multiple abstractions.
-$f=> [!TIP]
-$f=> If a binding is missing, injection still works when the consumer requests a concrete type (not an abstraction).
+$f=>[!TIP]
+$f=>If a binding is missing, injection still works when the consumer requests a concrete type (not an abstraction).
 $f=
 */
 

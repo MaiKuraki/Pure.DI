@@ -3,8 +3,8 @@ $v=true
 $p=14
 $d=Generic injections on demand with arguments
 $h=Demonstrates how to create generic dependencies on demand with custom arguments using factory delegates.
-$f=> [!NOTE]
-$f=> Generic factories with arguments allow passing runtime parameters while maintaining type safety.
+$f=>[!NOTE]
+$f=>Generic factories with arguments allow passing runtime parameters while maintaining type safety.
 $r=Shouldly
 */
 

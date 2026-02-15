@@ -2,14 +2,14 @@
 $v=true
 $p=2
 $d=Factory
-$h=This example shows manual creation and initialization. The generator usually infers dependencies from constructors, but sometimes you need custom creation or setup logic.
+$h=Demonstrates how to use factories for manual creation and initialization. While the generator usually infers dependencies from constructors, factories provide custom creation or setup logic when needed.
 $f=There are scenarios where manual control over the creation process is required, such as
 $f=- When additional initialization logic is needed
 $f=- When complex construction steps are required
 $f=- When specific object states need to be set during creation
 $f=
-$f=> [!IMPORTANT]
-$f=> The method `Inject()` cannot be used outside of the binding setup.
+$f=>[!IMPORTANT]
+$f=>The method `Inject()` cannot be used outside of the binding setup.
 $r=Shouldly
 */
 

@@ -3,8 +3,8 @@ $v=true
 $p=101
 $d=Tracking disposable instances in delegates
 $h=Demonstrates how disposable instances created within delegate factories are tracked and disposed properly when the composition is disposed.
-$f=> [!NOTE]
-$f=> Disposable tracking in delegates ensures proper cleanup even when instances are created dynamically through factory delegates.
+$f=>[!NOTE]
+$f=>Disposable tracking in delegates ensures proper cleanup even when instances are created dynamically through factory delegates.
 $r=Shouldly
 */
 

@@ -3,8 +3,8 @@ $v=true
 $p=20
 $d=Ref dependencies
 $h=Demonstrates how to use `ref` and `out` parameters in dependency injection for scenarios where you need to pass values by reference.
-$f=> [!NOTE]
-$f=> `ref` dependencies are useful for scenarios where you need to return multiple values or modify parameters during injection.
+$f=>[!NOTE]
+$f=>`ref` dependencies are useful for scenarios where you need to return multiple values or modify parameters during injection.
 $r=Shouldly
 */
 

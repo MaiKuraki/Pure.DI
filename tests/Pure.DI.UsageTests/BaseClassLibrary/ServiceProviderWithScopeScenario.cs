@@ -2,10 +2,10 @@
 $v=true
 $p=99
 $d=Service provider with scope
-$h=> [!IMPORTANT]
-$h=> Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface. These roots must be registered using `Root(...)` or `RootBind()` calls.
-$f=> [!NOTE]
-$f=> This enables scoped service resolution compatible with _Microsoft.Extensions.DependencyInjection's_ scoping model.
+$h=>[!IMPORTANT]
+$h=>Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface. These roots must be registered using `Root(...)` or `RootBind()` calls.
+$f=>[!NOTE]
+$f=>This enables scoped service resolution compatible with _Microsoft.Extensions.DependencyInjection's_ scoping model.
 $r=Shouldly;Microsoft.Extensions.DependencyInjection
 */
 

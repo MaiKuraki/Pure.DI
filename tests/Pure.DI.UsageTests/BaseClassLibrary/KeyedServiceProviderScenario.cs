@@ -3,8 +3,8 @@ $v=true
 $p=99
 $d=Keyed service provider
 $h=Demonstrates integration with Microsoft.Extensions.DependencyInjection's keyed services feature.
-$f=> [!NOTE]
-$f=> This enables compatibility with Microsoft's DI container ecosystem when using keyed service resolution.
+$f=>[!NOTE]
+$f=>This enables compatibility with Microsoft's DI container ecosystem when using keyed service resolution.
 $r=Shouldly;Microsoft.Extensions.DependencyInjection
 */
 

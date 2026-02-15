@@ -3,8 +3,8 @@ $v=true
 $p=1
 $d=Composition root kinds
 $h=Demonstrates different kinds of composition roots that can be created: public methods, private partial methods, and static roots. Each kind serves different use cases for accessing composition roots with appropriate visibility and lifetime semantics.
-$f=> [!NOTE]
-$f=> Composition roots can be customized with different kinds to control accessibility and lifetime, enabling flexible API design patterns.
+$f=>[!NOTE]
+$f=>Composition roots can be customized with different kinds to control accessibility and lifetime, enabling flexible API design patterns.
 $r=Shouldly
 */
 

@@ -3,8 +3,8 @@ $v=true
 $p=8
 $d=Generic root arguments
 $h=Demonstrates how to pass type arguments as parameters to generic composition roots.
-$f=> [!NOTE]
-$f=> Generic root arguments enable flexible type parameterization while maintaining compile-time type safety.
+$f=>[!NOTE]
+$f=>Generic root arguments enable flexible type parameterization while maintaining compile-time type safety.
 $r=Shouldly
 */
 

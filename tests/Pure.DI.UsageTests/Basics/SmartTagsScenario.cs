@@ -2,9 +2,9 @@
 $v=true
 $p=7
 $d=Smart tags
-$h=Large object graphs often need many tags. String tags are error-prone and easy to mistype. Prefer `Enum` values as tags, and Pure.DI helps make this safe.
+$h=Large object graphs often need many tags. String tags are error-prone and easy to mistype. Prefer `Enum` values as tags, and _Pure.DI_ helps make this safe.
 $h=
-$h=When the compiler cannot determine a tag value, Pure.DI generates a constant inside `Pure.DI.Tag`. For the example below, the generated constants would look like this:
+$h=When the compiler cannot determine a tag value, _Pure.DI_ generates a constant inside `Pure.DI.Tag`. For the example below, the generated constants would look like this:
 $h=
 $h=```c#
 $h=namespace Pure.DI
@@ -21,8 +21,8 @@ $h=
 $h=![](smart_tags.gif)
 $h=
 $h=The example below also uses the `using static Pure.DI.Tag;` directive to access tags in `Pure.DI.Tag` without specifying a type name:
-$f=> [!NOTE]
-$f=> Smart tags provide compile-time safety for tag values, reducing runtime errors and improving code maintainability.
+$f=>[!NOTE]
+$f=>Smart tags provide compile-time safety for tag values, reducing runtime errors and improving code maintainability.
 $r=Shouldly
 */
 

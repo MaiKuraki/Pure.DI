@@ -3,8 +3,8 @@ $v=true
 $p=7
 $d=Inheritance of compositions
 $h=Demonstrates how composition classes can inherit from each other, allowing reuse of bindings and composition roots across multiple related compositions.
-$f=> [!NOTE]
-$f=> Composition inheritance provides a way to share common bindings while still allowing each derived composition to add its own specific bindings.
+$f=>[!NOTE]
+$f=>Composition inheritance provides a way to share common bindings while still allowing each derived composition to add its own specific bindings.
 $r=Shouldly
 */
 

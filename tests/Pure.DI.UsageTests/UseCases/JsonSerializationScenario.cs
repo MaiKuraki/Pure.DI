@@ -3,8 +3,8 @@ $v=true
 $p=0
 $d=JSON serialization
 $h=Demonstrates how to handle JSON serialization scenarios with Pure.DI, showing integration with serialization libraries.
-$f=> [!NOTE]
-$f=> Proper DI integration with serialization requires careful handling of object creation and property injection.
+$f=>[!NOTE]
+$f=>Proper DI integration with serialization requires careful handling of object creation and property injection.
 $r=Shouldly
 */
 

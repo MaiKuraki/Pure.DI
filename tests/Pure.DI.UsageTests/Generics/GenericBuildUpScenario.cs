@@ -3,8 +3,8 @@ $v=true
 $p=7
 $d=Build up of an existing generic object
 $h=In other words, injecting the necessary dependencies via methods, properties, or fields into an existing object.
-$f=> [!NOTE]
-$f=> Generic build-up allows you to inject dependencies into existing generic objects after their creation.
+$f=>[!NOTE]
+$f=>Generic build-up allows you to inject dependencies into existing generic objects after their creation.
 $r=Shouldly
 */
 

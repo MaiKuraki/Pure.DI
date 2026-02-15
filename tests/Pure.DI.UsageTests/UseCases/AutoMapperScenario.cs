@@ -3,8 +3,8 @@ $v=true
 $p=0
 $d=AutoMapper
 $h=Demonstrates integration with AutoMapper library, showing how Pure.DI can work alongside object mapping solutions.
-$f=> [!NOTE]
-$f=> AutoMapper integration enables clean separation between DI container concerns and object mapping logic.
+$f=>[!NOTE]
+$f=>AutoMapper integration enables clean separation between DI container concerns and object mapping logic.
 $r=Shouldly;AutoMapper;Microsoft.Extensions.DependencyInjection;Pure.DI.Abstractions
 */
 

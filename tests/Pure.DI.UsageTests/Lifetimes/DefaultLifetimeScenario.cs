@@ -2,9 +2,9 @@
 $v=true
 $p=6
 $d=Default lifetime
-$h=For example, if some lifetime is used more often than others, you can make it the default lifetime:
-$f=> [!NOTE]
-$f=> Default lifetime reduces configuration verbosity when a particular lifetime is predominant in your composition.
+$h=Demonstrates how to set a default lifetime that is used when no specific lifetime is specified for a binding. This is useful when a particular lifetime is used more often than others.
+$f=>[!NOTE]
+$f=>Default lifetime reduces configuration verbosity when a particular lifetime is predominant in your composition.
 $r=Shouldly
 */
 

@@ -3,8 +3,8 @@ $v=true
 $p=6
 $d=Weak Reference
 $h=Demonstrates `WeakReference<T>` injection, allowing references to objects without preventing garbage collection.
-$f=> [!NOTE]
-$f=> `WeakReference<T>` is useful for caching scenarios where you want to allow garbage collection when memory is constrained.
+$f=>[!NOTE]
+$f=>`WeakReference<T>` is useful for caching scenarios where you want to allow garbage collection when memory is constrained.
 $r=Shouldly
 */
 

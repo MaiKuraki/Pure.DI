@@ -3,8 +3,8 @@ $v=true
 $p=2
 $d=Root with name template
 $h=Demonstrates how to use name templates for composition roots, allowing dynamic generation of root names based on patterns or parameters.
-$f=> [!NOTE]
-$f=> Name templates provide flexibility in root naming but should be used consistently to maintain code readability.
+$f=>[!NOTE]
+$f=>Name templates provide flexibility in root naming but should be used consistently to maintain code readability.
 $r=Shouldly
 */
 

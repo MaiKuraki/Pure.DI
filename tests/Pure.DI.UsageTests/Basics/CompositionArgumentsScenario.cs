@@ -3,11 +3,11 @@ $v=true
 $p=5
 $d=Composition arguments
 $h=Use composition arguments when you need to pass state into the composition. Define them with `Arg<T>(string argName)` (optionally with tags) and use them like any other dependency. Only arguments that are used in the object graph become constructor parameters.
-$h=> [!NOTE]
-$h=> Actually, composition arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
+$h=>[!NOTE]
+$h=>Actually, composition arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
 $h=
-$f=> [!NOTE]
-$f=> Composition arguments provide a way to inject runtime values into the composition, making your DI configuration more flexible.
+$f=>[!NOTE]
+$f=>Composition arguments provide a way to inject runtime values into the composition, making your DI configuration more flexible.
 $r=Shouldly
 */
 

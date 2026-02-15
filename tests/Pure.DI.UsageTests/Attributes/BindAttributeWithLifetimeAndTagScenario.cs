@@ -3,8 +3,8 @@ $v=true
 $p=14
 $d=Bind attribute with lifetime and tag
 $h=Demonstrates how to configure the Bind attribute with lifetime and tag parameters for more precise binding control.
-$f=> [!NOTE]
-$f=> Specifying lifetime and tag in the Bind attribute allows for fine-grained control over instance creation and binding resolution.
+$f=>[!NOTE]
+$f=>Specifying lifetime and tag in the Bind attribute allows for fine-grained control over instance creation and binding resolution.
 $r=Shouldly
 */
 

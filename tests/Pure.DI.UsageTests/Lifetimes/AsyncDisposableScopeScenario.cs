@@ -3,8 +3,8 @@ $v=true
 $p=9
 $d=Async disposable scope
 $h=Demonstrates async disposable scope lifetime, where scoped instances are disposed asynchronously when the scope ends.
-$f=> [!NOTE]
-$f=> Async disposable scope is essential for scenarios requiring proper async cleanup of scoped resources.
+$f=>[!NOTE]
+$f=>Async disposable scope is essential for scenarios requiring proper async cleanup of scoped resources.
 $r=Shouldly
 */
 

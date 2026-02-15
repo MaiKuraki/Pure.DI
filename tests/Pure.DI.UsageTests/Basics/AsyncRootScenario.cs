@@ -3,8 +3,8 @@ $v=true
 $p=18
 $d=Async Root
 $h=Demonstrates how to define asynchronous composition roots that return Task or Task<T>, enabling async operations during composition.
-$f=> [!NOTE]
-$f=> Async roots are useful when you need to perform asynchronous initialization or when your services require async creation.
+$f=>[!NOTE]
+$f=>Async roots are useful when you need to perform asynchronous initialization or when your services require async creation.
 $r=Shouldly
 */
 

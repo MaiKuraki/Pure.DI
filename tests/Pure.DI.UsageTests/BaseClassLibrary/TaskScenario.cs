@@ -10,8 +10,8 @@ $h=- TaskCreationOptions.None
 $h=- TaskContinuationOptions.None
 $h=
 $h=But you can always override them, as in the example below for <c>TaskScheduler.Current</c>.
-$f=> [!NOTE]
-$f=> `Task` injection provides automatic background execution with optional cancellation support for asynchronous operations.
+$f=>[!NOTE]
+$f=>`Task` injection provides automatic background execution with optional cancellation support for asynchronous operations.
 $r=Shouldly
 */
 

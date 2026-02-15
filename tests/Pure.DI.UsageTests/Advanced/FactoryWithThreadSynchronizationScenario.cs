@@ -3,8 +3,8 @@ $v=true
 $p=2
 $d=Factory with thread synchronization
 $h=In some cases, initialization of objects requires synchronization of the overall composition flow. This scenario demonstrates how to use factories with thread synchronization to ensure proper initialization order.
-$f=> [!NOTE]
-$f=> Thread synchronization in factories should be used carefully as it may impact performance. Only use when necessary for correct initialization behavior.
+$f=>[!NOTE]
+$f=>Thread synchronization in factories should be used carefully as it may impact performance. Only use when necessary for correct initialization behavior.
 $r=Shouldly
 */
 

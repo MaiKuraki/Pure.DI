@@ -3,8 +3,8 @@ $v=true
 $p=0
 $d=Auto-bindings
 $h=Non-abstract types can be injected without any additional bindings.
-$f=> [!WARNING]
-$f=> This approach is not recommended if you follow the dependency inversion principle or need precise lifetime control.
+$f=>[!WARNING]
+$f=>This approach is not recommended if you follow the dependency inversion principle or need precise lifetime control.
 $f=
 $f=Prefer injecting abstractions (for example, interfaces) and map them to implementations as in most [other examples](injections-of-abstractions.md).
 */

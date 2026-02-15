@@ -3,8 +3,8 @@ $v=true
 $p=100
 $d=Tracking disposable instances per a composition root
 $h=Demonstrates how disposable instances are tracked per composition root and disposed when the composition is disposed.
-$f=> [!NOTE]
-$f=> Disposable tracking ensures proper cleanup of all disposable instances within a composition scope.
+$f=>[!NOTE]
+$f=>Disposable tracking ensures proper cleanup of all disposable instances within a composition scope.
 $r=Shouldly
 */
 
