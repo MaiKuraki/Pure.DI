@@ -571,6 +571,69 @@ public class CtorTests
         result.StdOut.ShouldBe(["99"], result);
     }
 
+    [Fact]
+    public async Task ShouldUseCtorWhenItHasDefaultValueFromOtherAssembly()
+    {
+        // Given
+
+        // When
+        var result = await """
+                               using System;
+                               using Pure.DI;
+
+                               namespace Sample
+                               {
+                                   interface IDependency
+                                   {
+                                   }
+                                   
+                                   sealed class Dependency : IDependency
+                                   {
+                                   }
+                                   
+                                   interface IService
+                                   {
+                                       ConsoleColor Color { get; }
+                                   }
+                                   
+                                   class Service : IService
+                                   {
+                                       public ConsoleColor Color { get; }
+                                   
+                                       public Service(IDependency dependency, ConsoleColor color = ConsoleColor.DarkBlue)
+                                       {
+                                           Color = color;
+                                       }
+                                   }
+                                   
+                                   static class Setup
+                                   {
+                                       private static void SetupComposition()
+                                       {
+                                           DI.Setup(nameof(Composition))
+                                               .Bind().To<Dependency>()
+                                               .Bind().To<Service>()
+                                               .Root<IService>("Root");
+                                       }
+                                   }
+                                       
+                                   public class Program
+                                   {
+                                       public static void Main()
+                                       {
+                                           var composition = new Composition();
+                                           var root = composition.Root;
+                                           Console.WriteLine(root.Color);
+                                       }
+                                   }
+                               }
+                               """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["DarkBlue"], result);
+    }
+
 #if ROSLYN4_8_OR_GREATER
     [Fact]
     public async Task ShouldSupportRefCtorArgs()
