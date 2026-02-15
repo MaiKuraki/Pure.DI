@@ -7,10 +7,6 @@ $h=> [!IMPORTANT]
 $h=> Instead of open generic types, as in classical DI container libraries, regular generic types with _marker_ types as type parameters are used here. Such "marker" types allow to define dependency graph more precisely.
 $h=
 $h=For the case of `IDependency<TT>`, `TT` is a _marker_ type, which allows the usual `IDependency<TT>` to be used instead of an open generic type like `IDependency<>`. This makes it easy to bind generic types by specifying _marker_ types such as `TT`, `TT1`, etc. as parameters of generic types:
-$h=When this occurs: you need this feature while building the composition and calling roots.
-$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
-$f=
 $f=Actually, the property _Root_ looks like:
 $f=```c#
 $f=public IService Root
@@ -53,15 +49,6 @@ $f=
 $f=[GenericTypeArgument]
 $f=internal interface TTEnumerator<out T>: IEnumerator<T> { }
 $f=```
-$f=What it shows:
-$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-$f=
-$f=Important points:
-$f=- Highlights the key configuration choices and their effect on resolution.
-$f=
-$f=Useful when:
-$f=- You want a concrete template for applying this feature in a composition.
-$f=
 $r=Shouldly
 */
 

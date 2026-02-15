@@ -1,22 +1,9 @@
-/*
+﻿/*
 $v=true
 $p=7
 $d=Check for a root
 $h=Sometimes you need to check if you can get the root of a composition using the _Resolve_ method before calling it, this example will show you how to do it:
-$h=When this occurs: you need this feature while building the composition and calling roots.
-$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
-$f=
 $f=For more hints, see [this](README.md#setup-hints) page.
-$f=What it shows:
-$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-$f=
-$f=Important points:
-$f=- Highlights the key configuration choices and their effect on resolution.
-$f=
-$f=Useful when:
-$f=- You want a concrete template for applying this feature in a composition.
-$f=
 $r=Shouldly
 */
 

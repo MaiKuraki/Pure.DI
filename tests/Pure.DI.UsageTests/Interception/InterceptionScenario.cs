@@ -3,10 +3,6 @@ $v=true
 $p=1
 $d=Interception
 $h=Interception lets you enrich or change the behavior of a certain set of objects from the object graph being created without changing the code of the corresponding types.
-$h=When this occurs: you need this feature while building the composition and calling roots.
-$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
-$f=
 $f=Using an intercept gives you the ability to add end-to-end functionality such as:
 $f=
 $f=- Logging
@@ -22,15 +18,6 @@ $f=
 $f=- Error handling
 $f=
 $f=- Providing resistance to failures, etc.
-$f=What it shows:
-$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-$f=
-$f=Important points:
-$f=- Highlights the key configuration choices and their effect on resolution.
-$f=
-$f=Useful when:
-$f=- You want a concrete template for applying this feature in a composition.
-$f=
 $r=Shouldly;Castle.DynamicProxy
 */
 

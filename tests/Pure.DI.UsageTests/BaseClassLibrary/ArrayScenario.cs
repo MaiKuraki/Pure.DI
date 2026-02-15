@@ -3,10 +3,6 @@ $v=true
 $p=2
 $d=Array
 $h=Specifying `T[]` as the injection type allows instances from all bindings that implement the `T` type to be injected.
-$h=When this occurs: you need this feature while building the composition and calling roots.
-$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
-$f=
 $f=In addition to arrays, other collection types are also supported, such as:
 $f=- System.Memory<T>
 $f=- System.ReadOnlyMemory<T>
@@ -32,15 +28,6 @@ $f=- System.Collections.Immutable.IImmutableQueue<T>
 $f=- System.Collections.Immutable.ImmutableQueue<T>
 $f=- System.Collections.Immutable.IImmutableStack<T>
 $f=And of course this list can easily be supplemented on its own.
-$f=What it shows:
-$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-$f=
-$f=Important points:
-$f=- Highlights the key configuration choices and their effect on resolution.
-$f=
-$f=Useful when:
-$f=- You want a concrete template for applying this feature in a composition.
-$f=
 $r=Shouldly
 */
 

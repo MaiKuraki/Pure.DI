@@ -3,10 +3,6 @@ $v=true
 $p=1
 $d=Singleton
 $h=The _Singleton_ lifetime ensures that there will be a single instance of the dependency for each composition.
-$h=When this occurs: you need this feature while building the composition and calling roots.
-$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
-$f=
 $f=Some articles advise using objects with a _Singleton_ lifetime as often as possible, but the following details must be considered:
 $f=
 $f=- For .NET the default behavior is to create a new instance of the type each time it is needed, other behavior requires, additional logic that is not free and requires additional resources.
@@ -20,15 +16,6 @@ $f=
 $f=- _Singleton_ can retain dependency references longer than their expected lifetime, this is especially significant for objects that hold "non-renewable" resources, such as the operating system Handler.
 $f=
 $f=- Sometimes additional logic is required to dispose of _Singleton_.
-$f=What it shows:
-$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-$f=
-$f=Important points:
-$f=- Highlights the key configuration choices and their effect on resolution.
-$f=
-$f=Useful when:
-$f=- You want a concrete template for applying this feature in a composition.
-$f=
 $r=Shouldly
 */
 

@@ -3,10 +3,6 @@ $v=true
 $p=8
 $d=Simplified lifetime-specific bindings
 $h=You can use the `Transient<>()`, `Singleton<>()`, `PerResolve<>()`, etc. methods. In this case binding will be performed for the implementation type itself, and if the implementation is not an abstract type or structure, for all abstract but NOT special types that are directly implemented.
-$h=When this occurs: you need this feature while building the composition and calling roots.
-$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
-$f=
 $f=These methods perform the binding with appropriate lifetime:
 $f=
 $f=- with the implementation type itself
@@ -45,15 +41,6 @@ $f=| ❌ | `IDisposable`         | special type                                 
 $f=| ❌ | `IEnumerable<string>` | special type                                      |
 $f=| ❌ | `ManagerBase`         | non-abstract                                      |
 $f=| ❌ | `IManager`            | is not directly implemented by class OrderManager |
-$f=What it shows:
-$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-$f=
-$f=Important points:
-$f=- Highlights the key configuration choices and their effect on resolution.
-$f=
-$f=Useful when:
-$f=- You want a concrete template for applying this feature in a composition.
-$f=
 */
 
 // ReSharper disable CheckNamespace

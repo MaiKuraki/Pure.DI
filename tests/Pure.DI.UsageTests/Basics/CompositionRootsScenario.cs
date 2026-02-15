@@ -1,4 +1,4 @@
-/*
+﻿/*
 $v=true
 $p=1
 $d=Composition roots
@@ -7,10 +7,6 @@ $h=> [!TIP]
 $h=> There is no hard limit on roots, but prefer a small number. Ideally, an application has a single composition root.
 $h=
 $h=In classic DI containers, the composition is resolved dynamically via calls like `T Resolve<T>()` or `object GetService(Type type)`. The root is simply the requested type, and you can have as many as you like. In Pure.DI, each root generates a property or method at compile time, so roots are explicit and defined via `Root(string rootName)`.
-$h=When this occurs: you need this feature while building the composition and calling roots.
-$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
-$f=
 $f=The name of the composition root is arbitrarily chosen depending on its purpose but should be restricted by the property naming conventions in C# since it is the same name as a property in the composition class. In reality, the _Root_ property has the form:
 $f=```c#
 $f=public IService Root
@@ -29,15 +25,6 @@ $f=  .Bind<IDependency>().To<Dependency>()
 $f=  ...
 $f=```
 $f=This can be done if these methods are not needed, in case only certain composition roots are used. It's not significant then, but it will help save resources during compilation.
-$f=What it shows:
-$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-$f=
-$f=Important points:
-$f=- Highlights the key configuration choices and their effect on resolution.
-$f=
-$f=Useful when:
-$f=- You want a concrete template for applying this feature in a composition.
-$f=
 */
 
 // ReSharper disable ClassNeverInstantiated.Local

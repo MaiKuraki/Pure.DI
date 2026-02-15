@@ -1,12 +1,8 @@
-/*
+﻿/*
 $v=true
 $p=6
 $d=Tags
 $h=Tags let you control dependency selection when multiple implementations exist:
-$h=When this occurs: you need this feature while building the composition and calling roots.
-$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
-$f=
 $f=The example shows how to:
 $f=- Define multiple bindings for the same interface
 $f=- Use tags to differentiate between implementations
@@ -14,15 +10,6 @@ $f=- Control lifetime management
 $f=- Inject tagged dependencies into constructors
 $f=
 $f=The tag can be a constant, a type, a [smart tag](smart-tags.md), or a value of an `Enum` type. The _default_ and _null_ tags are also supported.
-$f=What it shows:
-$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-$f=
-$f=Important points:
-$f=- Highlights the key configuration choices and their effect on resolution.
-$f=
-$f=Useful when:
-$f=- You want a concrete template for applying this feature in a composition.
-$f=
 $r=Shouldly
 */
 

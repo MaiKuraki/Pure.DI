@@ -1,12 +1,8 @@
-/*
+﻿/*
 $v=true
 $p=1
 $d=Simplified binding
 $h=You can call `Bind()` without type parameters. It binds the implementation type itself, and if it is not abstract, all directly implemented abstract types except special ones.
-$h=When this occurs: you need this feature while building the composition and calling roots.
-$h=What it solves: provides a clear setup pattern and expected behavior without extra boilerplate or manual wiring.
-$h=How it is solved in the example: shows the minimal DI configuration and how the result is used in code.
-$f=
 $f=In practice, most abstraction types can be inferred. The parameterless `Bind()` binds:
 $f=
 $f=- the implementation type itself
@@ -45,15 +41,6 @@ $f=| ❌ | `IDisposable`         | special type                                 
 $f=| ❌ | `IEnumerable<string>` | special type                                      |
 $f=| ❌ | `ManagerBase`         | non-abstract                                      |
 $f=| ❌ | `IManager`            | is not directly implemented by class OrderManager |
-$f=What it shows:
-$f=- Demonstrates the scenario setup and resulting object graph in Pure.DI.
-$f=
-$f=Important points:
-$f=- Highlights the key configuration choices and their effect on resolution.
-$f=
-$f=Useful when:
-$f=- You want a concrete template for applying this feature in a composition.
-$f=
 */
 
 // ReSharper disable CheckNamespace
