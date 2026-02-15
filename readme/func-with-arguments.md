@@ -1,5 +1,7 @@
 #### Func with arguments
 
+Demonstrates how to use Func<T> with arguments for dynamic creation of instances with runtime parameters.
+
 
 ```c#
 using Shouldly;
@@ -96,6 +98,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>Func with arguments provides flexibility for scenarios where you need to pass runtime parameters during instance creation.
+
 The following partial class will be generated:
 
 ```c#
@@ -115,12 +120,12 @@ partial class Composition
     get
     {
       Func<int, string, IPerson> transientFunc365;
-      Func<int, string, IPerson> localFactory2 = new Func<int, string, IPerson>((int localArg115, string localArg213) =>
+      Func<int, string, IPerson> localFactory2 = new Func<int, string, IPerson>((int localArg112, string localArg211) =>
       {
         lock (_lock)
         {
-          int overriddenInt32 = localArg115;
-          string overriddenString2 = localArg213;
+          int overriddenInt32 = localArg112;
+          string overriddenString2 = localArg211;
           if (_singletonClock51 is null)
             lock (_lock)
               if (_singletonClock51 is null)

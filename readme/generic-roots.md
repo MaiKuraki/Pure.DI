@@ -1,7 +1,10 @@
 #### Generic roots
 
+Demonstrates how to create roots for all generic types that inherit from a given base type at compile time.
+
 
 ```c#
+using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
@@ -50,10 +53,12 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add a reference to the NuGet package
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash
 dotnet add package Pure.DI
+dotnet add package Shouldly
 ```
 - Copy the example code into the _Program.cs_ file
 
@@ -63,6 +68,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Generic roots enable exposing multiple generic implementations without explicitly registering each one.
 
 The following partial class will be generated:
 

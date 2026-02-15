@@ -1,5 +1,7 @@
 #### Func with tag
 
+Demonstrates how to use Func<T> with tags for dynamic creation of tagged instances.
+
 
 ```c#
 using Shouldly;
@@ -68,6 +70,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Func with tags allows you to create instances with specific tags dynamically, useful for factory patterns with multiple implementations.
 
 The following partial class will be generated:
 

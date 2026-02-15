@@ -1,8 +1,8 @@
 #### Composition roots
 
 This example shows several ways to create a composition root.
-> [!TIP]
-> There is no hard limit on roots, but prefer a small number. Ideally, an application has a single composition root.
+>[!TIP]
+>There is no hard limit on roots, but prefer a small number. Ideally, an application has a single composition root.
 
 In classic DI containers, the composition is resolved dynamically via calls like `T Resolve<T>()` or `object GetService(Type type)`. The root is simply the requested type, and you can have as many as you like. In Pure.DI, each root generates a property or method at compile time, so roots are explicit and defined via `Root(string rootName)`.
 
@@ -89,7 +89,7 @@ dotnet run
 
 </details>
 
-The name of the composition root is arbitrarily chosen depending on its purpose but should be restricted by the property naming conventions in C# since it is the same name as a property in the composition class. In reality, the _Root_ property has the form:
+The name of the composition root is arbitrarily chosen depending on its purpose but should be restricted by the property naming conventions in C# since it is the same name as a property in the composition class. In reality, the `Root` property has the form:
 ```c#
 public IService Root
 {

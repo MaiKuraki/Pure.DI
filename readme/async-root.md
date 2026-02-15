@@ -1,7 +1,10 @@
 #### Async Root
 
+Demonstrates how to define asynchronous composition roots that return Task or Task<T>, enabling async operations during composition.
+
 
 ```c#
+using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
@@ -40,10 +43,12 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add a reference to the NuGet package
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash
 dotnet add package Pure.DI
+dotnet add package Shouldly
 ```
 - Copy the example code into the _Program.cs_ file
 
@@ -53,6 +58,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Async roots are useful when you need to perform asynchronous initialization or when your services require async creation.
 
 The following partial class will be generated:
 

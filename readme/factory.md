@@ -1,6 +1,6 @@
 #### Factory
 
-This example shows manual creation and initialization. The generator usually infers dependencies from constructors, but sometimes you need custom creation or setup logic.
+Demonstrates how to use factories for manual creation and initialization. While the generator usually infers dependencies from constructors, factories provide custom creation or setup logic when needed.
 
 
 ```c#
@@ -80,8 +80,8 @@ There are scenarios where manual control over the creation process is required, 
 - When complex construction steps are required
 - When specific object states need to be set during creation
 
-> [!IMPORTANT]
-> The method `Inject()` cannot be used outside of the binding setup.
+>[!IMPORTANT]
+>The method `Inject()` cannot be used outside of the binding setup.
 
 The following partial class will be generated:
 

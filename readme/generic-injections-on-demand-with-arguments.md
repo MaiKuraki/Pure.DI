@@ -1,5 +1,7 @@
 #### Generic injections on demand with arguments
 
+Demonstrates how to create generic dependencies on demand with custom arguments using factory delegates.
+
 
 ```c#
 using Shouldly;
@@ -71,6 +73,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Generic factories with arguments allow passing runtime parameters while maintaining type safety.
 
 
 

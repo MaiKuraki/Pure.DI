@@ -1,5 +1,7 @@
 #### Ref dependencies
 
+Demonstrates how to use `ref` and `out` parameters in dependency injection for scenarios where you need to pass values by reference.
+
 
 ```c#
 using Shouldly;
@@ -62,6 +64,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>`ref` dependencies are useful for scenarios where you need to return multiple values or modify parameters during injection.
 
 The following partial class will be generated:
 

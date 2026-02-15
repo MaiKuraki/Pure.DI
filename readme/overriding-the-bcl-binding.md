@@ -67,6 +67,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>Overriding BCL bindings allows you to provide custom implementations for standard types, enabling specialized behavior for your application.
+
 The following partial class will be generated:
 
 ```c#

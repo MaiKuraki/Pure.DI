@@ -54,6 +54,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>This feature is useful for plugin-style architectures where you need to expose all implementations of a base type or interface.
+
 The following partial class will be generated:
 
 ```c#

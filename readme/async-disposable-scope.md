@@ -1,5 +1,7 @@
 #### Async disposable scope
 
+Demonstrates async disposable scope lifetime, where scoped instances are disposed asynchronously when the scope ends.
+
 
 ```c#
 using Shouldly;
@@ -110,6 +112,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Async disposable scope is essential for scenarios requiring proper async cleanup of scoped resources.
 
 The following partial class will be generated:
 

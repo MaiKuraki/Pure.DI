@@ -1,8 +1,8 @@
 #### Generic composition roots
 
 Sometimes you want to be able to create composition roots with type parameters. In this case, the composition root can only be represented by a method.
-> [!IMPORTANT]
-> ``Resolve()` methods cannot be used to resolve generic composition roots.
+>[!IMPORTANT]
+>`Resolve()` methods cannot be used to resolve generic composition roots.
 
 
 ```c#
@@ -75,8 +75,8 @@ dotnet run
 
 </details>
 
-> [!IMPORTANT]
-> The method `Inject()`cannot be used outside of the binding setup.
+>[!IMPORTANT]
+>The method `Inject()` cannot be used outside of the binding setup.
 
 The following partial class will be generated:
 

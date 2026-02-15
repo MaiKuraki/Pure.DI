@@ -1,5 +1,7 @@
 #### Root with name template
 
+Demonstrates how to use name templates for composition roots, allowing dynamic generation of root names based on patterns or parameters.
+
 
 ```c#
 using Shouldly;
@@ -55,6 +57,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Name templates provide flexibility in root naming but should be used consistently to maintain code readability.
 
 The following partial class will be generated:
 

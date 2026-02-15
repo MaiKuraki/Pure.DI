@@ -27,8 +27,8 @@ class OrderService(Database database);
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
-> [!WARNING]
-> This approach is not recommended if you follow the dependency inversion principle or need precise lifetime control.
+>[!WARNING]
+>This approach is not recommended if you follow the dependency inversion principle or need precise lifetime control.
 
 Prefer injecting abstractions (for example, interfaces) and map them to implementations as in most [other examples](injections-of-abstractions.md).
 
@@ -90,15 +90,15 @@ To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
 The binding chain maps abstractions to concrete types so the generator can build a fully concrete object graph. This keeps consumers decoupled and allows swapping implementations. A single implementation can satisfy multiple abstractions.
-> [!TIP]
-> If a binding is missing, injection still works when the consumer requests a concrete type (not an abstraction).
+>[!TIP]
+>If a binding is missing, injection still works when the consumer requests a concrete type (not an abstraction).
 
 
 ## Composition roots
 
 This example shows several ways to create a composition root.
-> [!TIP]
-> There is no hard limit on roots, but prefer a small number. Ideally, an application has a single composition root.
+>[!TIP]
+>There is no hard limit on roots, but prefer a small number. Ideally, an application has a single composition root.
 
 In classic DI containers, the composition is resolved dynamically via calls like `T Resolve<T>()` or `object GetService(Type type)`. The root is simply the requested type, and you can have as many as you like. In Pure.DI, each root generates a property or method at compile time, so roots are explicit and defined via `Root(string rootName)`.
 
@@ -162,7 +162,7 @@ class HtmlInvoiceGenerator : IInvoiceGenerator;
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
-The name of the composition root is arbitrarily chosen depending on its purpose but should be restricted by the property naming conventions in C# since it is the same name as a property in the composition class. In reality, the _Root_ property has the form:
+The name of the composition root is arbitrarily chosen depending on its purpose but should be restricted by the property naming conventions in C# since it is the same name as a property in the composition class. In reality, the `Root` property has the form:
 ```c#
 public IService Root
 {
@@ -335,7 +335,7 @@ For class `OrderManager`, `Bind().To<OrderManager>()` is equivalent to `Bind<IOr
 
 ## Factory
 
-This example shows manual creation and initialization. The generator usually infers dependencies from constructors, but sometimes you need custom creation or setup logic.
+Demonstrates how to use factories for manual creation and initialization. While the generator usually infers dependencies from constructors, factories provide custom creation or setup logic when needed.
 
 ```c#
 using Shouldly;
@@ -391,8 +391,8 @@ There are scenarios where manual control over the creation process is required, 
 - When complex construction steps are required
 - When specific object states need to be set during creation
 
-> [!IMPORTANT]
-> The method `Inject()` cannot be used outside of the binding setup.
+>[!IMPORTANT]
+>The method `Inject()` cannot be used outside of the binding setup.
 
 ## Simplified factory
 
@@ -577,8 +577,8 @@ Delayed dependency instantiation:
 ## Composition arguments
 
 Use composition arguments when you need to pass state into the composition. Define them with `Arg<T>(string argName)` (optionally with tags) and use them like any other dependency. Only arguments that are used in the object graph become constructor parameters.
-> [!NOTE]
-> Actually, composition arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
+>[!NOTE]
+>Actually, composition arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
 
 
 ```c#
@@ -651,12 +651,14 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>Composition arguments provide a way to inject runtime values into the composition, making your DI configuration more flexible.
 
 ## Root arguments
 
 Use root arguments when you need to pass state into a specific root. Define them with `RootArg<T>(string argName)` (optionally with tags) and use them like any other dependency. A root that uses at least one root argument becomes a method, and only arguments used in that root's object graph appear in the method signature. Use unique argument names to avoid collisions.
-> [!NOTE]
-> Actually, root arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
+>[!NOTE]
+>Actually, root arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
 
 
 ```c#
@@ -802,9 +804,9 @@ The tag can be a constant, a type, a [smart tag](smart-tags.md), or a value of a
 
 ## Smart tags
 
-Large object graphs often need many tags. String tags are error-prone and easy to mistype. Prefer `Enum` values as tags, and Pure.DI helps make this safe.
+Large object graphs often need many tags. String tags are error-prone and easy to mistype. Prefer `Enum` values as tags, and _Pure.DI_ helps make this safe.
 
-When the compiler cannot determine a tag value, Pure.DI generates a constant inside `Pure.DI.Tag`. For the example below, the generated constants would look like this:
+When the compiler cannot determine a tag value, _Pure.DI_ generates a constant inside `Pure.DI.Tag`. For the example below, the generated constants would look like this:
 
 ```c#
 namespace Pure.DI
@@ -882,6 +884,8 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>Smart tags provide compile-time safety for tag values, reducing runtime errors and improving code maintainability.
 
 ## Simplified lifetime-specific bindings
 
@@ -1003,6 +1007,8 @@ For class `OrderManager`, the `PerBlock<OrderManager>()` binding will be equival
 
 ## Simplified lifetime-specific factory
 
+Demonstrates how to create factories with lifetime-specific bindings, providing a concise way to define factories with proper lifetime semantics.
+
 ```c#
 using Shouldly;
 using Pure.DI;
@@ -1064,6 +1070,8 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>Lifetime-specific factories combine the convenience of simplified syntax with explicit lifetime control for optimal performance and correctness.
 
 ## Build up of an existing object
 
@@ -1766,6 +1774,8 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>Overrides provide fine-grained control over dependency resolution, allowing you to customize bindings at runtime or for specific scenarios.
 
 ## Root binding
 
@@ -1803,8 +1813,12 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>`RootBind` reduces boilerplate when you need both a binding and a root for the same type.
 
 ## Static root
+
+Demonstrates how to create static composition roots that don't require instantiation of the composition class.
 
 ```c#
 using Shouldly;
@@ -1831,10 +1845,15 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>Static roots are useful when you want to access services without creating a composition instance.
 
 ## Async Root
 
+Demonstrates how to define asynchronous composition roots that return Task or Task<T>, enabling async operations during composition.
+
 ```c#
+using Shouldly;
 using Pure.DI;
 
 DI.Setup(nameof(Composition))
@@ -1862,9 +1881,12 @@ interface IBackupService;
 class BackupService(IFileStore fileStore) : IBackupService;
 ```
 
-To run the above code, the following NuGet package must be added:
+To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+ - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>Async roots are useful when you need to perform asynchronous initialization or when your services require async creation.
 
 ## Consumer type
 
@@ -1935,8 +1957,12 @@ To run the above code, the following NuGet packages must be added:
  - [Serilog.Core](https://www.nuget.org/packages/Serilog.Core)
  - [Serilog.Events](https://www.nuget.org/packages/Serilog.Events)
 
+>[!NOTE]
+>ConsumerType is useful for creating context-aware loggers or when you need to know which type is consuming a dependency.
 
 ## Ref dependencies
+
+Demonstrates how to use `ref` and `out` parameters in dependency injection for scenarios where you need to pass values by reference.
 
 ```c#
 using Shouldly;
@@ -1977,6 +2003,8 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>`ref` dependencies are useful for scenarios where you need to return multiple values or modify parameters during injection.
 
 ## Roots
 
@@ -2010,8 +2038,12 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>This feature is useful for plugin-style architectures where you need to expose all implementations of a base type or interface.
 
 ## Roots with filter
+
+Demonstrates how to create roots for types that match specific filter criteria, allowing selective exposure of implementations.
 
 ```c#
 using Shouldly;
@@ -2041,10 +2073,12 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>Filtering roots provides fine-grained control over which implementations are exposed, useful for conditional feature activation.
 
 ## Transient
 
-The _Transient_ lifetime specifies to create a new dependency instance each time. It is the default lifetime and can be omitted.
+The `Transient` lifetime specifies to create a new dependency instance each time. It is the default lifetime and can be omitted.
 
 ```c#
 using Shouldly;
@@ -2092,7 +2126,7 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-The _Transient_ lifetime is the safest and is used by default. Yes, its widespread use can cause a lot of memory traffic, but if there are doubts about thread safety, the _Transient_ lifetime is preferable because each consumer has its own instance of the dependency. The following nuances should be considered when choosing the _Transient_ lifetime:
+The `Transient` lifetime is the safest and is used by default. Yes, its widespread use can cause a lot of memory traffic, but if there are doubts about thread safety, the `Transient` lifetime is preferable because each consumer has its own instance of the dependency. The following nuances should be considered when choosing the `Transient` lifetime:
 
 - There will be unnecessary memory overhead that could be avoided.
 
@@ -2100,12 +2134,12 @@ The _Transient_ lifetime is the safest and is used by default. Yes, its widespre
 
 - Poorly designed constructors can run slowly, perform functions that are not their own, and greatly hinder the efficient creation of compositions of multiple objects.
 
-> [!IMPORTANT]
-> The following very important rule, in my opinion, will help in the last point. Now, when a constructor is used to implement dependencies, it should not be loaded with other tasks. Accordingly, constructors should be free of all logic except for checking arguments and saving them for later use. Following this rule, even the largest compositions of objects will be built quickly.
+>[!IMPORTANT]
+>The following very important rule, in my opinion, will help in the last point. Now, when a constructor is used to implement dependencies, it should not be loaded with other tasks. Accordingly, constructors should be free of all logic except for checking arguments and saving them for later use. Following this rule, even the largest compositions of objects will be built quickly.
 
 ## Singleton
 
-The _Singleton_ lifetime ensures that there will be a single instance of the dependency for each composition.
+The `Singleton` lifetime ensures that there will be a single instance of the dependency for each composition.
 
 ```c#
 using Shouldly;
@@ -2180,11 +2214,11 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-Some articles advise using objects with a _Singleton_ lifetime as often as possible, but the following details must be considered:
+Some articles advise using objects with a `Singleton` lifetime as often as possible, but the following details must be considered:
 
 - For .NET the default behavior is to create a new instance of the type each time it is needed, other behavior requires, additional logic that is not free and requires additional resources.
 
-- The use of _Singleton_, adds a requirement for thread-safety controls on their use, since singletons are more likely to share their state between different threads without even realizing it.
+- The use of `Singleton` adds a requirement for thread-safety controls on their use, since singletons are more likely to share their state between different threads without even realizing it.
 
 - The thread-safety control should be automatically extended to all dependencies that _Singleton_ uses, since their state is also now shared.
 
@@ -2196,7 +2230,7 @@ Some articles advise using objects with a _Singleton_ lifetime as often as possi
 
 ## PerResolve
 
-The _PerResolve_ lifetime ensures that there will be one instance of the dependency for each composition root instance.
+The `PerResolve` lifetime ensures that there will be one instance of the dependency for each composition root instance.
 
 ```c#
 using Shouldly;
@@ -2270,6 +2304,8 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>`PerResolve` lifetime is useful when you want to share a dependency instance within a single composition root resolution.
 
 ## Func
 
@@ -2412,6 +2448,8 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>IEnumerable<T> provides lazy evaluation, making it efficient for scenarios where you may not need to enumerate all instances.
 
 ## Enumerable generics
 
@@ -2477,6 +2515,8 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>Generic enumerable injections are useful for implementing middleware patterns where multiple handlers need to be invoked in sequence.
 
 ## Array
 
@@ -2553,10 +2593,10 @@ And of course this list can easily be supplemented on its own.
 ## Generics
 
 Generic types are also supported.
-> [!IMPORTANT]
-> Instead of open generic types, as in classical DI container libraries, regular generic types with _marker_ types as type parameters are used here. Such "marker" types allow to define dependency graph more precisely.
+>[!IMPORTANT]
+>Instead of open generic types, as in classical DI container libraries, regular generic types with `marker` types as type parameters are used here. Such "marker" types allow to define dependency graph more precisely.
 
-For the case of `IDependency<TT>`, `TT` is a _marker_ type, which allows the usual `IDependency<TT>` to be used instead of an open generic type like `IDependency<>`. This makes it easy to bind generic types by specifying _marker_ types such as `TT`, `TT1`, etc. as parameters of generic types:
+For the case of `IDependency<TT>`, `TT` is a `marker` type, which allows the usual `IDependency<TT>` to be used instead of an open generic type like `IDependency<>`. This makes it easy to bind generic types by specifying `marker` types such as `TT`, `TT1`, etc. as parameters of generic types:
 
 ```c#
 using Shouldly;
@@ -2612,7 +2652,7 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-Actually, the property _Root_ looks like:
+Actually, the property `Root` looks like:
 ```c#
 public IService Root
 {
@@ -2658,8 +2698,8 @@ internal interface TTEnumerator<out T>: IEnumerator<T> { }
 ## Generic composition roots
 
 Sometimes you want to be able to create composition roots with type parameters. In this case, the composition root can only be represented by a method.
-> [!IMPORTANT]
-> ``Resolve()` methods cannot be used to resolve generic composition roots.
+>[!IMPORTANT]
+>`Resolve()` methods cannot be used to resolve generic composition roots.
 
 ```c#
 using Pure.DI;
@@ -2709,8 +2749,8 @@ class UpdateCommandHandler<T>(IRepository<T> repository) : ICommandHandler<T>;
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
-> [!IMPORTANT]
-> The method `Inject()`cannot be used outside of the binding setup.
+>[!IMPORTANT]
+>The method `Inject()` cannot be used outside of the binding setup.
 
 ## Constructor ordinal attribute
 
@@ -2917,7 +2957,7 @@ The `Ordinal` attribute is part of the API, but you can define your own in any a
 ## Decorator
 
 Interception is the ability to intercept calls between objects in order to enrich or change their behavior, but without having to change their code. A prerequisite for interception is weak binding. That is, if programming is abstraction-based, the underlying implementation can be transformed or improved by "packaging" it into other implementations of the same abstraction. At its core, intercept is an application of the Decorator design pattern. This pattern provides a flexible alternative to inheritance by dynamically "attaching" additional responsibility to an object. Decorator "packs" one implementation of an abstraction into another implementation of the same abstraction like a "matryoshka doll".
-_Decorator_ is a well-known and useful design pattern. It is convenient to use tagged dependencies to build a chain of nested decorators, as in the example below:
+`Decorator` is a well-known and useful design pattern. It is convenient to use tagged dependencies to build a chain of nested decorators, as in the example below:
 
 ```c#
 using Shouldly;
@@ -2952,7 +2992,7 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-Here an instance of the _TextWidget_ type, labeled _"base"_, is injected in the decorator _BoxWidget_. You can use any tag that semantically reflects the feature of the abstraction being embedded. The tag can be a constant, a type, or a value of an enumerated type.
+Here an instance of the `TextWidget` type, labeled `"base"`, is injected in the decorator `BoxWidget`. You can use any tag that semantically reflects the feature of the abstraction being embedded. The tag can be a constant, a type, or a value of an enumerated type.
 
 ## Interception
 
@@ -3172,3 +3212,5 @@ To run the above code, the following NuGet packages must be added:
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
  - [Castle.DynamicProxy](https://www.nuget.org/packages/Castle.DynamicProxy)
 
+>[!NOTE]
+>Advanced interception provides high-performance proxy generation for scenarios where runtime interception overhead must be minimized.

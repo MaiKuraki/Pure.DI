@@ -60,8 +60,8 @@ dotnet run
 
 </details>
 
-> [!IMPORTANT]
-> At this point, a composition from another assembly or another project can be used for this purpose. Compositions from the current project cannot be used in this way due to limitations of the source code generators.
+>[!IMPORTANT]
+>At this point, a composition from another assembly or another project can be used for this purpose. Compositions from the current project cannot be used in this way due to limitations of the source code generators.
 
 The following partial class will be generated:
 

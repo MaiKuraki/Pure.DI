@@ -1,5 +1,7 @@
 #### JSON serialization
 
+Demonstrates how to handle JSON serialization scenarios with Pure.DI, showing integration with serialization libraries.
+
 
 ```c#
 using Shouldly;
@@ -107,6 +109,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Proper DI integration with serialization requires careful handling of object creation and property injection.
 
 The following partial class will be generated:
 

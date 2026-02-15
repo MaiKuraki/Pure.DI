@@ -1,5 +1,7 @@
 #### Custom generic argument attribute
 
+Demonstrates how to create and use custom attributes for generic type arguments, enabling advanced generic binding scenarios.
+
 
 ```c#
 using Shouldly;
@@ -77,6 +79,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Custom generic argument attributes are useful when you need to pass metadata specific to generic type parameters during binding resolution.
 
 The following partial class will be generated:
 

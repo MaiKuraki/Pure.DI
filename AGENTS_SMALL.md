@@ -27,8 +27,8 @@ class OrderService(Database database);
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
-> [!WARNING]
-> This approach is not recommended if you follow the dependency inversion principle or need precise lifetime control.
+>[!WARNING]
+>This approach is not recommended if you follow the dependency inversion principle or need precise lifetime control.
 
 Prefer injecting abstractions (for example, interfaces) and map them to implementations as in most [other examples](injections-of-abstractions.md).
 
@@ -90,15 +90,15 @@ To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
 The binding chain maps abstractions to concrete types so the generator can build a fully concrete object graph. This keeps consumers decoupled and allows swapping implementations. A single implementation can satisfy multiple abstractions.
-> [!TIP]
-> If a binding is missing, injection still works when the consumer requests a concrete type (not an abstraction).
+>[!TIP]
+>If a binding is missing, injection still works when the consumer requests a concrete type (not an abstraction).
 
 
 ## Composition roots
 
 This example shows several ways to create a composition root.
-> [!TIP]
-> There is no hard limit on roots, but prefer a small number. Ideally, an application has a single composition root.
+>[!TIP]
+>There is no hard limit on roots, but prefer a small number. Ideally, an application has a single composition root.
 
 In classic DI containers, the composition is resolved dynamically via calls like `T Resolve<T>()` or `object GetService(Type type)`. The root is simply the requested type, and you can have as many as you like. In Pure.DI, each root generates a property or method at compile time, so roots are explicit and defined via `Root(string rootName)`.
 
@@ -162,7 +162,7 @@ class HtmlInvoiceGenerator : IInvoiceGenerator;
 To run the above code, the following NuGet package must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
 
-The name of the composition root is arbitrarily chosen depending on its purpose but should be restricted by the property naming conventions in C# since it is the same name as a property in the composition class. In reality, the _Root_ property has the form:
+The name of the composition root is arbitrarily chosen depending on its purpose but should be restricted by the property naming conventions in C# since it is the same name as a property in the composition class. In reality, the `Root` property has the form:
 ```c#
 public IService Root
 {
@@ -335,7 +335,7 @@ For class `OrderManager`, `Bind().To<OrderManager>()` is equivalent to `Bind<IOr
 
 ## Factory
 
-This example shows manual creation and initialization. The generator usually infers dependencies from constructors, but sometimes you need custom creation or setup logic.
+Demonstrates how to use factories for manual creation and initialization. While the generator usually infers dependencies from constructors, factories provide custom creation or setup logic when needed.
 
 ```c#
 using Shouldly;
@@ -391,8 +391,8 @@ There are scenarios where manual control over the creation process is required, 
 - When complex construction steps are required
 - When specific object states need to be set during creation
 
-> [!IMPORTANT]
-> The method `Inject()` cannot be used outside of the binding setup.
+>[!IMPORTANT]
+>The method `Inject()` cannot be used outside of the binding setup.
 
 ## Simplified factory
 
@@ -577,8 +577,8 @@ Delayed dependency instantiation:
 ## Composition arguments
 
 Use composition arguments when you need to pass state into the composition. Define them with `Arg<T>(string argName)` (optionally with tags) and use them like any other dependency. Only arguments that are used in the object graph become constructor parameters.
-> [!NOTE]
-> Actually, composition arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
+>[!NOTE]
+>Actually, composition arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
 
 
 ```c#
@@ -651,12 +651,14 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>Composition arguments provide a way to inject runtime values into the composition, making your DI configuration more flexible.
 
 ## Root arguments
 
 Use root arguments when you need to pass state into a specific root. Define them with `RootArg<T>(string argName)` (optionally with tags) and use them like any other dependency. A root that uses at least one root argument becomes a method, and only arguments used in that root's object graph appear in the method signature. Use unique argument names to avoid collisions.
-> [!NOTE]
-> Actually, root arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
+>[!NOTE]
+>Actually, root arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
 
 
 ```c#
@@ -802,7 +804,7 @@ The tag can be a constant, a type, a [smart tag](smart-tags.md), or a value of a
 
 ## Transient
 
-The _Transient_ lifetime specifies to create a new dependency instance each time. It is the default lifetime and can be omitted.
+The `Transient` lifetime specifies to create a new dependency instance each time. It is the default lifetime and can be omitted.
 
 ```c#
 using Shouldly;
@@ -850,7 +852,7 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-The _Transient_ lifetime is the safest and is used by default. Yes, its widespread use can cause a lot of memory traffic, but if there are doubts about thread safety, the _Transient_ lifetime is preferable because each consumer has its own instance of the dependency. The following nuances should be considered when choosing the _Transient_ lifetime:
+The `Transient` lifetime is the safest and is used by default. Yes, its widespread use can cause a lot of memory traffic, but if there are doubts about thread safety, the `Transient` lifetime is preferable because each consumer has its own instance of the dependency. The following nuances should be considered when choosing the `Transient` lifetime:
 
 - There will be unnecessary memory overhead that could be avoided.
 
@@ -858,12 +860,12 @@ The _Transient_ lifetime is the safest and is used by default. Yes, its widespre
 
 - Poorly designed constructors can run slowly, perform functions that are not their own, and greatly hinder the efficient creation of compositions of multiple objects.
 
-> [!IMPORTANT]
-> The following very important rule, in my opinion, will help in the last point. Now, when a constructor is used to implement dependencies, it should not be loaded with other tasks. Accordingly, constructors should be free of all logic except for checking arguments and saving them for later use. Following this rule, even the largest compositions of objects will be built quickly.
+>[!IMPORTANT]
+>The following very important rule, in my opinion, will help in the last point. Now, when a constructor is used to implement dependencies, it should not be loaded with other tasks. Accordingly, constructors should be free of all logic except for checking arguments and saving them for later use. Following this rule, even the largest compositions of objects will be built quickly.
 
 ## Singleton
 
-The _Singleton_ lifetime ensures that there will be a single instance of the dependency for each composition.
+The `Singleton` lifetime ensures that there will be a single instance of the dependency for each composition.
 
 ```c#
 using Shouldly;
@@ -938,11 +940,11 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-Some articles advise using objects with a _Singleton_ lifetime as often as possible, but the following details must be considered:
+Some articles advise using objects with a `Singleton` lifetime as often as possible, but the following details must be considered:
 
 - For .NET the default behavior is to create a new instance of the type each time it is needed, other behavior requires, additional logic that is not free and requires additional resources.
 
-- The use of _Singleton_, adds a requirement for thread-safety controls on their use, since singletons are more likely to share their state between different threads without even realizing it.
+- The use of `Singleton` adds a requirement for thread-safety controls on their use, since singletons are more likely to share their state between different threads without even realizing it.
 
 - The thread-safety control should be automatically extended to all dependencies that _Singleton_ uses, since their state is also now shared.
 
@@ -954,7 +956,7 @@ Some articles advise using objects with a _Singleton_ lifetime as often as possi
 
 ## PerResolve
 
-The _PerResolve_ lifetime ensures that there will be one instance of the dependency for each composition root instance.
+The `PerResolve` lifetime ensures that there will be one instance of the dependency for each composition root instance.
 
 ```c#
 using Shouldly;
@@ -1028,10 +1030,12 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>`PerResolve` lifetime is useful when you want to share a dependency instance within a single composition root resolution.
 
 ## PerBlock
 
-The _PerBlock_ lifetime does not guarantee that there will be a single dependency instance for each instance of the composition root (as for the _PerResolve_ lifetime), but is useful for reducing the number of instances of a type.
+The `PerBlock` lifetime does not guarantee that there will be a single dependency instance for each instance of the composition root (as for the `PerResolve` lifetime), but is useful for reducing the number of instances of a type.
 
 ```c#
 using Shouldly;
@@ -1100,10 +1104,12 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>`PerBlock` lifetime provides a balance between `PerResolve` and `Transient`, reducing instance count within a resolution block.
 
 ## Scope
 
-The _Scoped_ lifetime ensures that there will be a single instance of the dependency for each scope.
+The `Scoped` lifetime ensures that there will be a single instance of the dependency for each scope.
 
 ```c#
 using Shouldly;
@@ -1205,6 +1211,8 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>`Scoped` lifetime is essential for request-based or session-based scenarios where instances should be shared within a scope but isolated between scopes.
 
 ## Auto scoped
 
@@ -1299,12 +1307,12 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
-> [!IMPORTANT]
-> The method `Inject()`cannot be used outside of the binding setup.
+>[!IMPORTANT]
+>The method `Inject()`cannot be used outside of the binding setup.
 
 ## Default lifetime
 
-For example, if some lifetime is used more often than others, you can make it the default lifetime:
+Demonstrates how to set a default lifetime that is used when no specific lifetime is specified for a binding. This is useful when a particular lifetime is used more often than others.
 
 ```c#
 using Shouldly;
@@ -1371,6 +1379,8 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>Default lifetime reduces configuration verbosity when a particular lifetime is predominant in your composition.
 
 ## Default lifetime for a type
 
@@ -1456,6 +1466,8 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>Setting default lifetime for types simplifies configuration when the same lifetime is consistently applied.
 
 ## Default lifetime for a type and a tag
 
@@ -1537,3 +1549,5 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 
+>[!NOTE]
+>Default lifetime configuration reduces boilerplate when the same lifetime is consistently used for specific types.

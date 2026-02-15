@@ -1,5 +1,7 @@
 #### Complex generic root arguments
 
+Demonstrates complex generic root argument scenarios with multiple type parameters and constraints.
+
 
 ```c#
 using Shouldly;
@@ -77,6 +79,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Complex generic scenarios require careful attention to type constraints and argument order for correct resolution.
 
 The following partial class will be generated:
 

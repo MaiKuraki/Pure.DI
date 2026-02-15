@@ -1,5 +1,7 @@
 #### Roots with filter
 
+Demonstrates how to create roots for types that match specific filter criteria, allowing selective exposure of implementations.
+
 
 ```c#
 using Shouldly;
@@ -51,6 +53,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Filtering roots provides fine-grained control over which implementations are exposed, useful for conditional feature activation.
 
 The following partial class will be generated:
 

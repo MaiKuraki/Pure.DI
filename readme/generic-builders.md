@@ -1,5 +1,7 @@
 #### Generic builders
 
+Demonstrates how to create generic builders for all types derived from a generic base type known at compile time.
+
 
 ```c#
 using Shouldly;
@@ -99,6 +101,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Generic builders provide compile-time type safety while allowing flexible object graph construction.
 
 The following partial class will be generated:
 

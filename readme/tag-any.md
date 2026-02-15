@@ -1,5 +1,7 @@
 #### Tag Any
 
+`Tag.Any` creates a binding that matches any tag value, including default (null), allowing flexible injection scenarios where the tag value can be used within factory contexts. This is useful when you need to dynamically handle different tag values in a single binding.
+
 
 ```c#
 using Shouldly;
@@ -85,6 +87,9 @@ dotnet run
 ```
 
 </details>
+
+>[!IMPORTANT]
+>`Tag.Any` provides maximum flexibility but requires careful handling within factories to properly interpret and use the tag value.
 
 The following partial class will be generated:
 

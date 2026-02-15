@@ -102,6 +102,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>Async disposable singleton ensures proper async cleanup of all singleton resources when the composition is disposed.
+
 The following partial class will be generated:
 
 ```c#

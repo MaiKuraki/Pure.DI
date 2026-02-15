@@ -1,7 +1,10 @@
 #### Composition root kinds
 
+Demonstrates different kinds of composition roots that can be created: public methods, private partial methods, and static roots. Each kind serves different use cases for accessing composition roots with appropriate visibility and lifetime semantics.
+
 
 ```c#
+using Shouldly;
 using Pure.DI;
 using static Pure.DI.RootKinds;
 
@@ -59,10 +62,12 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add a reference to the NuGet package
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash
 dotnet add package Pure.DI
+dotnet add package Shouldly
 ```
 - Copy the example code into the _Program.cs_ file
 
@@ -72,6 +77,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Composition roots can be customized with different kinds to control accessibility and lifetime, enabling flexible API design patterns.
 
 The following partial class will be generated:
 

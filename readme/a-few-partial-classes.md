@@ -4,6 +4,7 @@ The setting code for one Composition can be located in several methods and/or in
 
 
 ```c#
+using Shouldly;
 using Pure.DI;
 
 var composition = new Composition();
@@ -59,10 +60,12 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add a reference to the NuGet package
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash
 dotnet add package Pure.DI
+dotnet add package Shouldly
 ```
 - Copy the example code into the _Program.cs_ file
 
@@ -72,6 +75,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Splitting composition setup across multiple partial classes can improve organization for large compositions but may reduce readability if overused.
 
 The following partial class will be generated:
 

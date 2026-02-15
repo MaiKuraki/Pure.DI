@@ -1,5 +1,7 @@
 #### Static root
 
+Demonstrates how to create static composition roots that don't require instantiation of the composition class.
+
 
 ```c#
 using Shouldly;
@@ -48,6 +50,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Static roots are useful when you want to access services without creating a composition instance.
 
 The following partial class will be generated:
 

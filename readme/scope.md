@@ -1,6 +1,6 @@
 #### Scope
 
-The _Scoped_ lifetime ensures that there will be a single instance of the dependency for each scope.
+The `Scoped` lifetime ensures that there will be a single instance of the dependency for each scope.
 
 
 ```c#
@@ -125,6 +125,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>`Scoped` lifetime is essential for request-based or session-based scenarios where instances should be shared within a scope but isolated between scopes.
 
 The following partial class will be generated:
 

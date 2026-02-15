@@ -1,5 +1,7 @@
 #### Tracking disposable instances per a composition root
 
+Demonstrates how disposable instances are tracked per composition root and disposed when the composition is disposed.
+
 
 ```c#
 using Shouldly;
@@ -87,6 +89,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Disposable tracking ensures proper cleanup of all disposable instances within a composition scope.
 
 The following partial class will be generated:
 

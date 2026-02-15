@@ -129,6 +129,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>Overrides provide fine-grained control over dependency resolution, allowing you to customize bindings at runtime or for specific scenarios.
+
 The following partial class will be generated:
 
 ```c#

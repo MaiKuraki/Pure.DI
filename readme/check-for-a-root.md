@@ -1,6 +1,6 @@
 #### Check for a root
 
-Sometimes you need to check if you can get the root of a composition using the _Resolve_ method before calling it, this example will show you how to do it:
+Sometimes you need to check if you can get the root of a composition using the `Resolve` method before calling it, this example will show you how to do it:
 
 
 ```c#

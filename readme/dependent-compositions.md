@@ -1,9 +1,9 @@
 #### Dependent compositions
 
-The _Setup_ method has an additional argument _kind_, which defines the type of composition:
-- _CompositionKind.Public_ - will create a normal composition class, this is the default setting and can be omitted, it can also use the _DependsOn_ method to use it as a dependency in other compositions
-- _CompositionKind.Internal_ - the composition class will not be created, but that composition can be used to create other compositions by calling the _DependsOn_ method with its name
-- _CompositionKind.Global_ - the composition class will also not be created, but that composition will automatically be used to create other compositions
+The `Setup` method has an additional argument `kind`, which defines the type of composition:
+- `CompositionKind.Public` - will create a normal composition class, this is the default setting and can be omitted, it can also use the `DependsOn` method to use it as a dependency in other compositions
+- `CompositionKind.Internal` - the composition class will not be created, but that composition can be used to create other compositions by calling the `DependsOn` method with its name
+- `CompositionKind.Global` - the composition class will also not be created, but that composition will automatically be used to create other compositions
 
 
 ```c#

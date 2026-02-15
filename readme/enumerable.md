@@ -94,6 +94,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>IEnumerable<T> provides lazy evaluation, making it efficient for scenarios where you may not need to enumerate all instances.
+
 The following partial class will be generated:
 
 ```c#

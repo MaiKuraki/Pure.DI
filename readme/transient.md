@@ -1,6 +1,6 @@
 #### Transient
 
-The _Transient_ lifetime specifies to create a new dependency instance each time. It is the default lifetime and can be omitted.
+The `Transient` lifetime specifies to create a new dependency instance each time. It is the default lifetime and can be omitted.
 
 
 ```c#
@@ -72,7 +72,7 @@ dotnet run
 
 </details>
 
-The _Transient_ lifetime is the safest and is used by default. Yes, its widespread use can cause a lot of memory traffic, but if there are doubts about thread safety, the _Transient_ lifetime is preferable because each consumer has its own instance of the dependency. The following nuances should be considered when choosing the _Transient_ lifetime:
+The `Transient` lifetime is the safest and is used by default. Yes, its widespread use can cause a lot of memory traffic, but if there are doubts about thread safety, the `Transient` lifetime is preferable because each consumer has its own instance of the dependency. The following nuances should be considered when choosing the `Transient` lifetime:
 
 - There will be unnecessary memory overhead that could be avoided.
 
@@ -80,8 +80,8 @@ The _Transient_ lifetime is the safest and is used by default. Yes, its widespre
 
 - Poorly designed constructors can run slowly, perform functions that are not their own, and greatly hinder the efficient creation of compositions of multiple objects.
 
-> [!IMPORTANT]
-> The following very important rule, in my opinion, will help in the last point. Now, when a constructor is used to implement dependencies, it should not be loaded with other tasks. Accordingly, constructors should be free of all logic except for checking arguments and saving them for later use. Following this rule, even the largest compositions of objects will be built quickly.
+>[!IMPORTANT]
+>The following very important rule, in my opinion, will help in the last point. Now, when a constructor is used to implement dependencies, it should not be loaded with other tasks. Accordingly, constructors should be free of all logic except for checking arguments and saving them for later use. Following this rule, even the largest compositions of objects will be built quickly.
 
 The following partial class will be generated:
 

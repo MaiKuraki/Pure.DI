@@ -1,5 +1,7 @@
 #### Generic root arguments
 
+Demonstrates how to pass type arguments as parameters to generic composition roots.
+
 
 ```c#
 using Shouldly;
@@ -62,6 +64,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Generic root arguments enable flexible type parameterization while maintaining compile-time type safety.
 
 The following partial class will be generated:
 

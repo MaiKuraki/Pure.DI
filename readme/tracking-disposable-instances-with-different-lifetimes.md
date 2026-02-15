@@ -1,5 +1,7 @@
 #### Tracking disposable instances with different lifetimes
 
+Demonstrates how disposable instances with different lifetimes are tracked and disposed correctly according to their respective lifetime scopes.
+
 
 ```c#
 using Shouldly;
@@ -129,6 +131,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>The tracking mechanism respects lifetime semantics, ensuring that transient instances are disposed immediately while singleton instances persist until composition disposal.
 
 The following partial class will be generated:
 

@@ -102,6 +102,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>Default lifetime configuration reduces boilerplate when the same lifetime is consistently used for specific types.
+
 The following partial class will be generated:
 
 ```c#

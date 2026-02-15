@@ -1,5 +1,7 @@
 #### Generic injections on demand
 
+Demonstrates how to create generic dependencies on demand using factory delegates with generic type parameters.
+
 
 ```c#
 using Shouldly;
@@ -66,6 +68,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Generic on-demand injection provides flexibility for creating instances with different type parameters as needed.
 
 The following partial class will be generated:
 

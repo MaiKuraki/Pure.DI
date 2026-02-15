@@ -1,7 +1,10 @@
 #### Unity with prefabs
 
+Demonstrates advanced Unity integration showing how Pure.DI works with Unity prefabs and component lifecycle.
+
 
 ```c#
+using Shouldly;
 using Pure.DI;
 using UnityEngine;
 
@@ -146,10 +149,12 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add a reference to the NuGet package
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash
 dotnet add package Pure.DI
+dotnet add package Shouldly
 ```
 - Copy the example code into the _Program.cs_ file
 
@@ -159,6 +164,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Prefab integration with DI requires careful handling of Unity's instantiation and component initialization phases.
 
 The following partial class will be generated:
 

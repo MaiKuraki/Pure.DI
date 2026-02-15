@@ -1,5 +1,7 @@
 #### Bind attribute for a generic type
 
+Demonstrates how to use the Bind attribute to configure bindings for generic types, allowing automatic registration without explicit binding declarations.
+
 
 ```c#
 using Shouldly;
@@ -76,6 +78,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>The Bind attribute provides a declarative way to specify bindings directly on types, reducing the need for manual composition setup.
 
 The following partial class will be generated:
 

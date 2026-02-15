@@ -1,6 +1,6 @@
 #### Factory with thread synchronization
 
-In some cases, initialization of objects requires synchronization of the overall composition flow.
+In some cases, initialization of objects requires synchronization of the overall composition flow. This scenario demonstrates how to use factories with thread synchronization to ensure proper initialization order.
 
 
 ```c#
@@ -77,6 +77,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Thread synchronization in factories should be used carefully as it may impact performance. Only use when necessary for correct initialization behavior.
 
 The following partial class will be generated:
 

@@ -1,5 +1,7 @@
 #### Tracking disposable instances in delegates
 
+Demonstrates how disposable instances created within delegate factories are tracked and disposed properly when the composition is disposed.
+
 
 ```c#
 using Shouldly;
@@ -91,6 +93,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Disposable tracking in delegates ensures proper cleanup even when instances are created dynamically through factory delegates.
 
 The following partial class will be generated:
 

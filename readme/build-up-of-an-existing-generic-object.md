@@ -88,6 +88,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>Generic build-up allows you to inject dependencies into existing generic objects after their creation.
+
 The following partial class will be generated:
 
 ```c#

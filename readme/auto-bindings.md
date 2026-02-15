@@ -46,8 +46,8 @@ dotnet run
 
 </details>
 
-> [!WARNING]
-> This approach is not recommended if you follow the dependency inversion principle or need precise lifetime control.
+>[!WARNING]
+>This approach is not recommended if you follow the dependency inversion principle or need precise lifetime control.
 
 Prefer injecting abstractions (for example, interfaces) and map them to implementations as in most [other examples](injections-of-abstractions.md).
 

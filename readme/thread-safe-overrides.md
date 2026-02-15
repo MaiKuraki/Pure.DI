@@ -1,5 +1,7 @@
 #### Thread-safe overrides
 
+Demonstrates how to create thread-safe overrides in compositions, ensuring that override operations work correctly in multi-threaded scenarios.
+
 
 ```c#
 using Shouldly;
@@ -129,6 +131,9 @@ dotnet run
 ```
 
 </details>
+
+>[!IMPORTANT]
+>Thread-safe overrides are essential when composition instances are shared across multiple threads or when parallel resolution is required.
 
 The following partial class will be generated:
 

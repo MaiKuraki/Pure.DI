@@ -85,6 +85,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>`Tag.Type` provides a convenient way to reference implementation types in tags without explicitly using `typeof()`.
+
 The following partial class will be generated:
 
 ```c#

@@ -1,8 +1,8 @@
 #### Smart tags
 
-Large object graphs often need many tags. String tags are error-prone and easy to mistype. Prefer `Enum` values as tags, and Pure.DI helps make this safe.
+Large object graphs often need many tags. String tags are error-prone and easy to mistype. Prefer `Enum` values as tags, and _Pure.DI_ helps make this safe.
 
-When the compiler cannot determine a tag value, Pure.DI generates a constant inside `Pure.DI.Tag`. For the example below, the generated constants would look like this:
+When the compiler cannot determine a tag value, _Pure.DI_ generates a constant inside `Pure.DI.Tag`. For the example below, the generated constants would look like this:
 
 ```c#
 namespace Pure.DI
@@ -103,6 +103,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Smart tags provide compile-time safety for tag values, reducing runtime errors and improving code maintainability.
 
 The following partial class will be generated:
 

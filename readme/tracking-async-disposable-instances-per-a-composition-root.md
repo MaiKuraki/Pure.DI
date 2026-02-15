@@ -1,5 +1,7 @@
 #### Tracking async disposable instances per a composition root
 
+Demonstrates how async disposable instances are tracked per composition root and disposed asynchronously when the composition is disposed.
+
 
 ```c#
 using Shouldly;
@@ -92,6 +94,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Async disposable tracking ensures proper async cleanup of all disposable instances within a composition scope.
 
 The following partial class will be generated:
 

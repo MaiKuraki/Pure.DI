@@ -1,5 +1,7 @@
 #### AutoMapper
 
+Demonstrates integration with AutoMapper library, showing how Pure.DI can work alongside object mapping solutions.
+
 
 ```c#
 using Shouldly;
@@ -168,6 +170,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>AutoMapper integration enables clean separation between DI container concerns and object mapping logic.
 
 The following partial class will be generated:
 

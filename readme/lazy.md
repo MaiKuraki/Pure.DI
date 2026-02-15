@@ -1,5 +1,7 @@
 #### Lazy
 
+Demonstrates lazy injection using Lazy<T>, delaying instance creation until the Value property is accessed.
+
 
 ```c#
 using Shouldly;
@@ -59,6 +61,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Lazy<T> is useful for expensive-to-create objects or when the instance may never be needed, improving application startup performance.
 
 The following partial class will be generated:
 

@@ -147,6 +147,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>Advanced interception provides high-performance proxy generation for scenarios where runtime interception overhead must be minimized.
+
 The following partial class will be generated:
 
 ```c#

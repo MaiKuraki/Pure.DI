@@ -1,5 +1,7 @@
 #### Keyed service provider
 
+Demonstrates integration with Microsoft.Extensions.DependencyInjection's keyed services feature.
+
 
 ```c#
 using Shouldly;
@@ -94,6 +96,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>This enables compatibility with Microsoft's DI container ecosystem when using keyed service resolution.
 
 The following partial class will be generated:
 

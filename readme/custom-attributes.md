@@ -96,6 +96,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>Custom attributes provide extensibility for advanced scenarios where standard attributes don't meet specific requirements.
+
 The following partial class will be generated:
 
 ```c#

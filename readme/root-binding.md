@@ -58,6 +58,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>`RootBind` reduces boilerplate when you need both a binding and a root for the same type.
+
 The following partial class will be generated:
 
 ```c#

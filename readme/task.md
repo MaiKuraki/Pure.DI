@@ -92,6 +92,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>`Task` injection provides automatic background execution with optional cancellation support for asynchronous operations.
+
 The following partial class will be generated:
 
 ```c#

@@ -106,6 +106,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>Setting default lifetime for types simplifies configuration when the same lifetime is consistently applied.
+
 The following partial class will be generated:
 
 ```c#

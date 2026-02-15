@@ -1,5 +1,7 @@
 #### Simplified lifetime-specific factory
 
+Demonstrates how to create factories with lifetime-specific bindings, providing a concise way to define factories with proper lifetime semantics.
+
 
 ```c#
 using Shouldly;
@@ -84,6 +86,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Lifetime-specific factories combine the convenience of simplified syntax with explicit lifetime control for optimal performance and correctness.
 
 The following partial class will be generated:
 

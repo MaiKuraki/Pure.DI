@@ -1,5 +1,7 @@
 #### Serilog
 
+Demonstrates integration with _Serilog_ logging library, showing how to inject logger instances with context information.
+
 
 ```c#
 using Serilog.Core;
@@ -95,6 +97,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Proper logging integration with DI enables context-aware logging throughout the application with minimal configuration.
 
 The following partial class will be generated:
 

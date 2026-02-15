@@ -1,5 +1,7 @@
 #### Custom generic argument
 
+Demonstrates how to create custom generic arguments for advanced generic binding scenarios.
+
 
 ```c#
 using Shouldly;
@@ -71,6 +73,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Custom generic arguments provide flexibility for complex generic scenarios beyond standard marker types.
 
 The following partial class will be generated:
 

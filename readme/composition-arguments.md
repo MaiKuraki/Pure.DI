@@ -1,8 +1,8 @@
 #### Composition arguments
 
 Use composition arguments when you need to pass state into the composition. Define them with `Arg<T>(string argName)` (optionally with tags) and use them like any other dependency. Only arguments that are used in the object graph become constructor parameters.
-> [!NOTE]
-> Actually, composition arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
+>[!NOTE]
+>Actually, composition arguments work like normal bindings. The difference is that they bind to the values of the arguments. These values will be injected wherever they are required.
 
 
 
@@ -98,6 +98,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Composition arguments provide a way to inject runtime values into the composition, making your DI configuration more flexible.
 
 The following partial class will be generated:
 

@@ -1,7 +1,10 @@
 #### Unity Basics
 
+Demonstrates basic integration with Unity game engine, showing how Pure.DI can be used for dependency injection in Unity projects.
+
 
 ```c#
+using Shouldly;
 using Pure.DI;
 using UnityEngine;
 
@@ -93,10 +96,12 @@ dotnet --list-sdk
 ```bash
 dotnet new console -n Sample
 ```
-- Add a reference to the NuGet package
+- Add references to the NuGet packages
   - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+  - [Shouldly](https://www.nuget.org/packages/Shouldly)
 ```bash
 dotnet add package Pure.DI
+dotnet add package Shouldly
 ```
 - Copy the example code into the _Program.cs_ file
 
@@ -106,6 +111,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Unity integration requires special considerations due to Unity's component-based architecture and lifecycle management.
 
 The following partial class will be generated:
 

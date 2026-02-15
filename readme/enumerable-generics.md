@@ -86,6 +86,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>Generic enumerable injections are useful for implementing middleware patterns where multiple handlers need to be invoked in sequence.
+
 The following partial class will be generated:
 
 ```c#

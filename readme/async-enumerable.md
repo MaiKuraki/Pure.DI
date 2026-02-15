@@ -75,6 +75,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>IAsyncEnumerable<T> provides efficient lazy enumeration for scenarios where you need to process many instances without loading them all into memory at once.
+
 The following partial class will be generated:
 
 ```c#

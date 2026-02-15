@@ -1,6 +1,6 @@
 #### PerResolve
 
-The _PerResolve_ lifetime ensures that there will be one instance of the dependency for each composition root instance.
+The `PerResolve` lifetime ensures that there will be one instance of the dependency for each composition root instance.
 
 
 ```c#
@@ -97,6 +97,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>`PerResolve` lifetime is useful when you want to share a dependency instance within a single composition root resolution.
 
 The following partial class will be generated:
 

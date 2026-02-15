@@ -1,5 +1,7 @@
 #### Generic builder
 
+Demonstrates how to create generic builders for build-up patterns with type parameters.
+
 
 ```c#
 using Shouldly;
@@ -81,6 +83,9 @@ dotnet run
 ```
 
 </details>
+
+>[!NOTE]
+>Generic builders enable flexible object initialization while maintaining type safety across different generic types.
 
 The following partial class will be generated:
 

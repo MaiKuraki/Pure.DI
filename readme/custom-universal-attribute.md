@@ -73,6 +73,9 @@ dotnet run
 
 </details>
 
+>[!NOTE]
+>Universal attributes reduce the number of attributes needed by combining multiple metadata types into a single attribute.
+
 The following partial class will be generated:
 
 ```c#
