@@ -50,6 +50,7 @@ partial class Composition
     // Since this method is needed only at the compile time.
     [Conditional("DI")]
     static void Setup() => DI.Setup()
+        .Hint(Hint.Resolve, "off")
         // Models a random subatomic event that may or may not occur
         .Bind().As(Singleton).To<Random>()
         // Quantum superposition of two states: Alive or Dead

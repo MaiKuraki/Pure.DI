@@ -331,8 +331,9 @@ sealed class FactoryCodeBuilder(
             indents.Add(linePrefix.PrefixLength, indentIndex++);
         }
 
-        foreach (var linePrefix in linePrefixes)
+        for (var i = 0; i < linePrefixes.Count; i++)
         {
+            var linePrefix = linePrefixes[i];
             if (!indents.TryGetValue(linePrefix.PrefixLength, out var indent))
             {
                 indent = 0;
@@ -349,14 +350,28 @@ sealed class FactoryCodeBuilder(
                     var (injection, argument) = (injections[resolversIdx], injectionArgs[resolversIdx]);
                     var resolver = factory.Resolvers[resolversIdx];
                     resolversIdx++;
-                        
+
                     if (hasOverrides)
                     {
                         BuildOverrides(ctx, factory, localVariableRenamingRewriter, resolver.Overrides, lines);
                     }
 
                     yield return variablesCodeBuilderFactory().Build(ctx.CreateChild(argument));
-                    lines.AppendLine($"{(injection.DeclarationRequired ? $"{typeResolver.Resolve(setup, argument.Injection.Type)} " : "")}{injection.VariableName} = {buildTools.OnInjected(ctx, argument)};");
+
+                    var canInlineReturn =
+                        injection.DeclarationRequired
+                        && i + 1 < linePrefixes.Count
+                        && IsReturnOfVariable(linePrefixes[i + 1].Line.Span, injection.VariableName);
+
+                    if (canInlineReturn)
+                    {
+                        lines.AppendLine($"return {buildTools.OnInjected(ctx, argument)};");
+                        i++; // Skip the return line
+                    }
+                    else
+                    {
+                        lines.AppendLine($"{(injection.DeclarationRequired ? $"{typeResolver.Resolve(setup, argument.Injection.Type)} " : "")}{injection.VariableName} = {buildTools.OnInjected(ctx, argument)};");
+                    }
 
                     continue;
                 }
@@ -416,6 +431,18 @@ sealed class FactoryCodeBuilder(
             lines.AppendLine($"{(isDeclared ? "" : $"{typeResolver.Resolve(ctx.RootContext.Graph.Source, @override.Source.ContractType)} ")}{name} = {valueExpression};");
             overridesRegistry.Register(ctx.RootContext.Root, @override);
         }
+    }
+
+    private static bool IsReturnOfVariable(ReadOnlySpan<char> line, string variableName)
+    {
+        var trimmed = line.Trim();
+        if (!trimmed.StartsWith("return ", global::System.StringComparison.Ordinal) || !trimmed.EndsWith(";", global::System.StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var nameSpan = trimmed["return ".Length..^1].Trim();
+        return nameSpan.SequenceEqual(variableName.AsSpan());
     }
 
     private class FactoryInitializationArgsEnumerator(
