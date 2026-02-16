@@ -1,6 +1,6 @@
 #### Method injection
 
-To use dependency implementation for a method, simply add the _Ordinal_ attribute to that method, specifying the sequence number that will be used to define the call to that method:
+To use dependency injection for a method, simply add the _Dependency_ (or _Ordinal_) attribute to that method, specifying the sequence number that will be used to define the call to that method:
 
 
 ```c#
@@ -29,9 +29,9 @@ interface INavigator
 
 class Navigator : INavigator
 {
-    // The Dependency attribute specifies that the container should call this method
-    // to inject the dependency.
-    [Dependency]
+    // The Dependency (or Ordinal) attribute indicates that the method
+    // should be called to inject the dependency.
+    [Dependency(ordinal: 0)]
     public void LoadMap(IMap map) =>
         CurrentMap = map;
 
@@ -69,7 +69,7 @@ dotnet run
 The key points are:
 - The method must be available to be called from a composition class
 - The `Dependency` (or `Ordinal`) attribute is used to mark the method for injection
-- The container automatically calls the method to inject dependencies
+- The DI automatically calls the method to inject dependencies
 
 The following partial class will be generated:
 

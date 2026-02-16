@@ -70,7 +70,7 @@ interface ICheckoutService
 /// <summary>
 /// Represents a singleton infrastructure component.
 /// Think: audit log writer, message producer, telemetry pipeline, DB connection, etc.
-/// It is owned by the DI container and must be disposed asynchronously.
+/// It is owned by the DI composition and must be disposed asynchronously.
 /// </summary>
 sealed class AuditLogWriter : IAsyncDisposable
 {

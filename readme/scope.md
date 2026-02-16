@@ -71,7 +71,7 @@ sealed class CheckoutService(IRequestContext context) : ICheckoutService
     public IRequestContext Context => context;
 }
 
-// Implements a request scope (per-request container)
+// Implements a request scope (per-request composition)
 sealed class RequestScope(Composition parent) : Composition(parent);
 
 partial class App(Func<RequestScope> requestScopeFactory)

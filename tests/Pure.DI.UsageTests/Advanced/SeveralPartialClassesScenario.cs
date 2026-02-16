@@ -75,7 +75,7 @@ partial class Composition
 partial class Composition
 {
     // Public API setup (Composition Roots).
-    // Determines which objects can be retrieved directly from the container.
+    // Determines which objects can be retrieved directly from the composition.
     private static void SetupApi() =>
         DI.Setup()
             .Root<IClassCommenter>("Commenter");

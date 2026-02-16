@@ -1196,7 +1196,7 @@ Advantages:
 - Can be used with legacy code
 
 Use Cases:
-- When objects are created outside the DI container
+- When objects are created outside the DI
 - For working with third-party libraries
 - When migrating existing code to DI
 - For complex object graphs where full construction is not feasible
@@ -1440,7 +1440,7 @@ interface ISmartKitchen
 class SmartKitchen : ISmartKitchen
 {
     // The Dependency attribute specifies to perform an injection.
-    // The container will automatically assign a value to this field
+    // The DI will automatically assign a value to this field
     // when creating the SmartKitchen instance.
     [Dependency]
     public ICoffeeMachine? CoffeeMachineImpl;
@@ -1457,11 +1457,11 @@ To run the above code, the following NuGet packages must be added:
 The key points are:
 - The field must be writable
 - The `Dependency` (or `Ordinal`) attribute is used to mark the field for injection
-- The container automatically injects the dependency when resolving the object graph
+- The DI automatically injects the dependency when resolving the object graph
 
 ## Method injection
 
-To use dependency implementation for a method, simply add the _Ordinal_ attribute to that method, specifying the sequence number that will be used to define the call to that method:
+To use dependency injection for a method, simply add the _Dependency_ (or _Ordinal_) attribute to that method, specifying the sequence number that will be used to define the call to that method:
 
 ```c#
 using Shouldly;
@@ -1489,9 +1489,9 @@ interface INavigator
 
 class Navigator : INavigator
 {
-    // The Dependency attribute specifies that the container should call this method
-    // to inject the dependency.
-    [Dependency]
+    // The Dependency (or Ordinal) attribute indicates that the method
+    // should be called to inject the dependency.
+    [Dependency(ordinal: 0)]
     public void LoadMap(IMap map) =>
         CurrentMap = map;
 
@@ -1506,7 +1506,7 @@ To run the above code, the following NuGet packages must be added:
 The key points are:
 - The method must be available to be called from a composition class
 - The `Dependency` (or `Ordinal`) attribute is used to mark the method for injection
-- The container automatically calls the method to inject dependencies
+- The DI automatically calls the method to inject dependencies
 
 ## Property injection
 
@@ -1553,7 +1553,7 @@ To run the above code, the following NuGet packages must be added:
 The key points are:
 - The property must be writable
 - The `Dependency` (or `Ordinal`) attribute is used to mark the property for injection
-- The container automatically injects the dependency when resolving the object graph
+- The DI automatically injects the dependency when resolving the object graph
 
 ## Default values
 
@@ -1605,7 +1605,7 @@ To run the above code, the following NuGet packages must be added:
 
 The key points are:
 - Default constructor arguments can be used for simple values
-- The DI container will use these defaults if no explicit bindings are provided
+- The DI will use these defaults if no explicit bindings are provided
 
 This example shows how to handle default values in a dependency injection scenario:
 - **Constructor Default Argument**: The `SecuritySystem` class has a constructor with a default value for the name parameter. If no value is provided, "Home Guard" will be used.
@@ -2453,7 +2453,7 @@ sealed class CheckoutService(IRequestContext context) : ICheckoutService
     public IRequestContext Context => context;
 }
 
-// Implements a request scope (per-request container)
+// Implements a request scope (per-request composition)
 sealed class RequestScope(Composition parent) : Composition(parent);
 
 partial class App(Func<RequestScope> requestScopeFactory)
@@ -2940,7 +2940,7 @@ interface ICheckoutService
 /// <summary>
 /// Represents a singleton infrastructure component.
 /// Think: audit log writer, message producer, telemetry pipeline, DB connection, etc.
-/// It is owned by the DI container and must be disposed asynchronously.
+/// It is owned by the DI composition and must be disposed asynchronously.
 /// </summary>
 sealed class AuditLogWriter : IAsyncDisposable
 {
@@ -5207,13 +5207,13 @@ class SqlDatabaseClient : IDatabaseClient
 {
     // The integer value in the argument specifies
     // the ordinal of injection.
-    // The DI container will try to use this constructor first (Ordinal 0).
+    // The DI will try to use this constructor first (Ordinal 0).
     [Ordinal(0)]
     internal SqlDatabaseClient(string connectionString) =>
         ConnectionString = connectionString;
 
     // If the first constructor cannot be used (e.g. connectionString is missing),
-    // the DI container will try to use this one (Ordinal 1).
+    // the DI will try to use this one (Ordinal 1).
     [Ordinal(1)]
     public SqlDatabaseClient(IConfiguration configuration) =>
         ConnectionString = "Server=.;Database=DefaultDb;";
@@ -5814,7 +5814,7 @@ class DiscreteGpu : IGpu
 
 class GraphicsAdapter
 {
-    // Binds the property to the container with the specified
+    // Binds the property to the composition with the specified
     // lifetime and tag. This allows the "HighPerformance" GPU
     // to be injected into other components.
     [Bind(lifetime: Lifetime.Singleton, tags: ["HighPerformance"])]
@@ -6421,7 +6421,7 @@ class BusinessService(IDatabaseAccess databaseAccess) : IBusinessService
 
 partial class Composition
 {
-    // This method is called when a dependency cannot be resolved by the standard DI container.
+    // This method is called when a dependency cannot be resolved by the standard DI.
     // It serves as a fallback mechanism.
     private partial T OnCannotResolve<T>(
         object? tag,
@@ -8143,7 +8143,7 @@ partial class Composition
 partial class Composition
 {
     // Public API setup (Composition Roots).
-    // Determines which objects can be retrieved directly from the container.
+    // Determines which objects can be retrieved directly from the composition.
     private static void SetupApi() =>
         DI.Setup()
             .Root<IClassCommenter>("Commenter");
@@ -8716,7 +8716,7 @@ queryHandler1.ExclusiveConnection.IsDisposed.ShouldBeTrue();
 // The shared connection is STILL alive
 queryHandler1.SharedConnection.IsDisposed.ShouldBeFalse();
 
-// Disposing the composition root container
+// Disposing the  root composition
 // This should dispose all Singletons
 composition.Dispose();
 
@@ -8759,7 +8759,7 @@ class QueryHandler(
         // Disposes the owned instances.
         // For the exclusive connection (Transient), this disposes the actual connection.
         // For the shared connection (Singleton), this just releases the ownership
-        // but does NOT dispose the underlying singleton instance until the container is disposed.
+        // but does NOT dispose the underlying singleton instance until the composition is disposed.
         _exclusiveConnection.Dispose();
         _sharedConnection.Dispose();
     }
@@ -9344,7 +9344,7 @@ To run the above code, the following NuGet packages must be added:
  - [Pure.DI.Abstractions](https://www.nuget.org/packages/Pure.DI.Abstractions)
 
 >[!NOTE]
->AutoMapper integration enables clean separation between DI container concerns and object mapping logic.
+>AutoMapper integration enables clean separation between DI composition concerns and object mapping logic.
 
 ## JSON serialization
 

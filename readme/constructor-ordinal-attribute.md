@@ -35,13 +35,13 @@ class SqlDatabaseClient : IDatabaseClient
 {
     // The integer value in the argument specifies
     // the ordinal of injection.
-    // The DI container will try to use this constructor first (Ordinal 0).
+    // The DI will try to use this constructor first (Ordinal 0).
     [Ordinal(0)]
     internal SqlDatabaseClient(string connectionString) =>
         ConnectionString = connectionString;
 
     // If the first constructor cannot be used (e.g. connectionString is missing),
-    // the DI container will try to use this one (Ordinal 1).
+    // the DI will try to use this one (Ordinal 1).
     [Ordinal(1)]
     public SqlDatabaseClient(IConfiguration configuration) =>
         ConnectionString = "Server=.;Database=DefaultDb;";

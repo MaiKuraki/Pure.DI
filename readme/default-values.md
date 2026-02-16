@@ -72,7 +72,7 @@ dotnet run
 
 The key points are:
 - Default constructor arguments can be used for simple values
-- The DI container will use these defaults if no explicit bindings are provided
+- The DI will use these defaults if no explicit bindings are provided
 
 This example shows how to handle default values in a dependency injection scenario:
 - **Constructor Default Argument**: The `SecuritySystem` class has a constructor with a default value for the name parameter. If no value is provided, "Home Guard" will be used.

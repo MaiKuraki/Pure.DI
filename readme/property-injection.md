@@ -67,7 +67,7 @@ dotnet run
 The key points are:
 - The property must be writable
 - The `Dependency` (or `Ordinal`) attribute is used to mark the property for injection
-- The container automatically injects the dependency when resolving the object graph
+- The DI automatically injects the dependency when resolving the object graph
 
 The following partial class will be generated:
 

@@ -1196,7 +1196,7 @@ Advantages:
 - Can be used with legacy code
 
 Use Cases:
-- When objects are created outside the DI container
+- When objects are created outside the DI
 - For working with third-party libraries
 - When migrating existing code to DI
 - For complex object graphs where full construction is not feasible
@@ -1440,7 +1440,7 @@ interface ISmartKitchen
 class SmartKitchen : ISmartKitchen
 {
     // The Dependency attribute specifies to perform an injection.
-    // The container will automatically assign a value to this field
+    // The DI will automatically assign a value to this field
     // when creating the SmartKitchen instance.
     [Dependency]
     public ICoffeeMachine? CoffeeMachineImpl;
@@ -1457,11 +1457,11 @@ To run the above code, the following NuGet packages must be added:
 The key points are:
 - The field must be writable
 - The `Dependency` (or `Ordinal`) attribute is used to mark the field for injection
-- The container automatically injects the dependency when resolving the object graph
+- The DI automatically injects the dependency when resolving the object graph
 
 ## Method injection
 
-To use dependency implementation for a method, simply add the _Ordinal_ attribute to that method, specifying the sequence number that will be used to define the call to that method:
+To use dependency injection for a method, simply add the _Dependency_ (or _Ordinal_) attribute to that method, specifying the sequence number that will be used to define the call to that method:
 
 ```c#
 using Shouldly;
@@ -1489,9 +1489,9 @@ interface INavigator
 
 class Navigator : INavigator
 {
-    // The Dependency attribute specifies that the container should call this method
-    // to inject the dependency.
-    [Dependency]
+    // The Dependency (or Ordinal) attribute indicates that the method
+    // should be called to inject the dependency.
+    [Dependency(ordinal: 0)]
     public void LoadMap(IMap map) =>
         CurrentMap = map;
 
@@ -1506,7 +1506,7 @@ To run the above code, the following NuGet packages must be added:
 The key points are:
 - The method must be available to be called from a composition class
 - The `Dependency` (or `Ordinal`) attribute is used to mark the method for injection
-- The container automatically calls the method to inject dependencies
+- The DI automatically calls the method to inject dependencies
 
 ## Property injection
 
@@ -1553,7 +1553,7 @@ To run the above code, the following NuGet packages must be added:
 The key points are:
 - The property must be writable
 - The `Dependency` (or `Ordinal`) attribute is used to mark the property for injection
-- The container automatically injects the dependency when resolving the object graph
+- The DI automatically injects the dependency when resolving the object graph
 
 ## Default values
 
@@ -1605,7 +1605,7 @@ To run the above code, the following NuGet packages must be added:
 
 The key points are:
 - Default constructor arguments can be used for simple values
-- The DI container will use these defaults if no explicit bindings are provided
+- The DI will use these defaults if no explicit bindings are provided
 
 This example shows how to handle default values in a dependency injection scenario:
 - **Constructor Default Argument**: The `SecuritySystem` class has a constructor with a default value for the name parameter. If no value is provided, "Home Guard" will be used.
@@ -2788,13 +2788,13 @@ class SqlDatabaseClient : IDatabaseClient
 {
     // The integer value in the argument specifies
     // the ordinal of injection.
-    // The DI container will try to use this constructor first (Ordinal 0).
+    // The DI will try to use this constructor first (Ordinal 0).
     [Ordinal(0)]
     internal SqlDatabaseClient(string connectionString) =>
         ConnectionString = connectionString;
 
     // If the first constructor cannot be used (e.g. connectionString is missing),
-    // the DI container will try to use this one (Ordinal 1).
+    // the DI will try to use this one (Ordinal 1).
     [Ordinal(1)]
     public SqlDatabaseClient(IConfiguration configuration) =>
         ConnectionString = "Server=.;Database=DefaultDb;";

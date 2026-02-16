@@ -6,7 +6,7 @@ $h=To use dependency injection on a property, make sure the property is writable
 $f=The key points are:
 $f=- The property must be writable
 $f=- The `Dependency` (or `Ordinal`) attribute is used to mark the property for injection
-$f=- The container automatically injects the dependency when resolving the object graph
+$f=- The DI automatically injects the dependency when resolving the object graph
 $r=Shouldly
 */
 

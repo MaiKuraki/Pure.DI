@@ -81,7 +81,7 @@ class BusinessService(IDatabaseAccess databaseAccess) : IBusinessService
 
 partial class Composition
 {
-    // This method is called when a dependency cannot be resolved by the standard DI container.
+    // This method is called when a dependency cannot be resolved by the standard DI.
     // It serves as a fallback mechanism.
     private partial T OnCannotResolve<T>(
         object? tag,

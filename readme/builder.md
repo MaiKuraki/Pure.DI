@@ -83,7 +83,7 @@ Advantages:
 - Can be used with legacy code
 
 Use Cases:
-- When objects are created outside the DI container
+- When objects are created outside the DI
 - For working with third-party libraries
 - When migrating existing code to DI
 - For complex object graphs where full construction is not feasible

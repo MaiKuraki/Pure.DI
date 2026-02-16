@@ -2,11 +2,11 @@
 $v=true
 $p=9
 $d=Method injection
-$h=To use dependency implementation for a method, simply add the _Ordinal_ attribute to that method, specifying the sequence number that will be used to define the call to that method:
+$h=To use dependency injection for a method, simply add the _Dependency_ (or _Ordinal_) attribute to that method, specifying the sequence number that will be used to define the call to that method:
 $f=The key points are:
 $f=- The method must be available to be called from a composition class
 $f=- The `Dependency` (or `Ordinal`) attribute is used to mark the method for injection
-$f=- The container automatically calls the method to inject dependencies
+$f=- The DI automatically calls the method to inject dependencies
 $r=Shouldly
 */
 
@@ -59,9 +59,9 @@ interface INavigator
 
 class Navigator : INavigator
 {
-    // The Dependency attribute specifies that the container should call this method
-    // to inject the dependency.
-    [Dependency]
+    // The Dependency (or Ordinal) attribute indicates that the method
+    // should be called to inject the dependency.
+    [Dependency(ordinal: 0)]
     public void LoadMap(IMap map) =>
         CurrentMap = map;
 

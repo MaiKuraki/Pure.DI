@@ -172,7 +172,7 @@ dotnet run
 </details>
 
 >[!NOTE]
->AutoMapper integration enables clean separation between DI container concerns and object mapping logic.
+>AutoMapper integration enables clean separation between DI composition concerns and object mapping logic.
 
 The following partial class will be generated:
 

@@ -6,7 +6,7 @@ $h=To use dependency injection for a field, make sure the field is writable and 
 $f=The key points are:
 $f=- The field must be writable
 $f=- The `Dependency` (or `Ordinal`) attribute is used to mark the field for injection
-$f=- The container automatically injects the dependency when resolving the object graph
+$f=- The DI automatically injects the dependency when resolving the object graph
 $r=Shouldly
 */
 
@@ -61,7 +61,7 @@ interface ISmartKitchen
 class SmartKitchen : ISmartKitchen
 {
     // The Dependency attribute specifies to perform an injection.
-    // The container will automatically assign a value to this field
+    // The DI will automatically assign a value to this field
     // when creating the SmartKitchen instance.
     [Dependency]
     public ICoffeeMachine? CoffeeMachineImpl;

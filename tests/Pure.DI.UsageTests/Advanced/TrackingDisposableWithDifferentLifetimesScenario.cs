@@ -64,7 +64,7 @@ public class Scenario
         // The shared connection is STILL alive
         queryHandler1.SharedConnection.IsDisposed.ShouldBeFalse();
 
-        // Disposing the composition root container
+        // Disposing the  root composition
         // This should dispose all Singletons
         composition.Dispose();
 
@@ -112,7 +112,7 @@ class QueryHandler(
         // Disposes the owned instances.
         // For the exclusive connection (Transient), this disposes the actual connection.
         // For the shared connection (Singleton), this just releases the ownership
-        // but does NOT dispose the underlying singleton instance until the container is disposed.
+        // but does NOT dispose the underlying singleton instance until the composition is disposed.
         _exclusiveConnection.Dispose();
         _sharedConnection.Dispose();
     }

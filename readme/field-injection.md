@@ -30,7 +30,7 @@ interface ISmartKitchen
 class SmartKitchen : ISmartKitchen
 {
     // The Dependency attribute specifies to perform an injection.
-    // The container will automatically assign a value to this field
+    // The DI will automatically assign a value to this field
     // when creating the SmartKitchen instance.
     [Dependency]
     public ICoffeeMachine? CoffeeMachineImpl;
@@ -70,7 +70,7 @@ dotnet run
 The key points are:
 - The field must be writable
 - The `Dependency` (or `Ordinal`) attribute is used to mark the field for injection
-- The container automatically injects the dependency when resolving the object graph
+- The DI automatically injects the dependency when resolving the object graph
 
 The following partial class will be generated:
 

@@ -30,7 +30,7 @@ class DiscreteGpu : IGpu
 
 class GraphicsAdapter
 {
-    // Binds the property to the container with the specified
+    // Binds the property to the composition with the specified
     // lifetime and tag. This allows the "HighPerformance" GPU
     // to be injected into other components.
     [Bind(lifetime: Lifetime.Singleton, tags: ["HighPerformance"])]
