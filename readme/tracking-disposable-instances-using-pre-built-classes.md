@@ -184,8 +184,7 @@ partial class Composition: IDisposable
           perBlockOwn149.Add(transientOwn150);
         }
 
-        Abstractions.Own<IDbConnection> localValue7 = transientOwn150;
-        return localValue7;
+        return transientOwn150;
       });
       var perBlockOwn152 = new Abstractions.Own();
       Func<Abstractions.Own<IDbConnection>> transientFunc148 = new Func<Abstractions.Own<IDbConnection>>(
@@ -210,8 +209,7 @@ partial class Composition: IDisposable
           perBlockOwn152.Add(transientOwn153);
         }
 
-        Abstractions.Own<IDbConnection> localValue9 = transientOwn153;
-        return localValue9;
+        return transientOwn153;
       });
       return new DataService(transientFunc147, transientFunc148);
     }

@@ -81,8 +81,7 @@ partial class Composition
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        IGraphicsEngine localValue23 = new GraphicsEngine();
-        return localValue23;
+        return new GraphicsEngine();
       });
       Func<IGraphicsEngine> localFactory3 = transientFunc377;
       // Creates an instance that supports lazy initialization

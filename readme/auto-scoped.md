@@ -163,8 +163,7 @@ partial class Composition
         // Create a child scope so scoped services (PlaybackQueue) are unique per session.
         var localScope = new Composition(localParentScope);
         transientIListeningSession533 = localScope.Session;
-        IListeningSession localValue33 = transientIListeningSession533;
-        return localValue33;
+        return transientIListeningSession533;
       });
       return new MusicApp(transientFunc532);
     }

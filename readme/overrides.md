@@ -173,8 +173,7 @@ partial class Composition
               _singletonClock52 = new Clock();
             }
 
-        Widget localWidget = new Widget(overriddenString2, _singletonClock52, overriddenInt32, overriddenInt324, overriddenColor5);
-        return localWidget;
+        return new Widget(overriddenString2, _singletonClock52, overriddenInt32, overriddenInt324, overriddenColor5);
       };
       return new Dashboard(transientFunc281);
     }

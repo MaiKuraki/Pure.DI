@@ -180,8 +180,7 @@ partial class Composition
                 _singletonTimeProvider52 = new TimeProvider();
               }
 
-          OrderHandler localHandler = new OrderHandler(overriddenString2, _singletonTimeProvider52, overriddenInt32, overriddenInt321, overriddenProcessingToken3);
-          return localHandler;
+          return new OrderHandler(overriddenString2, _singletonTimeProvider52, overriddenInt32, overriddenInt321, overriddenProcessingToken3);
         }
       };
       return new OrderBatchProcessor(transientFunc116);

@@ -115,8 +115,7 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
-      IUserPreferences localValue24 = new UserPreferences();
-      return localValue24;
+      return new UserPreferences();
     });
     Func<IUserPreferences> localFactory4 = transientFunc381;
     CancellationToken localCancellationToken1 = cancellationToken;

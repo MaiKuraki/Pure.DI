@@ -177,8 +177,7 @@ partial class Composition: IDisposable, IAsyncDisposable
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        Session localValue32 = new Session(this);
-        return localValue32;
+        return new Session(this);
       });
       return new Program(transientFunc524);
     }

@@ -117,8 +117,7 @@ partial class Composition
         EnsureDeviceFeatureProviderExists();
         DeviceFeatureProvider localInstance_1182D1278 = _singletonDeviceFeatureProvider51;
         transientICamera212 = localInstance_1182D1278.Camera;
-        ICamera localValue16 = transientICamera212;
-        return localValue16;
+        return transientICamera212;
       });
       return new PhotoService(transientIGps209, transientFunc210);
       [MethodImpl(MethodImplOptions.AggressiveInlining)]

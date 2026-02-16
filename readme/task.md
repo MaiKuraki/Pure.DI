@@ -115,8 +115,7 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
-      IDataService localValue25 = new DataService();
-      return localValue25;
+      return new DataService();
     });
     Func<IDataService> localFactory5 = transientFunc399;
     // Injects a task factory creating and scheduling task objects

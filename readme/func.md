@@ -120,8 +120,7 @@ partial class Composition
               _singletonTicketIdGenerator51 = new TicketIdGenerator();
             }
 
-        ITicket localValue20 = new Ticket(_singletonTicketIdGenerator51);
-        return localValue20;
+        return new Ticket(_singletonTicketIdGenerator51);
       });
       return new QueueTerminal(transientFunc361);
     }

@@ -82,8 +82,7 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
-      IBackupService localValue15 = new BackupService(new FileStore());
-      return localValue15;
+      return new BackupService(new FileStore());
     });
     Func<IBackupService> localFactory = transientFunc195;
     // Injects a task factory creating and scheduling task objects

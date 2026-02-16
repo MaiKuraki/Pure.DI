@@ -118,8 +118,7 @@ partial class Composition
       () =>
       {
         Queue transientQueue86 = new Queue(42);
-        IQueue localValue = transientQueue86;
-        return localValue;
+        return transientQueue86;
       });
       return new QueueService(transientQueue83, transientFunc84, transientQueue85);
     }

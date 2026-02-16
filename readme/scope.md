@@ -190,8 +190,7 @@ partial class Composition: IDisposable
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        RequestScope localValue34 = new RequestScope(this);
-        return localValue34;
+        return new RequestScope(this);
       });
       return new App(transientFunc554);
     }

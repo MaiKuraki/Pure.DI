@@ -153,8 +153,7 @@ partial class Composition
           perBlockOwned126.Add(transientOwned127);
         }
 
-        Owned<IConnection> localValue1 = transientOwned127;
-        return localValue1;
+        return transientOwned127;
       });
       return new QueryService(transientFunc125);
     }

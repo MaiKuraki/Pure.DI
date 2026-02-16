@@ -159,11 +159,9 @@ partial class Composition
         {
           // Inner override applies to repository dependencies only.
           IRequestContext overriddenIRequestContext6 = RequestContext.System;
-          IRepository localRepository1 = new Repository(overriddenIRequestContext6);
-          return localRepository1;
+          return new Repository(overriddenIRequestContext6);
         };
-        Handler localHandler1 = new Handler(new Service(overriddenIRequestContext6, transientFunc599, new AuditWriter(overriddenIRequestContext6)));
-        return localHandler1;
+        return new Handler(new Service(overriddenIRequestContext6, transientFunc599, new AuditWriter(overriddenIRequestContext6)));
       };
       return transientFunc595;
     }

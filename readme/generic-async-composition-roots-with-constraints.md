@@ -112,8 +112,7 @@ partial class Composition
       StatusQuery<T3> transientStatusQuery429;
       IConnectionProvider<T3> localConnectionProvider = new ConnectionProvider<T3>();
       transientStatusQuery429 = new StatusQuery<T3>(localConnectionProvider);
-      IQuery<T3, bool> localValue27 = transientStatusQuery429;
-      return localValue27;
+      return transientStatusQuery429;
     });
     Func<IQuery<T3, bool>> localFactory6 = transientFunc427;
     // Injects a task factory creating and scheduling task objects
@@ -143,8 +142,7 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
-      IQuery<T3, T4> localValue28 = new DataQuery<T3, T4>(new ConnectionProvider<T3>());
-      return localValue28;
+      return new DataQuery<T3, T4>(new ConnectionProvider<T3>());
     });
     Func<IQuery<T3, T4>> localFactory7 = transientFunc436;
     // Injects a task factory creating and scheduling task objects

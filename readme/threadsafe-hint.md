@@ -75,8 +75,7 @@ partial class Composition
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         () =>
         {
-          IDatabaseConnection localValue31 = new SqlDatabaseConnection();
-          return localValue31;
+          return new SqlDatabaseConnection();
         });
         _singletonReportGenerator52 = new ReportGenerator(transientFunc509);
       }

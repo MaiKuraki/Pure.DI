@@ -117,8 +117,7 @@ partial class Composition
             () =>
             {
               Guid transientGuid326 = Guid.NewGuid();
-              Guid localValue19 = transientGuid326;
-              return localValue19;
+              return transientGuid326;
             });
             FileLogger localLogger5 = new FileLogger(transientFunc325);
             DateTime transientDateTime324 = DateTime.Today;

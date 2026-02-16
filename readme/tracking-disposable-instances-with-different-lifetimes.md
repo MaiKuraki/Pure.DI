@@ -184,8 +184,7 @@ partial class Composition: IDisposable
           perBlockOwned158.Add(transientOwned159);
         }
 
-        Owned<IConnection> localValue11 = transientOwned159;
-        return localValue11;
+        return transientOwned159;
       });
       var perBlockOwned162 = new Owned();
       Func<Owned<IConnection>> transientFunc157 = new Func<Owned<IConnection>>(
@@ -218,8 +217,7 @@ partial class Composition: IDisposable
           perBlockOwned162.Add(transientOwned163);
         }
 
-        Owned<IConnection> localValue13 = transientOwned163;
-        return localValue13;
+        return transientOwned163;
       });
       return new QueryHandler(transientFunc156, transientFunc157);
     }

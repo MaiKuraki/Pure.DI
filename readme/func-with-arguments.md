@@ -133,8 +133,7 @@ partial class Composition
                 _singletonClock51 = new Clock();
               }
 
-          IPerson localValue21 = new Person(overriddenString2, _singletonClock51, overriddenInt32);
-          return localValue21;
+          return new Person(overriddenString2, _singletonClock51, overriddenInt32);
         }
       });
       transientFunc365 = localFactory2;

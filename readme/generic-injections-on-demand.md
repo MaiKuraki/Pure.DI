@@ -86,8 +86,7 @@ partial class Composition
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        IWorker<int> localValue30 = new Worker<int>();
-        return localValue30;
+        return new Worker<int>();
       });
       return new Distributor<int>(transientFunc470);
     }

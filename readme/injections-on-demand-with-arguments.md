@@ -105,8 +105,7 @@ partial class Composition
         lock (_lock)
         {
           int overriddenInt32 = localArg18;
-          ISensor localValue18 = new Sensor(overriddenInt32);
-          return localValue18;
+          return new Sensor(overriddenInt32);
         }
       });
       transientFunc272 = localFactory1;
