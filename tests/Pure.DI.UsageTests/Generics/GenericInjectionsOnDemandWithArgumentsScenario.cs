@@ -12,7 +12,7 @@ $r=Shouldly
 // ReSharper disable CheckNamespace
 // ReSharper disable ArrangeTypeModifiers
 // ReSharper disable UnusedTypeParameter
-namespace Pure.DI.UsageTests.Generics.GenericInjectionsAsRequiredWithArgumentsScenario;
+namespace Pure.DI.UsageTests.Generics.GenericInjectionsOnDemandWithArgumentsScenario;
 
 using Shouldly;
 using Xunit;

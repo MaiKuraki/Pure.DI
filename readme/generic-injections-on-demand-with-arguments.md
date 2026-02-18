@@ -77,5 +77,82 @@ dotnet run
 >[!NOTE]
 >Generic factories with arguments allow passing runtime parameters while maintaining type safety.
 
+The following partial class will be generated:
 
+```c#
+partial class Composition
+{
+#if NET9_0_OR_GREATER
+  private readonly Lock _lock = new Lock();
+#else
+  private readonly Object _lock = new Object();
+#endif
+
+  public ISensorHub<string> SensorHub
+  {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    get
+    {
+      Func<int, ISensor<string>> transientFunc469;
+      Func<int, ISensor<string>> localFactory8 = new Func<int, ISensor<string>>((int localArg18) =>
+      {
+        lock (_lock)
+        {
+          int overriddenInt32 = localArg18;
+          return new Sensor<string>(overriddenInt32);
+        }
+      });
+      transientFunc469 = localFactory8;
+      return new SensorHub<string>(transientFunc469);
+    }
+  }
+}
+```
+
+Class diagram:
+
+```mermaid
+---
+ config:
+  maxTextSize: 2147483647
+  maxEdges: 2147483647
+  class:
+   hideEmptyMembersBox: true
+---
+classDiagram
+	SensorHubᐸStringᐳ --|> ISensorHubᐸStringᐳ
+	SensorᐸStringᐳ --|> ISensorᐸStringᐳ
+	Composition ..> SensorHubᐸStringᐳ : ISensorHubᐸStringᐳ SensorHub
+	SensorHubᐸStringᐳ o-- "PerBlock" FuncᐸInt32ˏISensorᐸStringᐳᐳ : FuncᐸInt32ˏISensorᐸStringᐳᐳ
+	FuncᐸInt32ˏISensorᐸStringᐳᐳ *--  SensorᐸStringᐳ : ISensorᐸStringᐳ
+	SensorᐸStringᐳ *--  Int32 : Int32
+	namespace Pure.DI.UsageTests.Generics.GenericInjectionsOnDemandWithArgumentsScenario {
+		class Composition {
+		<<partial>>
+		+ISensorHubᐸStringᐳ SensorHub
+		}
+		class ISensorHubᐸStringᐳ {
+			<<interface>>
+		}
+		class ISensorᐸStringᐳ {
+			<<interface>>
+		}
+		class SensorHubᐸStringᐳ {
+				<<class>>
+			+SensorHub(FuncᐸInt32ˏISensorᐸStringᐳᐳ sensorFactory)
+		}
+		class SensorᐸStringᐳ {
+				<<class>>
+			+Sensor(Int32 id)
+		}
+	}
+	namespace System {
+		class FuncᐸInt32ˏISensorᐸStringᐳᐳ {
+				<<delegate>>
+		}
+		class Int32 {
+			<<struct>>
+		}
+	}
+```
 

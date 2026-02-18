@@ -82,13 +82,13 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<IWorker<int>> transientFunc470 = new Func<IWorker<int>>(
+      Func<IWorker<int>> transientFunc466 = new Func<IWorker<int>>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
         return new Worker<int>();
       });
-      return new Distributor<int>(transientFunc470);
+      return new Distributor<int>(transientFunc466);
     }
   }
 }
