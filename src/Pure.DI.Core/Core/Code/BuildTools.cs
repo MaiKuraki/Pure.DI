@@ -2,6 +2,7 @@
 // ReSharper disable ClassNeverInstantiated.Global
 
 // ReSharper disable MoveLocalFunctionAfterJumpStatement
+#pragma warning disable RS1024 // Pure.DI intentionally uses ITypeSymbolComparer to control nullable-reference contract equality.
 namespace Pure.DI.Core.Code;
 
 using static LinesExtensions;
@@ -13,7 +14,8 @@ sealed class BuildTools(
     IUniqueNameProvider uniqueNameProvider,
     ILocks locks,
     ISymbolNames symbolNames,
-    ICompilations compilations)
+    ICompilations compilations,
+    ITypeSymbolComparer typeSymbolComparer)
     : IBuildTools
 {
     public string NullCheck(Compilation compilation, string variableName)
@@ -47,10 +49,10 @@ sealed class BuildTools(
             return new Lines();
         }
 
-        var baseTypes = new Lazy<ImmutableHashSet<ISymbol?>>(() =>
+        var baseTypes = new Lazy<ImmutableHashSet<ITypeSymbol>>(() =>
             baseSymbolsProvider.GetBaseSymbols(varInjection.Var.InstanceType, (_, _) => true)
                 .Select(i => i.Type)
-                .ToImmutableHashSet(SymbolEqualityComparer.Default));
+                .ToImmutableHashSet(typeSymbolComparer.Runtime));
 
         var accLines = ctx.Accumulators
             .Where(acc => acc.Lifetime == varInjection.Var.AbstractNode.Lifetime)
@@ -142,8 +144,7 @@ sealed class BuildTools(
             }
         }
 
-        if (varInjection.Var.InstanceType.IsReferenceType
-            && varInjection.Var.InstanceType.NullableAnnotation == NullableAnnotation.Annotated
+        if (varInjection.Var.InstanceType is { IsReferenceType: true, NullableAnnotation: NullableAnnotation.Annotated }
             && varInjection.ContractType.NullableAnnotation != NullableAnnotation.Annotated)
         {
             variableCode = $"{variableCode}!";

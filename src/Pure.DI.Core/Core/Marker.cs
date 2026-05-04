@@ -5,13 +5,14 @@ namespace Pure.DI.Core;
 sealed class Marker(
     IGenericTypeArguments genericTypeArguments,
     ICache<Marker.BasedMarkerKey, bool> markerBasedCache,
-    ICache<Marker.MarkerKey, bool> markerCache): IMarker
+    ICache<Marker.MarkerKey, bool> markerCache,
+    ITypeSymbolComparer typeSymbolComparer): IMarker
 {
     public bool IsMarkerBased(MdSetup setup, ITypeSymbol type) =>
-        markerBasedCache.Get(new BasedMarkerKey(type), _ => IsMarkerBasedInternal(setup, type));
+        markerBasedCache.Get(new BasedMarkerKey(type, typeSymbolComparer), _ => IsMarkerBasedInternal(setup, type));
 
     public bool IsMarker(MdSetup setup, ITypeSymbol type) =>
-        markerCache.Get(new MarkerKey(type), _ => IsMarkerInternal(setup, type));
+        markerCache.Get(new MarkerKey(type, typeSymbolComparer), _ => IsMarkerInternal(setup, type));
 
     private bool IsMarkerBasedInternal(MdSetup setup, ITypeSymbol type) =>
         IsMarker(setup, type) || type switch
@@ -28,17 +29,17 @@ sealed class Marker(
             .Where(i => i.AttributeClass is not null)
             .Any(i => genericTypeArguments.IsGenericTypeArgumentAttribute(setup, i.AttributeClass!));
 
-    internal class MarkerKeyBase(ITypeSymbol typeSymbol)
+    internal class MarkerKeyBase(ITypeSymbol typeSymbol, ITypeSymbolComparer typeSymbolComparer)
     {
         private readonly ITypeSymbol _typeSymbol = typeSymbol;
 
         public override bool Equals(object? obj) =>
-            SymbolEqualityComparer.Default.Equals(_typeSymbol, (obj as MarkerKeyBase)?._typeSymbol);
+            obj is MarkerKeyBase other && typeSymbolComparer.RuntimeEquals(_typeSymbol, other._typeSymbol);
 
-        public override int GetHashCode() => SymbolEqualityComparer.Default.GetHashCode(_typeSymbol);
+        public override int GetHashCode() => typeSymbolComparer.GetRuntimeHashCode(_typeSymbol);
     }
 
-    internal class BasedMarkerKey(ITypeSymbol typeSymbol) : MarkerKeyBase(typeSymbol);
+    internal class BasedMarkerKey(ITypeSymbol typeSymbol, ITypeSymbolComparer typeSymbolComparer) : MarkerKeyBase(typeSymbol, typeSymbolComparer);
 
-    internal class MarkerKey(ITypeSymbol typeSymbol) : MarkerKeyBase(typeSymbol);
+    internal class MarkerKey(ITypeSymbol typeSymbol, ITypeSymbolComparer typeSymbolComparer) : MarkerKeyBase(typeSymbol, typeSymbolComparer);
 }

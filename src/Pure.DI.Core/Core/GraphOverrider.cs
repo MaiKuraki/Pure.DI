@@ -180,7 +180,7 @@ class GraphOverrider(
             }
 
             var currentDependency = dependency with { Target = targetNode };
-            if (!localNodesMap.TryGetValue(currentDependency.Injection, out var overridingSourceNode))
+            if (!TryGetOverride(localNodesMap, currentDependency.Injection, out var overridingSourceNode))
             {
                 var sourceOverrides = new Dictionary<int, DpOverride>(overridesMap);
                 var source = Override(
@@ -249,5 +249,25 @@ class GraphOverrider(
         }
 
         return localNodesMap;
+    }
+
+    private static bool TryGetOverride(
+        Dictionary<Injection, DependencyNode> localNodesMap,
+        Injection injection,
+        [NotNullWhen(true)] out DependencyNode? overridingSourceNode)
+    {
+        if (localNodesMap.TryGetValue(injection, out overridingSourceNode))
+        {
+            return true;
+        }
+
+        if (injection.Type is { IsReferenceType: true, NullableAnnotation: NullableAnnotation.Annotated })
+        {
+            return localNodesMap.TryGetValue(
+                injection with { Type = injection.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated) },
+                out overridingSourceNode);
+        }
+
+        return false;
     }
 }

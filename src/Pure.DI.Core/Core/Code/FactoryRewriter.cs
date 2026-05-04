@@ -409,7 +409,7 @@ sealed class FactoryRewriter(
                         : SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression, SyntaxFactory.Token(SyntaxKind.FalseKeyword));
 
                 case nameof(IContext.RootType):
-                    return SyntaxFactory.ParseExpression($"typeof({typeResolver.Resolve(_ctx!.RootContext.Graph.Source, _ctx!.RootContext.Root.Injection.Type)})");
+                    return SyntaxFactory.ParseExpression($"typeof({typeResolver.ResolveRuntime(_ctx!.RootContext.Graph.Source, _ctx!.RootContext.Root.Injection.Type)})");
 
                 case nameof(IContext.RootName):
                     return SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(_ctx!.RootContext.Root.DisplayName));
@@ -427,7 +427,7 @@ sealed class FactoryRewriter(
     {
         foreach (var parent in _ctx?.Parents.Reverse() ?? [])
         {
-            yield return $"typeof({typeResolver.Resolve(setup, parent.Var.InstanceType)})";
+            yield return $"typeof({typeResolver.ResolveRuntime(setup, parent.Var.InstanceType)})";
         }
 
         yield return $"typeof({_ctx!.RootContext.Graph.Source.Name.FullName})";

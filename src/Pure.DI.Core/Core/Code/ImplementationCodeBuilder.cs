@@ -176,7 +176,8 @@ sealed class ImplementationCodeBuilder(
             .ToList();
 
         var args = string.Join(", ", ctorArgs.Select(i => buildTools.OnInjected(ctx, i)));
-        code.Append(var.InstanceType.IsTupleType ? $"({args})" : $"new {typeResolver.Resolve(ctx.RootContext.Graph.Source, var.InstanceType)}({args})");
+        var instanceType = RemoveNullableAnnotation(var.InstanceType);
+        code.Append(var.InstanceType.IsTupleType ? $"({args})" : $"new {typeResolver.Resolve(ctx.RootContext.Graph.Source, instanceType)}({args})");
         if (required.Count > 0)
         {
             code.Append($" {LinesExtensions.BlockStart} ");
@@ -191,4 +192,12 @@ sealed class ImplementationCodeBuilder(
 
         return code.ToString();
     }
+
+    private static ITypeSymbol RemoveNullableAnnotation(ITypeSymbol type) =>
+        type switch
+        {
+            INamedTypeSymbol namedType => namedType.WithNullableAnnotation(NullableAnnotation.NotAnnotated),
+            IArrayTypeSymbol arrayType => arrayType.WithNullableAnnotation(NullableAnnotation.NotAnnotated),
+            _ => type.WithNullableAnnotation(NullableAnnotation.NotAnnotated)
+        };
 }

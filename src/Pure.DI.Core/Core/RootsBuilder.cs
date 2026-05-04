@@ -4,7 +4,8 @@ namespace Pure.DI.Core;
 
 sealed class RootsBuilder(
     IFastBuilder<ContractsBuildContext, ISet<Injection>> contractsBuilder,
-    IBaseSymbolsProvider baseSymbolsProvider)
+    IBaseSymbolsProvider baseSymbolsProvider,
+    ITypeSymbolComparer typeSymbolComparer)
     : IBuilder<DependencyGraph, DependencyGraph>
 {
     public DependencyGraph Build(DependencyGraph dependencyGraph)
@@ -47,9 +48,10 @@ sealed class RootsBuilder(
             node = rootDependencies.Single().Source;
 
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var injection in contractsBuilder.Build(new ContractsBuildContext(node.Binding, MdTag.ContextTag, root.Injection.Tag)).Where(i => i == root.Injection).Take(1))
+            // ReSharper disable once UnusedVariable
+            foreach (var injection in contractsBuilder.Build(new ContractsBuildContext(node.Binding, MdTag.ContextTag, root.Injection.Tag)).Where(i => IsRootContractMatch(i, root.Injection)).Take(1))
             {
-                var rootInjection = ReferenceEquals(injection.Tag, MdTag.ContextTag) ? injection with { Tag = null } : injection;
+                var rootInjection = ReferenceEquals(root.Injection.Tag, MdTag.ContextTag) ? root.Injection with { Tag = null } : root.Injection;
                 rootsPairs.Add(new KeyValuePair<Injection, Root>(
                     rootInjection,
                     new Root(
@@ -75,17 +77,28 @@ sealed class RootsBuilder(
         return dependencyGraph with { Roots = roots };
     }
 
+    private static bool IsRootContractMatch(Injection contractInjection, Injection rootInjection)
+    {
+        if (contractInjection == rootInjection)
+        {
+            return true;
+        }
+
+        return rootInjection.Type is { IsReferenceType: true, NullableAnnotation: NullableAnnotation.Annotated }
+            && contractInjection == rootInjection with { Type = rootInjection.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated) };
+    }
+
     private bool IsValidRoot(MdRoot root, INamedTypeSymbol? compositionType)
     {
         var rootType = root.RootType;
-        if (root.IsBuilder && SymbolEqualityComparer.Default.Equals(rootType, compositionType))
+        if (root.IsBuilder && typeSymbolComparer.RuntimeEquals(rootType, compositionType))
         {
             // Skip builders for the composition type
             return false;
         }
 
         // Check implemented
-        return baseSymbolsProvider.GetBaseSymbols(rootType, (baseType, _) => SymbolEqualityComparer.Default.Equals(root.RootContractType, baseType)).Any();
+        return baseSymbolsProvider.GetBaseSymbols(rootType, (baseType, _) => typeSymbolComparer.RuntimeEquals(root.RootContractType, baseType)).Any();
     }
 
     private static Root CreateRoot((IEnumerable<KeyValuePair<Injection, Root>> byInjection, int index) group) =>

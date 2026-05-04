@@ -30,7 +30,7 @@ sealed class FactoryDependencyNodeBuilder(
                 }
 
                 locations = locations.AddRange(resolver.ContractType.Locations);
-                var injection = new Injection(InjectionKind.FactoryInjection, RefKind.None, resolver.ContractType.WithNullableAnnotation(NullableAnnotation.NotAnnotated), tag, locations);
+                var injection = new Injection(InjectionKind.FactoryInjection, RefKind.None, resolver.ContractType, tag, locations);
                 resolvers.Add(new DpResolver(resolver, injection, CreateOverrides(resolver.Overrides)));
             }
 

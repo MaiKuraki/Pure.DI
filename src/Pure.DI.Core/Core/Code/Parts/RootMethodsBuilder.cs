@@ -74,13 +74,13 @@ sealed class RootMethodsBuilder(
 
             if (tag is not null)
             {
-                code.AppendLine($"[{Names.BindAttributeName}(typeof({root.Injection.Type}), {Names.GeneratorName}.{nameof(Lifetime)}.{nameof(Lifetime.Transient)}, {tag.ValueToString()})]");
+                code.AppendLine($"[{Names.BindAttributeName}(typeof({GetAttributeType(composition, root)}), {Names.GeneratorName}.{nameof(Lifetime)}.{nameof(Lifetime.Transient)}, {tag.ValueToString()})]");
             }
             else
             {
                 if (root.IsMethod && marker.IsMarkerBased(composition.Setup, root.Injection.Type))
                 {
-                    code.AppendLine($"[{Names.BindAttributeName}(typeof({root.Injection.Type}))]");
+                    code.AppendLine($"[{Names.BindAttributeName}(typeof({GetAttributeType(composition, root)}))]");
                 }
                 else
                 {
@@ -214,4 +214,9 @@ sealed class RootMethodsBuilder(
             code.AppendLine("#pragma warning restore CS0162");
         }
     }
+
+    private TypeDescription GetAttributeType(CompositionCode composition, Root root) =>
+        marker.IsMarkerBased(composition.Setup, root.Injection.Type)
+            ? new TypeDescription(root.Injection.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToString(), ImmutableArray<TypeDescription>.Empty, null)
+            : typeResolver.ResolveRuntime(composition.Setup, root.Injection.Type);
 }

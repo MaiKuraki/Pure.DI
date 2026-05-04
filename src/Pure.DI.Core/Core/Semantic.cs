@@ -29,12 +29,13 @@ sealed class Semantic(
             return default;
         }
 
+        // ReSharper disable once ConvertIfStatementToReturnStatement
         if (symbol is IErrorTypeSymbol)
         {
             throw HandledException.Shared;
         }
 
-        return (T)symbol.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+        return symbol;
     }
 
     public T GetTypeSymbol<T>(SemanticModel semanticModel, SyntaxNode node)
@@ -393,7 +394,7 @@ sealed class Semantic(
     {
         var typeInfo = semanticModel.GetTypeInfo(node, cancellationToken);
         var typeSymbol = typeInfo.Type ?? typeInfo.ConvertedType;
-        return typeSymbol?.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+        return typeSymbol;
     }
 
     private sealed class TypeSymbolCache

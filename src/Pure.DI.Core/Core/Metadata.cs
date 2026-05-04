@@ -2,7 +2,9 @@ using System.Runtime.CompilerServices;
 
 namespace Pure.DI.Core;
 
-sealed class Metadata(ISemantic semantic)
+sealed class Metadata(
+    ISemantic semantic,
+    ITypeSymbolComparer typeSymbolComparer)
     : IMetadata
 {
     private const string IConfigurationTypeName = $"{Names.GeneratorName}.{nameof(IConfiguration)}";
@@ -38,8 +40,7 @@ sealed class Metadata(ISemantic semantic)
                         semanticModel.Compilation,
                         static compilation => compilation.GetTypeByMetadataName(IConfigurationTypeName));
 
-                    return configType is not null
-                           && SymbolEqualityComparer.Default.Equals(returnType, configType);
+                    return typeSymbolComparer.RuntimeEquals(returnType, configType);
             }
 
             if (expression is MemberAccessExpressionSyntax { Expression: InvocationExpressionSyntax innerInvocation })

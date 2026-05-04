@@ -8,11 +8,12 @@ namespace Pure.DI.Core;
 [SuppressMessage("MicrosoftCodeAnalysisCorrectness", "RS1024:Symbols should be compared for equality")]
 sealed class TypeConstructor(
     IMarker marker,
-    ITypes types)
+    ITypes types,
+    ITypeSymbolComparer typeSymbolComparer)
     : ITypeConstructor
 {
-    private readonly Dictionary<ITypeSymbol, ITypeSymbol> _map = new(SymbolEqualityComparer.Default);
-    private readonly Dictionary<ITypeSymbol, ITypeSymbol> _reversedMap = new(SymbolEqualityComparer.Default);
+    private readonly Dictionary<ITypeSymbol, ITypeSymbol> _map = new(typeSymbolComparer.Runtime);
+    private readonly Dictionary<ITypeSymbol, ITypeSymbol> _reversedMap = new(typeSymbolComparer.Runtime);
 
     public bool TryBind(MdSetup setup, ITypeSymbol source, ITypeSymbol target)
     {

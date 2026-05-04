@@ -51,13 +51,13 @@ sealed class FactoryTypeRewriter(
         TryCreateTypeSyntax(node) ?? base.VisitQualifiedName(node);
 
     private SyntaxNode? TryCreateTypeSyntax(SyntaxNode node) =>
-        TryGetNewTypeName(node, out var newTypeName)
+        TryGetNewTypeName(node, !IsObjectCreationType(node), out var newTypeName)
             ? SyntaxFactory.ParseTypeName(newTypeName)
                 .WithLeadingTrivia(node.GetLeadingTrivia())
                 .WithTrailingTrivia(node.GetTrailingTrivia())
             : null;
 
-    private bool TryGetNewTypeName(SyntaxNode? node, [NotNullWhen(true)] out string? newTypeName)
+    private bool TryGetNewTypeName(SyntaxNode? node, bool includeNullableAnnotation, [NotNullWhen(true)] out string? newTypeName)
     {
         newTypeName = null;
         if (node is null)
@@ -70,21 +70,21 @@ sealed class FactoryTypeRewriter(
         {
             if (semanticModel.GetSymbolInfo(node).Symbol is ITypeSymbol type)
             {
-                return TryGetNewTypeName(type, true, out newTypeName);
+                return TryGetNewTypeName(type, true, includeNullableAnnotation, out newTypeName);
             }
         }
         else
         {
             if (semanticModel.Compilation.GetTypeByMetadataName(node.ToString()) is {} parsedType)
             {
-                return TryGetNewTypeName(parsedType, true, out newTypeName);
+                return TryGetNewTypeName(parsedType, true, includeNullableAnnotation, out newTypeName);
             }
         }
 
         return false;
     }
 
-    private bool TryGetNewTypeName(ITypeSymbol type, bool inTree, [NotNullWhen(true)] out string? newTypeName)
+    private bool TryGetNewTypeName(ITypeSymbol type, bool inTree, bool includeNullableAnnotation, [NotNullWhen(true)] out string? newTypeName)
     {
         newTypeName = null;
         if (!marker.IsMarkerBased(_context.Setup, type))
@@ -98,7 +98,23 @@ sealed class FactoryTypeRewriter(
             return false;
         }
 
+        if (!includeNullableAnnotation)
+        {
+            newType = RemoveNullableAnnotation(newType);
+        }
+
         newTypeName = typeResolver.Resolve(_context.Setup, newType).Name;
         return true;
     }
+
+    private static bool IsObjectCreationType(SyntaxNode node) =>
+        node.Parent is ObjectCreationExpressionSyntax objectCreation && objectCreation.Type == node;
+
+    private static ITypeSymbol RemoveNullableAnnotation(ITypeSymbol type) =>
+        type switch
+        {
+            INamedTypeSymbol namedType => namedType.WithNullableAnnotation(NullableAnnotation.NotAnnotated),
+            IArrayTypeSymbol arrayType => arrayType.WithNullableAnnotation(NullableAnnotation.NotAnnotated),
+            _ => type.WithNullableAnnotation(NullableAnnotation.NotAnnotated)
+        };
 }

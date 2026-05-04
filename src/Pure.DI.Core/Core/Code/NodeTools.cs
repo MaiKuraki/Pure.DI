@@ -7,7 +7,8 @@ using SpecialType=Microsoft.CodeAnalysis.SpecialType;
 
 sealed class NodeTools(
     ITypes types,
-    ICache<NodeTools.LazyKey, bool> isLazy) : INodeTools
+    ICache<NodeTools.LazyKey, bool> isLazy,
+    ITypeSymbolComparer typeSymbolComparer) : INodeTools
 {
     public bool IsLazy(DependencyNode node, DependencyGraph graph) =>
         isLazy.Get(new LazyKey(node, graph.Source.SemanticModel), key =>
@@ -41,12 +42,12 @@ sealed class NodeTools(
     private static bool IsDelegate(DependencyNode node) =>
         node.Type.TypeKind == TypeKind.Delegate;
 
-    private static bool IsLazyFactory(DpFactory factory, SemanticModel semanticModel) =>
+    private bool IsLazyFactory(DpFactory factory, SemanticModel semanticModel) =>
         factory.Resolvers.All(i => IsLazy(factory, i.Source.Source, semanticModel))
         && factory.Initializers.All(i => IsLazy(factory, i.Source.Source, semanticModel))
         && factory.OverridesMap.Values.All(i => IsLazy(factory, i.Source.Source, semanticModel));
 
-    private static bool IsLazy(DpFactory factory, ExpressionSyntax source, SemanticModel semanticModel)
+    private bool IsLazy(DpFactory factory, ExpressionSyntax source, SemanticModel semanticModel)
     {
         if (semanticModel.SyntaxTree != factory.Source.Factory.SyntaxTree)
         {
@@ -75,7 +76,7 @@ sealed class NodeTools(
                 continue;
             }
 
-            return !SymbolEqualityComparer.Default.Equals(factoryType, invocationType);
+            return !typeSymbolComparer.RuntimeEquals(factoryType, invocationType);
         }
 
         return false;

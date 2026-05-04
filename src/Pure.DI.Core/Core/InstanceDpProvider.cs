@@ -8,7 +8,8 @@ sealed class InstanceDpProvider(
     IRegistryManager<MdInjectionSite> registryManager,
     IInjectionSiteFactory injectionSiteFactory,
     ILocationProvider locationProvider,
-    ITypes types) : IInstanceDpProvider
+    ITypes types,
+    ITypeSymbolComparer typeSymbolComparer) : IInstanceDpProvider
 {
     public InstanceDp Get(
         MdSetup setup,
@@ -19,7 +20,7 @@ sealed class InstanceDpProvider(
         var fields = new List<DpField>();
         var properties = new List<DpProperty>();
         var semanticModel = setup.SemanticModel;
-        if (SymbolEqualityComparer.Default.Equals(types.TryGet(SpecialType.LightweightRoot, semanticModel.Compilation), implementationType)
+        if (typeSymbolComparer.RuntimeEquals(types.TryGet(SpecialType.LightweightRoot, semanticModel.Compilation), implementationType)
             && types.TryGet(SpecialType.Func, semanticModel.Compilation) is {} func)
         {
             var roots = setup.Roots.Where(i => i.Kind.HasFlag(RootKinds.Light));
@@ -73,7 +74,7 @@ sealed class InstanceDpProvider(
                         if (field is { IsReadOnly: false, IsStatic: false, IsConst: false }
                             && (GetOrdinal(setup, setupAttributes, member) ?? (field.IsRequired ? int.MaxValue : null)) is {} fieldOrdinal)
                         {
-                            var type = field.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+                            var type = field.Type;
                             fields.Add(
                                 new DpField(
                                     new Field(field.Name, field.Type, field.DeclaredAccessibility, field.IsRequired, field.HasConstantValue, field.ConstantValue, field.Locations, field.ContainingType),
@@ -92,7 +93,7 @@ sealed class InstanceDpProvider(
                         if (property is { IsReadOnly: false, IsStatic: false, IsIndexer: false }
                             && (GetOrdinal(setup, setupAttributes, member) ?? (property.IsRequired ? int.MaxValue : null)) is {} propertyOrdinal)
                         {
-                            var type = property.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+                            var type = property.Type;
                             properties.Add(
                                 new DpProperty(
                                     property,
@@ -140,7 +141,7 @@ sealed class InstanceDpProvider(
         var dependenciesBuilder = ImmutableArray.CreateBuilder<DpParameter>(parameters.Length);
         foreach (var parameter in parameters)
         {
-            var type = parameter.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+            var type = parameter.Type;
             dependenciesBuilder.Add(
                 new DpParameter(
                     parameter,

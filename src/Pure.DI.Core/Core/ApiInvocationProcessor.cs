@@ -433,7 +433,7 @@ sealed class ApiInvocationProcessor(
                         var tagArguments = invocation.ArgumentList.Arguments.SkipWhile((arg, i) => arg.NameColon?.Name.Identifier.Text != "tags" && i < 2);
                         var tags = BuildTags(semanticModel, tagArguments);
                         VisitBind(metadataVisitor, semanticModel, invocation, tags, genericName);
-                        var rootBindSymbol = semantic.GetTypeSymbol<INamedTypeSymbol>(semanticModel, rootBindType);
+                        var rootBindSymbol = GetTypeSymbol(semanticModel, rootBindType);
                         VisitRoot(invocation, tags.FirstOrDefault(), metadataVisitor, semanticModel, invocation, invocationComments, rootBindSymbol);
                         break;
 
@@ -616,7 +616,7 @@ sealed class ApiInvocationProcessor(
                                 nameof(Strings.Error_InvalidRootType));
                         }
 
-                        var rootSymbol = semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, rootTypeSyntax);
+                        var rootSymbol = GetTypeSymbol(semanticModel, rootTypeSyntax);
                         VisitRoot(invocation, metadataVisitor, semanticModel, invocation, invocationComments, rootSymbol);
                         break;
 
@@ -1033,7 +1033,7 @@ sealed class ApiInvocationProcessor(
         SemanticModel semanticModel,
         InvocationExpressionSyntax invocation,
         IReadOnlyCollection<string> invocationComments,
-        INamedTypeSymbol rootSymbol)
+        ITypeSymbol rootSymbol)
     {
         tag ??= new MdTag(0, null);
         var rootArgs = arguments.GetArgs(invocation.ArgumentList, "name", "kind");
@@ -1062,13 +1062,15 @@ sealed class ApiInvocationProcessor(
         GenericNameSyntax genericName)
     {
         var contractTypes = genericName.TypeArgumentList.Arguments;
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (var contractType in contractTypes)
         {
+            var contractTypeSymbol = GetTypeSymbol(semanticModel, contractType);
             metadataVisitor.VisitContract(
                 new MdContract(
                     semanticModel,
                     invocation,
-                    semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, contractType),
+                    contractTypeSymbol,
                     ContractKind.Explicit,
                     tags));
         }
@@ -1388,7 +1390,7 @@ sealed class ApiInvocationProcessor(
                 var resolverTag = new MdTag(0, tagValue);
                 if (args[1] is {} argSyntax2)
                 {
-                    var argType2 = GetDefaultType(semanticModel, invocation, 1) ?? GetArgSymbol(semanticModel, argSyntax2) ?? resultType;
+                    var argType2 = GetDefaultType(semanticModel, invocation, 0) ?? GetArgSymbol(semanticModel, argSyntax2) ?? resultType;
                     if (argType2 is null or IErrorTypeSymbol)
                     {
                         throw new CompileErrorException(
@@ -1461,12 +1463,25 @@ sealed class ApiInvocationProcessor(
         };
 
         ITypeSymbol? defaultType = null;
+        // ReSharper disable once InvertIf
         if (name is GenericNameSyntax genericName && genericName.TypeArgumentList.Arguments.Count > typeArgPosition)
         {
-            defaultType = semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, genericName.TypeArgumentList.Arguments[typeArgPosition]);
+            var typeArgument = genericName.TypeArgumentList.Arguments[typeArgPosition];
+            defaultType = GetTypeSymbol(semanticModel, typeArgument);
         }
 
         return defaultType;
+    }
+
+    private ITypeSymbol GetTypeSymbol(SemanticModel semanticModel, TypeSyntax typeSyntax)
+    {
+        var typeSymbol = semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, typeSyntax);
+        if (typeSyntax is NullableTypeSyntax && typeSymbol.IsReferenceType)
+        {
+            typeSymbol = typeSymbol.WithNullableAnnotation(NullableAnnotation.Annotated);
+        }
+
+        return typeSymbol;
     }
 
     private static bool HasContextTag(ExpressionSyntax? tag, ParameterSyntax contextParameter) =>

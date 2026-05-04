@@ -1,5 +1,7 @@
 ﻿// ReSharper disable ClassNeverInstantiated.Global
 
+#pragma warning disable RS1024 // Pure.DI intentionally uses ITypeSymbolComparer to control nullable-reference contract equality.
+
 namespace Pure.DI.Core;
 
 sealed class SetupsBuilder(
@@ -12,7 +14,8 @@ sealed class SetupsBuilder(
     ISymbolNames symbolNames,
     Func<ILocalVariableRenamingRewriter> localVariableRenamingRewriterFactory,
     IRegistryManager<int> bindingsRegistryManager,
-    IEqualityComparer<(ITypeSymbol ContractType, object? Tag)> contractTagComparer)
+    IEqualityComparer<(ITypeSymbol ContractType, object? Tag)> contractTagComparer,
+    ITypeSymbolComparer typeSymbolComparer)
     : IBuilder<SyntaxUpdate, IEnumerable<MdSetup>>, IMetadataVisitor, ISetupFinalizer
 {
     private readonly List<MdAccumulator> _accumulators = [];
@@ -609,16 +612,16 @@ sealed class SetupsBuilder(
         {
             if (compositionType is not INamedTypeSymbol { IsGenericType: true } namedType)
             {
-                return new Dictionary<ITypeParameterSymbol, ITypeSymbol>(SymbolEqualityComparer.Default);
+                return new Dictionary<ITypeParameterSymbol, ITypeSymbol>(typeSymbolComparer.Runtime);
             }
 
             var definition = namedType.OriginalDefinition;
             if (definition.TypeParameters.Length != namedType.TypeArguments.Length)
             {
-                return new Dictionary<ITypeParameterSymbol, ITypeSymbol>(SymbolEqualityComparer.Default);
+                return new Dictionary<ITypeParameterSymbol, ITypeSymbol>(typeSymbolComparer.Runtime);
             }
 
-            var map = new Dictionary<ITypeParameterSymbol, ITypeSymbol>(SymbolEqualityComparer.Default);
+            var map = new Dictionary<ITypeParameterSymbol, ITypeSymbol>(typeSymbolComparer.Runtime);
             for (var i = 0; i < definition.TypeParameters.Length; i++)
             {
                 map[definition.TypeParameters[i]] = namedType.TypeArguments[i];
@@ -680,7 +683,7 @@ sealed class SetupsBuilder(
 
         ITypeSymbol ReplaceTypeParametersWithMarkers(ITypeSymbol typeSymbol)
         {
-            var map = new Dictionary<ITypeParameterSymbol, ITypeSymbol>(SymbolEqualityComparer.Default);
+            var map = new Dictionary<ITypeParameterSymbol, ITypeSymbol>(typeSymbolComparer.Runtime);
 
             return Replace(typeSymbol);
 

@@ -2,7 +2,7 @@
 
 namespace Pure.DI.Core;
 
-sealed class ContractsBuilder : IFastBuilder<ContractsBuildContext, ISet<Injection>>
+sealed class ContractsBuilder(IInjectionComparer injectionComparer) : IFastBuilder<ContractsBuildContext, ISet<Injection>>
 {
     public ISet<Injection> Build(in ContractsBuildContext context)
     {
@@ -13,7 +13,7 @@ sealed class ContractsBuilder : IFastBuilder<ContractsBuildContext, ISet<Injecti
         }
 
         var hasContextTag = binding.Factory is { HasContextTag: true };
-        var contracts = new HashSet<Injection>();
+        var contracts = new HashSet<Injection>(injectionComparer);
         var bindingTags = new HashSet<object?>(binding.Tags.Select(i => i.Value));
         foreach (var (_, _, contractType, _, immutableArray) in binding.Contracts)
         {

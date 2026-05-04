@@ -16,6 +16,7 @@ $r=Shouldly
 // ReSharper disable UnusedMember.Global
 
 #pragma warning disable CS0067
+#pragma warning disable CA1822
 namespace Pure.DI.UsageTests.Interfaces.GenerateInterfaceGenericsScenario;
 
 using Xunit;

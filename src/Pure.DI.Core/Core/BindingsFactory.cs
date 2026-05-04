@@ -4,7 +4,8 @@ class BindingsFactory(
     Func<IFastBuilder<RewriterContext<MdFactory>, MdFactory>> factoryRewriterFactory,
     ITypes types,
     IMarker marker,
-    ILifetimeProvider lifetimeProvider)
+    ILifetimeProvider lifetimeProvider,
+    IInjectionComparer injectionComparer)
     : IBindingsFactory
 {
     public MdBinding CreateGenericBinding(
@@ -160,9 +161,8 @@ class BindingsFactory(
         object? explicitDefaultValue = null,
         object? state = null)
     {
-        elementType = elementType.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
         var dependencyContracts = new List<MdContract>();
-        var contracts = new HashSet<Injection>();
+        var contracts = new HashSet<Injection>(injectionComparer);
         var originalIds = new HashSet<int>();
         if (constructKind is MdConstructKind.Array or MdConstructKind.AsyncEnumerable or MdConstructKind.Enumerable or MdConstructKind.Span)
         {

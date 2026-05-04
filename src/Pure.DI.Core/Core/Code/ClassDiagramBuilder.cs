@@ -2,6 +2,8 @@
 // ReSharper disable HeapView.BoxingAllocation
 // ReSharper disable ClassNeverInstantiated.Global
 
+#pragma warning disable RS1024 // Pure.DI intentionally uses ITypeSymbolComparer to control nullable-reference contract equality.
+
 namespace Pure.DI.Core.Code;
 
 using static LinesExtensions;
@@ -14,9 +16,12 @@ sealed class ClassDiagramBuilder(
     ITypes types,
     ILocationProvider locationProvider,
     IGlobalProperties globalProperties,
+    ITypeSymbolComparer typeSymbolComparer,
     CancellationToken cancellationToken)
     : IBuilder<CompositionCode, Lines>
 {
+    private const string NullableReferenceTypeSuffix = "Ɂ";
+
     private static readonly FormatOptions DefaultFormatOptions = new();
 
     public Lines Build(CompositionCode composition)
@@ -88,8 +93,8 @@ sealed class ClassDiagramBuilder(
                 lines.AppendLine($"{composition.Name.ClassName} --|> IAsyncDisposable");
             }
 
-            var typeSymbols = new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
-            foreach (var node in graph.Vertices.GroupBy(i => i.Type, SymbolEqualityComparer.Default).Select(i => i.First()).OrderBy(i => i.Binding.Id))
+            var typeSymbols = new HashSet<ITypeSymbol>(typeSymbolComparer.Dependency);
+            foreach (var node in graph.Vertices.GroupBy(i => i.Type, typeSymbolComparer.Dependency).Select(i => i.First()).OrderBy(i => i.Binding.Id))
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 if (node.Root is not null)
@@ -326,17 +331,21 @@ sealed class ClassDiagramBuilder(
 
         return symbol switch
         {
-            INamedTypeSymbol { IsGenericType: true } namedTypeSymbol => $"{namedTypeSymbol.Name}{options.StartGenericArgsSymbol}{string.Join(options.TypeArgsSeparator, namedTypeSymbol.TypeArguments.Select(FormatSymbolLocal))}{options.FinishGenericArgsSymbol}",
-            IArrayTypeSymbol array => $"Array{options.StartGenericArgsSymbol}{FormatType(setup, array.ElementType, options)}{options.FinishGenericArgsSymbol}",
+            INamedTypeSymbol { IsGenericType: true } namedTypeSymbol => $"{namedTypeSymbol.Name}{options.StartGenericArgsSymbol}{string.Join(options.TypeArgsSeparator, namedTypeSymbol.TypeArguments.Select(FormatSymbolLocal))}{options.FinishGenericArgsSymbol}{FormatNullableSuffix(namedTypeSymbol)}",
+            IArrayTypeSymbol array => $"Array{options.StartGenericArgsSymbol}{FormatType(setup, array.ElementType, options)}{options.FinishGenericArgsSymbol}{FormatNullableSuffix(array)}",
+            ITypeSymbol type => $"{type.Name}{FormatNullableSuffix(type)}",
             _ => symbol?.Name ?? "Unresolved"
         };
 
         string FormatSymbolLocal(ITypeSymbol i) => FormatSymbol(setup, i, options);
     }
 
+    private static string FormatNullableSuffix(ITypeSymbol type) =>
+        type is { IsReferenceType: true, NullableAnnotation: NullableAnnotation.Annotated } ? NullableReferenceTypeSuffix : "";
+
     private string ResolveTypeName(MdSetup setup, ITypeSymbol typeSymbol)
     {
-        var typeName = typeResolver.Resolve(setup, typeSymbol).Name;
+        var typeName = typeResolver.Resolve(setup, typeSymbol).Name.Replace("?", NullableReferenceTypeSuffix);
         return typeName.StartsWith(Names.GlobalNamespacePrefix) ? typeName[Names.GlobalNamespacePrefix.Length..] : typeName;
     }
 

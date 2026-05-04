@@ -1,6 +1,8 @@
 ﻿// ReSharper disable InvertIf
 // ReSharper disable ClassNeverInstantiated.Global
 
+#pragma warning disable RS1024 // Pure.DI intentionally uses ITypeSymbolComparer to control nullable-reference contract equality.
+
 namespace Pure.DI.Core;
 
 using static Tag;
@@ -10,7 +12,8 @@ sealed class BindingBuilder(
     [Tag(SpecialBindingIdGenerator)] IIdGenerator specialBindingIdGenerator,
     IBaseSymbolsProvider baseSymbolsProvider,
     ILocationProvider locationProvider,
-    ILifetimeProvider lifetimeProvider)
+    ILifetimeProvider lifetimeProvider,
+    ITypeSymbolComparer typeSymbolComparer)
     : IBindingBuilder
 {
     private readonly List<MdContract> _contracts = [];
@@ -130,7 +133,7 @@ sealed class BindingBuilder(
         // Only search for base symbols if the implementation is a concrete class or struct
         if (implementationType is { SpecialType: Microsoft.CodeAnalysis.SpecialType.None, TypeKind: TypeKind.Class or TypeKind.Struct, IsAbstract: false })
         {
-            var specialTypes = setup.SpecialTypes.Select(i => i.Type).ToImmutableHashSet(SymbolEqualityComparer.Default);
+            var specialTypes = setup.SpecialTypes.Select(i => i.Type).ToImmutableHashSet(typeSymbolComparer.Runtime);
             baseSymbols = baseSymbolsProvider
                 .GetBaseSymbols(implementationType, (type, deepness) => deepness switch
                 {
@@ -141,7 +144,7 @@ sealed class BindingBuilder(
                 .Select(i => i.Type);
         }
 
-        var contracts = new HashSet<ITypeSymbol>(baseSymbols, SymbolEqualityComparer.Default) { implementationType };
+        var contracts = new HashSet<ITypeSymbol>(baseSymbols, typeSymbolComparer.Runtime) { implementationType };
         var tags = implementationContracts
             .SelectMany(i => i.Tags)
             .GroupBy(i => i.Value)
@@ -154,7 +157,7 @@ sealed class BindingBuilder(
         }
     }
 
-    private static bool IsSuitableForBinding(ImmutableHashSet<ISymbol?> specialTypes, ITypeSymbol type)
+    private static bool IsSuitableForBinding(ImmutableHashSet<ITypeSymbol> specialTypes, ITypeSymbol type)
     {
         // Checks if the type is an interface or an abstract class, which are typical candidates for DI contracts.
         var isAbstractOrInterface = type.TypeKind == TypeKind.Interface || type.IsAbstract;

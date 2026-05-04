@@ -73,7 +73,7 @@ sealed class StaticConstructorBuilder(
                     foreach (var resolver in resolvers)
                     {
                         var className = resolver.ClassName;
-                        var resolverType = typeResolver.Resolve(composition.Setup, resolver.Type);
+                        var resolverType = typeResolver.ResolveRuntime(composition.Setup, resolver.Type);
                         code.AppendLine($"{(isFirst ? " " : ",")}new {pairTypeName}(typeof({resolverType}), val{className})");
                         isFirst = false;
                     }

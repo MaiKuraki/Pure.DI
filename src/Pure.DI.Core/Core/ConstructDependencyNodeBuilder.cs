@@ -29,7 +29,7 @@ sealed class ConstructDependencyNodeBuilder(ILocationProvider locationProvider)
                     new Injection(
                         InjectionKind.Contract,
                         RefKind.None,
-                        ctx.TypeConstructor.Construct(setup, contract.ContractType.WithNullableAnnotation(NullableAnnotation.NotAnnotated)),
+                        ctx.TypeConstructor.Construct(setup, contract.ContractType),
                         tag,
                         contract.ContractType.Locations));
             }

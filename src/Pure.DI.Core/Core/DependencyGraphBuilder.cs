@@ -26,6 +26,8 @@ sealed class DependencyGraphBuilder(
     ITypeResolver typeResolver,
     IDependencyNodePrioritizer dependencyNodePrioritizer,
     IGlobalProperties globalProperties,
+    IInjectionComparer injectionComparer,
+    ITypeSymbolComparer typeSymbolComparer,
     CancellationToken cancellationToken)
     : IBuilder<GraphBuildContext, IEnumerable<DependencyNode>>
 {
@@ -35,8 +37,8 @@ sealed class DependencyGraphBuilder(
         var nodes = ctx.Nodes;
         var accumulators = ctx.Accumulators;
         var nodesLength = nodes.Length;
-        var map = new Dictionary<Injection, DependencyNode>(nodesLength);
-        var contextMap = new Dictionary<Injection, DependencyNode>(nodesLength);
+        var map = new Dictionary<Injection, DependencyNode>(nodesLength, injectionComparer);
+        var contextMap = new Dictionary<Injection, DependencyNode>(nodesLength, injectionComparer);
         var queue = new Queue<IProcessingNode>(nodesLength >> 2);
         var maxBindingId = 0;
         var processed = new HashSet<IProcessingNode>();
@@ -69,9 +71,10 @@ sealed class DependencyGraphBuilder(
             }
         }
 
-        var processedInjection = new HashSet<Injection>();
+        var processedInjection = new HashSet<Injection>(injectionComparer);
         var notProcessed = new HashSet<IProcessingNode>();
         var edgesMap = new Dictionary<IProcessingNode, List<Dependency>>();
+        var injectionPositionComparer = new InjectionPositionComparer(injectionComparer);
         var handledInjections = new Dictionary<IProcessingNode, HashSet<(Injection Injection, int? Position)>>();
         var counter = 0;
         while (queue.Count > 0)
@@ -97,7 +100,7 @@ sealed class DependencyGraphBuilder(
 
             foreach (var (injection, hasExplicitDefaultValue, explicitDefaultValue, position) in node.Injections)
             {
-                var hasSourceNode = map.TryGetValue(injection, out var sourceNode);
+                var hasSourceNode = TryGetSourceNode(map, injection, out var sourceNode);
                 var bypassSelfFactoryOverride = hasSourceNode
                                                 && sourceNode!.Binding.Id == targetNode.Binding.Id
                                                 && injection.Kind == InjectionKind.FactoryInjection
@@ -452,7 +455,7 @@ sealed class DependencyGraphBuilder(
                     continue;
                 }
 
-                var dependency = map.TryGetValue(injection.Injection, out var sourceNode) && sourceNode.Error is null
+                var dependency = TryGetSourceNode(map, injection.Injection, out var sourceNode) && sourceNode.Error is null
                     ? new Dependency(true, sourceNode, injection.Injection, node.Node, injection.Position)
                     : new Dependency(false, new DependencyNode(0, node.Node.Binding, node.Node.TypeConstructor), injection.Injection, node.Node, injection.Position, sourceNode?.Error);
 
@@ -490,7 +493,7 @@ sealed class DependencyGraphBuilder(
         {
             if (!handledInjections.TryGetValue(processingNode, out var injections))
             {
-                injections = [];
+                injections = new HashSet<(Injection Injection, int? Position)>(injectionPositionComparer);
                 handledInjections.Add(processingNode, injections);
             }
 
@@ -499,12 +502,45 @@ sealed class DependencyGraphBuilder(
 
         bool IsInjectionHandled(IProcessingNode processingNode, Injection injection, int? position) =>
             handledInjections.TryGetValue(processingNode, out var injections) && injections.Contains((injection, position));
+
+        bool TryGetSourceNode(IDictionary<Injection, DependencyNode> sourceMap, Injection injection, [NotNullWhen(true)] out DependencyNode? sourceNode)
+        {
+            if (sourceMap.TryGetValue(injection, out sourceNode))
+            {
+                return true;
+            }
+
+            if (injection.Type is { IsReferenceType: true, NullableAnnotation: NullableAnnotation.Annotated })
+            {
+                return sourceMap.TryGetValue(injection with { Type = injection.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated) }, out sourceNode);
+            }
+
+            sourceNode = null;
+            return false;
+        }
+    }
+
+    private sealed class InjectionPositionComparer(IInjectionComparer injectionComparer) : IEqualityComparer<(Injection Injection, int? Position)>
+    {
+        public bool Equals((Injection Injection, int? Position) x, (Injection Injection, int? Position) y) =>
+            injectionComparer.Equals(x.Injection, y.Injection)
+            && x.Position == y.Position;
+
+        public int GetHashCode((Injection Injection, int? Position) obj)
+        {
+            unchecked
+            {
+                var hash = injectionComparer.GetHashCode(obj.Injection);
+                hash = hash * 397 ^ (obj.Position ?? 0);
+                return hash;
+            }
+        }
     }
 
     private MdConstructKind GetConstructKind(INamedTypeSymbol geneticType)
     {
         var unboundGenericType = geneticType.ConstructUnboundGenericType();
-        return constructKinds.Get(new ConstructKindKey(unboundGenericType), key => symbolNames.GetGlobalName(key.TypeSymbol) switch
+        return constructKinds.Get(new ConstructKindKey(unboundGenericType, typeSymbolComparer), key => symbolNames.GetGlobalName(key.TypeSymbol) switch
         {
             Names.SpanTypeName => MdConstructKind.Span,
             Names.ReadOnlySpanTypeName => MdConstructKind.Span,
@@ -563,14 +599,14 @@ sealed class DependencyGraphBuilder(
     private static object? GetContextTag(Injection injection, DependencyNode node) =>
         node.Factory is { Source.HasContextTag: true } ? injection.Tag : null;
 
-    internal readonly struct ConstructKindKey(INamedTypeSymbol typeSymbol) : IEquatable<ConstructKindKey>
+    internal readonly struct ConstructKindKey(INamedTypeSymbol typeSymbol, ITypeSymbolComparer typeSymbolComparer) : IEquatable<ConstructKindKey>
     {
         public readonly INamedTypeSymbol TypeSymbol = typeSymbol;
 
-        public bool Equals(ConstructKindKey other) => SymbolEqualityComparer.Default.Equals(TypeSymbol, other.TypeSymbol);
+        public bool Equals(ConstructKindKey other) => typeSymbolComparer.RuntimeEquals(TypeSymbol, other.TypeSymbol);
 
         public override bool Equals(object? obj) => obj is ConstructKindKey other && Equals(other);
 
-        public override int GetHashCode() => SymbolEqualityComparer.Default.GetHashCode(TypeSymbol);
+        public override int GetHashCode() => typeSymbolComparer.GetRuntimeHashCode(TypeSymbol);
     }
 }

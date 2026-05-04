@@ -5,6 +5,8 @@
 // ReSharper disable IdentifierTypo
 // ReSharper disable LoopCanBeConvertedToQuery
 
+#pragma warning disable RS1024 // Pure.DI intentionally uses ITypeSymbolComparer to control nullable-reference contract equality.
+
 namespace Pure.DI.Core;
 
 using Options = SetOfOptions<IProcessingNode>;
@@ -21,6 +23,8 @@ sealed class VariationalDependencyGraphBuilder(
     IRegistryManager<int> bindingsRegistryManager,
     ILocationProvider locationProvider,
     IDependencyNodePrioritizer dependencyNodePrioritizer,
+    IInjectionComparer injectionComparer,
+    ITypeSymbolComparer typeSymbolComparer,
     CancellationToken cancellationToken)
     : IBuilder<MdSetup, DependencyGraph?>
 {
@@ -29,8 +33,8 @@ sealed class VariationalDependencyGraphBuilder(
         var dependencyNodeBuildContext = new DependencyNodeBuildContext(setup, setup, typeConstructorFactory());
         var rawNodes = dependencyNodePrioritizer.SortByPriority(dependencyNodeBuilders.SelectMany(builder => builder.Build(dependencyNodeBuildContext))).Reverse();
         var allNodes = new List<IProcessingNode>();
-        var injections = new Dictionary<Injection, DependencyNode>();
-        var allOverriddenInjections = new HashSet<Injection>();
+        var injections = new Dictionary<Injection, DependencyNode>(injectionComparer);
+        var allOverriddenInjections = new HashSet<Injection>(injectionComparer);
         foreach (var node in rawNodes)
         {
             var contracts = contractsBuilder.Build(new ContractsBuildContext(node.Binding, MdTag.ContextTag, MdTag.AnyTag));
@@ -88,8 +92,8 @@ sealed class VariationalDependencyGraphBuilder(
         DependencyGraph? dependencyGraph = null;
 
         var accumulators = setup.Accumulators
-            .GroupBy(acc => acc.AccumulatorType, SymbolEqualityComparer.Default)
-            .ToImmutableDictionary(i => i.Key!, i => i.ToImmutableArray(), SymbolEqualityComparer.Default);
+            .GroupBy(acc => acc.AccumulatorType, new SymbolTypeComparer(typeSymbolComparer))
+            .ToImmutableDictionary(i => i.Key, i => i.ToImmutableArray(), new SymbolTypeComparer(typeSymbolComparer));
 
         var buildCtx = new GraphBuildContext(
             setup,
@@ -184,4 +188,16 @@ sealed class VariationalDependencyGraphBuilder(
     private static IEnumerable<Options> CreateOptions(IEnumerable<IProcessingNode> nodes) =>
         nodes.GroupBy(i => i.Node.Binding)
             .Select(i => new Options(i.ToList()));
+
+    [SuppressMessage("MicrosoftCodeAnalysisCorrectness", "RS1024:Symbols should be compared for equality")]
+    private sealed class SymbolTypeComparer(ITypeSymbolComparer typeSymbolComparer) : IEqualityComparer<ISymbol>
+    {
+        public bool Equals(ISymbol? x, ISymbol? y) =>
+            x is ITypeSymbol type
+            && y is ITypeSymbol otherType
+            && typeSymbolComparer.DependencyEquals(type, otherType);
+
+        public int GetHashCode(ISymbol obj) =>
+            obj is ITypeSymbol type ? typeSymbolComparer.GetDependencyHashCode(type) : obj.GetHashCode();
+    }
 }

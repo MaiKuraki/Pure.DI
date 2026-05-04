@@ -6,7 +6,7 @@ namespace Pure.DI.UsageTests.IntegrationTests.MicrosoftDependencyInjectionTests;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Pure.DI;
-using Pure.DI.MS;
+using MS;
 
 public class MicrosoftDependencyInjectionTests
 {
@@ -101,19 +101,19 @@ public class MicrosoftDependencyInjectionTests
     }
 }
 
-internal interface IExternalConsumer
+interface IExternalConsumer
 {
     IServiceScopeFactory ScopeFactory { get; }
 }
 
-internal class ExternalConsumer(
+class ExternalConsumer(
     [Tag("External")] IServiceScopeFactory scopeFactory)
     : IExternalConsumer
 {
     public IServiceScopeFactory ScopeFactory { get; } = scopeFactory;
 }
 
-internal partial class TaggedExternalComposition : ServiceProviderFactory<TaggedExternalComposition>
+partial class TaggedExternalComposition : ServiceProviderFactory<TaggedExternalComposition>
 {
     private static void Setup() =>
         DI.Setup()
@@ -121,7 +121,7 @@ internal partial class TaggedExternalComposition : ServiceProviderFactory<Tagged
             .Root<IExternalConsumer>("ExternalConsumer");
 }
 
-internal partial class ValueTypeRootComposition : ServiceProviderFactory<ValueTypeRootComposition>
+partial class ValueTypeRootComposition : ServiceProviderFactory<ValueTypeRootComposition>
 {
     public IServiceCollection ServiceCollection =>
         CreateServiceCollection(this);
@@ -132,29 +132,29 @@ internal partial class ValueTypeRootComposition : ServiceProviderFactory<ValueTy
             .Root<int>("Number");
 }
 
-internal interface ISingletonService;
+interface ISingletonService;
 
-internal interface IScopedService;
+interface IScopedService;
 
-internal interface ITransientService;
+interface ITransientService;
 
-internal class DisposableSingletonService : ISingletonService, IDisposable
+class DisposableSingletonService : ISingletonService, IDisposable
 {
     public static int DisposeCount;
 
     public void Dispose() => DisposeCount++;
 }
 
-internal class DisposableScopedService : IScopedService, IDisposable
+class DisposableScopedService : IScopedService, IDisposable
 {
     public static int DisposeCount;
 
     public void Dispose() => DisposeCount++;
 }
 
-internal class TransientService : ITransientService;
+class TransientService : ITransientService;
 
-internal partial class LifetimeComposition : ServiceProviderFactory<LifetimeComposition>
+partial class LifetimeComposition : ServiceProviderFactory<LifetimeComposition>
 {
     public IServiceCollection ServiceCollection =>
         CreateServiceCollection(this);

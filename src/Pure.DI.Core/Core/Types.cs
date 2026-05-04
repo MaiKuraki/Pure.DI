@@ -5,7 +5,8 @@ namespace Pure.DI.Core;
 sealed class Types(
     ICache<Types.SpecialTypeKey, INamedTypeSymbol?> specialTypes,
     ICache<Types.TypeSymbolKey, string> names,
-    ICache<Types.GlobalTypeSymbolKey, string> globalNames)
+    ICache<Types.GlobalTypeSymbolKey, string> globalNames,
+    ITypeSymbolComparer typeSymbolComparer)
     : ITypes, ISymbolNames
 {
     private static readonly Dictionary<SpecialType, string> TypeShortNames = new()
@@ -30,11 +31,10 @@ sealed class Types(
             new SpecialTypeKey(specialType, compilation),
             i => i.Compilation.GetTypeByMetadataName(TypeShortNames[specialType]));
 
-    public bool TypeEquals(ISymbol? type1, ISymbol? type2)
-    {
-        var comparer = SymbolEqualityComparer.Default;
-        return comparer.GetHashCode(type1) == comparer.GetHashCode(type2) && comparer.Equals(type1, type2);
-    }
+    public bool TypeEquals(ISymbol? type1, ISymbol? type2) =>
+        type1 is ITypeSymbol typeSymbol1
+        && type2 is ITypeSymbol typeSymbol2
+        && typeSymbolComparer.RuntimeEquals(typeSymbol1, typeSymbol2);
 
     internal readonly struct SpecialTypeKey(SpecialType specialType, Compilation compilation) : IEquatable<SpecialTypeKey>
     {
@@ -58,21 +58,21 @@ sealed class Types(
     {
         public readonly ITypeSymbol TypeSymbol = typeSymbol;
 
-        public bool Equals(TypeSymbolKey other) => SymbolEqualityComparer.Default.Equals(TypeSymbol, other.TypeSymbol);
+        public bool Equals(TypeSymbolKey other) => SymbolEqualityComparer.IncludeNullability.Equals(TypeSymbol, other.TypeSymbol);
 
         public override bool Equals(object? obj) => obj is TypeSymbolKey other && Equals(other);
 
-        public override int GetHashCode() => SymbolEqualityComparer.Default.GetHashCode(TypeSymbol);
+        public override int GetHashCode() => SymbolEqualityComparer.IncludeNullability.GetHashCode(TypeSymbol);
     }
 
     internal readonly struct GlobalTypeSymbolKey(ITypeSymbol typeSymbol) : IEquatable<GlobalTypeSymbolKey>
     {
         public readonly ITypeSymbol TypeSymbol = typeSymbol;
 
-        public bool Equals(GlobalTypeSymbolKey other) => SymbolEqualityComparer.Default.Equals(TypeSymbol, other.TypeSymbol);
+        public bool Equals(GlobalTypeSymbolKey other) => SymbolEqualityComparer.IncludeNullability.Equals(TypeSymbol, other.TypeSymbol);
 
-        public override bool Equals(object? obj) => obj is TypeSymbolKey other && Equals(other);
+        public override bool Equals(object? obj) => obj is GlobalTypeSymbolKey other && Equals(other);
 
-        public override int GetHashCode() => SymbolEqualityComparer.Default.GetHashCode(TypeSymbol);
+        public override int GetHashCode() => SymbolEqualityComparer.IncludeNullability.GetHashCode(TypeSymbol);
     }
 }

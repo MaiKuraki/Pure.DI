@@ -2,13 +2,16 @@
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable InvertIf
 
+#pragma warning disable RS1024 // Pure.DI intentionally uses ITypeSymbolComparer to control nullable-reference contract equality.
+
 namespace Pure.DI.Core;
 
 sealed class MetadataValidator(
     ILogger logger,
     IBaseSymbolsProvider baseSymbolsProvider,
     IMarker marker,
-    ILocationProvider locationProvider)
+    ILocationProvider locationProvider,
+    ITypeSymbolComparer typeSymbolComparer)
     : IValidator<MdSetup>
 {
     public bool Validate(MdSetup setup)
@@ -209,7 +212,7 @@ sealed class MetadataValidator(
         var severityOfNotImplementedContract = setup.Hints.SeverityOfNotImplementedContract;
         if (severityOfNotImplementedContract > DiagnosticSeverity.Hidden)
         {
-            var supportedContracts = new HashSet<ITypeSymbol>(baseSymbolsProvider.GetBaseSymbols(implementationType, (_, _) => true).Select(i => i.Type), SymbolEqualityComparer.Default)
+            var supportedContracts = new HashSet<ITypeSymbol>(baseSymbolsProvider.GetBaseSymbols(implementationType, (_, _) => true).Select(i => i.Type), typeSymbolComparer.Runtime)
             {
                 implementationType
             };

@@ -33,7 +33,7 @@ sealed class RootDependencyNodeBuilder(
                     new Injection(
                         InjectionKind.Root,
                         RefKind.None,
-                        root.RootType.WithNullableAnnotation(NullableAnnotation.NotAnnotated),
+                        root.RootType,
                         root.Tag?.Value,
                         root.RootType.Locations),
                     locationProvider));
