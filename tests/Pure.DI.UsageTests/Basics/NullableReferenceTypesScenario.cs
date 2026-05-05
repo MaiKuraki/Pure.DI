@@ -7,12 +7,15 @@ $h=Use nullable dependencies for values that are allowed to be absent. A nullabl
 $h=A non-null binding can satisfy a nullable dependency request. This is useful for optional constructor parameters, nullable factory results, and nullable collection elements.
 $h=>[!TIP]
 $h=>`T?` means that the consumer can handle `null`; it does not mean that a missing binding is ignored. If no binding or auto-binding can provide the type, Pure.DI still reports the graph error.
+$h=>[!NOTE]
+$h=>When a nullable reference type is used as a generic argument, the generic type must allow nullable arguments. For example, prefer `where T : class?` over `where T : class` for contracts such as `IBox<string?>`; otherwise the C# compiler reports a nullable constraint warning before Pure.DI analyzes the graph.
 $r=Shouldly
 $f=Limitations: nullable annotations describe compile-time contracts. They are not runtime validation rules and do not replace explicit domain validation.
 $f=Common pitfalls:
 $f=- Using `T?` to hide a missing binding instead of modelling an optional value.
 $f=- Forgetting tags for nullable primitive values when several values of the same type exist.
 $f=- Assuming `IEnumerable<T?>` changes the lifetime of elements; lifetime still comes from the matched bindings.
+$f=- Declaring generic contracts with `where T : class` and then consuming them as `T?`; use a nullable-aware constraint such as `where T : class?` when nullable generic arguments are valid.
 $f=See also: [Composition arguments](composition-arguments.md), [Root arguments](root-arguments.md), [Injection on demand](injection-on-demand.md).
 */
 
