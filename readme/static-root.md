@@ -69,15 +69,15 @@ partial class Composition
       #else
       var perResolveLock = new Object();
       #endif
-      var perResolveFileSystem363 = default(FileSystem);
-      if (perResolveFileSystem363 is null)
+      var perResolveFileSystem369 = default(FileSystem);
+      if (perResolveFileSystem369 is null)
         lock (perResolveLock)
-          if (perResolveFileSystem363 is null)
+          if (perResolveFileSystem369 is null)
           {
-            perResolveFileSystem363 = new FileSystem();
+            perResolveFileSystem369 = new FileSystem();
           }
 
-      return new Configuration(perResolveFileSystem363);
+      return new Configuration(perResolveFileSystem369);
     }
   }
 }

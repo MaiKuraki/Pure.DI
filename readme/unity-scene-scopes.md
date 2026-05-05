@@ -189,14 +189,14 @@ partial class Scope: IDisposable
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
     var root = _root ?? this;
-    Clock transientClock653;
+    Clock transientClock659;
     Clock localBuildingInstance15 = buildingInstance;
     if (root._singletonClockService64 is null)
       lock (_lock)
         if (root._singletonClockService64 is null)
         {
-          ClockConfig transientClockConfig657 = clockConfig;
-          root._singletonClockService64 = new ClockService(transientClockConfig657);
+          ClockConfig transientClockConfig663 = clockConfig;
+          root._singletonClockService64 = new ClockService(transientClockConfig663);
           root._disposables[root._disposeIndex++] = root._singletonClockService64;
         }
 
@@ -204,15 +204,15 @@ partial class Scope: IDisposable
       lock (_lock)
         if (_scopedClockSession65 is null)
         {
-          string transientString658 = sceneName;
-          _scopedClockSession65 = new ClockSession(transientString658);
+          string transientString664 = sceneName;
+          _scopedClockSession65 = new ClockSession(transientString664);
           _disposables[_disposeIndex++] = _scopedClockSession65;
         }
 
     localBuildingInstance15.ClockService = root._singletonClockService64;
     localBuildingInstance15.Session = _scopedClockSession65;
-    transientClock653 = localBuildingInstance15;
-    return transientClock653;
+    transientClock659 = localBuildingInstance15;
+    return transientClock659;
   }
 
   #pragma warning disable CS0162

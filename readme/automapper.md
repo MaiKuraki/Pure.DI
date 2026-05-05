@@ -335,7 +335,7 @@ classDiagram
 	Mapper o-- "Singleton" LoggerFactory : LoggerFactory
 	Program *--  StudentService : IStudentService
 	Program o-- "Singleton" ILogger : ILogger
-	FuncᐸStudentˏPersonᐳ o-- "Singleton" PersonFormatter : IPersonFormatter
+	FuncᐸStudentˏPersonᐳ o-- "Singleton" PersonFormatter : IPersonFormatterɁ
 	FuncᐸStudentˏPersonᐳ o-- "Singleton" Mapper : IMapper
 	namespace AutoMapper {
 		class IMapper {
@@ -384,7 +384,7 @@ classDiagram
 	namespace System {
 		class FuncᐸStudentˏPersonᐳ {
 				<<delegate>>
-			+IPersonFormatter Formatter
+			+IPersonFormatterɁ Formatter
 		}
 		class IDisposable {
 			<<abstract>>

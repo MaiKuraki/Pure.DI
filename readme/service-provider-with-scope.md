@@ -161,14 +161,14 @@ partial class Composition: IDisposable
     get
     {
       var root = _root ?? this;
-      Func<IConfiguration> perBlockFunc441 = new Func<IConfiguration>(
+      Func<IConfiguration> perBlockFunc447 = new Func<IConfiguration>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
         EnsureConfigurationExists();
         return root._singletonConfiguration62;
       });
-      Func<ISession> perBlockFunc442 = new Func<ISession>(
+      Func<ISession> perBlockFunc448 = new Func<ISession>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
@@ -177,8 +177,8 @@ partial class Composition: IDisposable
       });
       return new LightweightRoot()
       {
-        IConfiguration = perBlockFunc441,
-        ISession = perBlockFunc442
+        IConfiguration = perBlockFunc447,
+        ISession = perBlockFunc448
       };
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       void EnsureConfigurationExists()
@@ -426,7 +426,7 @@ classDiagram
 	Composition --|> IDisposable
 	Configuration --|> IConfiguration
 	Session --|> ISession
-	Composition ..> LightweightRoot : LightweightRoot LightRoot120d
+	Composition ..> LightweightRoot : LightweightRoot LightRoot125d
 	Composition ..> Session : ISession _
 	Composition ..> Configuration : IConfiguration _
 	Session o-- "Singleton" Configuration : IConfiguration
@@ -445,7 +445,7 @@ classDiagram
 	namespace Pure.DI.UsageTests.BCL.ServiceProviderWithScopeScenario {
 		class Composition {
 		<<partial>>
-		-LightweightRoot LightRoot120d
+		-LightweightRoot LightRoot125d
 		-IConfiguration _
 		-ISession _
 		+ T ResolveᐸTᐳ()

@@ -98,7 +98,7 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<ISensor> perBlockFunc327 = new Func<ISensor>(
+      Func<ISensor> perBlockFunc333 = new Func<ISensor>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
@@ -106,7 +106,7 @@ partial class Composition
       });
       return new LightweightRoot()
       {
-        ISensor1 = perBlockFunc327
+        ISensor1 = perBlockFunc333
       };
     }
   }
@@ -267,7 +267,7 @@ classDiagram
 	Device --|> IDevice
 	TemperatureSensor --|> ISensor
 	HumiditySensor --|> ISensor : "Humidity" 
-	Composition ..> LightweightRoot : LightweightRoot LightRoot120d
+	Composition ..> LightweightRoot : LightweightRoot LightRoot125d
 	Composition ..> HumiditySensor : ISensor HumiditySensor
 	Composition ..> TemperatureSensor : ISensor _
 	TemperatureSensor *--  Device : IDevice
@@ -284,7 +284,7 @@ classDiagram
 		class Composition {
 		<<partial>>
 		+ISensor HumiditySensor
-		-LightweightRoot LightRoot120d
+		-LightweightRoot LightRoot125d
 		-ISensor _
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)

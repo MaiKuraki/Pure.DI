@@ -104,7 +104,7 @@ classDiagram
 	CoffeeMachine --|> ICoffeeMachine
 	SmartKitchen --|> ISmartKitchen
 	Composition ..> SmartKitchen : ISmartKitchen Kitchen
-	SmartKitchen *--  CoffeeMachine : ICoffeeMachine
+	SmartKitchen *--  CoffeeMachine : ICoffeeMachineɁ
 	namespace Pure.DI.UsageTests.Basics.FieldInjectionScenario {
 		class CoffeeMachine {
 				<<class>>
@@ -123,7 +123,7 @@ classDiagram
 		class SmartKitchen {
 				<<class>>
 			+SmartKitchen()
-			+ICoffeeMachine CoffeeMachineImpl
+			+ICoffeeMachineɁ CoffeeMachineImpl
 		}
 	}
 ```

@@ -174,12 +174,12 @@ classDiagram
 	Composition ..> GuardBot : GuardBot BuildUp(Pure.DI.UsageTests.Basics.BuildersScenario.GuardBot buildingInstance)
 	Composition ..> CleanerBot : CleanerBot BuildUp(Pure.DI.UsageTests.Basics.BuildersScenario.CleanerBot buildingInstance)
 	CleanerBot *--  Guid : Guid
-	CleanerBot *--  PlutoniumBattery : IBattery
-	GuardBot *--  PlutoniumBattery : IBattery
+	CleanerBot *--  PlutoniumBattery : IBatteryɁ
+	GuardBot *--  PlutoniumBattery : IBatteryɁ
 	namespace Pure.DI.UsageTests.Basics.BuildersScenario {
 		class CleanerBot {
 				<<record>>
-			+IBattery Battery
+			+IBatteryɁ Battery
 			+SetToken(Guid token) : Void
 		}
 		class Composition {
@@ -190,7 +190,7 @@ classDiagram
 		}
 		class GuardBot {
 				<<record>>
-			+IBattery Battery
+			+IBatteryɁ Battery
 		}
 		class IBattery {
 			<<interface>>

@@ -306,6 +306,7 @@ dotnet run
 - [Field injection](readme/field-injection.md)
 - [Method injection](readme/method-injection.md)
 - [Property injection](readme/property-injection.md)
+- [Nullable reference types](readme/nullable-reference-types.md)
 - [Default values](readme/default-values.md)
 - [Required properties or fields](readme/required-properties-or-fields.md)
 - [Overrides](readme/overrides.md)
@@ -2146,8 +2147,8 @@ AI needs to understand the situation it’s in (context). This means knowing det
 | AI context file | Size | Tokens |
 | --------------- | ---- | ------ |
 | [AGENTS_SMALL.md](AGENTS_SMALL.md) | 62KB | 16K |
-| [AGENTS_MEDIUM.md](AGENTS_MEDIUM.md) | 108KB | 27K |
-| [AGENTS.md](AGENTS.md) | 406KB | 104K |
+| [AGENTS_MEDIUM.md](AGENTS_MEDIUM.md) | 111KB | 28K |
+| [AGENTS.md](AGENTS.md) | 409KB | 104K |
 
 For different IDEs, you can use the _AGENTS.md_ file as is by simply copying it to the root directory. For use with _JetBrains Rider_ and _Junie_, please refer to [these instructions](https://www.jetbrains.com/help/junie/customize-guidelines.html). For example, you can copy any _AGENTS.md_ file into your project (using _Pure.DI_) as _.junie/guidelines.md._
 ## How to contribute to Pure.DI

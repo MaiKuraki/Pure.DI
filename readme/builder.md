@@ -137,7 +137,7 @@ classDiagram
 	PhotonBlaster --|> IWeapon
 	Composition ..> Player : Player Equip(Pure.DI.UsageTests.Basics.BuilderScenario.Player buildingInstance)
 	Player *--  Guid : Guid
-	Player *--  PhotonBlaster : IWeapon
+	Player *--  PhotonBlaster : IWeaponɁ
 	namespace Pure.DI.UsageTests.Basics.BuilderScenario {
 		class Composition {
 		<<partial>>
@@ -152,7 +152,7 @@ classDiagram
 		}
 		class Player {
 				<<record>>
-			+IWeapon Weapon
+			+IWeaponɁ Weapon
 			+SetId(Guid id) : Void
 		}
 	}

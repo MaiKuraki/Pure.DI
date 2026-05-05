@@ -124,7 +124,7 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private Func<string, Settings>? _singletonFunc67;
+  private Func<string, Settings?>? _singletonFunc67;
   private Func<Settings, string>? _singletonFunc68;
   private Storage? _singletonStorage66;
   private Text.Json.JsonSerializerOptions? _singletonJsonSerializerOptions63;
@@ -156,7 +156,7 @@ partial class Composition
           {
             EnsureJsonSerializerOptionsExists();
             Text.Json.JsonSerializerOptions localOptions1 = _singletonJsonSerializerOptions63;
-            _singletonFunc67 = json => JsonSerializer.Deserialize<Settings>(json, localOptions1);
+            _singletonFunc67 = json => JsonSerializer.Deserialize<Settings?>(json, localOptions1);
           }
 
       return new SettingsService(_singletonFunc67, _singletonFunc68, _singletonStorage66);
@@ -193,9 +193,9 @@ classDiagram
 	Storage --|> IStorage
 	Composition ..> SettingsService : ISettingsService Settings
 	SettingsService o-- "Singleton" Storage : IStorage
-	SettingsService o-- "Singleton" FuncᐸStringˏSettingsᐳ : "JSON"  FuncᐸStringˏSettingsᐳ
+	SettingsService o-- "Singleton" FuncᐸStringˏSettingsɁᐳ : "JSON"  FuncᐸStringˏSettingsɁᐳ
 	SettingsService o-- "Singleton" FuncᐸSettingsˏStringᐳ : "JSON"  FuncᐸSettingsˏStringᐳ
-	FuncᐸStringˏSettingsᐳ o-- "Singleton" JsonSerializerOptions : JsonSerializerOptions
+	FuncᐸStringˏSettingsɁᐳ o-- "Singleton" JsonSerializerOptions : JsonSerializerOptions
 	FuncᐸSettingsˏStringᐳ o-- "Singleton" JsonSerializerOptions : JsonSerializerOptions
 	namespace Pure.DI.UsageTests.UseCases.JsonSerializationScenario {
 		class Composition {
@@ -210,7 +210,7 @@ classDiagram
 		}
 		class SettingsService {
 				<<class>>
-			+SettingsService(FuncᐸStringˏSettingsᐳ deserialize, FuncᐸSettingsˏStringᐳ serialize, IStorage storage)
+			+SettingsService(FuncᐸStringˏSettingsɁᐳ deserialize, FuncᐸSettingsˏStringᐳ serialize, IStorage storage)
 		}
 		class Storage {
 				<<class>>
@@ -221,7 +221,7 @@ classDiagram
 		class FuncᐸSettingsˏStringᐳ {
 				<<delegate>>
 		}
-		class FuncᐸStringˏSettingsᐳ {
+		class FuncᐸStringˏSettingsɁᐳ {
 				<<delegate>>
 		}
 	}

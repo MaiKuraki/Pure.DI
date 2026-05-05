@@ -125,7 +125,7 @@ classDiagram
 	TelemetrySystem --|> ITelemetrySystem
 	Composition ..> Satellite : Satellite Initialize(Pure.DI.UsageTests.Basics.BuilderWithArgumentsScenario.Satellite buildingInstance, System.Guid id)
 	Satellite o-- Guid : Argument "id"
-	Satellite *--  TelemetrySystem : ITelemetrySystem
+	Satellite *--  TelemetrySystem : ITelemetrySystemɁ
 	namespace Pure.DI.UsageTests.Basics.BuilderWithArgumentsScenario {
 		class Composition {
 		<<partial>>
@@ -136,7 +136,7 @@ classDiagram
 		}
 		class Satellite {
 				<<record>>
-			+ITelemetrySystem Telemetry
+			+ITelemetrySystemɁ Telemetry
 			+SetId(Guid id) : Void
 		}
 		class TelemetrySystem {

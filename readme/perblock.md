@@ -116,18 +116,18 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perBlockDatabaseConnection620 = new DatabaseConnection();
+      var perBlockDatabaseConnection626 = new DatabaseConnection();
       if (!_singletonValueTuple65Created)
         lock (_lock)
           if (!_singletonValueTuple65Created)
           {
-            var perBlockDatabaseConnection622 = new DatabaseConnection();
-            _singletonValueTuple65 = (perBlockDatabaseConnection622, perBlockDatabaseConnection622);
+            var perBlockDatabaseConnection628 = new DatabaseConnection();
+            _singletonValueTuple65 = (perBlockDatabaseConnection628, perBlockDatabaseConnection628);
             Thread.MemoryBarrier();
             _singletonValueTuple65Created = true;
           }
 
-      return new OrderRepository(perBlockDatabaseConnection620, perBlockDatabaseConnection620, _singletonValueTuple65);
+      return new OrderRepository(perBlockDatabaseConnection626, perBlockDatabaseConnection626, _singletonValueTuple65);
     }
   }
 }

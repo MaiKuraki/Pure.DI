@@ -79,9 +79,9 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var transientService318 = new Service();
-      transientService318.Logger = new ConsoleLogger();
-      return transientService318;
+      var transientService324 = new Service();
+      transientService324.Logger = new ConsoleLogger();
+      return transientService324;
     }
   }
 }
@@ -101,7 +101,7 @@ classDiagram
 	ConsoleLogger --|> ILogger
 	Service --|> IService
 	Composition ..> Service : IService MyService
-	Service *--  ConsoleLogger : ILogger
+	Service *--  ConsoleLogger : ILoggerɁ
 	namespace Pure.DI.UsageTests.Basics.PropertyInjectionScenario {
 		class Composition {
 		<<partial>>
@@ -120,7 +120,7 @@ classDiagram
 		class Service {
 				<<class>>
 			+Service()
-			+ILogger Logger
+			+ILoggerɁ Logger
 		}
 	}
 ```

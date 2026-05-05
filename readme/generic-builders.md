@@ -140,11 +140,11 @@ partial class Composition
     where T1: struct
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    CommandMessage<T1, T4> transientCommandMessage503;
+    CommandMessage<T1, T4> transientCommandMessage509;
     CommandMessage<T1, T4> localBuildingInstance10 = buildingInstance;
     localBuildingInstance10.Tracker = new MessageTracker<T4>();
-    transientCommandMessage503 = localBuildingInstance10;
-    return transientCommandMessage503;
+    transientCommandMessage509 = localBuildingInstance10;
+    return transientCommandMessage509;
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -152,13 +152,13 @@ partial class Composition
     where T1: struct
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    QueryMessage<T1, T4> transientQueryMessage506;
+    QueryMessage<T1, T4> transientQueryMessage512;
     QueryMessage<T1, T4> localBuildingInstance11 = buildingInstance;
-    T1 transientTT509 = (T1)(object)Guid.NewGuid();
+    T1 transientTT515 = (T1)(object)Guid.NewGuid();
     localBuildingInstance11.Tracker = new MessageTracker<T4>();
-    localBuildingInstance11.SetId(transientTT509);
-    transientQueryMessage506 = localBuildingInstance11;
-    return transientQueryMessage506;
+    localBuildingInstance11.SetId(transientTT515);
+    transientQueryMessage512 = localBuildingInstance11;
+    return transientQueryMessage512;
   }
 }
 ```
@@ -184,7 +184,7 @@ classDiagram
 	namespace Pure.DI.UsageTests.Generics.GenericBuildersScenario {
 		class CommandMessageᐸT1ˏT4ᐳ {
 				<<record>>
-			+IMessageTrackerᐸT4ᐳ Tracker
+			+IMessageTrackerᐸT4ᐳɁ Tracker
 		}
 		class Composition {
 		<<partial>>
@@ -204,7 +204,7 @@ classDiagram
 		}
 		class QueryMessageᐸT1ˏT4ᐳ {
 				<<record>>
-			+IMessageTrackerᐸT4ᐳ Tracker
+			+IMessageTrackerᐸT4ᐳɁ Tracker
 			+SetId(T1 id) : Void
 		}
 	}

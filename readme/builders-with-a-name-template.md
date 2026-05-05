@@ -174,8 +174,8 @@ classDiagram
 	Composition ..> Thermostat : Thermostat InstallThermostat(Pure.DI.UsageTests.Basics.BuildersWithNameTemplateScenario.Thermostat buildingInstance)
 	Composition ..> Webcam : Webcam InstallWebcam(Pure.DI.UsageTests.Basics.BuildersWithNameTemplateScenario.Webcam buildingInstance)
 	Webcam *--  Guid : Guid
-	Webcam *--  WiFi : INetwork
-	Thermostat *--  WiFi : INetwork
+	Webcam *--  WiFi : INetworkɁ
+	Thermostat *--  WiFi : INetworkɁ
 	namespace Pure.DI.UsageTests.Basics.BuildersWithNameTemplateScenario {
 		class Composition {
 		<<partial>>
@@ -191,11 +191,11 @@ classDiagram
 		}
 		class Thermostat {
 				<<record>>
-			+INetwork Network
+			+INetworkɁ Network
 		}
 		class Webcam {
 				<<record>>
-			+INetwork Network
+			+INetworkɁ Network
 			+SetId(Guid id) : Void
 		}
 		class WiFi {
