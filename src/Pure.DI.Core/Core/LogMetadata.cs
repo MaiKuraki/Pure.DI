@@ -64,6 +64,7 @@ static class LogMetadata
             LogId.WarningGenerateInterfaceOnNonPublicMember => $"{HelpLinkBaseUrl}#diw008",
             LogId.WarningGenerateInterfaceOnStaticMember => $"{HelpLinkBaseUrl}#diw009",
             LogId.WarningGenerateInterfaceSelectiveEmpty => $"{HelpLinkBaseUrl}#diw010",
+            LogId.WarningNullableRootInResolveMethod => $"{HelpLinkBaseUrl}#diw011",
             LogId.InfoGenerationInterrupted => $"{HelpLinkBaseUrl}#dii000",
             LogId.InfoNotImplementedContract => $"{HelpLinkBaseUrl}#dii001",
             _ => null
@@ -98,6 +99,7 @@ static class LogMetadata
             LogId.WarningRootArgInResolveMethod => "Setup",
             LogId.WarningTypeArgInResolveMethod => "Setup",
             LogId.WarningInstanceMemberInDependsOnSetup => "Setup",
+            LogId.WarningNullableRootInResolveMethod => "Setup",
             LogId.ErrorSetupContextNameIsRequired => "Setup",
 
             LogId.ErrorAsyncFactoryNotSupported => "Factories",
@@ -197,6 +199,7 @@ static class LogMetadata
             LogId.WarningGenerateInterfaceOnNonPublicMember => Strings.Description_WarningGenerateInterfaceOnNonPublicMember,
             LogId.WarningGenerateInterfaceOnStaticMember => Strings.Description_WarningGenerateInterfaceOnStaticMember,
             LogId.WarningGenerateInterfaceSelectiveEmpty => Strings.Description_WarningGenerateInterfaceSelectiveEmpty,
+            LogId.WarningNullableRootInResolveMethod => Strings.Description_WarningNullableRootInResolveMethod,
             LogId.InfoGenerationInterrupted => Strings.Description_InfoGenerationInterrupted,
             LogId.InfoNotImplementedContract => Strings.Description_InfoNotImplementedContract,
             LogId.ErrorUnhandled => Strings.Description_ErrorUnhandled,

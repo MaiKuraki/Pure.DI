@@ -397,6 +397,13 @@ example scenarios. IDs and anchors are stable; message text is localized.
 - See: [generate-interface](readme/generate-interface.md).
 - Examples: All selected elements are `IgnoreInterface`, non-public, or static.
 
+### DIW011
+- Description: Resolve(Type) cannot distinguish nullable and non-nullable roots.
+- Problem: Two roots have the same runtime type but different nullable reference annotations, for example `IService` and `IService?`. `Resolve(Type)` and `Resolve(Type, tag)` receive only `System.Type`, so nullable reference annotations are not available at runtime.
+- Fix: Use `Resolve<T>()`, remove one of the runtime-equivalent roots, or disable Resolve methods when runtime resolution is not needed.
+- See: [resolve-methods](readme/resolve-methods.md), [nullable-reference-types](readme/nullable-reference-types.md).
+- Examples: `Root<IService>("Service")` and `Root<IService?>("NullableService")` while Resolve methods are enabled.
+
 ## Info
 
 ### DII000

@@ -2089,6 +2089,241 @@ public class NullableReferenceTypesTests
     }
 
     [Fact]
+    public async Task ShouldWarnWhenNullableAndNonNullableRootsHaveSameRuntimeType()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IService
+                           {
+                           }
+
+                           class Service: IService
+                           {
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<IService>().To<Service>()
+                                       .Root<IService>("Service")
+                                       .Root<IService?>("NullableService");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeFalse(result);
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod).ShouldBe(2, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod && i.Locations.FirstOrDefault().GetSource() == "Root<IService>(\"Service\")").ShouldBe(1, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod && i.Locations.FirstOrDefault().GetSource() == "Root<IService?>(\"NullableService\")").ShouldBe(1, result);
+    }
+
+    [Fact]
+    public async Task ShouldNotWarnWhenNullableAndNonNullableRootsHaveSameRuntimeTypeButResolveIsOff()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IService
+                           {
+                           }
+
+                           class Service: IService
+                           {
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Hint(Hint.Resolve, "Off")
+                                       .Bind<IService>().To<Service>()
+                                       .Root<IService>("Service")
+                                       .Root<IService?>("NullableService");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod).ShouldBe(0, result);
+    }
+
+    [Fact]
+    public async Task ShouldWarnWhenTaggedNullableAndNonNullableRootsHaveSameRuntimeType()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IService
+                           {
+                           }
+
+                           class Service: IService
+                           {
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<IService>("service", "nullable").To<Service>()
+                                       .Root<IService>("Service", "service")
+                                       .Root<IService?>("NullableService", "nullable");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeFalse(result);
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod).ShouldBe(2, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod && i.Locations.FirstOrDefault().GetSource() == "Root<IService>(\"Service\", \"service\")").ShouldBe(1, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod && i.Locations.FirstOrDefault().GetSource() == "Root<IService?>(\"NullableService\", \"nullable\")").ShouldBe(1, result);
+    }
+
+    [Fact]
+    public async Task ShouldWarnWhenNullableAndNonNullableGenericRootsHaveSameRuntimeType()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IBox<T>
+                           {
+                               T Value { get; }
+                           }
+
+                           class Box<T>: IBox<T>
+                           {
+                               public Box(T value) => Value = value;
+
+                               public T Value { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string>().To(_ => "value")
+                                       .Bind<string?>().To(_ => (string?)null)
+                                       .Bind<IBox<TT>>().To<Box<TT>>()
+                                       .Root<IBox<string>>("Box")
+                                       .Root<IBox<string?>>("NullableBox");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeFalse(result);
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod).ShouldBe(2, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod && i.Locations.FirstOrDefault().GetSource() == "Root<IBox<string>>(\"Box\")").ShouldBe(1, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod && i.Locations.FirstOrDefault().GetSource() == "Root<IBox<string?>>(\"NullableBox\")").ShouldBe(1, result);
+    }
+
+    [Fact]
+    public async Task ShouldNotWarnWhenOnlyNullableRootHasRuntimeResolveType()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IService
+                           {
+                           }
+
+                           class Service: IService
+                           {
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<IService>().To<Service>()
+                                       .Root<IService?>("NullableService");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod).ShouldBe(0, result);
+    }
+
+    [Fact]
     public async Task ShouldInjectNullableEnumerableFromNonNullableBinding()
     {
         // Given

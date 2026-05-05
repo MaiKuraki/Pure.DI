@@ -571,6 +571,15 @@ namespace Pure.DI {
                 return ResourceManager.GetString("Warning_Template_RootCannotBeResolvedByResolveMethods", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The root {0} has the same runtime type as another nullable/non-nullable root. Resolve(Type) and Resolve(Type, tag) cannot distinguish nullable reference annotations..
+        /// </summary>
+        internal static string Warning_Template_NullableRootCannotBeDistinguishedByResolveTypeMethods {
+            get {
+                return ResourceManager.GetString("Warning_Template_NullableRootCannotBeDistinguishedByResolveTypeMethods", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Unable to resolve a dependency in the object graph..
@@ -1064,6 +1073,15 @@ namespace Pure.DI {
         internal static string Description_WarningGenerateInterfaceSelectiveEmpty {
             get {
                 return ResourceManager.GetString("Description_WarningGenerateInterfaceSelectiveEmpty", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Resolve(Type) cannot distinguish nullable and non-nullable roots..
+        /// </summary>
+        internal static string Description_WarningNullableRootInResolveMethod {
+            get {
+                return ResourceManager.GetString("Description_WarningNullableRootInResolveMethod", resourceCulture);
             }
         }
         

@@ -117,6 +117,8 @@ static class LogId
     public const string WarningGenerateInterfaceOnStaticMember = "DIW009";
     // Selective interface generation produced an empty interface.
     public const string WarningGenerateInterfaceSelectiveEmpty = "DIW010";
+    // Resolve(Type) cannot distinguish nullable and non-nullable roots with the same runtime type.
+    public const string WarningNullableRootInResolveMethod = "DIW011";
 
     // Info
     // Generation was interrupted.

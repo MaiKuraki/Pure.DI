@@ -157,6 +157,9 @@
   <data name="Warning_Template_RootCannotBeResolvedByResolveMethods" xml:space="preserve">
         <value>Le Root {0} ne peut pas être résolu par les méthodes Resolve en raison des arguments {1} ; une exception sera levée lors de la tentative.</value>
     </data>
+  <data name="Warning_Template_NullableRootCannotBeDistinguishedByResolveTypeMethods" xml:space="preserve">
+    <value>The root {0} has the same runtime type as another nullable/non-nullable root. Resolve(Type) and Resolve(Type, tag) cannot distinguish nullable reference annotations.</value>
+  </data>
   <data name="Warning_Template_InjectionSiteIsNotUsed" xml:space="preserve">
         <value>Le tag "{0}" sur l'Injection Site n'est pas utilisé.</value>
     </data>
@@ -348,6 +351,9 @@
   </data>
   <data name="Description_WarningGenerateInterfaceSelectiveEmpty" xml:space="preserve">
     <value>La génération sélective d’interface a produit une interface vide.</value>
+  </data>
+  <data name="Description_WarningNullableRootInResolveMethod" xml:space="preserve">
+    <value>Resolve(Type) cannot distinguish nullable and non-nullable roots.</value>
   </data>
   <data name="Warning_Template_GenerateInterfaceOnNonPublicMember" xml:space="preserve">
     <value>L’attribut [GenerateInterface] sur l’élément "{0}" est ignoré pour l’interface "{1}" car l’élément n’est pas public.</value>
