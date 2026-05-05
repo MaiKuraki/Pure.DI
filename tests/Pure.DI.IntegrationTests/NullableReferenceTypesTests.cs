@@ -4291,6 +4291,393 @@ public class NullableReferenceTypesTests
     }
 
     [Fact]
+    public async Task ShouldUseExactOpenGenericBindingForNullableAndNonNullableGenericContracts()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IBox<T>
+                           {
+                               T Value { get; }
+                           }
+
+                           class Box<T>: IBox<T>
+                           {
+                               public Box(T value) => Value = value;
+
+                               public T Value { get; }
+                           }
+
+                           class NullableBox<T>: IBox<T?>
+                               where T : class?
+                           {
+                               public NullableBox(T? value) => Value = value;
+
+                               public T? Value { get; }
+                           }
+
+                           class Service
+                           {
+                               public Service(IBox<string> box) => IsReady = box.Value == "required";
+
+                               public bool IsReady { get; }
+                           }
+
+                           class OptionalService
+                           {
+                               public OptionalService(IBox<string?> box) => IsReady = box.Value is null;
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string>().To(_ => "required")
+                                       .Bind<string?>().To(_ => (string?)null)
+                                       .Bind<IBox<TT>>().To<Box<TT>>()
+                                       .Bind<IBox<TT?>>().To<NullableBox<TT>>()
+                                       .Root<Service>("Service")
+                                       .Root<OptionalService>("OptionalService");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   Console.WriteLine(composition.Service.IsReady);
+                                   Console.WriteLine(composition.OptionalService.IsReady);
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True", "True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldUseNonNullableOpenGenericBindingForNullableGenericDependency()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IBox<T>
+                           {
+                               T Value { get; }
+                           }
+
+                           class Box<T>: IBox<T>
+                           {
+                               public Box(T value) => Value = value;
+
+                               public T Value { get; }
+                           }
+
+                           class Service
+                           {
+                               public Service(IBox<string?> box) => IsReady = box.Value == "required";
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string>().To(_ => "required")
+                                       .Bind<IBox<TT>>().To<Box<TT>>()
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Service.IsReady);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldNotUseNullableOpenGenericBindingForNonNullableGenericDependency()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IBox<T>
+                           {
+                               T Value { get; }
+                           }
+
+                           class NullableBox<T>: IBox<T?>
+                               where T : class?
+                           {
+                               public NullableBox(T? value) => Value = value;
+
+                               public T? Value { get; }
+                           }
+
+                           class Service
+                           {
+                               public Service(IBox<string> box)
+                               {
+                               }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string?>().To(_ => "optional")
+                                       .Bind<IBox<TT?>>().To<NullableBox<TT>>()
+                                       .Root<Service>("Service");
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeFalse(result);
+        result.Errors.Count(i => i.Id == LogId.ErrorUnableToResolve).ShouldBe(1, result);
+    }
+
+    [Fact]
+    public async Task ShouldWarnWhenNullableOpenGenericBindingIsNotUsed()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IBox<T>
+                           {
+                               T Value { get; }
+                           }
+
+                           class Box<T>: IBox<T>
+                           {
+                               public Box(T value) => Value = value;
+
+                               public T Value { get; }
+                           }
+
+                           class NullableBox<T>: IBox<T?>
+                               where T : class?
+                           {
+                               public NullableBox(T? value) => Value = value;
+
+                               public T? Value { get; }
+                           }
+
+                           class Service
+                           {
+                               public Service(IBox<string> box) => IsReady = box.Value == "required";
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string>().To(_ => "required")
+                                       .Bind<IBox<TT>>().To<Box<TT>>()
+                                       .Bind<IBox<TT?>>().To<NullableBox<TT>>()
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Service.IsReady);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeFalse(result);
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningBindingNotUsed && i.Locations.FirstOrDefault().GetSource() == "To<NullableBox<TT>>()").ShouldBe(1, result);
+    }
+
+    [Fact]
+    public async Task ShouldUseExactOpenGenericFactoryBindingForNullableAndNonNullableGenericContracts()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IBox<T>
+                           {
+                               T Value { get; }
+                           }
+
+                           class Box<T>: IBox<T>
+                           {
+                               public Box(T value) => Value = value;
+
+                               public T Value { get; }
+                           }
+
+                           class NullableBox<T>: IBox<T?>
+                               where T : class?
+                           {
+                               public NullableBox(T? value) => Value = value;
+
+                               public T? Value { get; }
+                           }
+
+                           class Service
+                           {
+                               public Service(IBox<string> box) => IsReady = box.Value == "required";
+
+                               public bool IsReady { get; }
+                           }
+
+                           class OptionalService
+                           {
+                               public OptionalService(IBox<string?> box) => IsReady = box.Value is null;
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string>().To(_ => "required")
+                                       .Bind<string?>().To(_ => (string?)null)
+                                       .Bind<IBox<TT>>().To(ctx =>
+                                       {
+                                           ctx.Inject<TT>(out var value);
+                                           return new Box<TT>(value);
+                                       })
+                                       .Bind<IBox<TT?>>().To(ctx =>
+                                       {
+                                           ctx.Inject<TT?>(out var value);
+                                           return new NullableBox<TT>(value);
+                                       })
+                                       .Root<Service>("Service")
+                                       .Root<OptionalService>("OptionalService");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   Console.WriteLine(composition.Service.IsReady);
+                                   Console.WriteLine(composition.OptionalService.IsReady);
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True", "True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldUseNonNullableOpenGenericFactoryBindingForNullableGenericDependency()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IBox<T>
+                           {
+                               T Value { get; }
+                           }
+
+                           class Box<T>: IBox<T>
+                           {
+                               public Box(T value) => Value = value;
+
+                               public T Value { get; }
+                           }
+
+                           class Service
+                           {
+                               public Service(IBox<string?> box) => IsReady = box.Value == "required";
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string>().To(_ => "required")
+                                       .Bind<IBox<TT>>().To(ctx =>
+                                       {
+                                           ctx.Inject<TT>(out var value);
+                                           return new Box<TT>(value);
+                                       })
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Service.IsReady);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
     public async Task ShouldSupportSimplifiedBindingWithNullableGenericInterface()
     {
         // Given

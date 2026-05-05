@@ -17,7 +17,29 @@ sealed class TypeConstructor(
 
     public bool TryBind(MdSetup setup, ITypeSymbol source, ITypeSymbol target)
     {
+        var map = _map.ToArray();
         _reversedMap.Clear();
+        if (TryBindCore(setup, source, target))
+        {
+            return true;
+        }
+
+        _map.Clear();
+        foreach (var item in map)
+        {
+            _map[item.Key] = item.Value;
+        }
+
+        return false;
+    }
+
+    private bool TryBindCore(MdSetup setup, ITypeSymbol source, ITypeSymbol target)
+    {
+        if (!IsNullableReferenceTypeCompatible(source, target))
+        {
+            return false;
+        }
+
         if (marker.IsMarker(setup, source))
         {
             _map[source] = target;
@@ -62,7 +84,7 @@ sealed class TypeConstructor(
                         {
                             for (var i = 0; i < sourceArgs.Length; i++)
                             {
-                                result &= TryBind(setup, sourceArgs[i], targetArgs[i]);
+                                result &= TryBindCore(setup, sourceArgs[i], targetArgs[i]);
                                 if (!result)
                                 {
                                     break;
@@ -80,7 +102,7 @@ sealed class TypeConstructor(
             }
 
             case IArrayTypeSymbol sourceArrayType when target is IArrayTypeSymbol targetArrayType:
-                result &= result && TryBind(setup, sourceArrayType.ElementType, targetArrayType.ElementType);
+                result &= result && TryBindCore(setup, sourceArrayType.ElementType, targetArrayType.ElementType);
                 break;
 
             default:
@@ -100,7 +122,7 @@ sealed class TypeConstructor(
                 continue;
             }
 
-            result &= TryBind(setup, source, implementationInterfaceType);
+            result &= TryBindCore(setup, source, implementationInterfaceType);
             if (!result)
             {
                 break;
@@ -114,7 +136,7 @@ sealed class TypeConstructor(
                 continue;
             }
 
-            result &= TryBind(setup, dependencyInterfaceType, target);
+            result &= TryBindCore(setup, dependencyInterfaceType, target);
             if (!result)
             {
                 break;
@@ -176,4 +198,8 @@ sealed class TypeConstructor(
 
         return _reversedMap.TryGetValue(type, out var result) ? result : type;
     }
+
+    private static bool IsNullableReferenceTypeCompatible(ITypeSymbol source, ITypeSymbol target) =>
+        source is not { IsReferenceType: true, NullableAnnotation: NullableAnnotation.Annotated }
+        || target is { IsReferenceType: true, NullableAnnotation: NullableAnnotation.Annotated };
 }
