@@ -156,14 +156,28 @@ partial class Scope: IDisposable
   public UnityEngine.MonoBehaviour BuildUp(UnityEngine.MonoBehaviour buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
+    if (TryBuildUp(buildingInstance))
+    {
+      return buildingInstance;
+    }
+    throw new ArgumentException($"Unable to build an instance of typeof type {buildingInstance.GetType()}.", "buildingInstance");
+  }
+  #pragma warning restore CS0162
+
+  #pragma warning disable CS0162
+  [MethodImpl(MethodImplOptions.NoInlining)]
+  public bool TryBuildUp(UnityEngine.MonoBehaviour buildingInstance)
+  {
+    if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
     switch (buildingInstance)
     {
       case Clock Clock:
-        return BuildUp(Clock);
+        BuildUp(Clock);
+        return true;
       default:
-        throw new ArgumentException($"Unable to build an instance of typeof type {buildingInstance.GetType()}.", "buildingInstance");
+        return false;
     }
-    return buildingInstance;
+    return false;
   }
   #pragma warning restore CS0162
 

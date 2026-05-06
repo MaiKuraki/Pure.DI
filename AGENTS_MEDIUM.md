@@ -1365,7 +1365,7 @@ DI.Setup(nameof(Composition))
     .Bind().To<PlutoniumBattery>()
     // Creates a builder for each type inherited from IRobot.
     // These types must be available at this point in the code.
-    .Builders<IRobot>("BuildUp");
+    .Builders<IRobot>("BuildUp", filter: "*Bot");
 
 var composition = new Composition();
 
@@ -1383,6 +1383,14 @@ robot = composition.BuildUp(robot);
 robot.ShouldBeOfType<CleanerBot>();
 robot.Token.ShouldNotBe(Guid.Empty);
 robot.Battery.ShouldBeOfType<PlutoniumBattery>();
+
+// Uses a safe common method when the runtime subtype may be unknown.
+var externalRobot = new ExternalRobot();
+composition.TryBuildUp(externalRobot).ShouldBeFalse();
+externalRobot.Battery.ShouldBeNull();
+
+// The strict builder still throws for unknown runtime subtypes.
+Should.Throw<ArgumentException>(() => composition.BuildUp(externalRobot));
 
 interface IBattery;
 
@@ -1414,6 +1422,13 @@ record GuardBot : IRobot
     [Dependency]
     public IBattery? Battery { get; set; }
 }
+
+record ExternalRobot : IRobot
+{
+    public Guid Token => Guid.Empty;
+
+    public IBattery? Battery => null;
+}
 ```
 
 To run the above code, the following NuGet packages must be added:
@@ -1423,6 +1438,7 @@ To run the above code, the following NuGet packages must be added:
 Important Notes:
 - The default builder method name is `BuildUp`
 - The first argument to the builder method is always the instance to be built
+- `Builders<T>` also generates `TryBuildUp` for safe build-up when the runtime subtype may be unknown
 
 ## Builders with a name template
 

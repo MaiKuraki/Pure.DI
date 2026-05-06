@@ -122,16 +122,32 @@ partial class Composition
     where T1: struct
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
+    if (TryBuildUp<T1, T4>(buildingInstance))
+    {
+      return buildingInstance;
+    }
+    throw new ArgumentException($"Unable to build an instance of typeof type {buildingInstance.GetType()}.", "buildingInstance");
+  }
+  #pragma warning restore CS0162
+
+  #pragma warning disable CS0162
+  [MethodImpl(MethodImplOptions.NoInlining)]
+  public bool TryBuildUp<T1, T4>(IMessage<T1, T4> buildingInstance)
+    where T1: struct
+  {
+    if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
     switch (buildingInstance)
     {
       case QueryMessage<T1, T4> QueryMessage_TT_TT2:
-        return BuildUp(QueryMessage_TT_TT2);
+        BuildUp(QueryMessage_TT_TT2);
+        return true;
       case CommandMessage<T1, T4> CommandMessage_TT_TT2:
-        return BuildUp(CommandMessage_TT_TT2);
+        BuildUp(CommandMessage_TT_TT2);
+        return true;
       default:
-        throw new ArgumentException($"Unable to build an instance of typeof type {buildingInstance.GetType()}.", "buildingInstance");
+        return false;
     }
-    return buildingInstance;
+    return false;
   }
   #pragma warning restore CS0162
 

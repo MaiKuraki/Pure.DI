@@ -134,16 +134,31 @@ partial class Composition
   public IDevice InstallIDevice(IDevice buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
+    if (TryInstallIDevice(buildingInstance))
+    {
+      return buildingInstance;
+    }
+    throw new ArgumentException($"Unable to build an instance of typeof type {buildingInstance.GetType()}.", "buildingInstance");
+  }
+  #pragma warning restore CS0162
+
+  #pragma warning disable CS0162
+  [MethodImpl(MethodImplOptions.NoInlining)]
+  public bool TryInstallIDevice(IDevice buildingInstance)
+  {
+    if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
     switch (buildingInstance)
     {
       case Webcam Webcam:
-        return InstallWebcam(Webcam);
+        InstallWebcam(Webcam);
+        return true;
       case Thermostat Thermostat:
-        return InstallThermostat(Thermostat);
+        InstallThermostat(Thermostat);
+        return true;
       default:
-        throw new ArgumentException($"Unable to build an instance of typeof type {buildingInstance.GetType()}.", "buildingInstance");
+        return false;
     }
-    return buildingInstance;
+    return false;
   }
   #pragma warning restore CS0162
 }
