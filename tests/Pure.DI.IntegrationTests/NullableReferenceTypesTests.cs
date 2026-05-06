@@ -4967,6 +4967,1324 @@ public class NullableReferenceTypesTests
     }
 
     [Fact]
+    public async Task ShouldResolveTaggedNullableReferenceTypeRootByRuntimeType()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IService
+                           {
+                           }
+
+                           class Service: IService
+                           {
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<IService>("optional").To<Service>()
+                                       .Root<IService?>("OptionalService", "optional");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Resolve(typeof(IService), "optional") is not null);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldNotWarnWhenNullableAndNonNullableRootsHaveSameRuntimeTypeButUseRootArgs()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IService
+                           {
+                           }
+
+                           class Service: IService
+                           {
+                               public Service(string name) => Name = name;
+
+                               public string Name { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .RootArg<string>("name")
+                                       .Bind<IService>().To<Service>()
+                                       .Root<IService>("Service")
+                                       .Root<IService?>("NullableService");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeFalse(result);
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod).ShouldBe(0, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningRootArgInResolveMethod).ShouldBe(1, result);
+    }
+
+    [Fact]
+    public async Task ShouldNotWarnWhenNullableAndNonNullableGenericMarkerRootsHaveSameRuntimeType()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IBox<T>
+                           {
+                           }
+
+                           class Box<T>: IBox<T>
+                           {
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<IBox<TT>>().To<Box<TT>>()
+                                       .Root<IBox<TT>>("Box")
+                                       .Root<IBox<TT?>>("NullableBox");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeFalse(result);
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod).ShouldBe(0, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningTypeArgInResolveMethod).ShouldBe(2, result);
+    }
+
+    [Fact]
+    public async Task ShouldWarnWhenNullableArrayRootsHaveSameRuntimeType()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IService
+                           {
+                           }
+
+                           class Service: IService
+                           {
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<IService>().To<Service>()
+                                       .Root<IService[]>("Services")
+                                       .Root<IService[]?>("NullableServices");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeFalse(result);
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod).ShouldBe(2, result);
+    }
+
+    [Fact]
+    public async Task ShouldWarnWhenNullableArrayElementRootsHaveSameRuntimeType()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IService
+                           {
+                           }
+
+                           class Service: IService
+                           {
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<IService>().To<Service>()
+                                       .Root<IService[]>("Services")
+                                       .Root<IService?[]>("NullableServices");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeFalse(result);
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod).ShouldBe(2, result);
+    }
+
+    [Fact]
+    public async Task ShouldWarnWhenNestedNullableGenericRootsHaveSameRuntimeType()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IService
+                           {
+                           }
+
+                           class Service: IService
+                           {
+                           }
+
+                           interface IBox<T>
+                           {
+                               T Value { get; }
+                           }
+
+                           class Box<T>: IBox<T>
+                           {
+                               public Box(T value) => Value = value;
+
+                               public T Value { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<IService>().To<Service>()
+                                       .Bind<IBox<TT>>().To<Box<TT>>()
+                                       .Root<IBox<IService>>("Box")
+                                       .Root<IBox<IService?>>("NullableBox");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeFalse(result);
+        result.Errors.Count.ShouldBe(0, result);
+        result.Warnings.Count(i => i.Id == LogId.WarningNullableRootInResolveMethod).ShouldBe(2, result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportNullableTaskAndValueTaskDependencies()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using System.Threading.Tasks;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           class Service
+                           {
+                               public Service(Task<string?> task, ValueTask<string?> valueTask) =>
+                                   IsReady = task.Result == "dependency" && valueTask.Result == "dependency";
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string>().To(_ => "dependency")
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Service.IsReady);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportNullableCollectionInterfaces()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using System.Collections.Generic;
+                           using System.Linq;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           class Service
+                           {
+                               public Service(
+                                   IReadOnlyCollection<string?> readOnlyCollection,
+                                   ICollection<string?> collection,
+                                   IList<string?> list) =>
+                                   IsReady =
+                                       readOnlyCollection.Single() == "dependency"
+                                       && collection.Single() == "dependency"
+                                       && list.Single() == "dependency";
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string>().To(_ => "dependency")
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Service.IsReady);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldUseExactNullableAndNonNullableBindingsForSimplifiedFactoryParameters()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           class Service
+                           {
+                               public Service(string value, string? optional) =>
+                                   IsReady = value == "required" && optional is null;
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string>().To(_ => "required")
+                                       .Bind<string?>().To(_ => (string?)null)
+                                       .Bind<Service>().To((string value, string? optional) => new Service(value, optional))
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Service.IsReady);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldUseTaggedExactNullableOverrideForNullableDependencyWhenNonNullableBindingExists()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           class Service
+                           {
+                               public Service([Tag("name")] string? value) => IsReady = value is null;
+
+                               public bool IsReady { get; }
+                           }
+
+                           class RequiredService
+                           {
+                               public RequiredService([Tag("name")] string value) => IsReady = value == "binding";
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string>("name").To(_ => "binding")
+                                       .Bind<Service>().To(ctx =>
+                                       {
+                                           ctx.Override<string?>((string?)null, "name");
+                                           ctx.Inject(out Service service);
+                                           return service;
+                                       })
+                                       .Root<Service>("Service")
+                                       .Root<RequiredService>("RequiredService");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   Console.WriteLine(composition.Service.IsReady);
+                                   Console.WriteLine(composition.RequiredService.IsReady);
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True", "True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldUseTaggedExactNullableLetForNullableDependencyWhenNonNullableBindingExists()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           class Service
+                           {
+                               public Service([Tag("name")] string? value) => IsReady = value is null;
+
+                               public bool IsReady { get; }
+                           }
+
+                           class RequiredService
+                           {
+                               public RequiredService([Tag("name")] string value) => IsReady = value == "binding";
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string>("name").To(_ => "binding")
+                                       .Bind<Service>().To(ctx =>
+                                       {
+                                           ctx.Let<string?>((string?)null, "name");
+                                           ctx.Inject(out Service service);
+                                           return service;
+                                       })
+                                       .Root<Service>("Service")
+                                       .Root<RequiredService>("RequiredService");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   Console.WriteLine(composition.Service.IsReady);
+                                   Console.WriteLine(composition.RequiredService.IsReady);
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True", "True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportNullableRootBind()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IService
+                           {
+                           }
+
+                           class Service: IService
+                           {
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .RootBind<IService?>().To<Service>();
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   Console.WriteLine(composition.Resolve<IService?>() is Service);
+                                   Console.WriteLine(composition.Resolve(typeof(IService)) is Service);
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True", "True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportNullableGenericRootBind()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IBox<T>
+                           {
+                               T Value { get; }
+                           }
+
+                           class Box<T>: IBox<T>
+                           {
+                               public Box(T value) => Value = value;
+
+                               public T Value { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string?>().To(_ => (string?)null)
+                                       .RootBind<IBox<string?>>().To<Box<string?>>();
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Resolve<IBox<string?>>().Value is null);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportNullableFactoryRootBind()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IService
+                           {
+                               string? Name { get; }
+                           }
+
+                           class Service: IService
+                           {
+                               public Service(string? name) => Name = name;
+
+                               public string? Name { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string?>().To(_ => (string?)null)
+                                       .RootBind<IService?>().To(ctx =>
+                                       {
+                                           ctx.Inject(out string? name);
+                                           return new Service(name);
+                                       });
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Resolve<IService?>()!.Name is null);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportNullableRootsForImplementations()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IService
+                           {
+                               string? Name { get; }
+                           }
+
+                           class Service: IService
+                           {
+                               [Ordinal]
+                               public void Initialize(string? name) => Name = name;
+
+                               public string? Name { get; private set; } = "initial";
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string?>().To(_ => (string?)null)
+                                       .Roots<IService?>();
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Resolve<Service>().Name is null);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportNullableBuildersForImplementations()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IService
+                           {
+                               string? Name { get; }
+                           }
+
+                           class Service: IService
+                           {
+                               [Ordinal]
+                               public void Initialize(string? name) => Name = name;
+
+                               public string? Name { get; private set; } = "initial";
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string?>().To(_ => (string?)null)
+                                       .Builders<IService?>();
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                                   var service = new Service();
+                                   new Composition().BuildUp(service);
+                                   Console.WriteLine(service.Name is null);
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportNullableBindAttribute()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           class Bindings
+                           {
+                               [Bind]
+                               public string Required => "required";
+
+                               [Bind]
+                               public string? Optional => null;
+                           }
+
+                           class Service
+                           {
+                               public Service(string required, string? optional) =>
+                                   IsReady = required == "required" && optional is null;
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind().To<Bindings>()
+                                       .Bind().To<Service>()
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Service.IsReady);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportNullableInjectAttributeOnMembers()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           #pragma warning disable CS8618
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
+                           class InjectAttribute: Attribute
+                           {
+                               public InjectAttribute(object? tag = null, int ordinal = 0)
+                               {
+                               }
+                           }
+
+                           class Service
+                           {
+                               [Inject("optional")]
+                               public string? Optional { get; set; }
+
+                               [Inject("required")]
+                               public string Required;
+
+                               public bool IsReady => Optional is null && Required == "required";
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .TagAttribute<InjectAttribute>()
+                                       .OrdinalAttribute<InjectAttribute>(1)
+                                       .Bind<string>("required").To(_ => "required")
+                                       .Bind<string?>("optional").To(_ => (string?)null)
+                                       .Bind().To<Service>()
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Service.IsReady);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportNullableInjectAttributeOnMethodParameter()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
+                           class InjectAttribute: Attribute
+                           {
+                               public InjectAttribute(object? tag = null, int ordinal = 0)
+                               {
+                               }
+                           }
+
+                           class Service
+                           {
+                               public string? Optional { get; private set; } = "initial";
+
+                               [Ordinal]
+                               public void Initialize([Inject("optional")] string? optional) => Optional = optional;
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .TagAttribute<InjectAttribute>()
+                                       .OrdinalAttribute<InjectAttribute>(1)
+                                       .Bind<string?>("optional").To(_ => (string?)null)
+                                       .Bind().To<Service>()
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Service.Optional is null);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportNullableSetAndDictionaryBclTypes()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using System.Collections.Generic;
+                           using System.Linq;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IService
+                           {
+                           }
+
+                           class ServiceDependency: IService
+                           {
+                           }
+
+                           class Service
+                           {
+                               public Service(
+                                   ISet<string?> set,
+                                   HashSet<string?> hashSet,
+                                   Dictionary<string, IService?> dictionary,
+                                   IReadOnlyDictionary<string, IService?> readOnlyDictionary) =>
+                                   IsReady =
+                                       set.Single() == "dependency"
+                                       && hashSet.Single() == "dependency"
+                                       && dictionary["item"] is ServiceDependency
+                                       && readOnlyDictionary["item"] is ServiceDependency;
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string>().To(_ => "dependency")
+                                       .Bind<IService>().To<ServiceDependency>()
+                                       .Bind(Tag.Unique).To((IService service) => new KeyValuePair<string, IService?>("item", service))
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Service.IsReady);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportNullableImmutableCollections()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using System.Collections.Immutable;
+                           using System.Linq;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           class Service
+                           {
+                               public Service(
+                                   IImmutableList<string?> list,
+                                   ImmutableArray<string?> array) =>
+                                   IsReady = list.Single() == "dependency" && array.Single() == "dependency";
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string>().To(_ => "dependency")
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Service.IsReady);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportNullableMemoryAndReadOnlyMemory()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using System.Linq;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           class Service
+                           {
+                               public Service(Memory<string?> memory, ReadOnlyMemory<string?> readOnlyMemory) =>
+                                   IsReady = memory.ToArray().Single() is null && readOnlyMemory.ToArray().Single() is null;
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string?>().To(_ => (string?)null)
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Service.IsReady);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportTaggedNullableSimplifiedFactoryParameter()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           class Service
+                           {
+                               public Service(string? optional) => IsReady = optional is null;
+
+                               public bool IsReady { get; }
+                           }
+
+                           class RequiredService
+                           {
+                               public RequiredService([Tag("optional")] string required) => IsReady = required == "required";
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string>("optional").To(_ => "required")
+                                       .Bind<string?>("optional").To(_ => (string?)null)
+                                       .Bind<Service>().To(([Tag("optional")] string? optional) => new Service(optional))
+                                       .Root<Service>("Service")
+                                       .Root<RequiredService>("RequiredService");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   Console.WriteLine(composition.Service.IsReady);
+                                   Console.WriteLine(composition.RequiredService.IsReady);
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True", "True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportExplicitNullableSimplifiedFactoryParameter()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           class Service
+                           {
+                               public Service(string? optional) => IsReady = optional is null;
+
+                               public bool IsReady { get; }
+                           }
+
+                           class RequiredService
+                           {
+                               public RequiredService(string required) => IsReady = required == "required";
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<string>().To(_ => "required")
+                                       .Bind<string?>().To(_ => (string?)null)
+                                       .Bind().To<string?, Service>(optional => new Service(optional))
+                                       .Root<Service>("Service")
+                                       .Root<RequiredService>("RequiredService");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                                   var composition = new Composition();
+                                   Console.WriteLine(composition.Service.IsReady);
+                                   Console.WriteLine(composition.RequiredService.IsReady);
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True", "True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportTaggedNullableAndNonNullableArgsWithSameRuntimeType()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           class Service
+                           {
+                               public Service(
+                                   [Tag("required")] string required,
+                                   [Tag("optional")] string? optional) =>
+                                   IsReady = required == "required" && optional is null;
+
+                               public bool IsReady { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Arg<string>("required", "required")
+                                       .Arg<string?>("optional", "optional")
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition("required", null).Service.IsReady);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldShowNestedNullableTypesInGeneratedCommentsAndMermaidDiagram()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using System.Collections.Generic;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IDependency
+                           {
+                           }
+
+                           class Dependency: IDependency
+                           {
+                           }
+
+                           interface IBox<T>
+                           {
+                           }
+
+                           class Box<T>: IBox<T>
+                           {
+                               public Box(IReadOnlyList<IDependency?> dependencies)
+                               {
+                               }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   // ToString = On
+                                   DI.Setup("Composition")
+                                       .Bind<IDependency>().To<Dependency>()
+                                       .Bind<IBox<TT>>().To<Box<TT>>()
+                                       .Root<IBox<IDependency?>>("Box");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main()
+                               {
+                                   var diagram = new Composition().ToString();
+                                   Console.WriteLine(diagram.Contains("IBoxᐸIDependency\u0241ᐳ"));
+                                   Console.WriteLine(diagram.Contains("IReadOnlyListᐸIDependency\u0241ᐳ"));
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True", "True"], result);
+        result.GeneratedCode.Contains("Sample.IBox<global::Sample.IDependency?>", StringComparison.Ordinal).ShouldBeTrue(result);
+        result.GeneratedCode.Contains("Resolve&lt;Sample.IBox&lt;Sample.IDependency?&gt;&gt;()", StringComparison.Ordinal).ShouldBeTrue(result);
+    }
+
+    [Fact]
     public async Task ShouldSupportNullableOnCannotResolvePartialMethod()
     {
         // Given

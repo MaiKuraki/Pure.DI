@@ -952,7 +952,9 @@ sealed class ApiInvocationProcessor(
         for (var i = 0; i < argsTypes.Count; i++)
         {
             var argTypeSyntax = argsTypes[i];
-            var argType = semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, argTypeSyntax);
+            var argType = semanticModel.GetDeclaredSymbol(parameters[i]) is {} parameterSymbol
+                ? parameterSymbol.Type
+                : semantic.GetTypeSymbol<ITypeSymbol>(semanticModel, argTypeSyntax);
             var argNamespace = argType.ContainingNamespace;
             if (semantic.IsValidNamespace(argNamespace))
             {
