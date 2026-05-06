@@ -8,6 +8,7 @@ sealed class RootMethodsBuilder(
     IBuildTools buildTools,
     IRootSignatureProvider rootSignatureProvider,
     [Tag(typeof(RootMethodsCommenter))] ICommenter<Root> rootCommenter,
+    IRootAccessModifierResolver rootAccessModifierResolver,
     IMarker marker,
     IUniqueNameProvider uniqueNameProvider,
     INameFormatter nameFormatter,
@@ -43,6 +44,12 @@ sealed class RootMethodsBuilder(
 
             BuildRoot(composition, root);
             membersCounter++;
+            if (!root.Source.BuilderRoots.IsDefaultOrEmpty)
+            {
+                code.AppendLine();
+                BuildTryRoot(composition, root);
+                membersCounter++;
+            }
         }
 
         code.AppendLine("#endregion");
@@ -137,28 +144,13 @@ sealed class RootMethodsBuilder(
             {
                 if (!root.Source.BuilderRoots.IsDefaultOrEmpty)
                 {
-                    code.AppendLine($"switch ({Names.BuildingInstance})");
+                    code.AppendLine($"if (Try{root.DisplayName}{GetTypeArguments(root)}({string.Join(", ", root.RootArgs.Select(i => i.Name))}))");
                     using (code.CreateBlock())
                     {
-                        foreach (var builderRoot in root.Source.BuilderRoots)
-                        {
-                            var rootType = typeResolver.Resolve(composition.Setup, builderRoot.RootType);
-                            var instanceName = uniqueNameProvider.GetUniqueName($"{nameFormatter.Format("{type}", builderRoot.RootType, builderRoot.Tag?.Value)}");
-                            code.AppendLine($"case {rootType} {instanceName}:");
-                            using (code.Indent())
-                            {
-                                code.AppendLine($"return {builderRoot.Name}({instanceName});");
-                            }
-                        }
-
-                        code.AppendLine("default:");
-                        using (code.Indent())
-                        {
-                            code.AppendLine($"throw new {Names.ArgumentExceptionTypeName}($\"{Names.CannotBuildMessage} {{{Names.BuildingInstance}.GetType()}}.\", \"{Names.BuildingInstance}\");");
-                        }
+                        code.AppendLine($"return {Names.BuildingInstance};");
                     }
 
-                    code.AppendLine($"return {Names.BuildingInstance};");
+                    code.AppendLine($"throw new {Names.ArgumentExceptionTypeName}($\"{Names.CannotBuildMessage} {{{Names.BuildingInstance}.GetType()}}.\", \"{Names.BuildingInstance}\");");
                 }
                 else
                 {
@@ -214,6 +206,114 @@ sealed class RootMethodsBuilder(
             code.AppendLine("#pragma warning restore CS0162");
         }
     }
+
+    private static string GetTypeArguments(Root root)
+    {
+        var typeArgs = root.TypeDescription.TypeArgs;
+        return typeArgs.Count == 0 ? "" : $"<{string.Join(", ", typeArgs)}>";
+    }
+
+    private void BuildTryRoot(CompositionCode composition, Root root)
+    {
+        var constraints = rootSignatureProvider.TryGetConstraints(composition, root);
+        if (constraints is null)
+        {
+            return;
+        }
+
+        var code = composition.Code;
+        code.AppendLine("#pragma warning disable CS0162");
+        buildTools.AddNoInlining(code);
+        code.AppendLine(GetTryRootSignature(composition, root));
+        if (!constraints.IsEmpty)
+        {
+            using (code.Indent())
+            {
+                foreach (var constraint in constraints.OrderBy(i => i.Key.Name))
+                {
+                    code.AppendLine($"where {constraint.Key.Name}: {string.Join(", ", constraint.Value)}");
+                }
+            }
+        }
+
+        using (code.CreateBlock())
+        {
+            foreach (var arg in root.RootArgs.Where(i => i.InstanceType.IsReferenceType && i.InstanceType.NullableAnnotation != NullableAnnotation.Annotated))
+            {
+                code.AppendLine($"if ({buildTools.NullCheck(composition.Compilation, arg.Name)}) throw new {Names.SystemNamespace}ArgumentNullException(nameof({arg.Name}));");
+            }
+
+            code.AppendLine($"switch ({Names.BuildingInstance})");
+            using (code.CreateBlock())
+            {
+                foreach (var builderRoot in root.Source.BuilderRoots)
+                {
+                    var rootType = typeResolver.Resolve(composition.Setup, builderRoot.RootType);
+                    var instanceName = uniqueNameProvider.GetUniqueName($"{nameFormatter.Format("{type}", builderRoot.RootType, builderRoot.Tag?.Value)}");
+                    code.AppendLine($"case {rootType} {instanceName}:");
+                    using (code.Indent())
+                    {
+                        code.AppendLine($"{builderRoot.Name}({instanceName});");
+                        code.AppendLine("return true;");
+                    }
+                }
+
+                code.AppendLine("default:");
+                using (code.Indent())
+                {
+                    code.AppendLine("return false;");
+                }
+            }
+
+            code.AppendLine("return false;");
+        }
+
+        code.AppendLine("#pragma warning restore CS0162");
+    }
+
+    private string GetTryRootSignature(CompositionCode composition, Root root)
+    {
+        var rootSignature = new StringBuilder();
+        rootSignature.Append(GetAccessModifier(root));
+        if (root.IsStatic)
+        {
+            rootSignature.Append(" static");
+        }
+
+        if ((root.Kind & RootKinds.Partial) == RootKinds.Partial)
+        {
+            rootSignature.Append(" partial");
+        }
+
+        if ((root.Kind & RootKinds.Virtual) == RootKinds.Virtual)
+        {
+            rootSignature.Append(" virtual");
+        }
+
+        if ((root.Kind & RootKinds.Override) == RootKinds.Override)
+        {
+            rootSignature.Append(" override");
+        }
+
+        rootSignature.Append(" bool Try");
+        rootSignature.Append(root.DisplayName);
+        rootSignature.Append(GetTypeArguments(root));
+
+        rootSignature.Append($"({string.Join(", ", root.RootArgs.Select(arg => $"{typeResolver.Resolve(composition.Setup, arg.InstanceType)} {arg.Name}"))})");
+        return rootSignature.ToString();
+    }
+
+    private string GetAccessModifier(Root root) =>
+        rootAccessModifierResolver.Resolve(root) switch
+        {
+            Accessibility.Private => "private",
+            Accessibility.ProtectedAndInternal => "protected",
+            Accessibility.Protected => "protected",
+            Accessibility.Internal => "internal",
+            Accessibility.ProtectedOrInternal => "internal",
+            Accessibility.Public => "public",
+            _ => ""
+        };
 
     private TypeDescription GetAttributeType(CompositionCode composition, Root root) =>
         marker.IsMarkerBased(composition.Setup, root.Injection.Type)

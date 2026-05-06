@@ -226,6 +226,127 @@ public class BuildersTests
     }
 
     [Fact]
+    public async Task ShouldSupportTryBuildUpForBuilders()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency
+                               {
+                               }
+                           
+                               interface IService
+                               {
+                                   IDependency? Dep { get; }
+                               }
+                           
+                               class Service: IService 
+                               {
+                                   [Ordinal(1)]
+                                   internal void Initialize([Tag(374)] string depName)
+                                   {
+                                       Console.WriteLine($"Initialize {depName}");
+                                   }
+                           
+                                   [Ordinal(0)]
+                                   public IDependency? Dep { get; set; }
+                               }
+
+                               class UnknownService: IService
+                               {
+                                   public IDependency? Dep { get; }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind(374).To(_ => "Abc")
+                                           .Bind().To<Dependency>()
+                                           .Builders<IService>(filter: "Sample.Service");
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       Console.WriteLine(composition.TryBuildUp((IService)new Service()));
+                                       Console.WriteLine(composition.TryBuildUp((IService)new UnknownService()));
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Initialize Abc", "True", "False"], result);
+        result.GeneratedCode.Contains("bool TryBuildUp(global::Sample.IService buildingInstance)").ShouldBeTrue(result);
+    }
+
+    [Fact]
+    public async Task ShouldNotGenerateTryBuildUpForBuilder()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               interface IDependency {}
+                           
+                               class Dependency: IDependency
+                               {
+                               }
+                           
+                               class Service
+                               {
+                                   [Ordinal(0)]
+                                   public IDependency? Dep { get; set; }
+                               }
+                           
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind().To<Dependency>()
+                                           .Builder<Service>();
+                                   }
+                               }
+                           
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       composition.BuildUp(new Service());
+                                       Console.WriteLine("Done");
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["Done"], result);
+        result.GeneratedCode.Contains("TryBuildUp").ShouldBeFalse(result);
+    }
+
+    [Fact]
     public async Task ShouldSupportBuildersWhenFilter()
     {
         // Given

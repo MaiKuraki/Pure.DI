@@ -6,6 +6,7 @@ $h=Sometimes you need builders for all types derived from `T` that are known at 
 $f=Important Notes:
 $f=- The default builder method name is `BuildUp`
 $f=- The first argument to the builder method is always the instance to be built
+$f=- `Builders<T>` also generates `TryBuildUp` for safe build-up when the runtime subtype may be unknown
 $r=Shouldly
 */
 
@@ -40,7 +41,7 @@ public class Scenario
             .Bind().To<PlutoniumBattery>()
             // Creates a builder for each type inherited from IRobot.
             // These types must be available at this point in the code.
-            .Builders<IRobot>("BuildUp");
+            .Builders<IRobot>("BuildUp", filter: "*Bot");
 
         var composition = new Composition();
 
@@ -58,6 +59,14 @@ public class Scenario
         robot.ShouldBeOfType<CleanerBot>();
         robot.Token.ShouldNotBe(Guid.Empty);
         robot.Battery.ShouldBeOfType<PlutoniumBattery>();
+
+        // Uses a safe common method when the runtime subtype may be unknown.
+        var externalRobot = new ExternalRobot();
+        composition.TryBuildUp(externalRobot).ShouldBeFalse();
+        externalRobot.Battery.ShouldBeNull();
+
+        // The strict builder still throws for unknown runtime subtypes.
+        Should.Throw<ArgumentException>(() => composition.BuildUp(externalRobot));
 // }
         composition.SaveClassDiagram();
     }
@@ -93,5 +102,12 @@ record GuardBot : IRobot
 
     [Dependency]
     public IBattery? Battery { get; set; }
+}
+
+record ExternalRobot : IRobot
+{
+    public Guid Token => Guid.Empty;
+
+    public IBattery? Battery => null;
 }
 // }
