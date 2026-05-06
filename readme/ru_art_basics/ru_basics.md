@@ -269,9 +269,30 @@ sealed class OrderService(IDeliveryService delivery) : IOrderService
 }
 ```
 
+Если в проекте включены Nullable Reference Types, nullable-аннотации тоже становятся частью контракта зависимости. То есть `T` и `T?` анализируются отдельно при построении графа и выборе привязки:
+
+```c#
+DI.Setup(nameof(Composition))
+    .Bind<string>().To(_ => "required")
+    .Bind<string?>().To(_ => (string?)null)
+    .Root<Service>("Service");
+
+sealed class Service(string name, string? description);
+```
+
+Основные правила намеренно простые:
+
+- точное совпадение выигрывает, если есть привязки и для `T`, и для `T?`;
+- non-null привязка `T` может использоваться для nullable-зависимости `T?`;
+- nullable-привязка `T?` не используется для non-null зависимости `T`;
+- те же правила действуют для фабрик, `ctx.Inject(...)`, `Override`, `Let`, аргументов и открытых generic-контрактов вроде `IBox<T>` / `IBox<T?>`.
+
+Для nullable generic-аргументов сам generic-контракт должен допускать nullable-значения, например через `where T : class?`. Также важно помнить: `Resolve<T>()` сохраняет nullable-контракт, а `Resolve(Type)` получает только `System.Type` и не может отличить `T` от `T?`; если такие runtime-корни конфликтуют, Pure.DI сообщает предупреждение `DIW011`.
+
 См. также:
 
 - [Пример привязок абстракций к реализациям](https://github.com/DevTeam/Pure.DI/blob/master/readme/injections-of-abstractions.md)
+- [Nullable reference types](https://github.com/DevTeam/Pure.DI/blob/master/readme/nullable-reference-types.md)
 
 ---
 

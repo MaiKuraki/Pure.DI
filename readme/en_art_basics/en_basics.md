@@ -269,9 +269,30 @@ sealed class OrderService(IDeliveryService delivery) : IOrderService
 }
 ```
 
+If Nullable Reference Types are enabled, nullable annotations are also part of the dependency contract. This means that `T` and `T?` are analyzed separately when Pure.DI builds the graph and chooses a binding:
+
+```c#
+DI.Setup(nameof(Composition))
+	.Bind<string>().To(_ => "required")
+	.Bind<string?>().To(_ => (string?)null)
+	.Root<Service>("Service");
+
+sealed class Service(string name, string? description);
+```
+
+The main rules are intentionally simple:
+
+- an exact match wins when both `T` and `T?` bindings exist;
+- a non-null binding `T` can be used for a nullable dependency `T?`;
+- a nullable binding `T?` is not used for a non-null dependency `T`;
+- the same behavior applies to factory bindings, `ctx.Inject(...)`, `Override`, `Let`, arguments, and open generic contracts such as `IBox<T>` / `IBox<T?>`.
+
+For nullable generic arguments, make the generic contract compatible with nullable values, for example `where T : class?`. Also remember that `Resolve<T>()` keeps the nullable contract, while `Resolve(Type)` receives only `System.Type` and cannot distinguish `T` from `T?`; if such runtime roots conflict, Pure.DI reports warning `DIW011`.
+
 See also:
 
 - [Example of binding abstractions to implementations](https://github.com/DevTeam/Pure.DI/blob/master/readme/injections-of-abstractions.md)
+- [Nullable reference types](https://github.com/DevTeam/Pure.DI/blob/master/readme/nullable-reference-types.md)
 
 ---
 
