@@ -862,6 +862,30 @@ Example:
 .Bind<IService>().To<Service>()
 ```
 
+### Nullable reference type contracts
+
+When nullable reference types are enabled, Pure.DI treats nullable annotations as part of the dependency contract while it builds the graph and generates code. This makes `T` and `T?` different contracts for bindings, arguments, factories, and generic contracts.
+
+```c#
+DI.Setup("Composition")
+    .Bind<string>().To(_ => "required")
+    .Bind<string?>().To(_ => (string?)null)
+    .Bind<IBox<TT>>().To<Box<TT>>()
+    .Bind<IBox<TT?>>().To<NullableBox<TT>>()
+    .Root<IBox<string>>("RequiredBox")
+    .Root<IBox<string?>>("OptionalBox");
+```
+
+Matching rules:
+- An exact nullable match wins when both `T` and `T?` bindings exist.
+- A non-null binding `T` can satisfy a nullable dependency `T?`.
+- A nullable binding `T?` is not used for a non-null dependency `T`.
+- The same rules apply to factory bindings, `ctx.Inject(...)`, `Override`, `Let`, composition arguments, root arguments, and open generic contracts such as `IBox<T>` and `IBox<T?>`.
+
+For nullable generic arguments, make sure the generic type accepts nullable reference arguments. For example, prefer `where T : class?` when a contract such as `IBox<string?>` is valid.
+
+`Resolve<T>()` preserves the nullable contract in generated code. Runtime methods `Resolve(Type)` and `Resolve(Type, tag)` receive only `System.Type`, so they cannot distinguish `T` from `T?`; Pure.DI reports warning `DIW011` when nullable and non-nullable roots have the same runtime type while Resolve methods are generated.
+
 #### For Factories
 
 To use a custom factory logic via `IContext`:
@@ -2147,7 +2171,7 @@ AI needs to understand the situation it’s in (context). This means knowing det
 | AI context file | Size | Tokens |
 | --------------- | ---- | ------ |
 | [AGENTS_SMALL.md](AGENTS_SMALL.md) | 62KB | 16K |
-| [AGENTS_MEDIUM.md](AGENTS_MEDIUM.md) | 111KB | 28K |
+| [AGENTS_MEDIUM.md](AGENTS_MEDIUM.md) | 112KB | 28K |
 | [AGENTS.md](AGENTS.md) | 409KB | 104K |
 
 For different IDEs, you can use the _AGENTS.md_ file as is by simply copying it to the root directory. For use with _JetBrains Rider_ and _Junie_, please refer to [these instructions](https://www.jetbrains.com/help/junie/customize-guidelines.html). For example, you can copy any _AGENTS.md_ file into your project (using _Pure.DI_) as _.junie/guidelines.md._

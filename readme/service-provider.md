@@ -320,7 +320,7 @@ Class diagram:
 classDiagram
 	ConsoleLogger --|> ILogger
 	OrderService --|> IOrderService
-	Composition ..> LightweightRoot : LightweightRoot LightRoot125d
+	Composition ..> LightweightRoot : LightweightRoot LightRoot126d
 	Composition ..> OrderService : IOrderService _
 	Composition ..> ConsoleLogger : ILogger _
 	OrderService o-- "Singleton" ConsoleLogger : ILogger
@@ -339,7 +339,7 @@ classDiagram
 	namespace Pure.DI.UsageTests.BCL.ServiceProviderScenario {
 		class Composition {
 		<<partial>>
-		-LightweightRoot LightRoot125d
+		-LightweightRoot LightRoot126d
 		-ILogger _
 		-IOrderService _
 		+ T ResolveᐸTᐳ()

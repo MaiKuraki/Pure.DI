@@ -333,7 +333,7 @@ classDiagram
 	PdfInvoiceGenerator --|> IInvoiceGenerator
 	HtmlInvoiceGenerator --|> IInvoiceGenerator : "Online" 
 	FileLogger --|> ILogger
-	Composition ..> LightweightRoot : LightweightRoot LightRoot125d
+	Composition ..> LightweightRoot : LightweightRoot LightRoot126d
 	Composition ..> HtmlInvoiceGenerator : IInvoiceGenerator OnlineInvoiceGenerator
 	Composition ..> FileLogger : ILogger _
 	Composition ..> PdfInvoiceGenerator : IInvoiceGenerator InvoiceGenerator
@@ -351,7 +351,7 @@ classDiagram
 		class Composition {
 		<<partial>>
 		+IInvoiceGenerator InvoiceGenerator
-		-LightweightRoot LightRoot125d
+		-LightweightRoot LightRoot126d
 		+IInvoiceGenerator OnlineInvoiceGenerator
 		-ILogger _
 		+ T ResolveᐸTᐳ()

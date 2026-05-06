@@ -437,7 +437,7 @@ classDiagram
 	PrometheusMetrics --|> IMetrics
 	AppConfiguration --|> IConfiguration
 	ApplicationService --|> IApplicationService
-	Composition ..> LightweightRoot : LightweightRoot LightRoot125d
+	Composition ..> LightweightRoot : LightweightRoot LightRoot126d
 	Composition ..> PrometheusMetrics : IMetrics _
 	Composition ..> MemoryCache : ICache _
 	Composition ..> ConsoleLogger : ILogger _
@@ -478,7 +478,7 @@ classDiagram
 		<<partial>>
 		+IApplicationService ApplicationService
 		+IConfiguration Config
-		-LightweightRoot LightRoot125d
+		-LightweightRoot LightRoot126d
 		-ILogger _
 		-ICache _
 		-IMetrics _

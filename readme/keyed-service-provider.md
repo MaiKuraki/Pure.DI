@@ -335,7 +335,7 @@ Class diagram:
 classDiagram
 	PayPalGateway --|> IPaymentGateway : "PayPal" 
 	OnlineOrderService --|> IOrderService : "Online" 
-	Composition ..> LightweightRoot : LightweightRoot LightRoot125d
+	Composition ..> LightweightRoot : LightweightRoot LightRoot126d
 	Composition ..> OnlineOrderService : IOrderService _
 	Composition ..> PayPalGateway : IPaymentGateway _
 	OnlineOrderService o-- "Singleton" PayPalGateway : "PayPal"  IPaymentGateway
@@ -354,7 +354,7 @@ classDiagram
 	namespace Pure.DI.UsageTests.BCL.KeyedServiceProviderScenario {
 		class Composition {
 		<<partial>>
-		-LightweightRoot LightRoot125d
+		-LightweightRoot LightRoot126d
 		-IPaymentGateway _
 		-IOrderService _
 		+ T ResolveᐸTᐳ()
