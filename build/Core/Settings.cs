@@ -62,7 +62,7 @@ partial class Settings
     public bool Tests { get; }
 
     private NuGetVersion GetCurrentVersion() =>
-        _versions.GetCurrent(new NuGetRestoreSettings("Pure.DI"));
+        _versions.GetCurrent(new NuGetRestoreSettings("Pure.DI").WithVersionRange(VersionRange.Parse("*")));
 
     private NuGetVersion GetNextVersion()
     {

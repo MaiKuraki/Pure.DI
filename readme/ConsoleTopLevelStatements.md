@@ -8,25 +8,30 @@ This example shows the same object graph as the [simple console application](Con
 > Top-level statements are convenient for small samples. For larger applications, move setup into a partial composition class so roots, lifetimes, and infrastructure bindings are easier to navigate.
 
 ```c#
+using System.Diagnostics;
 using Pure.DI;
 using static Pure.DI.Lifetime;
 
 // Composition root
 new Composition().Root.Run();
+return;
 
 // In fact, this code is never run, and the method can have any name or be a constructor, for example,
 // and can be in any part of the compiled code because this is just a hint to set up an object graph.
-DI.Setup("Composition")
-    // Models a random subatomic event that may or may not occur
-    .Bind().As(Singleton).To<Random>()
-    // Represents a quantum superposition of 2 states: Alive or Dead
-    .Bind().To((Random random) => (State)random.Next(2))
-    // Represents Schrodinger's cat
-    .Bind().To<ShroedingersCat>()
-    // Represents a cardboard box with any content
-    .Bind().To<CardboardBox<TT>>()
-    // Composition Root
-    .Root<Program>("Root");
+// [Conditional("DI")] attribute avoids generating IL code for the method that follows it,
+// since this method is needed only at compile time.
+[Conditional("DI")]
+static void Setup() =>
+    DI.Setup(nameof(Composition))
+        // Models a random subatomic event that may or may not occur
+        .Bind().As(Singleton).To<Random>()
+        // Quantum superposition of two states: Alive or Dead
+        .Bind().To((Random random) => (State)random.Next(2))
+        .Bind().To<ShroedingersCat>()
+        // Cardboard box with any contents
+        .Bind().To<CardboardBox<TT>>()
+        // Provides the composition root
+        .Root<Program>("Root");
 
 public interface IBox<out T>
 {
@@ -44,12 +49,7 @@ public enum State
     Dead
 }
 
-public class CardboardBox<T>(T content) : IBox<T>
-{
-    public T Content { get; } = content;
-
-    public override string ToString() => $"[{Content}]";
-}
+public record CardboardBox<T>(T Content) : IBox<T>;
 
 public class ShroedingersCat(Lazy<State> superposition) : ICat
 {

@@ -18,6 +18,10 @@ namespace GrpcService;
 
 partial class Composition : ServiceProviderFactory<Composition>
 {
+    // IMPORTANT:
+    // Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface.
+    // These roots must be registered using `Root<>(...)` or `RootBind<>()` calls.
+    [System.Diagnostics.Conditional("DI")]
     private static void Setup() => DI.Setup()
         .Root<ClockService>()
 

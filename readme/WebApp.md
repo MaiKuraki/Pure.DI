@@ -18,6 +18,9 @@ namespace WebApp;
 
 partial class Composition : ServiceProviderFactory<Composition>
 {
+    // IMPORTANT:
+    // Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface.
+    // These roots must be registered using `Root<>(...)` or `Roots<>()` calls.
     [System.Diagnostics.Conditional("DI")]
     private static void Setup() => DI.Setup()
         .Roots<ControllerBase>()

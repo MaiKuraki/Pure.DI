@@ -20,6 +20,9 @@ namespace BlazorWebAssemblyApp;
 
 partial class Composition : ServiceProviderFactory<Composition>
 {
+    // IMPORTANT:
+    // Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface.
+    // These roots must be registered using `Root<>(...)` or `RootBind<>()` calls.
     [System.Diagnostics.Conditional("DI")]
     private static void Setup() => DI.Setup()
         .Root<IAppViewModel>()
@@ -45,6 +48,13 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 // Uses Composition as an alternative IServiceProviderFactory
 using var composition = new Composition();
 builder.ConfigureContainer(composition);
+
+builder.RootComponents.Add<App>("#app");
+builder.RootComponents.Add<HeadOutlet>("head::after");
+
+builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+await builder.Build().RunAsync();
 ```
 
 The [project file](/samples/BlazorWebAssemblyApp/BlazorWebAssemblyApp.csproj) looks like this:

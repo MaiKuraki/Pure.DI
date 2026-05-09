@@ -18,6 +18,9 @@ namespace MinimalWebAPI;
 
 partial class Composition : ServiceProviderFactory<Composition>
 {
+    // IMPORTANT:
+    // Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface.
+    // These roots must be registered using `Root<>(...)` or `RootBind<>()` calls.
     [System.Diagnostics.Conditional("DI")]
     private void Setup() => DI.Setup()
         // Owned is used here to dispose of all disposable instances associated with the root.

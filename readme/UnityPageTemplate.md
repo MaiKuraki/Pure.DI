@@ -70,12 +70,6 @@ public partial class Scope : MonoBehaviour
 
 Use `EnsureReady()` before resolving or building scene objects. It initializes the parent scope first and prevents accidental self-parenting from creating recursive scope setup.
 
-Advantages over classical DI container libraries:
-- No performance impact or side effects when creating object graphs.
-- All logic for analyzing the graph of objects, constructors and methods takes place at compile time. Pure.DI notifies the developer at compile time of missing or cyclic dependencies, cases when some dependencies are not suitable for injection, etc.
-- Does not add dependencies to additional assemblies.
-- Since the generated code uses primitive language constructs to create object graphs and does not use any libraries, you can debug the object graph code as regular code in your application.
-
 For types derived from `MonoBehaviour`, a `BuildUp` composition method will be generated. This method looks like:
 
 ```c#

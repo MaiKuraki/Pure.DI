@@ -905,4 +905,3 @@ Pure.DI makes DI predictable and transparent:
 - the application remains as fast and predictable as possible.
 
 If the idea of "Pure DI" is close to you, not "runtime DI container", Pure.DI is worth trying on at least one service or module — usually after that, it's hard to return to the "black DI box".
-rd to return to the "black DI box".

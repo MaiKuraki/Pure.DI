@@ -776,6 +776,27 @@ var service = composition.Resolve<IService>();
 service = composition.Resolve(typeof(IService));
 ```
 
+### Root Arguments
+
+When a root needs data that changes per call — not shared across the whole composition — use `RootArg<T>(name)`. The generated root becomes a **method** instead of a property, and the argument is passed at every call site:
+
+```c#
+DI.Setup("Composition")
+    // RootArg is incompatible with Resolve methods — disable them when using RootArg
+    .Hint(Hint.Resolve, "Off")
+    .RootArg<Guid>("userId")
+    .Bind<IUserService>().To<UserService>()
+    .Root<IUserService>("GetUserService");
+
+var composition = new Composition();
+var service = composition.GetUserService(userId: Guid.NewGuid());
+```
+
+> [!NOTE]
+> Because `RootArg` binds a value only for a specific root call, it is incompatible with `Resolve`/`ResolveByTag` methods. Disable them with `.Hint(Hint.Resolve, "Off")` when using root arguments.
+
+See also: [Root arguments example](readme/root-arguments.md)
+
 </details>
 
 <details>
@@ -845,7 +866,7 @@ To bind a contract to a specific implementation:
 ```c#
 .Bind<Contract1>(tags).Bind<ContractN>(tags)
     .Tags(tags)
-    .As(Lifetime)
+    .As(lifetime)
     .To<Implementation>()
 ```
 
@@ -894,13 +915,19 @@ To use a custom factory logic via `IContext`:
 .Bind<Contract1>(tags).Bind<ContractN>(tags)
     .Tags(tags)
     .As(Lifetime)
-    .To(ctx => new Implementation(ctx.Resolve<Dependency>()))
+    .To(ctx => {
+        ctx.Inject(out Dependency Dependency)
+        return new Implementation(dependency);
+    })
 ```
 
 Example:
 
 ```c#
-.Bind<IService>().To(ctx => new Service(ctx.Resolve<IDependency>()))
+.Bind<IService>().To(ctx => {
+    ctx.Inject(out IDependency dependency);
+    return new Service(dependency);
+})
 ```
 
 #### Override Depth in Factories
@@ -933,7 +960,7 @@ When you only need to inject specific dependencies without accessing the full co
 ```c#
 .Bind<Contract1>(tags).Bind<ContractN>(tags)
     .Tags(tags)
-    .As(Lifetime)
+    .As(lifetime)
     .To<Implementation>((Dependency1 dep1, Dependency2 dep2) => new Implementation(dep1, dep2))
 ```
 
@@ -1208,6 +1235,7 @@ DI.Setup("Composition")
 | [DisableAutoBindingLifetimeRegularExpression](#disableautobindinglifetimeregularexpression-hint)                                     | Regular expression                         |            | .+        |
 | [DisableAutoBindingLifetimeWildcard](#disableautobindinglifetimewildcard-hint)                                                       | Wildcard                                   |            | *         |
 | [LightweightAnonymousRoot](#lightweightanonymousroot-hint)                                                                           | _On_ or _Off_                              |            | _On_      |
+| [SystemThreadingLock](#systemthreadinglock-hint)                                                                                     | _On_ or _Off_                              |            | _On_      |
 | [ScopeMethodName](#ScopeMethodName-hint)                                                                                             | Method name                                |            |           |
 
 The list of hints will be gradually expanded to meet the needs and desires for fine-tuning code generation. Please feel free to add your ideas.
@@ -2172,7 +2200,7 @@ AI needs to understand the situation it’s in (context). This means knowing det
 | --------------- | ---- | ------ |
 | [AGENTS_SMALL.md](AGENTS_SMALL.md) | 62KB | 16K |
 | [AGENTS_MEDIUM.md](AGENTS_MEDIUM.md) | 112KB | 28K |
-| [AGENTS.md](AGENTS.md) | 410KB | 105K |
+| [AGENTS.md](AGENTS.md) | 411KB | 105K |
 
 For different IDEs, you can use the _AGENTS.md_ file as is by simply copying it to the root directory. For use with _JetBrains Rider_ and _Junie_, please refer to [these instructions](https://www.jetbrains.com/help/junie/customize-guidelines.html). For example, you can copy any _AGENTS.md_ file into your project (using _Pure.DI_) as _.junie/guidelines.md._
 ## How to contribute to Pure.DI
@@ -2263,9 +2291,9 @@ Thanks!
 
 ## Benchmarks
 
-BenchmarkDotNet v0.15.8, Windows 10 (10.0.19045.6456/22H2/2022Update)
-AMD Ryzen 9 5900X 4.20GHz, 1 CPU, 24 logical and 12 physical cores
-.NET SDK 10.0.102
+BenchmarkDotNet v0.14.0, Windows 10 (10.0.19045.4894/22H2/2022Update)
+AMD Ryzen 9 5900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK 9.0.100
 
 <details>
 <summary>Transient</summary>

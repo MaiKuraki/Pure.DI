@@ -8,6 +8,7 @@ This example shows the smallest Pure.DI console application: abstractions, imple
 > The `Setup` method is a compile-time hint for the generator. It is not called at runtime, so it can stay private and contain only composition configuration.
 
 ```c#
+using System.Diagnostics;
 using Pure.DI;
 using static Pure.DI.Lifetime;
 
@@ -33,12 +34,7 @@ public enum State
 
 // Here is our implementation
 
-public class CardboardBox<T>(T content) : IBox<T>
-{
-    public T Content { get; } = content;
-
-    public override string ToString() => $"[{Content}]";
-}
+public record CardboardBox<T>(T Content) : IBox<T>;
 
 public class ShroedingersCat(Lazy<State> superposition) : ICat
 {
@@ -49,23 +45,25 @@ public class ShroedingersCat(Lazy<State> superposition) : ICat
     public override string ToString() => $"{State} cat";
 }
 
-// Let's glue it all together
+// Let's glue all together
 
-internal partial class Composition
+partial class Composition
 {
     // In fact, this code is never run, and the method can have any name or be a constructor, for example,
     // and can be in any part of the compiled code because this is just a hint to set up an object graph.
-    // Here the setup is part of the generated class, just as an example.
-    void Setup() => DI.Setup()
+    // [Conditional("DI")] attribute avoids generating IL code for the method that follows it,
+    // since this method is needed only at compile time.
+    [Conditional("DI")]
+    static void Setup() => DI.Setup()
+        .Hint(Hint.Resolve, "off")
         // Models a random subatomic event that may or may not occur
         .Bind().As(Singleton).To<Random>()
-        // Represents a quantum superposition of 2 states: Alive or Dead
+        // Quantum superposition of two states: Alive or Dead
         .Bind().To((Random random) => (State)random.Next(2))
-        // Represents Schrodinger's cat
         .Bind().To<ShroedingersCat>()
-        // Represents a cardboard box with any content
+        // Cardboard box with any contents
         .Bind().To<CardboardBox<TT>>()
-        // Composition Root
+        // Provides the composition root
         .Root<Program>("Root");
 }
 
@@ -74,7 +72,8 @@ internal partial class Composition
 public class Program(IBox<ICat> box)
 {
     // Composition Root, a single place in an application
-    // where the composition of the object graphs for an application takes place
+    // where the composition of the object graphs
+    // for an application take place
     public static void Main() => new Composition().Root.Run();
 
     private void Run() => Console.WriteLine(box);

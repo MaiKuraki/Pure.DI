@@ -11103,10 +11103,11 @@ partial class Composition
     private void Setup() => DI.Setup()
         .Hint(Hint.Resolve, "Off")
 
+        // Virtual roots are properties on the composition class but are not
+        // backed by a separate private field — XAML reads them through the
+        // DataContext binding chain, so no dedicated storage is needed.
         .Root<IAppViewModel>(nameof(App), kind: Virtual)
         .Root<IClockViewModel>(nameof(Clock), kind: Virtual)
-
-        .OrdinalAttribute<InitializableAttribute>()
 
         .Bind().As(Singleton).To<ClockViewModel>()
         .Bind().To<ClockModel>()
@@ -11117,12 +11118,6 @@ partial class Composition
         .Bind().To<AvaloniaDispatcher>();
 }
 ```
-
-Advantages over classical DI container libraries:
-- No performance impact or side effects when creating object graphs.
-- All logic for analyzing the graph of objects, constructors and methods takes place at compile time. Pure.DI notifies the developer at compile time of missing or cyclic dependencies, cases when some dependencies are not suitable for injection, etc.
-- Does not add dependencies to additional assemblies.
-- Since the generated code uses primitive language constructs to create object graphs and does not use any libraries, you can easily debug the object graph code as regular code in your application.
 
 A single instance of the _Composition_ class is defined as a static resource in [App.xaml](/samples/AvaloniaApp/App.axaml) for later use within the _XAML_ markup everywhere:
 
@@ -11195,11 +11190,6 @@ public class App : Application
 }
 ```
 
-Advantages over classical DI container libraries:
-- No explicit initialization of data contexts is required. Data contexts are configured directly in `.axaml` files according to the MVVM approach.
-- The code is simpler, more compact, and requires less maintenance effort.
-- The main window is created in a pure DI paradigm, and it can be easily supplied with all necessary dependencies via DI as regular types.
-
 You can now use bindings and the code-behind-free approach. All previously defined composition roots are now available from [markup](/samples/AvaloniaApp/Views/MainWindow.xaml) without any effort, e.g. _Clock_:
 
 ```xml
@@ -11249,12 +11239,6 @@ To use bindings in views:
   </StackPanel>
 ```
 
-Advantages over classical DI container libraries:
-- The code-behind `.cs` files for views are free of any logic.
-- This approach works just as well during design time.
-- You can easily use different view models in a single view.
-- Bindings depend on properties through abstractions, which additionally ensures weak coupling of types in application. This is in line with the basic principles of DI.
-
 The [project file](/samples/AvaloniaApp/AvaloniaApp.csproj) looks like this:
 
 ```xml
@@ -11296,6 +11280,9 @@ namespace BlazorServerApp;
 
 partial class Composition : ServiceProviderFactory<Composition>
 {
+    // IMPORTANT:
+    // Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface.
+    // These roots must be registered using `Root<>(...)` or `RootBind<>()` calls.
     [System.Diagnostics.Conditional("DI")]
     private static void Setup() => DI.Setup()
         .Root<IAppViewModel>()
@@ -11368,6 +11355,9 @@ namespace BlazorWebAssemblyApp;
 
 partial class Composition : ServiceProviderFactory<Composition>
 {
+    // IMPORTANT:
+    // Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface.
+    // These roots must be registered using `Root<>(...)` or `RootBind<>()` calls.
     [System.Diagnostics.Conditional("DI")]
     private static void Setup() => DI.Setup()
         .Root<IAppViewModel>()
@@ -11393,6 +11383,13 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 // Uses Composition as an alternative IServiceProviderFactory
 using var composition = new Composition();
 builder.ConfigureContainer(composition);
+
+builder.RootComponents.Add<App>("#app");
+builder.RootComponents.Add<HeadOutlet>("head::after");
+
+builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+await builder.Build().RunAsync();
 ```
 
 The [project file](/samples/BlazorWebAssemblyApp/BlazorWebAssemblyApp.csproj) looks like this:
@@ -11427,11 +11424,77 @@ This example shows how the simple console composition can be published as a [nat
 > [!TIP]
 > Native AOT works best when construction is explicit and reflection-light. Prefer generated roots and bindings over runtime service-location patterns in AOT samples.
 
+The [composition](/samples/ShroedingersCatNativeAOT/Program.cs) uses the same object graph as the [top-level statements console sample](ConsoleTopLevelStatements.md). Pure.DI generates plain `new` chains with no reflection, so the dependency graph is trimming-safe without any extra annotations:
+
+```c#
+using System.Diagnostics;
+using Pure.DI;
+using static Pure.DI.Lifetime;
+
+// Composition root
+new Composition().Root.Run();
+return;
+
+// In fact, this code is never run, and the method can have any name or be a constructor, for example,
+// and can be in any part of the compiled code because this is just a hint to set up an object graph.
+// [Conditional("DI")] attribute avoids generating IL code for the method that follows it,
+// since this method is needed only at compile time.
+[Conditional("DI")]
+static void Setup() =>
+    DI.Setup(nameof(Composition))
+        // Models a random subatomic event that may or may not occur
+        .Bind().As(Singleton).To<Random>()
+        // Represents a quantum superposition of 2 states: Alive or Dead
+        .Bind().To((Random random) => (State)random.Next(2))
+        .Bind().To<ShroedingersCat>()
+        // Represents a cardboard box with any content
+        .Bind().To<CardboardBox<TT>>()
+        // Provides the composition root
+        .Root<Program>("Root");
+
+public interface IBox<out T>
+{
+    T Content { get; }
+}
+
+public interface ICat
+{
+    State State { get; }
+}
+
+public enum State
+{
+    Alive,
+    Dead
+}
+
+public record CardboardBox<T>(T Content) : IBox<T>;
+
+public class ShroedingersCat(Lazy<State> superposition) : ICat
+{
+    public State State => superposition.Value;
+
+    public override string ToString() => $"{State} cat";
+}
+
+public partial class Program(IBox<ICat> box)
+{
+    private void Run() => Console.WriteLine(box);
+}
+```
+
+> [!NOTE]
+> Pure.DI works with native AOT out of the box. The generated code contains no reflection, no dynamic type resolution, and no runtime container — exactly the properties the AOT compiler requires for safe trimming. The only project-level change needed is enabling `<PublishAot>true</PublishAot>` in the `.csproj`.
+
 The [project file](/samples/ShroedingersCatNativeAOT/ShroedingersCatNativeAOT.csproj) looks like this:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
     ...
+    <PropertyGroup>
+        <PublishAot>true</PublishAot>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Pure.DI" Version="2.4.0">
             <PrivateAssets>all</PrivateAssets>
@@ -11458,6 +11521,7 @@ This example shows the smallest Pure.DI console application: abstractions, imple
 > The `Setup` method is a compile-time hint for the generator. It is not called at runtime, so it can stay private and contain only composition configuration.
 
 ```c#
+using System.Diagnostics;
 using Pure.DI;
 using static Pure.DI.Lifetime;
 
@@ -11483,12 +11547,7 @@ public enum State
 
 // Here is our implementation
 
-public class CardboardBox<T>(T content) : IBox<T>
-{
-    public T Content { get; } = content;
-
-    public override string ToString() => $"[{Content}]";
-}
+public record CardboardBox<T>(T Content) : IBox<T>;
 
 public class ShroedingersCat(Lazy<State> superposition) : ICat
 {
@@ -11499,23 +11558,25 @@ public class ShroedingersCat(Lazy<State> superposition) : ICat
     public override string ToString() => $"{State} cat";
 }
 
-// Let's glue it all together
+// Let's glue all together
 
-internal partial class Composition
+partial class Composition
 {
     // In fact, this code is never run, and the method can have any name or be a constructor, for example,
     // and can be in any part of the compiled code because this is just a hint to set up an object graph.
-    // Here the setup is part of the generated class, just as an example.
-    void Setup() => DI.Setup()
+    // [Conditional("DI")] attribute avoids generating IL code for the method that follows it,
+    // since this method is needed only at compile time.
+    [Conditional("DI")]
+    static void Setup() => DI.Setup()
+        .Hint(Hint.Resolve, "off")
         // Models a random subatomic event that may or may not occur
         .Bind().As(Singleton).To<Random>()
-        // Represents a quantum superposition of 2 states: Alive or Dead
+        // Quantum superposition of two states: Alive or Dead
         .Bind().To((Random random) => (State)random.Next(2))
-        // Represents Schrodinger's cat
         .Bind().To<ShroedingersCat>()
-        // Represents a cardboard box with any content
+        // Cardboard box with any contents
         .Bind().To<CardboardBox<TT>>()
-        // Composition Root
+        // Provides the composition root
         .Root<Program>("Root");
 }
 
@@ -11524,7 +11585,8 @@ internal partial class Composition
 public class Program(IBox<ICat> box)
 {
     // Composition Root, a single place in an application
-    // where the composition of the object graphs for an application takes place
+    // where the composition of the object graphs
+    // for an application take place
     public static void Main() => new Composition().Root.Run();
 
     private void Run() => Console.WriteLine(box);
@@ -11562,25 +11624,30 @@ This example shows the same object graph as the [simple console application](Con
 > Top-level statements are convenient for small samples. For larger applications, move setup into a partial composition class so roots, lifetimes, and infrastructure bindings are easier to navigate.
 
 ```c#
+using System.Diagnostics;
 using Pure.DI;
 using static Pure.DI.Lifetime;
 
 // Composition root
 new Composition().Root.Run();
+return;
 
 // In fact, this code is never run, and the method can have any name or be a constructor, for example,
 // and can be in any part of the compiled code because this is just a hint to set up an object graph.
-DI.Setup("Composition")
-    // Models a random subatomic event that may or may not occur
-    .Bind().As(Singleton).To<Random>()
-    // Represents a quantum superposition of 2 states: Alive or Dead
-    .Bind().To((Random random) => (State)random.Next(2))
-    // Represents Schrodinger's cat
-    .Bind().To<ShroedingersCat>()
-    // Represents a cardboard box with any content
-    .Bind().To<CardboardBox<TT>>()
-    // Composition Root
-    .Root<Program>("Root");
+// [Conditional("DI")] attribute avoids generating IL code for the method that follows it,
+// since this method is needed only at compile time.
+[Conditional("DI")]
+static void Setup() =>
+    DI.Setup(nameof(Composition))
+        // Models a random subatomic event that may or may not occur
+        .Bind().As(Singleton).To<Random>()
+        // Quantum superposition of two states: Alive or Dead
+        .Bind().To((Random random) => (State)random.Next(2))
+        .Bind().To<ShroedingersCat>()
+        // Cardboard box with any contents
+        .Bind().To<CardboardBox<TT>>()
+        // Provides the composition root
+        .Root<Program>("Root");
 
 public interface IBox<out T>
 {
@@ -11598,12 +11665,7 @@ public enum State
     Dead
 }
 
-public class CardboardBox<T>(T content) : IBox<T>
-{
-    public T Content { get; } = content;
-
-    public override string ToString() => $"[{Content}]";
-}
+public record CardboardBox<T>(T Content) : IBox<T>;
 
 public class ShroedingersCat(Lazy<State> superposition) : ICat
 {
@@ -11731,7 +11793,7 @@ The external service provider should be configured before resolving `composition
 The [project file](/samples/EF/EF.csproj) looks like this:
 
 ```xml
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
         <PackageReference Include="Pure.DI" Version="2.4.0">
@@ -11771,6 +11833,10 @@ namespace GrpcService;
 
 partial class Composition : ServiceProviderFactory<Composition>
 {
+    // IMPORTANT:
+    // Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface.
+    // These roots must be registered using `Root<>(...)` or `RootBind<>()` calls.
+    [System.Diagnostics.Conditional("DI")]
     private static void Setup() => DI.Setup()
         .Root<ClockService>()
 
@@ -11988,9 +12054,10 @@ The [project file](/samples/MAUIApp/MAUIApp.csproj) looks like this:
 
 It contains additional references to NuGet packages:
 
-|            |                                                                                                  |                                              |
-|------------|--------------------------------------------------------------------------------------------------|:---------------------------------------------|
-| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                     |
+|            |                                                                                                  |                                               |
+|------------|--------------------------------------------------------------------------------------------------|:----------------------------------------------|
+| Pure.DI    | [![NuGet](https://img.shields.io/nuget/v/Pure.DI)](https://www.nuget.org/packages/Pure.DI)       | DI source code generator                      |
+| Pure.DI.MS | [![NuGet](https://img.shields.io/nuget/v/Pure.DI.MS)](https://www.nuget.org/packages/Pure.DI.MS) | Add-ons for Pure.DI to work with Microsoft DI |
 
 
 #### Minimal Web API
@@ -12013,6 +12080,9 @@ namespace MinimalWebAPI;
 
 partial class Composition : ServiceProviderFactory<Composition>
 {
+    // IMPORTANT:
+    // Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface.
+    // These roots must be registered using `Root<>(...)` or `RootBind<>()` calls.
     [System.Diagnostics.Conditional("DI")]
     private void Setup() => DI.Setup()
         // Owned is used here to dispose of all disposable instances associated with the root.
@@ -12161,12 +12231,6 @@ public partial class Scope : MonoBehaviour
 
 Use `EnsureReady()` before resolving or building scene objects. It initializes the parent scope first and prevents accidental self-parenting from creating recursive scope setup.
 
-Advantages over classical DI container libraries:
-- No performance impact or side effects when creating object graphs.
-- All logic for analyzing the graph of objects, constructors and methods takes place at compile time. Pure.DI notifies the developer at compile time of missing or cyclic dependencies, cases when some dependencies are not suitable for injection, etc.
-- Does not add dependencies to additional assemblies.
-- Since the generated code uses primitive language constructs to create object graphs and does not use any libraries, you can debug the object graph code as regular code in your application.
-
 For types derived from `MonoBehaviour`, a `BuildUp` composition method will be generated. This method looks like:
 
 ```c#
@@ -12250,6 +12314,9 @@ namespace WebAPI;
 
 partial class Composition : ServiceProviderFactory<Composition>
 {
+    // IMPORTANT:
+    // Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface.
+    // These roots must be registered using `Root<>(...)` or `Roots<>()` calls.
     [System.Diagnostics.Conditional("DI")]
     private static void Setup() => DI.Setup()
         .Roots<ControllerBase>()
@@ -12323,6 +12390,9 @@ namespace WebApp;
 
 partial class Composition : ServiceProviderFactory<Composition>
 {
+    // IMPORTANT:
+    // Only composition roots (regular or anonymous) can be resolved through the `IServiceProvider` interface.
+    // These roots must be registered using `Root<>(...)` or `Roots<>()` calls.
     [System.Diagnostics.Conditional("DI")]
     private static void Setup() => DI.Setup()
         .Roots<ControllerBase>()
@@ -12571,12 +12641,6 @@ partial class Composition
 }
 ```
 
-Advantages over classical DI container libraries:
-- No performance impact or side effects when creating object graphs.
-- All logic for analyzing the graph of objects, constructors and methods takes place at compile time. Pure.DI notifies the developer at compile time of missing or cyclic dependencies, cases when some dependencies are not suitable for injection, etc.
-- Does not add dependencies to any additional assembly.
-- Since the generated code uses primitive language constructs to create object graphs and does not use any libraries, you can easily debug the object graph code as regular code in your application.
-
 A single instance of the _Composition_ class is defined as a static resource in [App.xaml](/samples/WpfAppNetCore/App.xaml) for later use within the _XAML_ markup everywhere:
 
 ```xaml
@@ -12608,11 +12672,6 @@ creates a shared resource of type `Composition` and with key _"Composition"_, wh
 
 Dispose the shared composition from the WPF `Exit` event when the application closes, especially if singleton services implement `IDisposable`.
 
-Advantages over classical DI container libraries:
-- No explicit initialization of data contexts is required. Data contexts are configured directly in `\.xaml` files according to the MVVM approach.
-- The code is simpler, more compact, and requires less maintenance effort.
-- The main window is created in a pure DI paradigm, and it can be easily supplied with all necessary dependencies via DI as regular types.
-
 You can now use bindings to model views without even editing the views `.cs` code files. All previously defined composition roots are now accessible from [markup](/samples/WpfAppNetCore/Views/MainWindow.xaml) without any effort, such as _ClockViewModel_:
 
 ```xaml
@@ -12643,12 +12702,6 @@ To use bindings in views:
 - Use the bindings as usual:
 
   `Title="{Binding App.Title}"`
-
-Advantages over classical DI container libraries:
-- The code-behind `.cs` files for views are free of any logic.
-- This approach works just as well during design time.
-- You can easily use different view models in a single view.
-- Bindings depend on properties through abstractions, which additionally ensures weak coupling of types in application. This is in line with the basic principles of DI.
 
 The [project file](/samples/WpfAppNetCore/WpfAppNetCore.csproj) looks like this:
 

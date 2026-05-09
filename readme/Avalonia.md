@@ -25,10 +25,11 @@ partial class Composition
     private void Setup() => DI.Setup()
         .Hint(Hint.Resolve, "Off")
 
+        // Virtual roots are properties on the composition class but are not
+        // backed by a separate private field — XAML reads them through the
+        // DataContext binding chain, so no dedicated storage is needed.
         .Root<IAppViewModel>(nameof(App), kind: Virtual)
         .Root<IClockViewModel>(nameof(Clock), kind: Virtual)
-
-        .OrdinalAttribute<InitializableAttribute>()
 
         .Bind().As(Singleton).To<ClockViewModel>()
         .Bind().To<ClockModel>()
@@ -39,12 +40,6 @@ partial class Composition
         .Bind().To<AvaloniaDispatcher>();
 }
 ```
-
-Advantages over classical DI container libraries:
-- No performance impact or side effects when creating object graphs.
-- All logic for analyzing the graph of objects, constructors and methods takes place at compile time. Pure.DI notifies the developer at compile time of missing or cyclic dependencies, cases when some dependencies are not suitable for injection, etc.
-- Does not add dependencies to additional assemblies.
-- Since the generated code uses primitive language constructs to create object graphs and does not use any libraries, you can easily debug the object graph code as regular code in your application.
 
 A single instance of the _Composition_ class is defined as a static resource in [App.xaml](/samples/AvaloniaApp/App.axaml) for later use within the _XAML_ markup everywhere:
 
@@ -117,11 +112,6 @@ public class App : Application
 }
 ```
 
-Advantages over classical DI container libraries:
-- No explicit initialization of data contexts is required. Data contexts are configured directly in `.axaml` files according to the MVVM approach.
-- The code is simpler, more compact, and requires less maintenance effort.
-- The main window is created in a pure DI paradigm, and it can be easily supplied with all necessary dependencies via DI as regular types.
-
 You can now use bindings and the code-behind-free approach. All previously defined composition roots are now available from [markup](/samples/AvaloniaApp/Views/MainWindow.xaml) without any effort, e.g. _Clock_:
 
 ```xml
@@ -170,12 +160,6 @@ To use bindings in views:
     <TextBlock Text="{Binding Time}" FontSize="128" HorizontalAlignment="Center" />
   </StackPanel>
 ```
-
-Advantages over classical DI container libraries:
-- The code-behind `.cs` files for views are free of any logic.
-- This approach works just as well during design time.
-- You can easily use different view models in a single view.
-- Bindings depend on properties through abstractions, which additionally ensures weak coupling of types in application. This is in line with the basic principles of DI.
 
 The [project file](/samples/AvaloniaApp/AvaloniaApp.csproj) looks like this:
 

@@ -88,7 +88,7 @@ The external service provider should be configured before resolving `composition
 The [project file](/samples/EF/EF.csproj) looks like this:
 
 ```xml
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
         <PackageReference Include="Pure.DI" Version="2.4.0">
