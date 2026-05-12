@@ -15,6 +15,7 @@ class CompositionBuilder(
     IGraphWalker<RootStatisticsContext, DependencyNode> graphStatisticsWalker,
     IGraphVisitor<RootStatisticsContext, DependencyNode> rootStatisticsVisitor,
     IConstructors constructors,
+    IRootUseSiteCounter rootUseSiteCounter,
     CancellationToken cancellationToken)
     : IBuilder<DependencyGraph, CompositionCode>
 {
@@ -51,7 +52,8 @@ class CompositionBuilder(
             }
             else
             {
-                var ctx = new RootContext(graph, root, varsMap, lines);
+                var useSites = rootUseSiteCounter.Analyze(graph, root.Node);
+                var ctx = new RootContext(graph, root, varsMap, lines, useSites);
                 if (isAnyConstructorEnabled)
                 {
                     var statisticsContext = new RootStatisticsContext();

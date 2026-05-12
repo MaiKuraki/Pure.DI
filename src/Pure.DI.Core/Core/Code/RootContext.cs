@@ -1,10 +1,11 @@
-﻿namespace Pure.DI.Core.Code;
+namespace Pure.DI.Core.Code;
 
 record RootContext(
     DependencyGraph Graph,
     Root Root,
     IVarsMap VarsMap,
-    Lines Lines)
+    Lines Lines,
+    RootUseSiteAnalysis UseSites)
 {
     public bool IsThreadSafeEnabled => Graph.Source.Hints.IsThreadSafeEnabled;
 

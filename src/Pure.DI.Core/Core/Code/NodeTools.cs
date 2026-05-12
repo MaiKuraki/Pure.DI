@@ -29,6 +29,42 @@ sealed class NodeTools(
     public bool IsAsyncDisposable(DependencyNode node) =>
         node.Type.AllInterfaces.Any(i => IsAsyncDisposable(node.Binding.SemanticModel.Compilation, i));
 
+    public int EstimateBodyCost(IDependencyNode node, bool isLockRequired)
+    {
+        var concrete = node.Node;
+        var cost = 0;
+
+        if (concrete.Implementation is { } implementation)
+        {
+            cost += implementation.Constructor.Parameters.Length;
+            cost += implementation.Properties.Length;
+            cost += implementation.Fields.Length;
+            cost += implementation.Methods.Length;
+        }
+
+        if (concrete.Factory is not null)
+        {
+            cost += 6;
+        }
+
+        if (concrete.Construct is not null)
+        {
+            cost += 2;
+        }
+
+        if (isLockRequired)
+        {
+            cost += 4;
+        }
+
+        if (IsDisposableAny(concrete))
+        {
+            cost += 1;
+        }
+
+        return cost;
+    }
+
     private static bool IsEnumerable(DependencyNode node) =>
         node.Construct is { Source.Kind: MdConstructKind.Enumerable };
 

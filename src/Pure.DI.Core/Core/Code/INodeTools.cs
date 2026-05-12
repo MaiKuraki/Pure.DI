@@ -11,4 +11,6 @@ interface INodeTools
     bool IsDisposable(DependencyNode node);
 
     bool IsAsyncDisposable(DependencyNode node);
+
+    int EstimateBodyCost(IDependencyNode node, bool isLockRequired);
 }

@@ -1309,7 +1309,7 @@ public class LifetimesTests
         // Then
         result.Success.ShouldBeTrue(result);
         result.StdOut.ShouldBe(["True"], result);
-        result.GeneratedCode.Split().Count(i => i.TrimStart().StartsWith("EnsureDependencyExists")).ShouldBe(2, result);
+        result.GeneratedCode.Split().Count(i => i.TrimStart().StartsWith("EnsureDependencyExists")).ShouldBe(0, result);
     }
 
     [Theory]
