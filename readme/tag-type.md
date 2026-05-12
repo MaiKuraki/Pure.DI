@@ -106,18 +106,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsurePayPalGatewayPureDIUsageTestsAdvancedTagTypeScenarioPayPalGatewayExists();
+      if (_singletonPayPalGateway63 is null)
+        lock (_lock)
+          if (_singletonPayPalGateway63 is null)
+          {
+            _singletonPayPalGateway63 = new PayPalGateway();
+          }
+
       return _singletonPayPalGateway63;
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsurePayPalGatewayPureDIUsageTestsAdvancedTagTypeScenarioPayPalGatewayExists()
-      {
-        if (_singletonPayPalGateway63 is null)
-          lock (_lock)
-            if (_singletonPayPalGateway63 is null)
-            {
-              _singletonPayPalGateway63 = new PayPalGateway();
-            }
-      }
     }
   }
 
@@ -126,18 +122,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsurePayPalGatewayPureDIUsageTestsAdvancedTagTypeScenarioPayPalGatewayExists1();
+      if (_singletonPayPalGateway63 is null)
+        lock (_lock)
+          if (_singletonPayPalGateway63 is null)
+          {
+            _singletonPayPalGateway63 = new PayPalGateway();
+          }
+
       return new PaymentProcessor(new CreditCardGateway(), _singletonPayPalGateway63, new CreditCardGateway());
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsurePayPalGatewayPureDIUsageTestsAdvancedTagTypeScenarioPayPalGatewayExists1()
-      {
-        if (_singletonPayPalGateway63 is null)
-          lock (_lock)
-            if (_singletonPayPalGateway63 is null)
-            {
-              _singletonPayPalGateway63 = new PayPalGateway();
-            }
-      }
     }
   }
 }

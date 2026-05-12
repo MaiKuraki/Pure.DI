@@ -114,18 +114,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsureInternalApiClientInternalExists1();
+      if (_singletonInternalApiClient63 is null)
+        lock (_lock)
+          if (_singletonInternalApiClient63 is null)
+          {
+            _singletonInternalApiClient63 = new InternalApiClient();
+          }
+
       return _singletonInternalApiClient63;
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsureInternalApiClientInternalExists1()
-      {
-        if (_singletonInternalApiClient63 is null)
-          lock (_lock)
-            if (_singletonInternalApiClient63 is null)
-            {
-              _singletonInternalApiClient63 = new InternalApiClient();
-            }
-      }
     }
   }
 
@@ -134,18 +130,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsureInternalApiClientInternalExists();
+      if (_singletonInternalApiClient63 is null)
+        lock (_lock)
+          if (_singletonInternalApiClient63 is null)
+          {
+            _singletonInternalApiClient63 = new InternalApiClient();
+          }
+
       return new ApiFacade(new RestApiClient(), _singletonInternalApiClient63, new RestApiClient());
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsureInternalApiClientInternalExists()
-      {
-        if (_singletonInternalApiClient63 is null)
-          lock (_lock)
-            if (_singletonInternalApiClient63 is null)
-            {
-              _singletonInternalApiClient63 = new InternalApiClient();
-            }
-      }
     }
   }
 }

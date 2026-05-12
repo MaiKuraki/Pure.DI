@@ -131,18 +131,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsureSmsSenderSmsExists1();
+      if (_singletonSmsSender63 is null)
+        lock (_lock)
+          if (_singletonSmsSender63 is null)
+          {
+            _singletonSmsSender63 = new SmsSender();
+          }
+
       return _singletonSmsSender63;
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsureSmsSenderSmsExists1()
-      {
-        if (_singletonSmsSender63 is null)
-          lock (_lock)
-            if (_singletonSmsSender63 is null)
-            {
-              _singletonSmsSender63 = new SmsSender();
-            }
-      }
     }
   }
 
@@ -151,18 +147,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsureSmsSenderSmsExists();
+      if (_singletonSmsSender63 is null)
+        lock (_lock)
+          if (_singletonSmsSender63 is null)
+          {
+            _singletonSmsSender63 = new SmsSender();
+          }
+
       return new MessagingService(new EmailSender(), _singletonSmsSender63, new EmailSender());
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsureSmsSenderSmsExists()
-      {
-        if (_singletonSmsSender63 is null)
-          lock (_lock)
-            if (_singletonSmsSender63 is null)
-            {
-              _singletonSmsSender63 = new SmsSender();
-            }
-      }
     }
   }
 }

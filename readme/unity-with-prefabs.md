@@ -191,22 +191,18 @@ partial class Scope: IDisposable
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
     Clock transientClock671;
     Clock localBuildingInstance18 = buildingInstance;
-    EnsureClockServiceExists1();
+    if (_singletonClockService63 is null)
+      lock (_lock)
+        if (_singletonClockService63 is null)
+        {
+          ClockConfig transientClockConfig673 = clockConfig;
+          _singletonClockService63 = new ClockService(transientClockConfig673);
+          _disposables[_disposeIndex++] = _singletonClockService63;
+        }
+
     localBuildingInstance18.ClockService = _singletonClockService63;
     transientClock671 = localBuildingInstance18;
     return transientClock671;
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    void EnsureClockServiceExists1()
-    {
-      if (_singletonClockService63 is null)
-        lock (_lock)
-          if (_singletonClockService63 is null)
-          {
-            ClockConfig transientClockConfig673 = clockConfig;
-            _singletonClockService63 = new ClockService(transientClockConfig673);
-            _disposables[_disposeIndex++] = _singletonClockService63;
-          }
-    }
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -215,22 +211,18 @@ partial class Scope: IDisposable
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
     ClockDigital transientClockDigital667;
     ClockDigital localBuildingInstance17 = buildingInstance;
-    EnsureClockServiceExists();
+    if (_singletonClockService63 is null)
+      lock (_lock)
+        if (_singletonClockService63 is null)
+        {
+          ClockConfig transientClockConfig670 = clockConfig;
+          _singletonClockService63 = new ClockService(transientClockConfig670);
+          _disposables[_disposeIndex++] = _singletonClockService63;
+        }
+
     localBuildingInstance17.ClockService = _singletonClockService63;
     transientClockDigital667 = localBuildingInstance17;
     return transientClockDigital667;
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    void EnsureClockServiceExists()
-    {
-      if (_singletonClockService63 is null)
-        lock (_lock)
-          if (_singletonClockService63 is null)
-          {
-            ClockConfig transientClockConfig670 = clockConfig;
-            _singletonClockService63 = new ClockService(transientClockConfig670);
-            _disposables[_disposeIndex++] = _singletonClockService63;
-          }
-    }
   }
 
   #pragma warning disable CS0162

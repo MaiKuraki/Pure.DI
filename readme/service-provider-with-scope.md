@@ -172,7 +172,15 @@ partial class Composition: IDisposable
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        EnsureSessionExists();
+        if (_scopedSession63 is null)
+          lock (_lock)
+            if (_scopedSession63 is null)
+            {
+              EnsureConfigurationExists();
+              _scopedSession63 = new Session(root._singletonConfiguration62);
+              _disposables[_disposeIndex++] = _scopedSession63;
+            }
+
         return _scopedSession63;
       });
       return new LightweightRoot()
@@ -188,19 +196,6 @@ partial class Composition: IDisposable
             if (root._singletonConfiguration62 is null)
             {
               root._singletonConfiguration62 = new Configuration();
-            }
-      }
-
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsureSessionExists()
-      {
-        if (_scopedSession63 is null)
-          lock (_lock)
-            if (_scopedSession63 is null)
-            {
-              EnsureConfigurationExists();
-              _scopedSession63 = new Session(root._singletonConfiguration62);
-              _disposables[_disposeIndex++] = _scopedSession63;
             }
       }
     }
@@ -426,7 +421,7 @@ classDiagram
 	Composition --|> IDisposable
 	Configuration --|> IConfiguration
 	Session --|> ISession
-	Composition ..> LightweightRoot : LightweightRoot LightRoot129d
+	Composition ..> LightweightRoot : LightweightRoot LightRoot132d
 	Composition ..> Session : ISession _
 	Composition ..> Configuration : IConfiguration _
 	Session o-- "Singleton" Configuration : IConfiguration
@@ -445,7 +440,7 @@ classDiagram
 	namespace Pure.DI.UsageTests.BCL.ServiceProviderWithScopeScenario {
 		class Composition {
 		<<partial>>
-		-LightweightRoot LightRoot129d
+		-LightweightRoot LightRoot132d
 		-IConfiguration _
 		-ISession _
 		+ T ResolveᐸTᐳ()

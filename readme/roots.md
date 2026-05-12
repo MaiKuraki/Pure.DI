@@ -75,18 +75,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsurePreferencesExists();
+      if (_singletonPreferences62 is null)
+        lock (_lock)
+          if (_singletonPreferences62 is null)
+          {
+            _singletonPreferences62 = new Preferences();
+          }
+
       return new SettingsWindow(_singletonPreferences62);
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsurePreferencesExists()
-      {
-        if (_singletonPreferences62 is null)
-          lock (_lock)
-            if (_singletonPreferences62 is null)
-            {
-              _singletonPreferences62 = new Preferences();
-            }
-      }
     }
   }
 
@@ -95,18 +91,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      EnsurePreferencesExists1();
+      if (_singletonPreferences62 is null)
+        lock (_lock)
+          if (_singletonPreferences62 is null)
+          {
+            _singletonPreferences62 = new Preferences();
+          }
+
       return new MainWindow(_singletonPreferences62);
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsurePreferencesExists1()
-      {
-        if (_singletonPreferences62 is null)
-          lock (_lock)
-            if (_singletonPreferences62 is null)
-            {
-              _singletonPreferences62 = new Preferences();
-            }
-      }
     }
   }
 }

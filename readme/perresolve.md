@@ -125,24 +125,24 @@ partial class Composition
         lock (_lock)
           if (!_singletonValueTuple65Created)
           {
-            EnsureRoutePlanningSessionExists();
+            if (perResolveRoutePlanningSession630 is null)
+            {
+              perResolveRoutePlanningSession630 = new RoutePlanningSession();
+            }
+
             _singletonValueTuple65 = (perResolveRoutePlanningSession630, perResolveRoutePlanningSession630);
             Thread.MemoryBarrier();
             _singletonValueTuple65Created = true;
           }
 
-      EnsureRoutePlanningSessionExists();
+      if (perResolveRoutePlanningSession630 is null)
+        lock (_lock)
+          if (perResolveRoutePlanningSession630 is null)
+          {
+            perResolveRoutePlanningSession630 = new RoutePlanningSession();
+          }
+
       return new TrainTripPlanner(perResolveRoutePlanningSession630, perResolveRoutePlanningSession630, _singletonValueTuple65);
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      void EnsureRoutePlanningSessionExists()
-      {
-        if (perResolveRoutePlanningSession630 is null)
-          lock (_lock)
-            if (perResolveRoutePlanningSession630 is null)
-            {
-              perResolveRoutePlanningSession630 = new RoutePlanningSession();
-            }
-      }
     }
   }
 }
