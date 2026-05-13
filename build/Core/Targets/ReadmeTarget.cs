@@ -249,15 +249,23 @@ class ReadmeTarget(
     private static async Task AddClassDiagram(string logsDirectory, string exampleName, TextWriter writer)
     {
         var classDiagramFile = Path.Combine(logsDirectory, exampleName + ".Mermaid");
-        if (File.Exists(classDiagramFile))
+        if (!File.Exists(classDiagramFile))
         {
-            await writer.WriteLineAsync("Class diagram:");
-            await writer.WriteLineAsync();
-            await writer.WriteLineAsync("```mermaid");
-            var classDiagram = await File.ReadAllTextAsync(classDiagramFile);
-            await writer.WriteLineAsync(classDiagram);
-            await writer.WriteLineAsync("```");
+            return;
         }
+
+        var classDiagram = await File.ReadAllTextAsync(classDiagramFile);
+        var trimmed = classDiagram.TrimStart();
+        if (trimmed.Length == 0 || (!trimmed.StartsWith("---") && !trimmed.StartsWith("classDiagram")))
+        {
+            return;
+        }
+
+        await writer.WriteLineAsync("Class diagram:");
+        await writer.WriteLineAsync();
+        await writer.WriteLineAsync("```mermaid");
+        await writer.WriteLineAsync(classDiagram);
+        await writer.WriteLineAsync("```");
     }
 
     private static async Task AddExample(string logsDirectory, string exampleSearchPattern, TextWriter writer)

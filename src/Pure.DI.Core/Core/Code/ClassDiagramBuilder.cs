@@ -37,8 +37,6 @@ sealed class ClassDiagramBuilder(
         var lines = new Lines();
         lines.AppendLine("---");
         lines.AppendLine(" config:");
-        lines.AppendLine($"  maxTextSize: {int.MaxValue}");
-        lines.AppendLine($"  maxEdges: {int.MaxValue}");
         lines.AppendLine("  class:");
         lines.AppendLine("   hideEmptyMembersBox: true");
         lines.AppendLine("---");
@@ -83,13 +81,13 @@ sealed class ClassDiagramBuilder(
 
             if (composition.TotalDisposablesCount > 0)
             {
-                classes.Add(new Class(nameof(System), "IDisposable", "abstract", null, new Lines()));
+                classes.Add(new Class(nameof(System), "IDisposable", "interface", null, new Lines()));
                 lines.AppendLine($"{composition.Name.ClassName} --|> IDisposable");
             }
 
             if (composition.AsyncDisposableCount > 0)
             {
-                classes.Add(new Class(nameof(System), "IAsyncDisposable", "abstract", null, new Lines()));
+                classes.Add(new Class(nameof(System), "IAsyncDisposable", "interface", null, new Lines()));
                 lines.AppendLine($"{composition.Name.ClassName} --|> IAsyncDisposable");
             }
 
@@ -103,16 +101,31 @@ sealed class ClassDiagramBuilder(
                 }
 
                 var contracts = injectionsBuilder.Build(new ContractsBuildContext(node.Binding, MdTag.ContextTag, null));
-                foreach (var contract in contracts)
+                foreach (var contractGroup in contracts
+                    .Where(c => !types.TypeEquals(node.Type, c.Type))
+                    .GroupBy(c => c.Type, typeSymbolComparer.Dependency))
                 {
-                    if (types.TypeEquals(node.Type, contract.Type))
+                    var contractType = contractGroup.First().Type;
+                    typeSymbols.Add(contractType);
+
+                    var hasExplicitTag = contractGroup.Any(c => c.Tag is not null and not MdTagOnSites);
+                    string label;
+                    if (!hasExplicitTag)
                     {
-                        continue;
+                        label = "";
+                    }
+                    else
+                    {
+                        var parts = contractGroup
+                            .Select(c => c.Tag is null or MdTagOnSites ? "default" : EscapeTag(c.Tag))
+                            .Distinct()
+                            .OrderBy(s => s == "default" ? 1 : 0)
+                            .ThenBy(s => s)
+                            .ToList();
+                        label = $" : {string.Join(", ", parts)}";
                     }
 
-                    typeSymbols.Add(contract.Type);
-                    var tag = FormatTag(contract.Tag);
-                    lines.AppendLine($"{FormatType(setup, node.Type, DefaultFormatOptions)} --|> {FormatType(setup, contract.Type, DefaultFormatOptions)}{(string.IsNullOrWhiteSpace(tag) ? "" : $" : {tag}")}");
+                    lines.AppendLine($"{FormatType(setup, node.Type, DefaultFormatOptions)} --|> {FormatType(setup, contractType, DefaultFormatOptions)}{label}");
                 }
 
                 var classDiagramWalker = new ClassDiagramWalker(setup, marker, this, classes, DefaultFormatOptions, locationProvider);
@@ -158,7 +171,11 @@ sealed class ClassDiagramBuilder(
                         }
 
                         var tags = arg.Binding.Contracts.SelectMany(i => i.Tags.Select(tag => tag.Value)).ToList();
-                        lines.AppendLine($"{targetType} o-- {sourceType} : {(tags.Count > 0 ? FormatTags(tags) + " " : "")}Argument \\\"{arg.Source.ArgName}\\\"");
+                        var formattedTags = tags.Count > 0 ? FormatTags(tags) : "";
+                        var argLabel = formattedTags.Length > 0
+                            ? $"{formattedTags} Argument \\\"{arg.Source.ArgName}\\\""
+                            : $"Argument \\\"{arg.Source.ArgName}\\\"";
+                        lines.AppendLine($"{targetType} o-- {sourceType} : {argLabel}");
                     }
                     else
                     {
@@ -168,7 +185,11 @@ sealed class ClassDiagramBuilder(
                         }
 
                         var relationship = dependency.Source.Lifetime == Lifetime.Transient ? "*--" : "o--";
-                        lines.AppendLine($"{targetType} {relationship} {FormatCardinality(count, dependency.Source.Lifetime)} {sourceType} : {FormatDependency(setup, dependency, DefaultFormatOptions)}");
+                        var cardinality = FormatCardinality(count, dependency.Source.Lifetime);
+                        var head = cardinality.Length > 0
+                            ? $"{targetType} {relationship} {cardinality} {sourceType}"
+                            : $"{targetType} {relationship} {sourceType}";
+                        lines.AppendLine($"{head} : {FormatDependency(setup, dependency, DefaultFormatOptions)}");
                     }
                 }
             }
@@ -232,45 +253,42 @@ sealed class ClassDiagramBuilder(
             rootArgsStr = $"({string.Join(", ", root.RootArgs.Select(arg => $"{ResolveTypeName(setup, arg.InstanceType)} {arg.Name}"))})";
         }
 
-        var displayName = root.IsPublic ? root.DisplayName : "_";
-        return $"{FormatType(setup, root.Injection.Type, DefaultFormatOptions)} {displayName}{typeArgsStr}{rootArgsStr}";
+        return $"{FormatType(setup, root.Injection.Type, DefaultFormatOptions)} {root.DisplayName}{typeArgsStr}{rootArgsStr}";
     }
 
     [SuppressMessage("ReSharper", "InvertIf")]
     private static string FormatCardinality(int count, Lifetime lifetime)
     {
-        var cardinality = new StringBuilder();
+        var parts = new List<string>(2);
         if (count > 1)
         {
-            cardinality.Append(count);
-            cardinality.Append(' ');
+            parts.Add(count.ToString());
         }
 
         if (lifetime != Lifetime.Transient)
         {
-            cardinality.Append(lifetime);
-            if (count > 1)
-            {
-                cardinality.Append(" instances");
-            }
+            parts.Add(lifetime.ToString());
         }
 
-        if (cardinality.Length > 0)
+        if (count > 1)
         {
-            cardinality.Insert(0, "\\\"");
-            cardinality.Append("\\\"");
+            parts.Add("instances");
         }
 
-        return cardinality.ToString();
+        return parts.Count == 0 ? "" : $"\\\"{string.Join(" ", parts)}\\\"";
     }
 
-    private string FormatDependency(MdSetup setup, Dependency dependency, FormatOptions options) =>
-        $"{(dependency.Injection.Tag is null or MdTagOnSites ? "" : FormatTag(dependency.Injection.Tag) + " ")}{FormatSymbol(setup, dependency.Injection.Type, options)}";
+    private string FormatDependency(MdSetup setup, Dependency dependency, FormatOptions options)
+    {
+        var tag = FormatTag(dependency.Injection.Tag);
+        var symbol = FormatSymbol(setup, dependency.Injection.Type, options);
+        return tag.Length == 0 ? symbol : $"{tag} {symbol}";
+    }
 
     private static string FormatTag(object? tag) =>
         tag is null or MdTagOnSites
             ? ""
-            : EscapeTag(tag) + " ";
+            : EscapeTag(tag);
 
     private static string EscapeTag(object tag) =>
         tag.ValueToString("")
@@ -278,7 +296,7 @@ sealed class ClassDiagramBuilder(
             .Replace(':', '﹕');
 
     private static string FormatTags(IEnumerable<object?> tags) =>
-        string.Join(", ", tags.Distinct().Select(FormatTag).OrderBy(i => i));
+        string.Join(", ", tags.Distinct().Select(FormatTag).Where(s => s.Length > 0).OrderBy(i => i));
 
     private string FormatSymbol(MdSetup setup, ISymbol? symbol, FormatOptions options) =>
         symbol switch
@@ -453,31 +471,31 @@ sealed class ClassDiagramBuilder(
                     typeKind = "anonymous";
                 }
 
-                if (Type.IsRecord)
+                typeKind = Type.TypeKind switch
                 {
-                    typeKind = "record";
-                }
+                    TypeKind.Interface or TypeKind.Enum or TypeKind.Delegate or TypeKind.Struct => Type.TypeKind.ToString().ToLower(),
+                    _ => typeKind
+                };
 
                 if (Type is IArrayTypeSymbol)
                 {
                     typeKind = "array";
                 }
 
-                if (Type.IsTupleType)
-                {
-                    typeKind = "tuple";
-                }
-
-                if (Type.IsAbstract)
+                if (Type.IsAbstract && Type.TypeKind == TypeKind.Class)
                 {
                     typeKind = "abstract";
                 }
 
-                typeKind = Type.TypeKind switch
+                if (Type.IsRecord)
                 {
-                    TypeKind.Interface or TypeKind.Enum or TypeKind.Delegate or TypeKind.Struct => Type.TypeKind.ToString().ToLower(),
-                    _ => typeKind
-                };
+                    typeKind = "record";
+                }
+
+                if (Type.IsTupleType)
+                {
+                    typeKind = "tuple";
+                }
 
                 return string.IsNullOrWhiteSpace(typeKind) ? Type.TypeKind.ToString().ToLower() : typeKind;
             }
