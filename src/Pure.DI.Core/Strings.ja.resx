@@ -161,7 +161,7 @@
         <value>引数 {1} があるため、Root {0} を Resolve メソッドで解決できません。試行すると例外がスローされます。</value>
     </data>
   <data name="Warning_Template_NullableRootCannotBeDistinguishedByResolveTypeMethods" xml:space="preserve">
-    <value>The root {0} has the same runtime type as another nullable/non-nullable root. Resolve(Type) and Resolve(Type, tag) cannot distinguish nullable reference annotations.</value>
+    <value>ルート {0} は、他の nullable/非 nullable ルートと同じ実行時型を持っています。Resolve(Type) および Resolve(Type, tag) は、nullable 参照の注釈を区別できません。</value>
   </data>
   <data name="Warning_Template_InjectionSiteIsNotUsed" xml:space="preserve">
         <value>Injection site のタグ "{0}" は使用されていません。</value>
@@ -353,7 +353,7 @@
     <value>選択的インターフェイス生成により空のインターフェイスが生成されました。</value>
   </data>
   <data name="Description_WarningNullableRootInResolveMethod" xml:space="preserve">
-    <value>Resolve(Type) cannot distinguish nullable and non-nullable roots.</value>
+    <value>Resolve(Type) は nullable と非 nullable のルートを区別できません。</value>
   </data>
   <data name="Warning_Template_GenerateInterfaceOnNonPublicMember" xml:space="preserve">
     <value>要素 "{0}" の [GenerateInterface] 属性は、要素が public ではないため、インターフェイス "{1}" では無視されます。</value>

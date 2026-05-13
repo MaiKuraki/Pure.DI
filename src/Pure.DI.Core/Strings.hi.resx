@@ -158,7 +158,7 @@
         <value>Arguments {1} के कारण Root {0} को Resolve विधियों द्वारा हल नहीं किया जा सकता है; प्रयास करने पर एक अपवाद (exception) फेंका जाएगा।</value>
     </data>
   <data name="Warning_Template_NullableRootCannotBeDistinguishedByResolveTypeMethods" xml:space="preserve">
-    <value>The root {0} has the same runtime type as another nullable/non-nullable root. Resolve(Type) and Resolve(Type, tag) cannot distinguish nullable reference annotations.</value>
+    <value>रूट {0} का रनटाइम टाइप किसी अन्य nullable/गैर-nullable रूट के समान है। Resolve(Type) और Resolve(Type, tag) nullable रेफरेंस एनोटेशन के बीच अंतर नहीं कर सकते।</value>
   </data>
   <data name="Warning_Template_InjectionSiteIsNotUsed" xml:space="preserve">
         <value>Injection site पर टैग "{0}" का उपयोग नहीं किया गया है।</value>
@@ -353,7 +353,7 @@
     <value>Selective interface generation से खाली इंटरफ़ेस बना।</value>
   </data>
   <data name="Description_WarningNullableRootInResolveMethod" xml:space="preserve">
-    <value>Resolve(Type) cannot distinguish nullable and non-nullable roots.</value>
+    <value>Resolve(Type) nullable और गैर-nullable रूट के बीच अंतर नहीं कर सकता।</value>
   </data>
   <data name="Warning_Template_GenerateInterfaceOnNonPublicMember" xml:space="preserve">
     <value>तत्व "{0}" पर [GenerateInterface] एट्रिब्यूट को इंटरफ़ेस "{1}" के लिए अनदेखा किया गया, क्योंकि यह तत्व public नहीं है।</value>

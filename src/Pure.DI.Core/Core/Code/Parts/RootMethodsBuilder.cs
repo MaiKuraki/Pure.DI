@@ -44,6 +44,7 @@ sealed class RootMethodsBuilder(
 
             BuildRoot(composition, root);
             membersCounter++;
+            // ReSharper disable once InvertIf
             if (!root.Source.BuilderRoots.IsDefaultOrEmpty)
             {
                 code.AppendLine();

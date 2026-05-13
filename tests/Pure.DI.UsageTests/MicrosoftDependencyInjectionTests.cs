@@ -1,6 +1,7 @@
 // ReSharper disable once CheckNamespace
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedMember.Global
 namespace Pure.DI.UsageTests.IntegrationTests.MicrosoftDependencyInjectionTests;
 
 using System.Linq;

@@ -158,7 +158,7 @@
         <value>由于存在参数 {1}，无法使用 Resolve 方法解析根 {0}；尝试时将引发异常。</value>
     </data>
   <data name="Warning_Template_NullableRootCannotBeDistinguishedByResolveTypeMethods" xml:space="preserve">
-    <value>The root {0} has the same runtime type as another nullable/non-nullable root. Resolve(Type) and Resolve(Type, tag) cannot distinguish nullable reference annotations.</value>
+    <value>根 {0} 与另一个可空/非可空根具有相同的运行时类型。Resolve(Type) 和 Resolve(Type, tag) 无法区分可空引用注解。</value>
   </data>
   <data name="Warning_Template_InjectionSiteIsNotUsed" xml:space="preserve">
         <value>注入点 (injection site) 处的标签 "{0}" 未被使用。</value>
@@ -353,7 +353,7 @@
     <value>选择性接口生成产生了空接口。</value>
   </data>
   <data name="Description_WarningNullableRootInResolveMethod" xml:space="preserve">
-    <value>Resolve(Type) cannot distinguish nullable and non-nullable roots.</value>
+    <value>Resolve(Type) 无法区分可空和非可空的根。</value>
   </data>
   <data name="Warning_Template_GenerateInterfaceOnNonPublicMember" xml:space="preserve">
     <value>元素 "{0}" 上的 [GenerateInterface] 特性会在接口 "{1}" 中被忽略，因为该元素不是 public。</value>

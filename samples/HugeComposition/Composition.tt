@@ -134,6 +134,7 @@ using Pure.DI;
 
 // Total bindings: <#= total #>
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
 public partial class Composition
 {
 <#= string.Join("\n", bindings) #>

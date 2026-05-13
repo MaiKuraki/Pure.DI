@@ -158,7 +158,7 @@
         <value>לא ניתן לפתור את ה-Root {0} על ידי מתודות Resolve עקב הארגומנטים {1}, לכן תיזרק חריגה בעת הניסיון.</value>
     </data>
   <data name="Warning_Template_NullableRootCannotBeDistinguishedByResolveTypeMethods" xml:space="preserve">
-    <value>The root {0} has the same runtime type as another nullable/non-nullable root. Resolve(Type) and Resolve(Type, tag) cannot distinguish nullable reference annotations.</value>
+    <value>לשורש {0} יש אותו טיפוס בזמן ריצה כמו שורש nullable/לא-nullable אחר. ‏Resolve(Type) ו-Resolve(Type, tag) אינם יכולים להבחין בהערות הפניה nullable.</value>
   </data>
   <data name="Warning_Template_InjectionSiteIsNotUsed" xml:space="preserve">
         <value>התגית "{0}" ב-Injection Site אינה בשימוש.</value>
@@ -353,7 +353,7 @@
     <value>יצירה סלקטיבית של ממשק יצרה ממשק ריק.</value>
   </data>
   <data name="Description_WarningNullableRootInResolveMethod" xml:space="preserve">
-    <value>Resolve(Type) cannot distinguish nullable and non-nullable roots.</value>
+    <value>‏Resolve(Type) אינו יכול להבחין בין שורשי nullable ולא-nullable.</value>
   </data>
   <data name="Warning_Template_GenerateInterfaceOnNonPublicMember" xml:space="preserve">
     <value>המאפיין [GenerateInterface] על הרכיב "{0}" עבור הממשק "{1}" מתעלמים ממנו כי הרכיב אינו public.</value>

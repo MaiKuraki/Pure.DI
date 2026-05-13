@@ -158,7 +158,7 @@
         <value>ไม่สามารถแก้ไขรูท {0} ด้วยเมธอด Resolve ได้เนื่องจากอาร์กิวเมนต์ {1} ดังนั้นจะมีการข้อยกเว้นเกิดขึ้นเมื่อพยายามดำเนินการ</value>
     </data>
   <data name="Warning_Template_NullableRootCannotBeDistinguishedByResolveTypeMethods" xml:space="preserve">
-    <value>The root {0} has the same runtime type as another nullable/non-nullable root. Resolve(Type) and Resolve(Type, tag) cannot distinguish nullable reference annotations.</value>
+    <value>ราก {0} มีประเภทรันไทม์เดียวกันกับรากแบบ nullable/non-nullable อื่น Resolve(Type) และ Resolve(Type, tag) ไม่สามารถแยกความแตกต่างของคำอธิบายประกอบการอ้างอิงแบบ nullable ได้</value>
   </data>
   <data name="Warning_Template_InjectionSiteIsNotUsed" xml:space="preserve">
         <value>แท็ก "{0}" ที่ตำแหน่ง injection ไม่ได้ถูกใช้งาน</value>
@@ -353,7 +353,7 @@
     <value>การสร้างอินเทอร์เฟซแบบเลือกทำให้อินเทอร์เฟซว่าง</value>
   </data>
   <data name="Description_WarningNullableRootInResolveMethod" xml:space="preserve">
-    <value>Resolve(Type) cannot distinguish nullable and non-nullable roots.</value>
+    <value>Resolve(Type) ไม่สามารถแยกความแตกต่างระหว่างรากแบบ nullable และ non-nullable ได้</value>
   </data>
   <data name="Warning_Template_GenerateInterfaceOnNonPublicMember" xml:space="preserve">
     <value>แอตทริบิวต์ [GenerateInterface] บนองค์ประกอบ "{0}" ถูกละเว้นสำหรับอินเทอร์เฟซ "{1}" เนื่องจากองค์ประกอบไม่เป็น public</value>

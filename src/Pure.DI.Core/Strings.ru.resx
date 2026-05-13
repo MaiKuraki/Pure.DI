@@ -158,7 +158,7 @@
         <value>Корень {0} не может быть разрешён методами Resolve из-за аргументов {1}, поэтому при попытке будет выброшено исключение.</value>
     </data>
     <data name="Warning_Template_NullableRootCannotBeDistinguishedByResolveTypeMethods" xml:space="preserve">
-        <value>The root {0} has the same runtime type as another nullable/non-nullable root. Resolve(Type) and Resolve(Type, tag) cannot distinguish nullable reference annotations.</value>
+        <value>Корень {0} имеет тот же тип во время выполнения, что и другой nullable/не-nullable корень. Resolve(Type) и Resolve(Type, tag) не могут различить аннотации nullable-ссылок.</value>
     </data>
     <data name="Warning_Template_InjectionSiteIsNotUsed" xml:space="preserve">
         <value>"{0}" тега на месте инъекции не используется.</value>
@@ -356,7 +356,7 @@
         <value>Выборочная генерация интерфейса привела к пустому интерфейсу.</value>
     </data>
     <data name="Description_WarningNullableRootInResolveMethod" xml:space="preserve">
-        <value>Resolve(Type) cannot distinguish nullable and non-nullable roots.</value>
+        <value>Resolve(Type) не может различить nullable и не-nullable корни.</value>
     </data>
     <data name="Description_InfoGenerationInterrupted" xml:space="preserve">
         <value>Генерация была прервана.</value>
