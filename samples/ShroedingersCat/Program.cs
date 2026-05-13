@@ -53,7 +53,7 @@ partial class Composition
         .Hint(Hint.Resolve, "off")
         // Models a random subatomic event that may or may not occur
         .Bind().As(Singleton).To<Random>()
-        // Quantum superposition of two states: Alive or Dead
+        // Represents a quantum state: Alive or Dead, decided at observation time
         .Bind().To((Random random) => (State)random.Next(2))
         .Bind().To<ShroedingersCat>()
         // Cardboard box with any contents

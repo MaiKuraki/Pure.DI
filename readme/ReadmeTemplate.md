@@ -50,7 +50,7 @@ Let's bind the abstractions to their implementations and set up the creation of 
 DI.Setup(nameof(Composition))
     // Models a random subatomic event that may or may not occur
     .Bind().As(Singleton).To<Random>()
-    // Represents a quantum superposition of two states: Alive or Dead
+    // Represents a quantum state: Alive or Dead, decided at observation time
     .Bind().To((Random random) => (State)random.Next(2))
     .Bind().To<ShroedingersCat>()
     // Cardboard box with any contents
@@ -62,7 +62,7 @@ DI.Setup(nameof(Composition))
 > [!NOTE]
 > In fact, the `Bind().As(Singleton).To<Random>()` binding is unnecessary since Pure.DI supports many .NET BCL types out of the box, including [Random](https://github.com/DevTeam/Pure.DI/blob/27a1ccd604b2fdd55f6bfec01c24c86428ddfdcb/src/Pure.DI.Core/Features/Default.g.cs#L289). It was added just for the example of using the _Singleton_ lifetime.
 
-The code above specifies the generation of a partial class named *__Composition__*. This name is defined in the `DI.Setup(nameof(Composition))` call. The class contains a *__Root__* property that returns an object graph with an object of type *__Program__* as the root. The type and name of the property are defined by calling `Root<Program>("Root")`. The generated code looks like this:
+The code above specifies the generation of a partial class named *__Composition__* — this name is defined in the `DI.Setup(nameof(Composition))` call. The call to `Root<Program>("Root")` then adds a property to that class whose type is *__Program__* and whose name is *__Root__*; this property returns the composed object graph. The generated code looks like this:
 
 ```c#
 partial class Composition
@@ -178,7 +178,7 @@ You can see the class diagram at any time by following the link in the comment o
 
 </details>
 
-This code does not depend on other libraries, does not use type reflection, and avoids tricks that can negatively affect performance and memory consumption. It looks like efficient code written by hand. At any given time, you can study it and understand how it works.
+This code does not depend on other libraries, does not use type reflection, and avoids tricks that can negatively affect performance and memory consumption. It reads like hand-written code: no reflection, no runtime container, no hidden allocations. At any given time, you can study it and understand how it works.
 
 The `public Program Root { get; }` property is a [*__Composition Root__*](https://blog.ploeh.dk/2011/07/28/CompositionRoot/), the only place in the application where the composition of the object graph takes place. Each instance is created using basic language constructs, which compile with all optimizations and minimal impact on performance and memory consumption. In general, applications may have multiple composition roots and thus such properties. Each composition root must have its own unique name, which is defined when the `Root<T>(string name)` method is called, as shown in the code above.
 
@@ -223,4 +223,4 @@ dotnet run
 
 </details>
 
-[An introductory article that will help you understand the basic idea and get started with Pure.DI](/readme/en_art_basics/en_basics.md)
+[An introductory article that will help you understand the basic idea and get started with Pure.DI](readme/en_art_basics/en_basics.md)
