@@ -148,8 +148,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -157,10 +155,10 @@ classDiagram
 	Dependency --|> IDependency
 	Service --|> IService
 	Composition ..> Service : IService Root
-	ILogger o-- ILogger : "from arg"  Argument "logger"
-	Dependency *--  ILogger : ILogger
-	Service *--  ILogger : ILogger
-	Service *--  Dependency : IDependency
+	ILogger o-- ILogger : "from arg" Argument "logger"
+	Dependency *-- ILogger : ILogger
+	Service *-- ILogger : ILogger
+	Service *-- Dependency : IDependency
 	namespace Pure.DI.UsageTests.Basics.ConsumerTypeScenario {
 		class Composition {
 		<<partial>>

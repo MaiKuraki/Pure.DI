@@ -317,8 +317,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -333,7 +331,7 @@ classDiagram
 	LoggerFactory o-- ICollectionᐸStringᐳ : Argument "logMessage"
 	ILogger o-- "Singleton" LoggerFactory : LoggerFactory
 	Mapper o-- "Singleton" LoggerFactory : LoggerFactory
-	Program *--  StudentService : IStudentService
+	Program *-- StudentService : IStudentService
 	Program o-- "Singleton" ILogger : ILogger
 	FuncᐸStudentˏPersonᐳ o-- "Singleton" PersonFormatter : IPersonFormatterɁ
 	FuncᐸStudentˏPersonᐳ o-- "Singleton" Mapper : IMapper
@@ -387,7 +385,7 @@ classDiagram
 			+IPersonFormatterɁ Formatter
 		}
 		class IDisposable {
-			<<abstract>>
+			<<interface>>
 		}
 	}
 	namespace System.Collections.Generic {

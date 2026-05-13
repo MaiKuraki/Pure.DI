@@ -148,8 +148,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -159,7 +157,7 @@ classDiagram
 	ConsoleLogger --|> ILogger
 	Composition ..> OrderService : IOrderService Root
 	OrderService o-- "Singleton" UserRepository : IRepository
-	OrderService *--  ConsoleLogger : ILogger
+	OrderService *-- ConsoleLogger : ILogger
 	namespace Pure.DI.UsageTests.Hints.OnNewInstanceWildcardHintScenario {
 		class Composition {
 		<<partial>>

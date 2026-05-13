@@ -104,18 +104,16 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	Path --|> IPath
 	Composition ..> Path : IPath Path
-	Path *--  ReadOnlySpanᐸPointᐳ : ReadOnlySpanᐸPointᐳ
-	ReadOnlySpanᐸPointᐳ *--  Point : 'a'  Point
-	ReadOnlySpanᐸPointᐳ *--  Point : 'b'  Point
-	ReadOnlySpanᐸPointᐳ *--  Point : 'c'  Point
+	Path *-- ReadOnlySpanᐸPointᐳ : ReadOnlySpanᐸPointᐳ
+	ReadOnlySpanᐸPointᐳ *-- Point : 'a' Point
+	ReadOnlySpanᐸPointᐳ *-- Point : 'b' Point
+	ReadOnlySpanᐸPointᐳ *-- Point : 'c' Point
 	namespace Pure.DI.UsageTests.BCL.SpanScenario {
 		class Composition {
 		<<partial>>

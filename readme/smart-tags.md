@@ -165,21 +165,18 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	EmailSender --|> IMessageSender : "Email" 
-	EmailSender --|> IMessageSender
-	SmsSender --|> IMessageSender : "Sms" 
+	EmailSender --|> IMessageSender : "Email", default
+	SmsSender --|> IMessageSender : "Sms"
 	MessagingService --|> IMessagingService
 	Composition ..> MessagingService : IMessagingService MessagingService
 	Composition ..> SmsSender : IMessageSender SmsSenderRoot
-	MessagingService *--  EmailSender : "Email"  IMessageSender
-	MessagingService *--  EmailSender : IMessageSender
-	MessagingService o-- "Singleton" SmsSender : "Sms"  IMessageSender
+	MessagingService *-- EmailSender : "Email" IMessageSender
+	MessagingService *-- EmailSender : IMessageSender
+	MessagingService o-- "Singleton" SmsSender : "Sms" IMessageSender
 	namespace Pure.DI.UsageTests.Basics.SmartTagsScenario {
 		class Composition {
 		<<partial>>

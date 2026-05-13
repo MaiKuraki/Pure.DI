@@ -121,15 +121,13 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	RayTracer --|> IRenderer
 	Composition ..> RayTracer : IRenderer Renderer
-	RayTracer o-- "Singleton" IGpu : "HighPerformance"  IGpu
+	RayTracer o-- "Singleton" IGpu : "HighPerformance" IGpu
 	IGpu o-- "Singleton" GraphicsAdapter : GraphicsAdapter
 	namespace Pure.DI.UsageTests.Basics.BindAttributeWithLifetimeAndTagScenario {
 		class Composition {

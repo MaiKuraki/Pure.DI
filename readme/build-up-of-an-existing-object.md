@@ -116,8 +116,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -136,8 +134,8 @@ classDiagram
 	Greeter --|> IEquatableᐸGreeterᐳ
 	Composition ..> Greeter : IGreeter GetGreeter(string name)
 	Person o-- String : Argument "name"
-	Person *--  Guid : Guid
-	Greeter *--  Person : IPerson
+	Person *-- Guid : Guid
+	Greeter *-- Person : IPerson
 	namespace Pure.DI.UsageTests.Basics.BuildUpScenario {
 		class Composition {
 		<<partial>>

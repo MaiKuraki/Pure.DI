@@ -94,16 +94,14 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	NotificationService --|> INotificationService
 	Composition ..> NotificationService : INotificationService NotificationService
-	NotificationService *--  EmailSender : EmailSender
-	NotificationService *--  SmsSender : SmsSender
+	NotificationService *-- EmailSender : EmailSender
+	NotificationService *-- SmsSender : SmsSender
 	namespace Pure.DI.UsageTests.Attributes.TypeAttributeScenario {
 		class Composition {
 		<<partial>>

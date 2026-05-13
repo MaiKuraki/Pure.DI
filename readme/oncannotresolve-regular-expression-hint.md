@@ -123,8 +123,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -132,8 +130,8 @@ classDiagram
 	DatabaseAccess --|> IDatabaseAccess
 	BusinessService --|> IBusinessService
 	Composition ..> BusinessService : IBusinessService BusinessService
-	DatabaseAccess *--  String : String
-	BusinessService *--  DatabaseAccess : IDatabaseAccess
+	DatabaseAccess *-- String : String
+	BusinessService *-- DatabaseAccess : IDatabaseAccess
 	namespace Pure.DI.UsageTests.Hints.OnCannotResolveRegularExpressionHintScenario {
 		class BusinessService {
 				<<class>>

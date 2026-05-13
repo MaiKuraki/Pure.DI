@@ -83,16 +83,14 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	TextWidget --|> IWidget : "base" 
+	TextWidget --|> IWidget : "base"
 	BoxWidget --|> IWidget
 	Composition ..> BoxWidget : IWidget Widget
-	BoxWidget *--  TextWidget : "base"  IWidget
+	BoxWidget *-- TextWidget : "base" IWidget
 	namespace Pure.DI.UsageTests.Interception.DecoratorScenario {
 		class BoxWidget {
 				<<class>>

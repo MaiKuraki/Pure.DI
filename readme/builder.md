@@ -119,8 +119,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -136,8 +134,8 @@ classDiagram
 	Guid --|> IUtf8SpanParsableᐸGuidᐳ
 	PhotonBlaster --|> IWeapon
 	Composition ..> Player : Player Equip(Pure.DI.UsageTests.Basics.BuilderScenario.Player buildingInstance)
-	Player *--  Guid : Guid
-	Player *--  PhotonBlaster : IWeaponɁ
+	Player *-- Guid : Guid
+	Player *-- PhotonBlaster : IWeaponɁ
 	namespace Pure.DI.UsageTests.Basics.BuilderScenario {
 		class Composition {
 		<<partial>>

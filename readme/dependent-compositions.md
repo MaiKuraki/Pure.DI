@@ -122,8 +122,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -132,8 +130,8 @@ classDiagram
 	SqlDatabase --|> IDatabase
 	OtherComposition ..> Ui : Ui Ui
 	OtherComposition ..> UserService : IUserService UserService
-	UserService *--  SqlDatabase : IDatabase
-	Ui *--  UserService : IUserService
+	UserService *-- SqlDatabase : IDatabase
+	Ui *-- UserService : IUserService
 	namespace Pure.DI.UsageTests.Advanced.DependentCompositionsScenario {
 		class IDatabase {
 			<<interface>>

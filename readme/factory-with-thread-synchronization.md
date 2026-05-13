@@ -124,16 +124,14 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	NotificationService --|> INotificationService
 	Composition ..> NotificationService : INotificationService NotificationService
-	IMessageBus *--  MessageBus : MessageBus
-	NotificationService *--  IMessageBus : IMessageBus
+	IMessageBus *-- MessageBus : MessageBus
+	NotificationService *-- IMessageBus : IMessageBus
 	namespace Pure.DI.UsageTests.Advanced.FactoryWithThreadSynchronizationScenario {
 		class Composition {
 		<<partial>>

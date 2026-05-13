@@ -104,8 +104,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -113,7 +111,7 @@ classDiagram
 	Buffer --|> IBuffer
 	BatchProcessor --|> IBatchProcessor
 	Composition ..> BatchProcessor : IBatchProcessor Processor
-	BatchProcessor *-- "2 " Buffer : IBuffer
+	BatchProcessor *-- "2 instances" Buffer : IBuffer
 	namespace Pure.DI.UsageTests.Lifetimes.TransientScenario {
 		class BatchProcessor {
 				<<class>>

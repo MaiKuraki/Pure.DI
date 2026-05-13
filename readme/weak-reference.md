@@ -86,8 +86,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -95,8 +93,8 @@ classDiagram
 	LargeCache --|> ILargeCache
 	Service --|> IService
 	Composition ..> Service : IService MyService
-	Service *--  WeakReferenceᐸILargeCacheᐳ : WeakReferenceᐸILargeCacheᐳ
-	WeakReferenceᐸILargeCacheᐳ *--  LargeCache : ILargeCache
+	Service *-- WeakReferenceᐸILargeCacheᐳ : WeakReferenceᐸILargeCacheᐳ
+	WeakReferenceᐸILargeCacheᐳ *-- LargeCache : ILargeCache
 	namespace Pure.DI.UsageTests.BCL.WeakReferenceScenario {
 		class Composition {
 		<<partial>>

@@ -125,8 +125,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -144,9 +142,9 @@ classDiagram
 	FacadeᐸGuidᐳ --|> IEquatableᐸFacadeᐸGuidᐳᐳ
 	UserContextᐸGuidᐳ --|> IUserContextᐸGuidᐳ
 	Composition ..> FacadeᐸGuidᐳ : IFacadeᐸGuidᐳ GetFacade(string userName)
-	FacadeᐸGuidᐳ *--  UserContextᐸGuidᐳ : IUserContextᐸGuidᐳ
+	FacadeᐸGuidᐳ *-- UserContextᐸGuidᐳ : IUserContextᐸGuidᐳ
 	UserContextᐸGuidᐳ o-- String : Argument "userName"
-	UserContextᐸGuidᐳ *--  Guid : Guid
+	UserContextᐸGuidᐳ *-- Guid : Guid
 	namespace Pure.DI.UsageTests.Generics.GenericBuildUpScenario {
 		class Composition {
 		<<partial>>

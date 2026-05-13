@@ -144,20 +144,18 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	SqlDataSource --|> IDataSource : typeof(Pure.DI.UsageTests.Advanced.AccumulatorScenario.SqlDataSource) 
-	NetworkDataSource --|> IDataSource : typeof(Pure.DI.UsageTests.Advanced.AccumulatorScenario.NetworkDataSource) 
+	SqlDataSource --|> IDataSource : typeof(Pure.DI.UsageTests.Advanced.AccumulatorScenario.SqlDataSource)
+	NetworkDataSource --|> IDataSource : typeof(Pure.DI.UsageTests.Advanced.AccumulatorScenario.NetworkDataSource)
 	Dashboard --|> IDashboard
 	Composition ..> ValueTupleᐸIDashboardˏTelemetryRegistryᐳ : ValueTupleᐸIDashboardˏTelemetryRegistryᐳ Root
 	Dashboard o-- "PerBlock" SqlDataSource : IDataSource
-	Dashboard *--  SqlDataSource : typeof(Pure.DI.UsageTests.Advanced.AccumulatorScenario.SqlDataSource)  IDataSource
-	Dashboard o-- "Singleton" NetworkDataSource : typeof(Pure.DI.UsageTests.Advanced.AccumulatorScenario.NetworkDataSource)  IDataSource
-	ValueTupleᐸIDashboardˏTelemetryRegistryᐳ *--  Dashboard : IDashboard
+	Dashboard *-- SqlDataSource : typeof(Pure.DI.UsageTests.Advanced.AccumulatorScenario.SqlDataSource) IDataSource
+	Dashboard o-- "Singleton" NetworkDataSource : typeof(Pure.DI.UsageTests.Advanced.AccumulatorScenario.NetworkDataSource) IDataSource
+	ValueTupleᐸIDashboardˏTelemetryRegistryᐳ *-- Dashboard : IDashboard
 	ValueTupleᐸIDashboardˏTelemetryRegistryᐳ o-- "PerBlock" TelemetryRegistry : TelemetryRegistry
 	namespace Pure.DI.UsageTests.Advanced.AccumulatorScenario {
 		class Composition {
@@ -188,7 +186,7 @@ classDiagram
 	}
 	namespace System {
 		class ValueTupleᐸIDashboardˏTelemetryRegistryᐳ {
-				<<struct>>
+				<<tuple>>
 			+ValueTuple(IDashboard item1, TelemetryRegistry item2)
 		}
 	}

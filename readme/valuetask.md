@@ -100,8 +100,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -109,8 +107,8 @@ classDiagram
 	CloudConnection --|> IConnection
 	DataProcessor --|> IDataProcessor
 	Composition ..> DataProcessor : IDataProcessor DataProcessor
-	DataProcessor *--  ValueTaskᐸIConnectionᐳ : ValueTaskᐸIConnectionᐳ
-	ValueTaskᐸIConnectionᐳ *--  CloudConnection : IConnection
+	DataProcessor *-- ValueTaskᐸIConnectionᐳ : ValueTaskᐸIConnectionᐳ
+	ValueTaskᐸIConnectionᐳ *-- CloudConnection : IConnection
 	namespace Pure.DI.UsageTests.BCL.ValueTaskScenario {
 		class CloudConnection {
 				<<class>>

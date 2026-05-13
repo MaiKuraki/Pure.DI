@@ -116,8 +116,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -125,7 +123,7 @@ classDiagram
 	TelemetrySystem --|> ITelemetrySystem
 	Composition ..> Satellite : Satellite Initialize(Pure.DI.UsageTests.Basics.BuilderWithArgumentsScenario.Satellite buildingInstance, System.Guid id)
 	Satellite o-- Guid : Argument "id"
-	Satellite *--  TelemetrySystem : ITelemetrySystemɁ
+	Satellite *-- TelemetrySystem : ITelemetrySystemɁ
 	namespace Pure.DI.UsageTests.Basics.BuilderWithArgumentsScenario {
 		class Composition {
 		<<partial>>

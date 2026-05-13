@@ -130,8 +130,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -139,10 +137,10 @@ classDiagram
 	UserPreferences --|> IUserPreferences
 	DashboardService --|> IDashboardService
 	Composition ..> DashboardService : IDashboardService GetDashboard(System.Threading.CancellationToken cancellationToken)
-	DashboardService *--  TaskᐸIUserPreferencesᐳ : TaskᐸIUserPreferencesᐳ
+	DashboardService *-- TaskᐸIUserPreferencesᐳ : TaskᐸIUserPreferencesᐳ
 	TaskᐸIUserPreferencesᐳ o-- CancellationToken : Argument "cancellationToken"
 	TaskᐸIUserPreferencesᐳ o-- "PerBlock" FuncᐸIUserPreferencesᐳ : FuncᐸIUserPreferencesᐳ
-	FuncᐸIUserPreferencesᐳ *--  UserPreferences : IUserPreferences
+	FuncᐸIUserPreferencesᐳ *-- UserPreferences : IUserPreferences
 	namespace Pure.DI.UsageTests.BCL.ManualTaskScenario {
 		class Composition {
 		<<partial>>

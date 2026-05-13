@@ -75,8 +75,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -84,7 +82,7 @@ classDiagram
 	Database --|> IDatabase
 	UserRepository --|> IUserRepository
 	Composition ..> UserRepository : IUserRepository GetUserRepository
-	UserRepository *--  Database : IDatabase
+	UserRepository *-- Database : IDatabase
 	namespace Pure.DI.UsageTests.Hints.ToStringHintScenario {
 		class Composition {
 		<<partial>>

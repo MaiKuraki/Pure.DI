@@ -222,8 +222,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -231,7 +229,7 @@ classDiagram
 	Comments --|> IComments
 	ClassCommenter --|> IClassCommenter
 	Composition ..> ClassCommenter : IClassCommenter Commenter
-	ClassCommenter *--  Comments : IComments
+	ClassCommenter *-- Comments : IComments
 	namespace Pure.DI.UsageTests.Advanced.SeveralPartialClassesScenario {
 		class ClassCommenter {
 				<<class>>

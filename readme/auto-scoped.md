@@ -193,8 +193,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -202,10 +200,10 @@ classDiagram
 	PlaybackQueue --|> IPlaybackQueue
 	Composition ..> MusicApp : MusicApp MusicAppRoot
 	Composition ..> ListeningSession : ListeningSession Session
-	IListeningSession *--  Composition : Composition
+	IListeningSession *-- Composition : Composition
 	MusicApp o-- "PerBlock" FuncᐸIListeningSessionᐳ : FuncᐸIListeningSessionᐳ
 	ListeningSession o-- "Scoped" PlaybackQueue : IPlaybackQueue
-	FuncᐸIListeningSessionᐳ *--  IListeningSession : IListeningSession
+	FuncᐸIListeningSessionᐳ *-- IListeningSession : IListeningSession
 	namespace Pure.DI.UsageTests.Lifetimes.AutoScopedScenario {
 		class Composition {
 		<<partial>>

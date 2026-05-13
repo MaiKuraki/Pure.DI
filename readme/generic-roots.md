@@ -99,8 +99,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -109,8 +107,8 @@ classDiagram
 	JsonFormatterᐸT1ᐳ --|> IFormatterᐸT1ᐳ
 	Composition ..> NetworkExporterᐸT1ᐳ : NetworkExporterᐸT1ᐳ GetMyNetworkExporter_TᐸT1ᐳ()
 	Composition ..> FileExporterᐸT1ᐳ : FileExporterᐸT1ᐳ GetMyFileExporter_TᐸT1ᐳ()
-	NetworkExporterᐸT1ᐳ *--  JsonFormatterᐸT1ᐳ : IFormatterᐸT1ᐳ
-	FileExporterᐸT1ᐳ *--  JsonFormatterᐸT1ᐳ : IFormatterᐸT1ᐳ
+	NetworkExporterᐸT1ᐳ *-- JsonFormatterᐸT1ᐳ : IFormatterᐸT1ᐳ
+	FileExporterᐸT1ᐳ *-- JsonFormatterᐸT1ᐳ : IFormatterᐸT1ᐳ
 	namespace Pure.DI.UsageTests.Generics.GenericsRootsScenario {
 		class Composition {
 		<<partial>>

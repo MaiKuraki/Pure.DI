@@ -296,8 +296,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -305,14 +303,14 @@ classDiagram
 	Repository --|> IRepository
 	AuditWriter --|> IAuditWriter
 	Composition ..> FuncᐸRequestˏHandlerᐳ : FuncᐸRequestˏHandlerᐳ CreateHandler
-	Repository *--  IRequestContext : IRequestContext
-	AuditWriter *--  IRequestContext : IRequestContext
-	Service *--  AuditWriter : IAuditWriter
-	Service *--  FuncᐸIRepositoryᐳ : FuncᐸIRepositoryᐳ
-	Service *--  IRequestContext : IRequestContext
-	Handler *--  Service : Service
-	FuncᐸIRepositoryᐳ *--  Repository : IRepository
-	FuncᐸRequestˏHandlerᐳ *--  Handler : Handler
+	Repository *-- IRequestContext : IRequestContext
+	AuditWriter *-- IRequestContext : IRequestContext
+	Service *-- AuditWriter : IAuditWriter
+	Service *-- FuncᐸIRepositoryᐳ : FuncᐸIRepositoryᐳ
+	Service *-- IRequestContext : IRequestContext
+	Handler *-- Service : Service
+	FuncᐸIRepositoryᐳ *-- Repository : IRepository
+	FuncᐸRequestˏHandlerᐳ *-- Handler : Handler
 	namespace Pure.DI.UsageTests.UseCases.RequestOverridesScenario {
 		class AuditWriter {
 				<<class>>

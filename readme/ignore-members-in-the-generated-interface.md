@@ -213,15 +213,13 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	ApiClient --|> IApiClient
 	Composition ..> App : App App
-	App *--  ApiClient : IApiClient
+	App *-- ApiClient : IApiClient
 	namespace Pure.DI.UsageTests.Interfaces.IgnoreInterfaceScenario {
 		class ApiClient {
 				<<class>>

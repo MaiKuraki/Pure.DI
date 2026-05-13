@@ -412,8 +412,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -421,9 +419,9 @@ classDiagram
 	Composition --|> IDisposable
 	Configuration --|> IConfiguration
 	Session --|> ISession
-	Composition ..> LightweightRoot : LightweightRoot LightRoot132d
-	Composition ..> Session : ISession _
-	Composition ..> Configuration : IConfiguration _
+	Composition ..> LightweightRoot : LightweightRoot LightRoot133d
+	Composition ..> Session : ISession Root133d1
+	Composition ..> Configuration : IConfiguration Root133d2
 	Session o-- "Singleton" Configuration : IConfiguration
 	LightweightRoot o-- "PerBlock" FuncᐸIConfigurationᐳ : FuncᐸIConfigurationᐳ
 	LightweightRoot o-- "PerBlock" FuncᐸISessionᐳ : FuncᐸISessionᐳ
@@ -440,9 +438,9 @@ classDiagram
 	namespace Pure.DI.UsageTests.BCL.ServiceProviderWithScopeScenario {
 		class Composition {
 		<<partial>>
-		-LightweightRoot LightRoot132d
-		-IConfiguration _
-		-ISession _
+		-LightweightRoot LightRoot133d
+		-IConfiguration Root133d2
+		-ISession Root133d1
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object GetService(Type type)
@@ -471,7 +469,7 @@ classDiagram
 				<<delegate>>
 		}
 		class IDisposable {
-			<<abstract>>
+			<<interface>>
 		}
 	}
 ```

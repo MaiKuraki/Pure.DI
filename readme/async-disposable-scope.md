@@ -260,8 +260,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -275,8 +273,8 @@ classDiagram
 	Composition ..> Service : IService SessionRoot
 	Service o-- "Scoped" Dependency : IDependency
 	Program o-- "PerBlock" FuncᐸSessionᐳ : FuncᐸSessionᐳ
-	FuncᐸSessionᐳ *--  Session : Session
-	Session *--  Composition : Composition
+	FuncᐸSessionᐳ *-- Session : Session
+	Session *-- Composition : Composition
 	namespace Pure.DI.UsageTests.Lifetimes.AsyncDisposableScopeScenario {
 		class Composition {
 		<<partial>>
@@ -311,10 +309,10 @@ classDiagram
 				<<delegate>>
 		}
 		class IAsyncDisposable {
-			<<abstract>>
+			<<interface>>
 		}
 		class IDisposable {
-			<<abstract>>
+			<<interface>>
 		}
 	}
 ```

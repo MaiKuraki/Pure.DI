@@ -117,19 +117,17 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	SpecializedDataProcessorᐸT2ᐳ --|> IDataProcessorᐸT2ˏBooleanᐳ : "Specialized" 
+	SpecializedDataProcessorᐸT2ᐳ --|> IDataProcessorᐸT2ˏBooleanᐳ : "Specialized"
 	DataProcessorᐸT2ˏT3ᐳ --|> IDataProcessorᐸT2ˏT3ᐳ
 	StreamSourceᐸT2ᐳ --|> IStreamSourceᐸT2ᐳ
 	Composition ..> SpecializedDataProcessorᐸT2ᐳ : IDataProcessorᐸT2ˏBooleanᐳ GetSpecializedProcessorᐸT2ᐳ()
 	Composition ..> DataProcessorᐸT2ˏT3ᐳ : IDataProcessorᐸT2ˏT3ᐳ GetProcessorᐸT2ˏT3ᐳ()
-	SpecializedDataProcessorᐸT2ᐳ *--  StreamSourceᐸT2ᐳ : IStreamSourceᐸT2ᐳ
-	DataProcessorᐸT2ˏT3ᐳ *--  StreamSourceᐸT2ᐳ : IStreamSourceᐸT2ᐳ
+	SpecializedDataProcessorᐸT2ᐳ *-- StreamSourceᐸT2ᐳ : IStreamSourceᐸT2ᐳ
+	DataProcessorᐸT2ˏT3ᐳ *-- StreamSourceᐸT2ᐳ : IStreamSourceᐸT2ᐳ
 	namespace Pure.DI.UsageTests.Generics.GenericCompositionRootsWithConstraintsScenario {
 		class Composition {
 		<<partial>>

@@ -102,8 +102,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -112,9 +110,9 @@ classDiagram
 	NetworkStream --|> IStream
 	DataReplicator --|> IDataReplicator
 	Composition ..> DataReplicator : IDataReplicator Replicator
-	DataReplicator *--  FileStream : IStream
-	DataReplicator *--  StreamProcessorᐸStringᐳ : StreamProcessorᐸStringᐳ
-	StreamProcessorᐸStringᐳ *--  NetworkStream : IStream
+	DataReplicator *-- FileStream : IStream
+	DataReplicator *-- StreamProcessorᐸStringᐳ : StreamProcessorᐸStringᐳ
+	StreamProcessorᐸStringᐳ *-- NetworkStream : IStream
 	namespace Pure.DI.UsageTests.Advanced.TagOnConstructorArgScenario {
 		class Composition {
 		<<partial>>

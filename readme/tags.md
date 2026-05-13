@@ -148,21 +148,18 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	RestApiClient --|> IApiClient : "Public" 
-	RestApiClient --|> IApiClient
-	InternalApiClient --|> IApiClient : "Internal" 
+	RestApiClient --|> IApiClient : "Public", default
+	InternalApiClient --|> IApiClient : "Internal"
 	ApiFacade --|> IApiFacade
 	Composition ..> ApiFacade : IApiFacade Api
 	Composition ..> InternalApiClient : IApiClient InternalRoot
-	ApiFacade *--  RestApiClient : "Public"  IApiClient
-	ApiFacade *--  RestApiClient : IApiClient
-	ApiFacade o-- "Singleton" InternalApiClient : "Internal"  IApiClient
+	ApiFacade *-- RestApiClient : "Public" IApiClient
+	ApiFacade *-- RestApiClient : IApiClient
+	ApiFacade o-- "Singleton" InternalApiClient : "Internal" IApiClient
 	namespace Pure.DI.UsageTests.Basics.TagsScenario {
 		class ApiFacade {
 				<<class>>

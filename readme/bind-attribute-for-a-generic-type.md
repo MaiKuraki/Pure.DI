@@ -121,15 +121,13 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	ArticleService --|> IArticleService
 	Composition ..> ArticleService : IArticleService ArticleService
-	ArticleService *--  ICommentsᐸArticleᐳ : ICommentsᐸArticleᐳ
+	ArticleService *-- ICommentsᐸArticleᐳ : ICommentsᐸArticleᐳ
 	ICommentsᐸArticleᐳ o-- "Singleton" CommentsFactory : CommentsFactory
 	namespace Pure.DI.UsageTests.Basics.BindAttributeForGenericTypeScenario {
 		class ArticleService {

@@ -145,8 +145,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -155,9 +153,9 @@ classDiagram
 	DbConnection --|> IDbConnection
 	OrderProcessingService --|> IOrderProcessingService
 	Composition ..> OwnedᐸIOrderProcessingServiceᐳ : OwnedᐸIOrderProcessingServiceᐳ OrderProcessingService
-	OrderProcessingService *--  DbConnection : IDbConnection
-	OwnedᐸIOrderProcessingServiceᐳ *--  Owned : IOwned
-	OwnedᐸIOrderProcessingServiceᐳ *--  OrderProcessingService : IOrderProcessingService
+	OrderProcessingService *-- DbConnection : IDbConnection
+	OwnedᐸIOrderProcessingServiceᐳ *-- Owned : IOwned
+	OwnedᐸIOrderProcessingServiceᐳ *-- OrderProcessingService : IOrderProcessingService
 	namespace Pure.DI {
 		class IOwned {
 			<<interface>>

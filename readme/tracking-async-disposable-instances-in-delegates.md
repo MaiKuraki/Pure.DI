@@ -166,8 +166,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -179,8 +177,8 @@ classDiagram
 	Composition ..> QueryService : QueryService QueryService
 	QueryService o-- "PerBlock" FuncᐸOwnedᐸIConnectionᐳᐳ : FuncᐸOwnedᐸIConnectionᐳᐳ
 	FuncᐸOwnedᐸIConnectionᐳᐳ o-- "PerBlock" OwnedᐸIConnectionᐳ : OwnedᐸIConnectionᐳ
-	OwnedᐸIConnectionᐳ *--  Owned : IOwned
-	OwnedᐸIConnectionᐳ *--  DbConnection : IConnection
+	OwnedᐸIConnectionᐳ *-- Owned : IOwned
+	OwnedᐸIConnectionᐳ *-- DbConnection : IConnection
 	namespace Pure.DI {
 		class IOwned {
 			<<interface>>

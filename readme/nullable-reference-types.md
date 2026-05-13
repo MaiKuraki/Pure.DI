@@ -147,8 +147,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -156,11 +154,11 @@ classDiagram
 	Database --|> IDatabase
 	ReportService --|> IReportService
 	Composition ..> ReportService : IReportService CreateReportService(stringɁ connectionString)
-	ReportService *--  Database : IDatabaseɁ
-	ReportService o-- StringɁ : "title"  Argument "defaultTitle"
-	ReportService o-- StringɁ : "connection"  Argument "connectionString"
+	ReportService *-- Database : IDatabaseɁ
+	ReportService o-- StringɁ : "title" Argument "defaultTitle"
+	ReportService o-- StringɁ : "connection" Argument "connectionString"
 	ReportService o-- "PerBlock" IEnumerableᐸIDatabaseɁᐳ : IEnumerableᐸIDatabaseɁᐳ
-	IEnumerableᐸIDatabaseɁᐳ *--  Database : IDatabaseɁ
+	IEnumerableᐸIDatabaseɁᐳ *-- Database : IDatabaseɁ
 	namespace Pure.DI.UsageTests.Basics.NullableReferenceTypesScenario {
 		class Composition {
 		<<partial>>

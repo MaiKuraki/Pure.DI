@@ -120,8 +120,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -131,8 +129,8 @@ classDiagram
 	PaymentService --|> IPaymentService
 	Composition ..> PaymentService : IPaymentService PaymentService
 	Composition ..> OrderService : IOrderService OrderService
-	OrderService *--  Logger : ILogger
-	PaymentService *--  Logger : ILogger
+	OrderService *-- Logger : ILogger
+	PaymentService *-- Logger : ILogger
 	namespace Pure.DI.UsageTests.Advanced.RootNameScenario {
 		class Composition {
 		<<partial>>

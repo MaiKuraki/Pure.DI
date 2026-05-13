@@ -399,16 +399,14 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	ShallowComposition ..> Service : Service Service
-	Dependency *--  Int32 : Int32
-	Service *--  Dependency : Dependency
-	Service *--  Int32 : Int32
+	Dependency *-- Int32 : Int32
+	Service *-- Dependency : Dependency
+	Service *-- Int32 : Int32
 	namespace Pure.DI.UsageTests.Advanced.OverrideDepthScenario {
 		class Dependency {
 				<<class>>

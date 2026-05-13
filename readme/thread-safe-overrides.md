@@ -194,22 +194,20 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	OrderBatchProcessor --|> IOrderBatchProcessor
 	Composition ..> OrderBatchProcessor : IOrderBatchProcessor OrderProcessor
-	FuncᐸInt32ˏInt32ˏIOrderHandlerᐳ *--  ProcessingToken : "Global"  ProcessingToken
-	FuncᐸInt32ˏInt32ˏIOrderHandlerᐳ *--  OrderHandler : OrderHandler
-	OrderBatchProcessor *--  FuncᐸInt32ˏInt32ˏIOrderHandlerᐳ : FuncᐸInt32ˏInt32ˏIOrderHandlerᐳ
+	FuncᐸInt32ˏInt32ˏIOrderHandlerᐳ *-- ProcessingToken : "Global" ProcessingToken
+	FuncᐸInt32ˏInt32ˏIOrderHandlerᐳ *-- OrderHandler : OrderHandler
+	OrderBatchProcessor *-- FuncᐸInt32ˏInt32ˏIOrderHandlerᐳ : FuncᐸInt32ˏInt32ˏIOrderHandlerᐳ
 	OrderHandler o-- "Singleton" TimeProvider : ITimeProvider
-	OrderHandler *--  Int32 : Int32
-	OrderHandler *--  Int32 : "customer"  Int32
-	OrderHandler *--  String : String
-	OrderHandler *--  ProcessingToken : ProcessingToken
+	OrderHandler *-- Int32 : Int32
+	OrderHandler *-- Int32 : "customer" Int32
+	OrderHandler *-- String : String
+	OrderHandler *-- ProcessingToken : ProcessingToken
 	namespace Pure.DI.UsageTests.Advanced.ThreadsafeOverridesScenario {
 		class Composition {
 		<<partial>>

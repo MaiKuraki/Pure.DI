@@ -148,8 +148,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -158,10 +156,10 @@ classDiagram
 	Team --|> ITeam
 	Composition ..> Team : ITeam Team
 	Person o-- "Singleton" Clock : IClock
-	Person *--  Int32 : Int32
-	Person *--  String : String
+	Person *-- Int32 : Int32
+	Person *-- String : String
 	Team o-- "PerBlock" FuncᐸInt32ˏStringˏIPersonᐳ : FuncᐸInt32ˏStringˏIPersonᐳ
-	FuncᐸInt32ˏStringˏIPersonᐳ *--  Person : IPerson
+	FuncᐸInt32ˏStringˏIPersonᐳ *-- Person : IPerson
 	namespace Pure.DI.UsageTests.BCL.FuncWithArgumentsScenario {
 		class Clock {
 			<<class>>

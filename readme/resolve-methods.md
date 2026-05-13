@@ -258,21 +258,19 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	Device --|> IDevice
 	TemperatureSensor --|> ISensor
-	HumiditySensor --|> ISensor : "Humidity" 
-	Composition ..> LightweightRoot : LightweightRoot LightRoot132d
+	HumiditySensor --|> ISensor : "Humidity"
+	Composition ..> LightweightRoot : LightweightRoot LightRoot133d
 	Composition ..> HumiditySensor : ISensor HumiditySensor
-	Composition ..> TemperatureSensor : ISensor _
-	TemperatureSensor *--  Device : IDevice
+	Composition ..> TemperatureSensor : ISensor Root133d1
+	TemperatureSensor *-- Device : IDevice
 	LightweightRoot o-- "PerBlock" FuncᐸISensorᐳ : FuncᐸISensorᐳ
-	FuncᐸISensorᐳ *--  TemperatureSensor : ISensor
+	FuncᐸISensorᐳ *-- TemperatureSensor : ISensor
 	namespace Pure.DI {
 		class LightweightRoot {
 				<<class>>
@@ -284,8 +282,8 @@ classDiagram
 		class Composition {
 		<<partial>>
 		+ISensor HumiditySensor
-		-LightweightRoot LightRoot132d
-		-ISensor _
+		-LightweightRoot LightRoot133d
+		-ISensor Root133d1
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object Resolve(Type type)

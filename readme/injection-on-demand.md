@@ -110,8 +110,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -120,7 +118,7 @@ classDiagram
 	GameLevel --|> IGameLevel
 	Composition ..> GameLevel : IGameLevel GameLevel
 	GameLevel o-- "PerBlock" FuncᐸIEnemyᐳ : FuncᐸIEnemyᐳ
-	FuncᐸIEnemyᐳ *--  Enemy : IEnemy
+	FuncᐸIEnemyᐳ *-- Enemy : IEnemy
 	namespace Pure.DI.UsageTests.Basics.InjectionOnDemandScenario {
 		class Composition {
 		<<partial>>

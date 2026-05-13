@@ -92,8 +92,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -101,7 +99,7 @@ classDiagram
 	ConsoleLogger --|> ILogger
 	Service --|> IService
 	Composition ..> Service : IService MyService
-	Service *--  ConsoleLogger : ILoggerɁ
+	Service *-- ConsoleLogger : ILoggerɁ
 	namespace Pure.DI.UsageTests.Basics.PropertyInjectionScenario {
 		class Composition {
 		<<partial>>

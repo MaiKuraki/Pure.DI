@@ -105,19 +105,17 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	UpdateCommandHandlerᐸT1ᐳ --|> ICommandHandlerᐸT1ᐳ : "Update" 
+	UpdateCommandHandlerᐸT1ᐳ --|> ICommandHandlerᐸT1ᐳ : "Update"
 	CreateCommandHandlerᐸT1ᐳ --|> ICommandHandlerᐸT1ᐳ
 	RepositoryᐸT1ᐳ --|> IRepositoryᐸT1ᐳ
 	Composition ..> UpdateCommandHandlerᐸT1ᐳ : ICommandHandlerᐸT1ᐳ GetUpdateCommandHandlerᐸT1ᐳ()
 	Composition ..> CreateCommandHandlerᐸT1ᐳ : ICommandHandlerᐸT1ᐳ GetCreateCommandHandlerᐸT1ᐳ()
-	UpdateCommandHandlerᐸT1ᐳ *--  RepositoryᐸT1ᐳ : IRepositoryᐸT1ᐳ
-	CreateCommandHandlerᐸT1ᐳ *--  RepositoryᐸT1ᐳ : IRepositoryᐸT1ᐳ
+	UpdateCommandHandlerᐸT1ᐳ *-- RepositoryᐸT1ᐳ : IRepositoryᐸT1ᐳ
+	CreateCommandHandlerᐸT1ᐳ *-- RepositoryᐸT1ᐳ : IRepositoryᐸT1ᐳ
 	namespace Pure.DI.UsageTests.Generics.GenericsCompositionRootsScenario {
 		class Composition {
 		<<partial>>

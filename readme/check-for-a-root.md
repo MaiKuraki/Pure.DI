@@ -305,20 +305,18 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	SqlUserRepository --|> IUserRepository : "Primary" 
+	SqlUserRepository --|> IUserRepository : "Primary"
 	UserService --|> IUserService
-	Composition ..> LightweightRoot : LightweightRoot LightRoot132d
+	Composition ..> LightweightRoot : LightweightRoot LightRoot133d
 	Composition ..> UserService : IUserService Root
-	Composition ..> SqlUserRepository : IUserRepository _
-	UserService *--  SqlUserRepository : "Primary"  IUserRepository
-	LightweightRoot o-- "PerBlock" FuncᐸIUserRepositoryᐳ : "Primary"  FuncᐸIUserRepositoryᐳ
-	FuncᐸIUserRepositoryᐳ *--  SqlUserRepository : "Primary"  IUserRepository
+	Composition ..> SqlUserRepository : IUserRepository Root133d1
+	UserService *-- SqlUserRepository : "Primary" IUserRepository
+	LightweightRoot o-- "PerBlock" FuncᐸIUserRepositoryᐳ : "Primary" FuncᐸIUserRepositoryᐳ
+	FuncᐸIUserRepositoryᐳ *-- SqlUserRepository : "Primary" IUserRepository
 	namespace Pure.DI {
 		class LightweightRoot {
 				<<class>>
@@ -329,9 +327,9 @@ classDiagram
 	namespace Pure.DI.UsageTests.Hints.CheckForRootScenario {
 		class Composition {
 		<<partial>>
-		-LightweightRoot LightRoot132d
+		-LightweightRoot LightRoot133d
 		+IUserService Root
-		-IUserRepository _
+		-IUserRepository Root133d1
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object Resolve(Type type)

@@ -285,16 +285,14 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	DatabaseService --|> IDatabaseService
 	Composition ..> DatabaseService : IDatabaseService DatabaseService
-	DatabaseService *--  String : "connectionString"  String
-	DatabaseService *--  Int32 : "maxConnections"  Int32
+	DatabaseService *-- String : "connectionString" String
+	DatabaseService *-- Int32 : "maxConnections" Int32
 	namespace Pure.DI.UsageTests.Advanced.DependentCompositionsWithMembersPropertyAccessorsScenario {
 		class Composition {
 		<<partial>>

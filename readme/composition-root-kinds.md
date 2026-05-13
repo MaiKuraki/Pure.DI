@@ -262,19 +262,17 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	CardPaymentService --|> IPaymentService
-	CashPaymentService --|> IPaymentService : "Cash" 
+	CashPaymentService --|> IPaymentService : "Cash"
 	LuhnValidator --|> ICreditCardValidator
 	Composition ..> LuhnValidator : ICreditCardValidator Validator
 	Composition ..> CardPaymentService : IPaymentService GetCardPaymentService()
 	Composition ..> CashPaymentService : IPaymentService GetCashPaymentService()
-	CardPaymentService *--  LuhnValidator : ICreditCardValidator
+	CardPaymentService *-- LuhnValidator : ICreditCardValidator
 	namespace Pure.DI.UsageTests.Advanced.CompositionRootKindsScenario {
 		class CardPaymentService {
 				<<class>>

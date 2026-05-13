@@ -216,15 +216,13 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	Composition ..> Service : Service MyService
-	Service *--  Data : Data
-	Data *--  ArrayᐸInt32ᐳ : ArrayᐸInt32ᐳ
+	Service *-- Data : Data
+	Data *-- ArrayᐸInt32ᐳ : ArrayᐸInt32ᐳ
 	class ArrayᐸInt32ᐳ {
 			<<array>>
 	}

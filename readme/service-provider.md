@@ -312,22 +312,20 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	ConsoleLogger --|> ILogger
 	OrderService --|> IOrderService
-	Composition ..> LightweightRoot : LightweightRoot LightRoot132d
-	Composition ..> OrderService : IOrderService _
-	Composition ..> ConsoleLogger : ILogger _
+	Composition ..> LightweightRoot : LightweightRoot LightRoot133d
+	Composition ..> OrderService : IOrderService Root133d1
+	Composition ..> ConsoleLogger : ILogger Root133d2
 	OrderService o-- "Singleton" ConsoleLogger : ILogger
 	LightweightRoot o-- "PerBlock" FuncᐸILoggerᐳ : FuncᐸILoggerᐳ
 	LightweightRoot o-- "PerBlock" FuncᐸIOrderServiceᐳ : FuncᐸIOrderServiceᐳ
 	FuncᐸILoggerᐳ o-- "Singleton" ConsoleLogger : ILogger
-	FuncᐸIOrderServiceᐳ *--  OrderService : IOrderService
+	FuncᐸIOrderServiceᐳ *-- OrderService : IOrderService
 	namespace Pure.DI {
 		class LightweightRoot {
 				<<class>>
@@ -339,9 +337,9 @@ classDiagram
 	namespace Pure.DI.UsageTests.BCL.ServiceProviderScenario {
 		class Composition {
 		<<partial>>
-		-LightweightRoot LightRoot132d
-		-ILogger _
-		-IOrderService _
+		-LightweightRoot LightRoot133d
+		-ILogger Root133d2
+		-IOrderService Root133d1
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object GetService(Type type)

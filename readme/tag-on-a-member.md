@@ -96,8 +96,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -105,7 +103,7 @@ classDiagram
 	StripeGateway --|> IPaymentGateway
 	CheckoutService --|> ICheckoutService
 	Composition ..> CheckoutService : ICheckoutService CheckoutService
-	CheckoutService *--  StripeGateway : IPaymentGateway
+	CheckoutService *-- StripeGateway : IPaymentGateway
 	namespace Pure.DI.UsageTests.Advanced.TagOnMemberScenario {
 		class CheckoutService {
 				<<class>>

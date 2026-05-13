@@ -108,8 +108,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -117,13 +115,13 @@ classDiagram
 	FileStore --|> IFileStore
 	BackupService --|> IBackupService
 	Composition ..> TaskᐸIBackupServiceᐳ : TaskᐸIBackupServiceᐳ GetBackupServiceAsync(System.Threading.CancellationToken cancellationToken)
-	BackupService *--  FileStore : IFileStore
+	BackupService *-- FileStore : IFileStore
 	TaskᐸIBackupServiceᐳ o-- "PerBlock" FuncᐸIBackupServiceᐳ : FuncᐸIBackupServiceᐳ
 	TaskᐸIBackupServiceᐳ o-- "PerBlock" TaskFactoryᐸIBackupServiceᐳ : TaskFactoryᐸIBackupServiceᐳ
-	FuncᐸIBackupServiceᐳ *--  BackupService : IBackupService
-	TaskFactoryᐸIBackupServiceᐳ *--  TaskScheduler : TaskScheduler
-	TaskFactoryᐸIBackupServiceᐳ *--  TaskCreationOptions : TaskCreationOptions
-	TaskFactoryᐸIBackupServiceᐳ *--  TaskContinuationOptions : TaskContinuationOptions
+	FuncᐸIBackupServiceᐳ *-- BackupService : IBackupService
+	TaskFactoryᐸIBackupServiceᐳ *-- TaskScheduler : TaskScheduler
+	TaskFactoryᐸIBackupServiceᐳ *-- TaskCreationOptions : TaskCreationOptions
+	TaskFactoryᐸIBackupServiceᐳ *-- TaskContinuationOptions : TaskContinuationOptions
 	TaskFactoryᐸIBackupServiceᐳ o-- CancellationToken : Argument "cancellationToken"
 	namespace Pure.DI.UsageTests.Basics.AsyncRootScenario {
 		class BackupService {

@@ -149,8 +149,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -159,7 +157,7 @@ classDiagram
 	BaseStationController --|> IBaseStationController
 	Composition ..> BaseStationController : IBaseStationController Controller
 	BaseStationController o-- "Singleton" GnssTimeSource : ITimeSource
-	BaseStationController *--  RadioScheduler : RadioScheduler
+	BaseStationController *-- RadioScheduler : RadioScheduler
 	RadioScheduler o-- "Singleton" GnssTimeSource : ITimeSource
 	namespace Pure.DI.UsageTests.Lifetimes.DefaultLifetimeForTypeScenario {
 		class BaseStationController {

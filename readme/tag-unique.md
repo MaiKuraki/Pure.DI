@@ -98,19 +98,17 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	NotificationServiceᐸStringᐳ --|> INotificationServiceᐸStringᐳ
-	EmailChannelᐸStringᐳ --|> INotificationChannelᐸStringᐳ : "Unique tag #45" 
-	SmsChannelᐸStringᐳ --|> INotificationChannelᐸStringᐳ : "Unique tag #46" 
+	EmailChannelᐸStringᐳ --|> INotificationChannelᐸStringᐳ : "Unique tag #45"
+	SmsChannelᐸStringᐳ --|> INotificationChannelᐸStringᐳ : "Unique tag #46"
 	Composition ..> NotificationServiceᐸStringᐳ : INotificationServiceᐸStringᐳ NotificationService
 	NotificationServiceᐸStringᐳ o-- "PerBlock" IEnumerableᐸINotificationChannelᐸStringᐳᐳ : IEnumerableᐸINotificationChannelᐸStringᐳᐳ
-	IEnumerableᐸINotificationChannelᐸStringᐳᐳ *--  EmailChannelᐸStringᐳ : "Unique tag #45"  INotificationChannelᐸStringᐳ
-	IEnumerableᐸINotificationChannelᐸStringᐳᐳ *--  SmsChannelᐸStringᐳ : "Unique tag #46"  INotificationChannelᐸStringᐳ
+	IEnumerableᐸINotificationChannelᐸStringᐳᐳ *-- EmailChannelᐸStringᐳ : "Unique tag #45" INotificationChannelᐸStringᐳ
+	IEnumerableᐸINotificationChannelᐸStringᐳᐳ *-- SmsChannelᐸStringᐳ : "Unique tag #46" INotificationChannelᐸStringᐳ
 	namespace Pure.DI.UsageTests.Advanced.TagUniqueScenario {
 		class Composition {
 		<<partial>>

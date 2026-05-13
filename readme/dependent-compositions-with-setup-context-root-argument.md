@@ -119,8 +119,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -129,7 +127,7 @@ classDiagram
 	Service --|> IService
 	Composition ..> Service : IService Service(Pure.DI.UsageTests.Advanced.DependentCompositionsWithRootArgumentScenario.BaseComposition baseContext)
 	AppSettings o-- BaseComposition : Argument "baseContext"
-	Service *--  AppSettings : IAppSettings
+	Service *-- AppSettings : IAppSettings
 	namespace Pure.DI.UsageTests.Advanced.DependentCompositionsWithRootArgumentScenario {
 		class AppSettings {
 				<<record>>

@@ -133,8 +133,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -142,17 +140,17 @@ classDiagram
 	PipelineᐸStringᐳ --|> IPipelineᐸStringᐳ
 	PipelineᐸInt32ᐳ --|> IPipelineᐸInt32ᐳ
 	LoggingMiddlewareᐸStringᐳ --|> IMiddlewareᐸStringᐳ
-	MetricsMiddlewareᐸStringᐳ --|> IMiddlewareᐸStringᐳ : "Metrics" 
+	MetricsMiddlewareᐸStringᐳ --|> IMiddlewareᐸStringᐳ : "Metrics"
 	LoggingMiddlewareᐸInt32ᐳ --|> IMiddlewareᐸInt32ᐳ
-	MetricsMiddlewareᐸInt32ᐳ --|> IMiddlewareᐸInt32ᐳ : "Metrics" 
+	MetricsMiddlewareᐸInt32ᐳ --|> IMiddlewareᐸInt32ᐳ : "Metrics"
 	Composition ..> PipelineᐸStringᐳ : IPipelineᐸStringᐳ StringPipeline
 	Composition ..> PipelineᐸInt32ᐳ : IPipelineᐸInt32ᐳ IntPipeline
 	PipelineᐸStringᐳ o-- "PerBlock" IEnumerableᐸIMiddlewareᐸStringᐳᐳ : IEnumerableᐸIMiddlewareᐸStringᐳᐳ
 	PipelineᐸInt32ᐳ o-- "PerBlock" IEnumerableᐸIMiddlewareᐸInt32ᐳᐳ : IEnumerableᐸIMiddlewareᐸInt32ᐳᐳ
-	IEnumerableᐸIMiddlewareᐸStringᐳᐳ *--  LoggingMiddlewareᐸStringᐳ : IMiddlewareᐸStringᐳ
-	IEnumerableᐸIMiddlewareᐸStringᐳᐳ *--  MetricsMiddlewareᐸStringᐳ : "Metrics"  IMiddlewareᐸStringᐳ
-	IEnumerableᐸIMiddlewareᐸInt32ᐳᐳ *--  LoggingMiddlewareᐸInt32ᐳ : IMiddlewareᐸInt32ᐳ
-	IEnumerableᐸIMiddlewareᐸInt32ᐳᐳ *--  MetricsMiddlewareᐸInt32ᐳ : "Metrics"  IMiddlewareᐸInt32ᐳ
+	IEnumerableᐸIMiddlewareᐸStringᐳᐳ *-- LoggingMiddlewareᐸStringᐳ : IMiddlewareᐸStringᐳ
+	IEnumerableᐸIMiddlewareᐸStringᐳᐳ *-- MetricsMiddlewareᐸStringᐳ : "Metrics" IMiddlewareᐸStringᐳ
+	IEnumerableᐸIMiddlewareᐸInt32ᐳᐳ *-- LoggingMiddlewareᐸInt32ᐳ : IMiddlewareᐸInt32ᐳ
+	IEnumerableᐸIMiddlewareᐸInt32ᐳᐳ *-- MetricsMiddlewareᐸInt32ᐳ : "Metrics" IMiddlewareᐸInt32ᐳ
 	namespace Pure.DI.UsageTests.BCL.EnumerableGenericsScenario {
 		class Composition {
 		<<partial>>

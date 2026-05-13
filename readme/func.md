@@ -133,8 +133,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -145,7 +143,7 @@ classDiagram
 	Composition ..> QueueTerminal : IQueueTerminal Terminal
 	Ticket o-- "Singleton" TicketIdGenerator : ITicketIdGenerator
 	QueueTerminal o-- "PerBlock" FuncᐸITicketᐳ : FuncᐸITicketᐳ
-	FuncᐸITicketᐳ *--  Ticket : ITicket
+	FuncᐸITicketᐳ *-- Ticket : ITicket
 	namespace Pure.DI.UsageTests.BCL.FuncScenario {
 		class Composition {
 		<<partial>>

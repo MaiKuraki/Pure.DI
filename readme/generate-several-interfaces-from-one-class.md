@@ -231,8 +231,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -240,8 +238,8 @@ classDiagram
 	Gateway --|> IReadGateway
 	Gateway --|> IWriteGateway
 	Composition ..> App : App App
-	App *--  Gateway : IReadGateway
-	App *--  Gateway : IWriteGateway
+	App *-- Gateway : IReadGateway
+	App *-- Gateway : IWriteGateway
 	namespace Pure.DI.UsageTests.Interfaces.GenerateMultipleInterfacesScenario {
 		class App {
 				<<class>>

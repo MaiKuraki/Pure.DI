@@ -112,8 +112,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -121,8 +119,8 @@ classDiagram
 	DatabaseSettings --|> IDatabaseSettings
 	DataService --|> IDataService
 	Composition ..> DataService : IDataService DataService
-	DatabaseSettings *--  String : String
-	DataService *--  DatabaseSettings : IDatabaseSettings
+	DatabaseSettings *-- String : String
+	DataService *-- DatabaseSettings : IDatabaseSettings
 	namespace Pure.DI.UsageTests.Hints.OnCannotResolveWildcardHintScenario {
 		class Composition {
 		<<partial>>

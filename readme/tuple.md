@@ -89,8 +89,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -98,9 +96,9 @@ classDiagram
 	ElectricEngine --|> IEngine
 	Car --|> IVehicle
 	Composition ..> Car : IVehicle Vehicle
-	Car *--  ValueTupleᐸCoordinatesˏIEngineᐳ : ValueTupleᐸCoordinatesˏIEngineᐳ
-	ValueTupleᐸCoordinatesˏIEngineᐳ *--  ElectricEngine : IEngine
-	ValueTupleᐸCoordinatesˏIEngineᐳ *--  Coordinates : Coordinates
+	Car *-- ValueTupleᐸCoordinatesˏIEngineᐳ : ValueTupleᐸCoordinatesˏIEngineᐳ
+	ValueTupleᐸCoordinatesˏIEngineᐳ *-- ElectricEngine : IEngine
+	ValueTupleᐸCoordinatesˏIEngineᐳ *-- Coordinates : Coordinates
 	namespace Pure.DI.UsageTests.BCL.TupleScenario {
 		class Car {
 				<<class>>
@@ -111,7 +109,7 @@ classDiagram
 		+IVehicle Vehicle
 		}
 		class Coordinates {
-				<<struct>>
+				<<record>>
 		}
 		class ElectricEngine {
 				<<class>>
@@ -126,7 +124,7 @@ classDiagram
 	}
 	namespace System {
 		class ValueTupleᐸCoordinatesˏIEngineᐳ {
-				<<struct>>
+				<<tuple>>
 			+ValueTuple(Coordinates item1, IEngine item2)
 		}
 	}

@@ -6,8 +6,6 @@ Creating an object graph of 20 transition objects plus 1 singleton with an addit
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -17,12 +15,12 @@ classDiagram
 	Service3 --|> IService3
 	Service4 --|> IService4
 	Singleton ..> CompositionRoot : CompositionRoot TestPureDIByCR()
-	Service1 *--  Service2 : IService2
-	Service2 *-- "5 " Service3 : IService3
+	Service1 *-- Service2 : IService2
+	Service2 *-- "5 instances" Service3 : IService3
 	Service3 o-- "2 Scoped instances" Service4 : IService4
 	CompositionRoot o-- "Scoped" Service1 : IService1
-	CompositionRoot *-- "3 " Service2 : IService2
-	CompositionRoot *--  Service3 : IService3
+	CompositionRoot *-- "3 instances" Service2 : IService2
+	CompositionRoot *-- Service3 : IService3
 	CompositionRoot o-- "2 Scoped instances" Service4 : IService4
 	namespace Pure.DI.Benchmarks.Benchmarks {
 		class Singleton {

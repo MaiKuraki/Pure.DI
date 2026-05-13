@@ -120,8 +120,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -129,8 +127,8 @@ classDiagram
 	FileLogger --|> IFileLogger
 	OrderProcessingService --|> IOrderProcessingService
 	Composition ..> OrderProcessingService : IOrderProcessingService OrderService
-	FileLogger *--  DateTime : "today"  DateTime
-	OrderProcessingService *--  FileLogger : IFileLogger
+	FileLogger *-- DateTime : "today" DateTime
+	OrderProcessingService *-- FileLogger : IFileLogger
 	namespace Pure.DI.UsageTests.Basics.SimplifiedFactoryScenario {
 		class Composition {
 		<<partial>>

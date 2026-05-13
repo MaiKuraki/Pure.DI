@@ -327,22 +327,20 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	PayPalGateway --|> IPaymentGateway : "PayPal" 
-	OnlineOrderService --|> IOrderService : "Online" 
-	Composition ..> LightweightRoot : LightweightRoot LightRoot132d
-	Composition ..> OnlineOrderService : IOrderService _
-	Composition ..> PayPalGateway : IPaymentGateway _
-	OnlineOrderService o-- "Singleton" PayPalGateway : "PayPal"  IPaymentGateway
-	LightweightRoot o-- "PerBlock" FuncᐸIPaymentGatewayᐳ : "PayPal"  FuncᐸIPaymentGatewayᐳ
-	LightweightRoot o-- "PerBlock" FuncᐸIOrderServiceᐳ : "Online"  FuncᐸIOrderServiceᐳ
-	FuncᐸIPaymentGatewayᐳ o-- "Singleton" PayPalGateway : "PayPal"  IPaymentGateway
-	FuncᐸIOrderServiceᐳ *--  OnlineOrderService : "Online"  IOrderService
+	PayPalGateway --|> IPaymentGateway : "PayPal"
+	OnlineOrderService --|> IOrderService : "Online"
+	Composition ..> LightweightRoot : LightweightRoot LightRoot133d
+	Composition ..> OnlineOrderService : IOrderService Root133d1
+	Composition ..> PayPalGateway : IPaymentGateway Root133d2
+	OnlineOrderService o-- "Singleton" PayPalGateway : "PayPal" IPaymentGateway
+	LightweightRoot o-- "PerBlock" FuncᐸIPaymentGatewayᐳ : "PayPal" FuncᐸIPaymentGatewayᐳ
+	LightweightRoot o-- "PerBlock" FuncᐸIOrderServiceᐳ : "Online" FuncᐸIOrderServiceᐳ
+	FuncᐸIPaymentGatewayᐳ o-- "Singleton" PayPalGateway : "PayPal" IPaymentGateway
+	FuncᐸIOrderServiceᐳ *-- OnlineOrderService : "Online" IOrderService
 	namespace Pure.DI {
 		class LightweightRoot {
 				<<class>>
@@ -354,9 +352,9 @@ classDiagram
 	namespace Pure.DI.UsageTests.BCL.KeyedServiceProviderScenario {
 		class Composition {
 		<<partial>>
-		-LightweightRoot LightRoot132d
-		-IPaymentGateway _
-		-IOrderService _
+		-LightweightRoot LightRoot133d
+		-IPaymentGateway Root133d2
+		-IOrderService Root133d1
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object GetService(Type type)

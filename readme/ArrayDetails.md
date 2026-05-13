@@ -6,8 +6,6 @@ Creating an object graph of 27 transient objects, including 4 transient array ob
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -15,25 +13,25 @@ classDiagram
 	Service1 --|> IService1
 	Service2Array --|> IService2
 	Service3 --|> IService3
-	Service3v2 --|> IService3 : 2 
-	Service3v3 --|> IService3 : 3 
-	Service3v4 --|> IService3 : 4 
+	Service3v2 --|> IService3 : 2
+	Service3v3 --|> IService3 : 3
+	Service3v4 --|> IService3 : 4
 	Service4 --|> IService4
 	Array ..> CompositionRoot : CompositionRoot TestPureDIByCR()
-	Service1 *--  Service2Array : IService2
-	Service2Array *--  ArrayᐸIService3ᐳ : ArrayᐸIService3ᐳ
-	Service3 *-- "2 " Service4 : IService4
-	Service3v2 *-- "2 " Service4 : IService4
-	Service3v3 *-- "2 " Service4 : IService4
-	Service3v4 *-- "2 " Service4 : IService4
-	CompositionRoot *--  Service1 : IService1
-	CompositionRoot *-- "3 " Service2Array : IService2
-	CompositionRoot *--  Service3 : IService3
-	CompositionRoot *-- "2 " Service4 : IService4
-	ArrayᐸIService3ᐳ *--  Service3 : IService3
-	ArrayᐸIService3ᐳ *--  Service3v2 : 2  IService3
-	ArrayᐸIService3ᐳ *--  Service3v3 : 3  IService3
-	ArrayᐸIService3ᐳ *--  Service3v4 : 4  IService3
+	Service1 *-- Service2Array : IService2
+	Service2Array *-- ArrayᐸIService3ᐳ : ArrayᐸIService3ᐳ
+	Service3 *-- "2 instances" Service4 : IService4
+	Service3v2 *-- "2 instances" Service4 : IService4
+	Service3v3 *-- "2 instances" Service4 : IService4
+	Service3v4 *-- "2 instances" Service4 : IService4
+	CompositionRoot *-- Service1 : IService1
+	CompositionRoot *-- "3 instances" Service2Array : IService2
+	CompositionRoot *-- Service3 : IService3
+	CompositionRoot *-- "2 instances" Service4 : IService4
+	ArrayᐸIService3ᐳ *-- Service3 : IService3
+	ArrayᐸIService3ᐳ *-- Service3v2 : 2 IService3
+	ArrayᐸIService3ᐳ *-- Service3v3 : 3 IService3
+	ArrayᐸIService3ᐳ *-- Service3v4 : 4 IService3
 	class ArrayᐸIService3ᐳ {
 			<<array>>
 	}

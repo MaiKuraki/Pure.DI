@@ -150,8 +150,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -161,9 +159,9 @@ classDiagram
 	DbConnection --|> IAsyncDisposable
 	Query --|> IQuery
 	Composition ..> OwnedᐸIQueryᐳ : OwnedᐸIQueryᐳ Query
-	Query *--  DbConnection : IDbConnection
-	OwnedᐸIQueryᐳ *--  Owned : IOwned
-	OwnedᐸIQueryᐳ *--  Query : IQuery
+	Query *-- DbConnection : IDbConnection
+	OwnedᐸIQueryᐳ *-- Owned : IOwned
+	OwnedᐸIQueryᐳ *-- Query : IQuery
 	namespace Pure.DI {
 		class IOwned {
 			<<interface>>

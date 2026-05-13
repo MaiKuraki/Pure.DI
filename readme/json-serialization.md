@@ -183,8 +183,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -193,8 +191,8 @@ classDiagram
 	Storage --|> IStorage
 	Composition ..> SettingsService : ISettingsService Settings
 	SettingsService o-- "Singleton" Storage : IStorage
-	SettingsService o-- "Singleton" FuncᐸStringˏSettingsɁᐳ : "JSON"  FuncᐸStringˏSettingsɁᐳ
-	SettingsService o-- "Singleton" FuncᐸSettingsˏStringᐳ : "JSON"  FuncᐸSettingsˏStringᐳ
+	SettingsService o-- "Singleton" FuncᐸStringˏSettingsɁᐳ : "JSON" FuncᐸStringˏSettingsɁᐳ
+	SettingsService o-- "Singleton" FuncᐸSettingsˏStringᐳ : "JSON" FuncᐸSettingsˏStringᐳ
 	FuncᐸStringˏSettingsɁᐳ o-- "Singleton" JsonSerializerOptions : JsonSerializerOptions
 	FuncᐸSettingsˏStringᐳ o-- "Singleton" JsonSerializerOptions : JsonSerializerOptions
 	namespace Pure.DI.UsageTests.UseCases.JsonSerializationScenario {

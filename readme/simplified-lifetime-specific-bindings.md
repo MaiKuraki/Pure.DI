@@ -167,8 +167,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -179,7 +177,7 @@ classDiagram
 	Shop --|> IShop
 	OrderNameFormatter --|> IOrderNameFormatter
 	Composition ..> Shop : IShop MyShop
-	OrderManager *--  OrderNameFormatter : IOrderNameFormatter
+	OrderManager *-- OrderNameFormatter : IOrderNameFormatter
 	Shop o-- "PerBlock" OrderManager : OrderManager
 	Shop o-- "PerBlock" OrderManager : IOrderRepository
 	Shop o-- "PerBlock" OrderManager : IOrderNotification

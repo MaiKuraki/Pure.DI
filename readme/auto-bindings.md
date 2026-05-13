@@ -81,14 +81,12 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	Composition ..> OrderService : OrderService Orders
-	OrderService *--  Database : Database
+	OrderService *-- Database : Database
 	namespace Pure.DI.UsageTests.Basics.AutoBindingsScenario {
 		class Composition {
 		<<partial>>

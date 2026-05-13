@@ -319,8 +319,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -328,11 +326,11 @@ classDiagram
 	DatabaseConnectionSettings --|> IDatabaseConnectionSettings
 	DataService --|> IDataService
 	Composition ..> DataService : IDataService DataService
-	DataService *--  DatabaseConnectionSettings : IDatabaseConnectionSettings
-	DataService *--  Boolean : "enableDiagnostics"  Boolean
-	DataService *--  Int32 : "timeout"  Int32
-	DataService *--  String : "logLevel"  String
-	DataService *--  Int32 : "maxRetries"  Int32
+	DataService *-- DatabaseConnectionSettings : IDatabaseConnectionSettings
+	DataService *-- Boolean : "enableDiagnostics" Boolean
+	DataService *-- Int32 : "timeout" Int32
+	DataService *-- String : "logLevel" String
+	DataService *-- Int32 : "maxRetries" Int32
 	namespace Pure.DI.UsageTests.Advanced.DependentCompositionsWithMembersContextScenario {
 		class Composition {
 		<<partial>>

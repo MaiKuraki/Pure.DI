@@ -134,8 +134,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -145,8 +143,8 @@ classDiagram
 	Composition ..> Application : IApplication CreateApplication(int port, string connectionString, string appName)
 	DatabaseService o-- Int32 : Argument "port"
 	DatabaseService o-- String : Argument "connectionString"
-	Application *--  DatabaseService : IDatabaseService
-	Application o-- String : "AppDetail"  Argument "appName"
+	Application *-- DatabaseService : IDatabaseService
+	Application o-- String : "AppDetail" Argument "appName"
 	namespace Pure.DI.UsageTests.Basics.RootArgumentsScenario {
 		class Application {
 				<<class>>

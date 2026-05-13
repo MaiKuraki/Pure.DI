@@ -162,8 +162,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -171,7 +169,7 @@ classDiagram
 	Service --|> IService
 	Composition ..> IService : IService SingletonService
 	Composition ..> Service : IService Service
-	IService *--  Service : IService
+	IService *-- Service : IService
 	namespace Pure.DI.UsageTests.Advanced.IsLockRequiredScenario {
 		class Composition {
 		<<partial>>

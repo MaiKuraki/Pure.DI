@@ -129,8 +129,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -139,10 +137,10 @@ classDiagram
 	MotionSensor --|> ISensor
 	SmartHomeSystem --|> ISmartHomeSystem
 	Composition ..> SmartHomeSystem : ISmartHomeSystem SmartHome
-	SmartHomeSystem *--  TemperatureSensor : ISensor
-	SmartHomeSystem *-- "2 " MotionSensor : ISensor
-	SmartHomeSystem *--  ClimateControlᐸStringᐳ : ClimateControlᐸStringᐳ
-	ClimateControlᐸStringᐳ *--  TemperatureSensor : ISensor
+	SmartHomeSystem *-- TemperatureSensor : ISensor
+	SmartHomeSystem *-- "2 instances" MotionSensor : ISensor
+	SmartHomeSystem *-- ClimateControlᐸStringᐳ : ClimateControlᐸStringᐳ
+	ClimateControlᐸStringᐳ *-- TemperatureSensor : ISensor
 	namespace Pure.DI.UsageTests.Advanced.TagOnInjectionSiteWithWildcardsScenario {
 		class ClimateControlᐸStringᐳ {
 				<<class>>

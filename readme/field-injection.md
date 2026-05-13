@@ -95,8 +95,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -104,7 +102,7 @@ classDiagram
 	CoffeeMachine --|> ICoffeeMachine
 	SmartKitchen --|> ISmartKitchen
 	Composition ..> SmartKitchen : ISmartKitchen Kitchen
-	SmartKitchen *--  CoffeeMachine : ICoffeeMachineɁ
+	SmartKitchen *-- CoffeeMachine : ICoffeeMachineɁ
 	namespace Pure.DI.UsageTests.Basics.FieldInjectionScenario {
 		class CoffeeMachine {
 				<<class>>

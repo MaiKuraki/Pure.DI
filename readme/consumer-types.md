@@ -146,8 +146,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -155,10 +153,10 @@ classDiagram
 	PaymentGateway --|> IPaymentGateway
 	OrderProcessing --|> IOrderProcessing
 	Composition ..> OrderProcessing : IOrderProcessing OrderProcessing
-	ILogger o-- ILogger : "from arg"  Argument "logger"
-	PaymentGateway *--  ILogger : ILogger
-	OrderProcessing *--  ILogger : ILogger
-	OrderProcessing *--  PaymentGateway : IPaymentGateway
+	ILogger o-- ILogger : "from arg" Argument "logger"
+	PaymentGateway *-- ILogger : ILogger
+	OrderProcessing *-- ILogger : ILogger
+	OrderProcessing *-- PaymentGateway : IPaymentGateway
 	namespace Pure.DI.UsageTests.Advanced.ConsumerTypesScenario {
 		class Composition {
 		<<partial>>

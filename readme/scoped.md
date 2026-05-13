@@ -237,8 +237,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -250,8 +248,8 @@ classDiagram
 	Composition ..> CheckoutService : ICheckoutService RequestRoot
 	CheckoutService o-- "Scoped" RequestContext : IRequestContext
 	App o-- "PerBlock" FuncᐸRequestScopeᐳ : FuncᐸRequestScopeᐳ
-	FuncᐸRequestScopeᐳ *--  RequestScope : RequestScope
-	RequestScope *--  Composition : Composition
+	FuncᐸRequestScopeᐳ *-- RequestScope : RequestScope
+	RequestScope *-- Composition : Composition
 	namespace Pure.DI.UsageTests.Lifetimes.ScopedScenario {
 		class App {
 				<<class>>
@@ -286,7 +284,7 @@ classDiagram
 				<<delegate>>
 		}
 		class IDisposable {
-			<<abstract>>
+			<<interface>>
 		}
 	}
 ```

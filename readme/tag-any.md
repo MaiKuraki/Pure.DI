@@ -131,8 +131,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -141,10 +139,10 @@ classDiagram
 	QueueService --|> IQueueService
 	Composition ..> Queue : IQueue AuditQueue
 	Composition ..> QueueService : IQueueService QueueService
-	QueueService *--  Queue : "WorkItems"  IQueue
-	QueueService *--  Queue : IQueue
-	QueueService o-- "PerBlock" FuncᐸIQueueᐳ : 42  FuncᐸIQueueᐳ
-	FuncᐸIQueueᐳ *--  Queue : 42  IQueue
+	QueueService *-- Queue : "WorkItems" IQueue
+	QueueService *-- Queue : IQueue
+	QueueService o-- "PerBlock" FuncᐸIQueueᐳ : 42 FuncᐸIQueueᐳ
+	FuncᐸIQueueᐳ *-- Queue : 42 IQueue
 	namespace Pure.DI.UsageTests.Advanced.TagAnyScenario {
 		class Composition {
 		<<partial>>

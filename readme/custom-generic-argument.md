@@ -98,8 +98,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -108,8 +106,8 @@ classDiagram
 	SequenceᐸInt32ᐳ --|> ISequenceᐸInt32ᐳ
 	SequenceᐸStringᐳ --|> ISequenceᐸStringᐳ
 	Composition ..> MyApp : IProgram Root
-	MyApp *--  SequenceᐸInt32ᐳ : ISequenceᐸInt32ᐳ
-	MyApp *--  SequenceᐸStringᐳ : ISequenceᐸStringᐳ
+	MyApp *-- SequenceᐸInt32ᐳ : ISequenceᐸInt32ᐳ
+	MyApp *-- SequenceᐸStringᐳ : ISequenceᐸStringᐳ
 	namespace Pure.DI.UsageTests.Generics.CustomGenericArgumentScenario {
 		class Composition {
 		<<partial>>

@@ -134,8 +134,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -145,8 +143,8 @@ classDiagram
 	InventoryService --|> IInventoryService
 	Composition ..> InventoryService : IInventoryService InventoryService
 	Composition ..> OrderService : IOrderService OrderService
-	OrderService *--  Cache : ICache
-	InventoryService *--  Cache : ICache
+	OrderService *-- Cache : ICache
+	InventoryService *-- Cache : ICache
 	namespace Pure.DI.UsageTests.Advanced.RootTypeScenario {
 		class Cache {
 				<<class>>

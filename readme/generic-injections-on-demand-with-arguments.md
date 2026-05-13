@@ -114,8 +114,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -124,8 +122,8 @@ classDiagram
 	SensorᐸStringᐳ --|> ISensorᐸStringᐳ
 	Composition ..> SensorHubᐸStringᐳ : ISensorHubᐸStringᐳ SensorHub
 	SensorHubᐸStringᐳ o-- "PerBlock" FuncᐸInt32ˏISensorᐸStringᐳᐳ : FuncᐸInt32ˏISensorᐸStringᐳᐳ
-	FuncᐸInt32ˏISensorᐸStringᐳᐳ *--  SensorᐸStringᐳ : ISensorᐸStringᐳ
-	SensorᐸStringᐳ *--  Int32 : Int32
+	FuncᐸInt32ˏISensorᐸStringᐳᐳ *-- SensorᐸStringᐳ : ISensorᐸStringᐳ
+	SensorᐸStringᐳ *-- Int32 : Int32
 	namespace Pure.DI.UsageTests.Generics.GenericInjectionsOnDemandWithArgumentsScenario {
 		class Composition {
 		<<partial>>

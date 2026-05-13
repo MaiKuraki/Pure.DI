@@ -119,8 +119,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -130,7 +128,7 @@ classDiagram
 	PaymentService --|> IPaymentService
 	Composition ..> PaymentService : IPaymentService GetPaymentService(int maxAttempts)
 	PayPalGateway o-- Int32 : Argument "maxAttempts"
-	PaymentService *--  PayPalGateway : IPaymentGateway
+	PaymentService *-- PayPalGateway : IPaymentGateway
 	namespace Pure.DI.UsageTests.Hints.OnDependencyInjectionRegularExpressionHintScenario {
 		class Composition {
 		<<partial>>

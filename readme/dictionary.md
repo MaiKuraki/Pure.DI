@@ -134,8 +134,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -145,15 +143,15 @@ classDiagram
 	DictionaryᐸChannelˏINotificationChannelᐳ --|> IDictionaryᐸChannelˏINotificationChannelᐳ
 	EqualityComparerᐸChannelᐳ --|> IEqualityComparerᐸChannelᐳ
 	Composition ..> NotificationService : INotificationService NotificationService
-	KeyValuePairᐸChannelˏINotificationChannelᐳ *--  EmailChannel : EmailChannel
-	KeyValuePairᐸChannelˏINotificationChannelᐳ *--  SmsChannel : SmsChannel
-	KeyValuePairᐸChannelˏINotificationChannelᐳ *--  PushChannel : PushChannel
-	NotificationService *--  DictionaryᐸChannelˏINotificationChannelᐳ : IReadOnlyDictionaryᐸChannelˏINotificationChannelᐳ
-	DictionaryᐸChannelˏINotificationChannelᐳ *--  ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ : ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ
-	DictionaryᐸChannelˏINotificationChannelᐳ *--  EqualityComparerᐸChannelᐳ : IEqualityComparerᐸChannelᐳ
-	ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ *--  KeyValuePairᐸChannelˏINotificationChannelᐳ : "Unique tag #69"  KeyValuePairᐸChannelˏINotificationChannelᐳ
-	ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ *--  KeyValuePairᐸChannelˏINotificationChannelᐳ : "Unique tag #70"  KeyValuePairᐸChannelˏINotificationChannelᐳ
-	ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ *--  KeyValuePairᐸChannelˏINotificationChannelᐳ : "Unique tag #71"  KeyValuePairᐸChannelˏINotificationChannelᐳ
+	KeyValuePairᐸChannelˏINotificationChannelᐳ *-- EmailChannel : EmailChannel
+	KeyValuePairᐸChannelˏINotificationChannelᐳ *-- SmsChannel : SmsChannel
+	KeyValuePairᐸChannelˏINotificationChannelᐳ *-- PushChannel : PushChannel
+	NotificationService *-- DictionaryᐸChannelˏINotificationChannelᐳ : IReadOnlyDictionaryᐸChannelˏINotificationChannelᐳ
+	DictionaryᐸChannelˏINotificationChannelᐳ *-- ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ : ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ
+	DictionaryᐸChannelˏINotificationChannelᐳ *-- EqualityComparerᐸChannelᐳ : IEqualityComparerᐸChannelᐳ
+	ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ *-- KeyValuePairᐸChannelˏINotificationChannelᐳ : "Unique tag #69" KeyValuePairᐸChannelˏINotificationChannelᐳ
+	ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ *-- KeyValuePairᐸChannelˏINotificationChannelᐳ : "Unique tag #70" KeyValuePairᐸChannelˏINotificationChannelᐳ
+	ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ *-- KeyValuePairᐸChannelˏINotificationChannelᐳ : "Unique tag #71" KeyValuePairᐸChannelˏINotificationChannelᐳ
 	class ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ {
 			<<array>>
 	}

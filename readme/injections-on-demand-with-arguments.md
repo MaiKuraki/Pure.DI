@@ -126,8 +126,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -135,9 +133,9 @@ classDiagram
 	Sensor --|> ISensor
 	SmartHome --|> ISmartHome
 	Composition ..> SmartHome : ISmartHome SmartHome
-	Sensor *--  Int32 : Int32
+	Sensor *-- Int32 : Int32
 	SmartHome o-- "PerBlock" FuncᐸInt32ˏISensorᐳ : FuncᐸInt32ˏISensorᐳ
-	FuncᐸInt32ˏISensorᐳ *--  Sensor : ISensor
+	FuncᐸInt32ˏISensorᐳ *-- Sensor : ISensor
 	namespace Pure.DI.UsageTests.Basics.InjectionOnDemandWithArgumentsScenario {
 		class Composition {
 		<<partial>>

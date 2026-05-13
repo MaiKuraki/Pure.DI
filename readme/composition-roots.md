@@ -324,22 +324,20 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	PdfInvoiceGenerator --|> IInvoiceGenerator
-	HtmlInvoiceGenerator --|> IInvoiceGenerator : "Online" 
+	HtmlInvoiceGenerator --|> IInvoiceGenerator : "Online"
 	FileLogger --|> ILogger
-	Composition ..> LightweightRoot : LightweightRoot LightRoot132d
+	Composition ..> LightweightRoot : LightweightRoot LightRoot133d
 	Composition ..> HtmlInvoiceGenerator : IInvoiceGenerator OnlineInvoiceGenerator
-	Composition ..> FileLogger : ILogger _
+	Composition ..> FileLogger : ILogger Root133d1
 	Composition ..> PdfInvoiceGenerator : IInvoiceGenerator InvoiceGenerator
-	PdfInvoiceGenerator *--  FileLogger : ILogger
+	PdfInvoiceGenerator *-- FileLogger : ILogger
 	LightweightRoot o-- "PerBlock" FuncᐸILoggerᐳ : FuncᐸILoggerᐳ
-	FuncᐸILoggerᐳ *--  FileLogger : ILogger
+	FuncᐸILoggerᐳ *-- FileLogger : ILogger
 	namespace Pure.DI {
 		class LightweightRoot {
 				<<class>>
@@ -351,9 +349,9 @@ classDiagram
 		class Composition {
 		<<partial>>
 		+IInvoiceGenerator InvoiceGenerator
-		-LightweightRoot LightRoot132d
+		-LightweightRoot LightRoot133d
 		+IInvoiceGenerator OnlineInvoiceGenerator
-		-ILogger _
+		-ILogger Root133d1
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object Resolve(Type type)

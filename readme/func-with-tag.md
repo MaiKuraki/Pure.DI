@@ -101,17 +101,15 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	NpgsqlConnection --|> IDbConnection : "postgres" 
+	NpgsqlConnection --|> IDbConnection : "postgres"
 	ConnectionPool --|> IConnectionPool
 	Composition ..> ConnectionPool : IConnectionPool ConnectionPool
-	ConnectionPool o-- "PerBlock" FuncᐸIDbConnectionᐳ : "postgres"  FuncᐸIDbConnectionᐳ
-	FuncᐸIDbConnectionᐳ *--  NpgsqlConnection : "postgres"  IDbConnection
+	ConnectionPool o-- "PerBlock" FuncᐸIDbConnectionᐳ : "postgres" FuncᐸIDbConnectionᐳ
+	FuncᐸIDbConnectionᐳ *-- NpgsqlConnection : "postgres" IDbConnection
 	namespace Pure.DI.UsageTests.BCL.FuncWithTagScenario {
 		class Composition {
 		<<partial>>

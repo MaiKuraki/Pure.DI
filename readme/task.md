@@ -141,8 +141,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -150,13 +148,13 @@ classDiagram
 	DataService --|> IDataService
 	LoadDataCommand --|> ICommand
 	Composition ..> LoadDataCommand : ICommand GetCommand(System.Threading.CancellationToken cancellationToken)
-	LoadDataCommand *--  TaskᐸIDataServiceᐳ : TaskᐸIDataServiceᐳ
+	LoadDataCommand *-- TaskᐸIDataServiceᐳ : TaskᐸIDataServiceᐳ
 	TaskᐸIDataServiceᐳ o-- "PerBlock" FuncᐸIDataServiceᐳ : FuncᐸIDataServiceᐳ
 	TaskᐸIDataServiceᐳ o-- "PerBlock" TaskFactoryᐸIDataServiceᐳ : TaskFactoryᐸIDataServiceᐳ
-	FuncᐸIDataServiceᐳ *--  DataService : IDataService
-	TaskFactoryᐸIDataServiceᐳ *--  TaskCreationOptions : TaskCreationOptions
-	TaskFactoryᐸIDataServiceᐳ *--  TaskContinuationOptions : TaskContinuationOptions
-	TaskFactoryᐸIDataServiceᐳ *--  TaskScheduler : TaskScheduler
+	FuncᐸIDataServiceᐳ *-- DataService : IDataService
+	TaskFactoryᐸIDataServiceᐳ *-- TaskCreationOptions : TaskCreationOptions
+	TaskFactoryᐸIDataServiceᐳ *-- TaskContinuationOptions : TaskContinuationOptions
+	TaskFactoryᐸIDataServiceᐳ *-- TaskScheduler : TaskScheduler
 	TaskFactoryᐸIDataServiceᐳ o-- CancellationToken : Argument "cancellationToken"
 	namespace Pure.DI.UsageTests.BCL.TaskScenario {
 		class Composition {

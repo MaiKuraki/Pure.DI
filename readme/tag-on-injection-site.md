@@ -131,21 +131,18 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	SqlUserRepository --|> IUserRepository
-	SqlUserRepository --|> IUserRepository
 	ApiUserRepository --|> IUserRepository
 	UserService --|> IUserService
 	Composition ..> UserService : IUserService Ui
-	UserService *--  SqlUserRepository : IUserRepository
-	UserService *-- "2 " ApiUserRepository : IUserRepository
-	UserService *--  UserFetcherᐸStringᐳ : UserFetcherᐸStringᐳ
-	UserFetcherᐸStringᐳ *--  SqlUserRepository : IUserRepository
+	UserService *-- SqlUserRepository : IUserRepository
+	UserService *-- "2 instances" ApiUserRepository : IUserRepository
+	UserService *-- UserFetcherᐸStringᐳ : UserFetcherᐸStringᐳ
+	UserFetcherᐸStringᐳ *-- SqlUserRepository : IUserRepository
 	namespace Pure.DI.UsageTests.Advanced.TagOnInjectionSiteScenario {
 		class ApiUserRepository {
 				<<class>>

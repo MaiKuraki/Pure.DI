@@ -132,19 +132,17 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	WorkflowᐸT1ˏInt32ˏListᐸT1ᐳˏDictionaryᐸT1ˏInt32ᐳᐳ --|> IWorkflowᐸT1ˏInt32ˏListᐸT1ᐳˏDictionaryᐸT1ˏInt32ᐳᐳ
 	ConsumerᐸT1ᐳ --|> IConsumerᐸT1ᐳ
-	StructConsumerᐸInt32ᐳ --|> IConsumerᐸInt32ᐳ : "struct" 
+	StructConsumerᐸInt32ᐳ --|> IConsumerᐸInt32ᐳ : "struct"
 	Composition ..> ProgramᐸT1ᐳ : ProgramᐸT1ᐳ GetRootᐸT1ᐳ(T1 name)
-	ProgramᐸT1ᐳ *--  WorkflowᐸT1ˏInt32ˏListᐸT1ᐳˏDictionaryᐸT1ˏInt32ᐳᐳ : IWorkflowᐸT1ˏInt32ˏListᐸT1ᐳˏDictionaryᐸT1ˏInt32ᐳᐳ
-	WorkflowᐸT1ˏInt32ˏListᐸT1ᐳˏDictionaryᐸT1ˏInt32ᐳᐳ *--  ConsumerᐸT1ᐳ : IConsumerᐸT1ᐳ
-	WorkflowᐸT1ˏInt32ˏListᐸT1ᐳˏDictionaryᐸT1ˏInt32ᐳᐳ o-- "Singleton" StructConsumerᐸInt32ᐳ : "struct"  IConsumerᐸInt32ᐳ
+	ProgramᐸT1ᐳ *-- WorkflowᐸT1ˏInt32ˏListᐸT1ᐳˏDictionaryᐸT1ˏInt32ᐳᐳ : IWorkflowᐸT1ˏInt32ˏListᐸT1ᐳˏDictionaryᐸT1ˏInt32ᐳᐳ
+	WorkflowᐸT1ˏInt32ˏListᐸT1ᐳˏDictionaryᐸT1ˏInt32ᐳᐳ *-- ConsumerᐸT1ᐳ : IConsumerᐸT1ᐳ
+	WorkflowᐸT1ˏInt32ˏListᐸT1ᐳˏDictionaryᐸT1ˏInt32ᐳᐳ o-- "Singleton" StructConsumerᐸInt32ᐳ : "struct" IConsumerᐸInt32ᐳ
 	ConsumerᐸT1ᐳ o-- T1 : Argument "name"
 	namespace Pure.DI.UsageTests.Generics.ComplexGenericsScenario {
 		class Composition {
@@ -169,7 +167,7 @@ classDiagram
 			+Program(IWorkflowᐸT1ˏInt32ˏListᐸT1ᐳˏDictionaryᐸT1ˏInt32ᐳᐳ workflow)
 		}
 		class StructConsumerᐸInt32ᐳ {
-				<<struct>>
+				<<record>>
 			+StructConsumer()
 		}
 		class WorkflowᐸT1ˏInt32ˏListᐸT1ᐳˏDictionaryᐸT1ˏInt32ᐳᐳ {

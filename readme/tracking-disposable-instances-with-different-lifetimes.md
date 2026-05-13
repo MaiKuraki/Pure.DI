@@ -263,8 +263,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -275,13 +273,13 @@ classDiagram
 	QueryHandler --|> IQueryHandler
 	Composition ..> QueryHandler : QueryHandler QueryHandler
 	QueryHandler o-- "PerBlock" FuncᐸOwnedᐸIConnectionᐳᐳ : FuncᐸOwnedᐸIConnectionᐳᐳ
-	QueryHandler o-- "PerBlock" FuncᐸOwnedᐸIConnectionᐳᐳ : "Shared"  FuncᐸOwnedᐸIConnectionᐳᐳ
+	QueryHandler o-- "PerBlock" FuncᐸOwnedᐸIConnectionᐳᐳ : "Shared" FuncᐸOwnedᐸIConnectionᐳᐳ
 	FuncᐸOwnedᐸIConnectionᐳᐳ o-- "PerBlock" OwnedᐸIConnectionᐳ : OwnedᐸIConnectionᐳ
-	FuncᐸOwnedᐸIConnectionᐳᐳ o-- "PerBlock" OwnedᐸIConnectionᐳ : "Shared"  OwnedᐸIConnectionᐳ
-	OwnedᐸIConnectionᐳ *--  Owned : IOwned
-	OwnedᐸIConnectionᐳ *--  Connection : IConnection
-	OwnedᐸIConnectionᐳ *--  Owned : IOwned
-	OwnedᐸIConnectionᐳ o-- "Singleton" Connection : "Shared"  IConnection
+	FuncᐸOwnedᐸIConnectionᐳᐳ o-- "PerBlock" OwnedᐸIConnectionᐳ : "Shared" OwnedᐸIConnectionᐳ
+	OwnedᐸIConnectionᐳ *-- Owned : IOwned
+	OwnedᐸIConnectionᐳ *-- Connection : IConnection
+	OwnedᐸIConnectionᐳ *-- Owned : IOwned
+	OwnedᐸIConnectionᐳ o-- "Singleton" Connection : "Shared" IConnection
 	namespace Pure.DI {
 		class IOwned {
 			<<interface>>
@@ -318,7 +316,7 @@ classDiagram
 				<<delegate>>
 		}
 		class IDisposable {
-			<<abstract>>
+			<<interface>>
 		}
 	}
 ```

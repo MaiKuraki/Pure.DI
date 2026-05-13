@@ -94,18 +94,16 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	FastRenderer --|> IRenderer : "Fast" 
-	QualityRenderer --|> IRenderer : "Quality" 
+	FastRenderer --|> IRenderer : "Fast"
+	QualityRenderer --|> IRenderer : "Quality"
 	PageRenderer --|> IPageRenderer
 	Composition ..> PageRenderer : IPageRenderer Renderer
-	PageRenderer *--  FastRenderer : "Fast"  IRenderer
-	PageRenderer *--  QualityRenderer : "Quality"  IRenderer
+	PageRenderer *-- FastRenderer : "Fast" IRenderer
+	PageRenderer *-- QualityRenderer : "Quality" IRenderer
 	namespace Pure.DI.UsageTests.Basics.TagAttributeScenario {
 		class Composition {
 		<<partial>>

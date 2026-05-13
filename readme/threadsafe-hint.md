@@ -91,8 +91,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -101,7 +99,7 @@ classDiagram
 	ReportGenerator --|> IReportGenerator
 	Composition ..> ReportGenerator : IReportGenerator Generator
 	ReportGenerator o-- "PerBlock" FuncᐸIDatabaseConnectionᐳ : FuncᐸIDatabaseConnectionᐳ
-	FuncᐸIDatabaseConnectionᐳ *--  SqlDatabaseConnection : IDatabaseConnection
+	FuncᐸIDatabaseConnectionᐳ *-- SqlDatabaseConnection : IDatabaseConnection
 	namespace Pure.DI.UsageTests.Hints.ThreadSafeHintScenario {
 		class Composition {
 		<<partial>>

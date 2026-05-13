@@ -307,22 +307,20 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	TemperatureSensor --|> ISensor : "LivingRoom" 
+	TemperatureSensor --|> ISensor : "LivingRoom"
 	Thermostat --|> IThermostat
-	Composition ..> LightweightRoot : LightweightRoot LightRoot132d
-	Composition ..> Thermostat : IThermostat _
-	Composition ..> TemperatureSensor : ISensor _
-	Thermostat o-- "Singleton" TemperatureSensor : "LivingRoom"  ISensor
-	LightweightRoot o-- "PerBlock" FuncᐸISensorᐳ : "LivingRoom"  FuncᐸISensorᐳ
+	Composition ..> LightweightRoot : LightweightRoot LightRoot133d
+	Composition ..> Thermostat : IThermostat Root133d1
+	Composition ..> TemperatureSensor : ISensor Root133d2
+	Thermostat o-- "Singleton" TemperatureSensor : "LivingRoom" ISensor
+	LightweightRoot o-- "PerBlock" FuncᐸISensorᐳ : "LivingRoom" FuncᐸISensorᐳ
 	LightweightRoot o-- "PerBlock" FuncᐸIThermostatᐳ : FuncᐸIThermostatᐳ
-	FuncᐸISensorᐳ o-- "Singleton" TemperatureSensor : "LivingRoom"  ISensor
-	FuncᐸIThermostatᐳ *--  Thermostat : IThermostat
+	FuncᐸISensorᐳ o-- "Singleton" TemperatureSensor : "LivingRoom" ISensor
+	FuncᐸIThermostatᐳ *-- Thermostat : IThermostat
 	namespace Pure.DI {
 		class LightweightRoot {
 				<<class>>
@@ -334,9 +332,9 @@ classDiagram
 	namespace Pure.DI.UsageTests.BCL.ServiceCollectionScenario {
 		class Composition {
 		<<partial>>
-		-LightweightRoot LightRoot132d
-		-ISensor _
-		-IThermostat _
+		-LightweightRoot LightRoot133d
+		-ISensor Root133d2
+		-IThermostat Root133d1
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object Resolve(Type type)

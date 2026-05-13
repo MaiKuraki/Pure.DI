@@ -125,19 +125,17 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	EmailSender --|> IMessageSender
-	SmsSender --|> IMessageSender : "sms" 
+	SmsSender --|> IMessageSender : "sms"
 	NotificationService --|> INotificationService
 	Composition ..> NotificationService : INotificationService NotificationService
 	NotificationService o-- "PerBlock" IEnumerableᐸIMessageSenderᐳ : IEnumerableᐸIMessageSenderᐳ
-	IEnumerableᐸIMessageSenderᐳ *--  EmailSender : IMessageSender
-	IEnumerableᐸIMessageSenderᐳ *--  SmsSender : "sms"  IMessageSender
+	IEnumerableᐸIMessageSenderᐳ *-- EmailSender : IMessageSender
+	IEnumerableᐸIMessageSenderᐳ *-- SmsSender : "sms" IMessageSender
 	namespace Pure.DI.UsageTests.BCL.EnumerableScenario {
 		class Composition {
 		<<partial>>

@@ -140,19 +140,17 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	PhotoService --|> IPhotoService
 	Composition ..> PhotoService : IPhotoService PhotoService
-	PhotoService *--  IGps : IGps
+	PhotoService *-- IGps : IGps
 	PhotoService o-- "PerBlock" FuncᐸICameraᐳ : FuncᐸICameraᐳ
 	ICamera o-- "Singleton" DeviceFeatureProvider : DeviceFeatureProvider
 	IGps o-- "Singleton" DeviceFeatureProvider : DeviceFeatureProvider
-	FuncᐸICameraᐳ *--  ICamera : ICamera
+	FuncᐸICameraᐳ *-- ICamera : ICamera
 	namespace Pure.DI.UsageTests.Basics.BindAttributeScenario {
 		class Composition {
 		<<partial>>

@@ -110,8 +110,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -119,8 +117,8 @@ classDiagram
 	GpsSensor --|> IGpsSensor
 	NavigationSystem --|> INavigationSystem
 	Composition ..> VehicleComputer : VehicleComputer VehicleComputer
-	NavigationSystem *--  GpsSensor : IGpsSensor
-	VehicleComputer *--  NavigationSystem : INavigationSystem
+	NavigationSystem *-- GpsSensor : IGpsSensor
+	VehicleComputer *-- NavigationSystem : INavigationSystem
 	namespace Pure.DI.UsageTests.Basics.InjectionsOfAbstractionsScenario {
 		class Composition {
 		<<partial>>

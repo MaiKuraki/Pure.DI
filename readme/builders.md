@@ -185,8 +185,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -204,9 +202,9 @@ classDiagram
 	Composition ..> IRobot : IRobot BuildUp(Pure.DI.UsageTests.Basics.BuildersScenario.IRobot buildingInstance)
 	Composition ..> GuardBot : GuardBot BuildUp(Pure.DI.UsageTests.Basics.BuildersScenario.GuardBot buildingInstance)
 	Composition ..> CleanerBot : CleanerBot BuildUp(Pure.DI.UsageTests.Basics.BuildersScenario.CleanerBot buildingInstance)
-	CleanerBot *--  Guid : Guid
-	CleanerBot *--  PlutoniumBattery : IBatteryɁ
-	GuardBot *--  PlutoniumBattery : IBatteryɁ
+	CleanerBot *-- Guid : Guid
+	CleanerBot *-- PlutoniumBattery : IBatteryɁ
+	GuardBot *-- PlutoniumBattery : IBatteryɁ
 	namespace Pure.DI.UsageTests.Basics.BuildersScenario {
 		class CleanerBot {
 				<<record>>

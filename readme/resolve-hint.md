@@ -93,8 +93,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -103,7 +101,7 @@ classDiagram
 	UserService --|> IUserService
 	Composition ..> UserService : IUserService UserService
 	Composition ..> DatabaseService : IDatabaseService DatabaseService
-	UserService *--  DatabaseService : IDatabaseService
+	UserService *-- DatabaseService : IDatabaseService
 	namespace Pure.DI.UsageTests.Hints.ResolveHintScenario {
 		class Composition {
 		<<partial>>

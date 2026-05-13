@@ -137,8 +137,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -154,11 +152,11 @@ classDiagram
 	Guid --|> IUtf8SpanParsableᐸGuidᐳ
 	OrderProcessingService --|> IOrderProcessingService
 	Composition ..> OrderProcessingService : IOrderProcessingService OrderService
-	IFileLogger *--  DateTime : "today"  DateTime
-	IFileLogger *--  FileLogger : FileLogger
+	IFileLogger *-- DateTime : "today" DateTime
+	IFileLogger *-- FileLogger : FileLogger
 	OrderProcessingService o-- "Singleton" IFileLogger : IFileLogger
 	FileLogger o-- "PerBlock" FuncᐸGuidᐳ : FuncᐸGuidᐳ
-	FuncᐸGuidᐳ *--  Guid : Guid
+	FuncᐸGuidᐳ *-- Guid : Guid
 	namespace Pure.DI.UsageTests.Basics.SimplifiedLifetimeFactoryScenario {
 		class Composition {
 		<<partial>>

@@ -184,8 +184,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -194,9 +192,9 @@ classDiagram
 	Composition ..> IMessageᐸT1ˏT4ᐳ : IMessageᐸT1ˏT4ᐳ BuildUpᐸT1ˏT4ᐳ(Pure.DI.UsageTests.Generics.GenericBuildersScenario.IMessage<T1, T4> buildingInstance)
 	Composition ..> CommandMessageᐸT1ˏT4ᐳ : CommandMessageᐸT1ˏT4ᐳ BuildUpᐸT1ˏT4ᐳ(Pure.DI.UsageTests.Generics.GenericBuildersScenario.CommandMessage<T1, T4> buildingInstance)
 	Composition ..> QueryMessageᐸT1ˏT4ᐳ : QueryMessageᐸT1ˏT4ᐳ BuildUpᐸT1ˏT4ᐳ(Pure.DI.UsageTests.Generics.GenericBuildersScenario.QueryMessage<T1, T4> buildingInstance)
-	CommandMessageᐸT1ˏT4ᐳ *--  MessageTrackerᐸT4ᐳ : IMessageTrackerᐸT4ᐳ
-	QueryMessageᐸT1ˏT4ᐳ *--  MessageTrackerᐸT4ᐳ : IMessageTrackerᐸT4ᐳ
-	QueryMessageᐸT1ˏT4ᐳ *--  T1 : "Id"  T1
+	CommandMessageᐸT1ˏT4ᐳ *-- MessageTrackerᐸT4ᐳ : IMessageTrackerᐸT4ᐳ
+	QueryMessageᐸT1ˏT4ᐳ *-- MessageTrackerᐸT4ᐳ : IMessageTrackerᐸT4ᐳ
+	QueryMessageᐸT1ˏT4ᐳ *-- T1 : "Id" T1
 	namespace Pure.DI.UsageTests.Generics.GenericBuildersScenario {
 		class CommandMessageᐸT1ˏT4ᐳ {
 				<<record>>

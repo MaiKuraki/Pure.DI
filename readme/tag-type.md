@@ -140,21 +140,18 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	CreditCardGateway --|> IPaymentGateway : typeof(Pure.DI.UsageTests.Advanced.TagTypeScenario.CreditCardGateway) 
-	CreditCardGateway --|> IPaymentGateway
-	PayPalGateway --|> IPaymentGateway : typeof(Pure.DI.UsageTests.Advanced.TagTypeScenario.PayPalGateway) 
+	CreditCardGateway --|> IPaymentGateway : typeof(Pure.DI.UsageTests.Advanced.TagTypeScenario.CreditCardGateway), default
+	PayPalGateway --|> IPaymentGateway : typeof(Pure.DI.UsageTests.Advanced.TagTypeScenario.PayPalGateway)
 	PaymentProcessor --|> IPaymentProcessor
 	Composition ..> PayPalGateway : IPaymentGateway PayPalRoot
 	Composition ..> PaymentProcessor : IPaymentProcessor PaymentSystem
-	PaymentProcessor *--  CreditCardGateway : typeof(Pure.DI.UsageTests.Advanced.TagTypeScenario.CreditCardGateway)  IPaymentGateway
-	PaymentProcessor *--  CreditCardGateway : IPaymentGateway
-	PaymentProcessor o-- "Singleton" PayPalGateway : typeof(Pure.DI.UsageTests.Advanced.TagTypeScenario.PayPalGateway)  IPaymentGateway
+	PaymentProcessor *-- CreditCardGateway : typeof(Pure.DI.UsageTests.Advanced.TagTypeScenario.CreditCardGateway) IPaymentGateway
+	PaymentProcessor *-- CreditCardGateway : IPaymentGateway
+	PaymentProcessor o-- "Singleton" PayPalGateway : typeof(Pure.DI.UsageTests.Advanced.TagTypeScenario.PayPalGateway) IPaymentGateway
 	namespace Pure.DI.UsageTests.Advanced.TagTypeScenario {
 		class Composition {
 		<<partial>>

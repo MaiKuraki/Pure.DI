@@ -119,16 +119,14 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	RepositoryᐸT4ᐳ --|> IRepositoryᐸT4ᐳ
 	Composition ..> ViewModelᐸT3ˏT4ᐳ : ViewModelᐸT3ˏT4ᐳ BuildUpᐸT3ˏT4ᐳ(Pure.DI.UsageTests.Generics.GenericBuilderScenario.ViewModel<T3, T4> buildingInstance)
-	ViewModelᐸT3ˏT4ᐳ *--  RepositoryᐸT4ᐳ : IRepositoryᐸT4ᐳ
-	ViewModelᐸT3ˏT4ᐳ *--  T3 : "Id"  T3
+	ViewModelᐸT3ˏT4ᐳ *-- RepositoryᐸT4ᐳ : IRepositoryᐸT4ᐳ
+	ViewModelᐸT3ˏT4ᐳ *-- T3 : "Id" T3
 	namespace Pure.DI.UsageTests.Generics.GenericBuilderScenario {
 		class Composition {
 		<<partial>>

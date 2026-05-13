@@ -104,8 +104,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -114,8 +112,8 @@ classDiagram
 	RepositoryᐸPostᐳ --|> IRepositoryᐸPostᐳ
 	RepositoryᐸCommentᐳ --|> IRepositoryᐸCommentᐳ
 	Composition ..> ContentService : IContentService ContentService
-	ContentService *--  RepositoryᐸPostᐳ : IRepositoryᐸPostᐳ
-	ContentService *--  RepositoryᐸCommentᐳ : IRepositoryᐸCommentᐳ
+	ContentService *-- RepositoryᐸPostᐳ : IRepositoryᐸPostᐳ
+	ContentService *-- RepositoryᐸCommentᐳ : IRepositoryᐸCommentᐳ
 	namespace Pure.DI.UsageTests.Attributes.CustomGenericArgumentAttributeScenario {
 		class Composition {
 		<<partial>>

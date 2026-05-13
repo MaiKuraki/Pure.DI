@@ -152,8 +152,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -163,8 +161,8 @@ classDiagram
 	Composition ..> PaymentProcessor : IPaymentProcessor PaymentService
 	BankGateway o-- Int32 : Argument "timeoutSeconds"
 	BankGateway o-- String : Argument "gatewayUrl"
-	PaymentProcessor *--  BankGateway : IBankGateway
-	PaymentProcessor o-- String : "api token"  Argument "authToken"
+	PaymentProcessor *-- BankGateway : IBankGateway
+	PaymentProcessor o-- String : "api token" Argument "authToken"
 	namespace Pure.DI.UsageTests.Basics.CompositionArgumentsScenario {
 		class BankGateway {
 				<<class>>

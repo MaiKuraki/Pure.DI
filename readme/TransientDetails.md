@@ -6,8 +6,6 @@ Creating an object graph of 22 transient objects.
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -17,13 +15,13 @@ classDiagram
 	Service3 --|> IService3
 	Service4 --|> IService4
 	Transient ..> CompositionRoot : CompositionRoot TestPureDIByCR()
-	Service1 *--  Service2 : IService2
-	Service2 *-- "5 " Service3 : IService3
-	Service3 *-- "2 " Service4 : IService4
-	CompositionRoot *--  Service1 : IService1
-	CompositionRoot *-- "3 " Service2 : IService2
-	CompositionRoot *--  Service3 : IService3
-	CompositionRoot *-- "2 " Service4 : IService4
+	Service1 *-- Service2 : IService2
+	Service2 *-- "5 instances" Service3 : IService3
+	Service3 *-- "2 instances" Service4 : IService4
+	CompositionRoot *-- Service1 : IService1
+	CompositionRoot *-- "3 instances" Service2 : IService2
+	CompositionRoot *-- Service3 : IService3
+	CompositionRoot *-- "2 instances" Service4 : IService4
 	namespace Pure.DI.Benchmarks.Benchmarks {
 		class Transient {
 		<<partial>>

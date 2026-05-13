@@ -174,8 +174,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -183,7 +181,7 @@ classDiagram
 	DataService --|> IDataService
 	BusinessService --|> IBusinessService
 	Composition ..> BusinessService : IBusinessService BusinessService
-	BusinessService *--  DataService : IDataService
+	BusinessService *-- DataService : IDataService
 	namespace Pure.DI.UsageTests.Interception.AdvancedInterceptionScenario {
 		class BusinessService {
 				<<class>>

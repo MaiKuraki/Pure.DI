@@ -107,19 +107,17 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	MemoryCheck --|> IHealthCheck
-	ExternalServiceCheck --|> IHealthCheck : "External" 
+	ExternalServiceCheck --|> IHealthCheck : "External"
 	HealthService --|> IHealthService
 	Composition ..> HealthService : IHealthService HealthService
-	HealthService *--  IAsyncEnumerableᐸIHealthCheckᐳ : IAsyncEnumerableᐸIHealthCheckᐳ
-	IAsyncEnumerableᐸIHealthCheckᐳ *--  MemoryCheck : IHealthCheck
-	IAsyncEnumerableᐸIHealthCheckᐳ *--  ExternalServiceCheck : "External"  IHealthCheck
+	HealthService *-- IAsyncEnumerableᐸIHealthCheckᐳ : IAsyncEnumerableᐸIHealthCheckᐳ
+	IAsyncEnumerableᐸIHealthCheckᐳ *-- MemoryCheck : IHealthCheck
+	IAsyncEnumerableᐸIHealthCheckᐳ *-- ExternalServiceCheck : "External" IHealthCheck
 	namespace Pure.DI.UsageTests.BCL.AsyncEnumerableScenario {
 		class Composition {
 		<<partial>>

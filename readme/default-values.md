@@ -104,8 +104,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -113,8 +111,8 @@ classDiagram
 	MotionSensor --|> ISensor
 	SecuritySystem --|> ISecuritySystem
 	Composition ..> SecuritySystem : ISecuritySystem SecuritySystem
-	SecuritySystem *--  MotionSensor : ISensor
-	SecuritySystem *--  String : String
+	SecuritySystem *-- MotionSensor : ISensor
+	SecuritySystem *-- String : String
 	namespace Pure.DI.UsageTests.Basics.DefaultValuesScenario {
 		class Composition {
 		<<partial>>

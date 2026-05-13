@@ -227,15 +227,13 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	ReportFormatter --|> IReportFormatter
 	Composition ..> App : App App
-	App *--  ReportFormatter : IReportFormatter
+	App *-- ReportFormatter : IReportFormatter
 	namespace Pure.DI.UsageTests.Interfaces.GenerateInterfaceGenericsScenario {
 		class App {
 				<<class>>

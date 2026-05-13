@@ -6,8 +6,6 @@ Creating an object graph of 7 transition objects plus 1 `Func<T>` with additiona
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -17,14 +15,14 @@ classDiagram
 	Service3 --|> IService3
 	Service4 --|> IService4
 	Func ..> CompositionRoot : CompositionRoot TestPureDIByCR()
-	Service1 *--  Service2Func : IService2
+	Service1 *-- Service2Func : IService2
 	Service2Func o-- "PerBlock" FuncᐸIService3ᐳ : FuncᐸIService3ᐳ
-	Service3 *-- "2 " Service4 : IService4
-	CompositionRoot *--  Service1 : IService1
-	CompositionRoot *-- "3 " Service2Func : IService2
-	CompositionRoot *--  Service3 : IService3
-	CompositionRoot *-- "2 " Service4 : IService4
-	FuncᐸIService3ᐳ *--  Service3 : IService3
+	Service3 *-- "2 instances" Service4 : IService4
+	CompositionRoot *-- Service1 : IService1
+	CompositionRoot *-- "3 instances" Service2Func : IService2
+	CompositionRoot *-- Service3 : IService3
+	CompositionRoot *-- "2 instances" Service4 : IService4
+	FuncᐸIService3ᐳ *-- Service3 : IService3
 	namespace Pure.DI.Benchmarks.Benchmarks {
 		class Func {
 		<<partial>>

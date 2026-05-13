@@ -426,8 +426,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -437,24 +435,24 @@ classDiagram
 	PrometheusMetrics --|> IMetrics
 	AppConfiguration --|> IConfiguration
 	ApplicationService --|> IApplicationService
-	Composition ..> LightweightRoot : LightweightRoot LightRoot132d
-	Composition ..> PrometheusMetrics : IMetrics _
-	Composition ..> MemoryCache : ICache _
-	Composition ..> ConsoleLogger : ILogger _
+	Composition ..> LightweightRoot : LightweightRoot LightRoot133d
+	Composition ..> PrometheusMetrics : IMetrics Root133d1
+	Composition ..> MemoryCache : ICache Root133d2
+	Composition ..> ConsoleLogger : ILogger Root133d3
 	Composition ..> AppConfiguration : IConfiguration Config
 	Composition ..> ApplicationService : IApplicationService ApplicationService
-	ApplicationService *--  ConsoleLogger : ILogger
-	ApplicationService *--  MemoryCache : ICache
-	ApplicationService *--  PrometheusMetrics : IMetrics
-	ApplicationService *--  AppConfiguration : IConfiguration
+	ApplicationService *-- ConsoleLogger : ILogger
+	ApplicationService *-- MemoryCache : ICache
+	ApplicationService *-- PrometheusMetrics : IMetrics
+	ApplicationService *-- AppConfiguration : IConfiguration
 	LightweightRoot o-- "PerBlock" FuncᐸIConfigurationᐳ : FuncᐸIConfigurationᐳ
 	LightweightRoot o-- "PerBlock" FuncᐸILoggerᐳ : FuncᐸILoggerᐳ
 	LightweightRoot o-- "PerBlock" FuncᐸICacheᐳ : FuncᐸICacheᐳ
 	LightweightRoot o-- "PerBlock" FuncᐸIMetricsᐳ : FuncᐸIMetricsᐳ
-	FuncᐸIConfigurationᐳ *--  AppConfiguration : IConfiguration
-	FuncᐸILoggerᐳ *--  ConsoleLogger : ILogger
-	FuncᐸICacheᐳ *--  MemoryCache : ICache
-	FuncᐸIMetricsᐳ *--  PrometheusMetrics : IMetrics
+	FuncᐸIConfigurationᐳ *-- AppConfiguration : IConfiguration
+	FuncᐸILoggerᐳ *-- ConsoleLogger : ILogger
+	FuncᐸICacheᐳ *-- MemoryCache : ICache
+	FuncᐸIMetricsᐳ *-- PrometheusMetrics : IMetrics
 	namespace Pure.DI {
 		class LightweightRoot {
 				<<class>>
@@ -478,10 +476,10 @@ classDiagram
 		<<partial>>
 		+IApplicationService ApplicationService
 		+IConfiguration Config
-		-LightweightRoot LightRoot132d
-		-ILogger _
-		-ICache _
-		-IMetrics _
+		-LightweightRoot LightRoot133d
+		-ILogger Root133d3
+		-ICache Root133d2
+		-IMetrics Root133d1
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object Resolve(Type type)

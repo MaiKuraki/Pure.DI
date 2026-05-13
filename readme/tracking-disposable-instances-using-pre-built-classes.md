@@ -255,8 +255,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -266,12 +264,12 @@ classDiagram
 	DataService --|> IDataService
 	Composition ..> DataService : DataService DataService
 	DataService o-- "PerBlock" FuncᐸOwnᐸIDbConnectionᐳᐳ : FuncᐸOwnᐸIDbConnectionᐳᐳ
-	DataService o-- "PerBlock" FuncᐸOwnᐸIDbConnectionᐳᐳ : "shared"  FuncᐸOwnᐸIDbConnectionᐳᐳ
+	DataService o-- "PerBlock" FuncᐸOwnᐸIDbConnectionᐳᐳ : "shared" FuncᐸOwnᐸIDbConnectionᐳᐳ
 	FuncᐸOwnᐸIDbConnectionᐳᐳ o-- "PerBlock" OwnᐸIDbConnectionᐳ : OwnᐸIDbConnectionᐳ
-	FuncᐸOwnᐸIDbConnectionᐳᐳ o-- "PerBlock" OwnᐸIDbConnectionᐳ : "shared"  OwnᐸIDbConnectionᐳ
-	OwnᐸIDbConnectionᐳ *--  DbConnection : IDbConnection
+	FuncᐸOwnᐸIDbConnectionᐳᐳ o-- "PerBlock" OwnᐸIDbConnectionᐳ : "shared" OwnᐸIDbConnectionᐳ
+	OwnᐸIDbConnectionᐳ *-- DbConnection : IDbConnection
 	OwnᐸIDbConnectionᐳ o-- "PerBlock" Own : Own
-	OwnᐸIDbConnectionᐳ o-- "Singleton" DbConnection : "shared"  IDbConnection
+	OwnᐸIDbConnectionᐳ o-- "Singleton" DbConnection : "shared" IDbConnection
 	OwnᐸIDbConnectionᐳ o-- "PerBlock" Own : Own
 	namespace Pure.DI.Abstractions {
 		class Own {
@@ -306,7 +304,7 @@ classDiagram
 				<<delegate>>
 		}
 		class IDisposable {
-			<<abstract>>
+			<<interface>>
 		}
 	}
 ```

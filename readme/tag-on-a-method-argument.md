@@ -97,8 +97,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -106,7 +104,7 @@ classDiagram
 	HumiditySensor --|> ISensor
 	WeatherStation --|> IWeatherStation
 	Composition ..> WeatherStation : IWeatherStation Station
-	WeatherStation *--  HumiditySensor : ISensor
+	WeatherStation *-- HumiditySensor : ISensor
 	namespace Pure.DI.UsageTests.Advanced.TagOnMethodArgScenario {
 		class Composition {
 		<<partial>>

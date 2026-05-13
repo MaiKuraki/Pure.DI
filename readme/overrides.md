@@ -186,22 +186,20 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	Dashboard --|> IDashboard
 	Composition ..> Dashboard : IDashboard Dashboard
-	FuncᐸInt32ˏInt32ˏIWidgetᐳ *--  Color : "Red"  Color
-	FuncᐸInt32ˏInt32ˏIWidgetᐳ *--  Widget : Widget
-	Dashboard *--  FuncᐸInt32ˏInt32ˏIWidgetᐳ : FuncᐸInt32ˏInt32ˏIWidgetᐳ
+	FuncᐸInt32ˏInt32ˏIWidgetᐳ *-- Color : "Red" Color
+	FuncᐸInt32ˏInt32ˏIWidgetᐳ *-- Widget : Widget
+	Dashboard *-- FuncᐸInt32ˏInt32ˏIWidgetᐳ : FuncᐸInt32ˏInt32ˏIWidgetᐳ
 	Widget o-- "Singleton" Clock : IClock
-	Widget *--  Int32 : Int32
-	Widget *--  Int32 : "layer"  Int32
-	Widget *--  String : String
-	Widget *--  Color : Color
+	Widget *-- Int32 : Int32
+	Widget *-- Int32 : "layer" Int32
+	Widget *-- String : String
+	Widget *-- Color : Color
 	namespace Pure.DI.UsageTests.Basics.OverridesScenario {
 		class Clock {
 			<<class>>

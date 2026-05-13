@@ -149,17 +149,15 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	LiveAudioSource --|> IAudioSource : "Live" 
+	LiveAudioSource --|> IAudioSource : "Live"
 	BufferedAudioSource --|> IAudioSource
 	PlaybackSession --|> IPlaybackSession
 	Composition ..> PlaybackSession : IPlaybackSession PlaybackSession
-	PlaybackSession o-- "Singleton" LiveAudioSource : "Live"  IAudioSource
+	PlaybackSession o-- "Singleton" LiveAudioSource : "Live" IAudioSource
 	PlaybackSession o-- "Singleton" BufferedAudioSource : IAudioSource
 	namespace Pure.DI.UsageTests.Lifetimes.DefaultLifetimeForTypeAndTagScenario {
 		class BufferedAudioSource {

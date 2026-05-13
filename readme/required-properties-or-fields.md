@@ -120,8 +120,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -130,7 +128,7 @@ classDiagram
 	UserRepository --|> IUserRepository
 	Composition ..> UserRepository : IUserRepository Repository
 	UserRepository o-- String : Argument "connectionString"
-	UserRepository *--  SqlDatabase : IDatabase
+	UserRepository *-- SqlDatabase : IDatabase
 	namespace Pure.DI.UsageTests.Basics.RequiredPropertiesOrFieldsScenario {
 		class Composition {
 		<<partial>>

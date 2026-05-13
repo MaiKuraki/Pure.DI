@@ -118,8 +118,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -127,8 +125,8 @@ classDiagram
 	Person --|> IPerson
 	PersonComposition ..> Person : IPerson Person
 	Person o-- Int32 : Argument "personId"
-	Person *--  Uri : "Person Uri"  Uri
-	Person *--  String : "NikName"  String
+	Person *-- Uri : "Person Uri" Uri
+	Person *-- String : "NikName" String
 	namespace Pure.DI.UsageTests.Attributes.InjectAttributeScenario {
 		class IPerson {
 			<<interface>>

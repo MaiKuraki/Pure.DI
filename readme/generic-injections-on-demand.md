@@ -99,8 +99,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -109,7 +107,7 @@ classDiagram
 	WorkerᐸInt32ᐳ --|> IWorkerᐸInt32ᐳ
 	Composition ..> DistributorᐸInt32ᐳ : IDistributorᐸInt32ᐳ Root
 	DistributorᐸInt32ᐳ o-- "PerBlock" FuncᐸIWorkerᐸInt32ᐳᐳ : FuncᐸIWorkerᐸInt32ᐳᐳ
-	FuncᐸIWorkerᐸInt32ᐳᐳ *--  WorkerᐸInt32ᐳ : IWorkerᐸInt32ᐳ
+	FuncᐸIWorkerᐸInt32ᐳᐳ *-- WorkerᐸInt32ᐳ : IWorkerᐸInt32ᐳ
 	namespace Pure.DI.UsageTests.Generics.GenericInjectionsOnDemandScenario {
 		class Composition {
 		<<partial>>

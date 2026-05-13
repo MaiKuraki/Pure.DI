@@ -94,8 +94,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -103,7 +101,7 @@ classDiagram
 	Map --|> IMap
 	Navigator --|> INavigator
 	Composition ..> Navigator : INavigator Navigator
-	Navigator *--  Map : IMap
+	Navigator *-- Map : IMap
 	namespace Pure.DI.UsageTests.Basics.MethodInjectionScenario {
 		class Composition {
 		<<partial>>

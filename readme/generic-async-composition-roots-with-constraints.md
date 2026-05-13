@@ -168,33 +168,31 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
-	StatusQueryᐸT2ᐳ --|> IQueryᐸT2ˏBooleanᐳ : "Status" 
+	StatusQueryᐸT2ᐳ --|> IQueryᐸT2ˏBooleanᐳ : "Status"
 	DataQueryᐸT2ˏT3ᐳ --|> IQueryᐸT2ˏT3ᐳ
 	ConnectionProviderᐸT2ᐳ --|> IConnectionProviderᐸT2ᐳ
 	Composition ..> TaskᐸIQueryᐸT2ˏBooleanᐳᐳ : TaskᐸIQueryᐸT2ˏBooleanᐳᐳ GetStatusQueryAsyncᐸT2ᐳ(System.Threading.CancellationToken cancellationToken)
 	Composition ..> TaskᐸIQueryᐸT2ˏT3ᐳᐳ : TaskᐸIQueryᐸT2ˏT3ᐳᐳ GetDataQueryAsyncᐸT2ˏT3ᐳ(System.Threading.CancellationToken cancellationToken)
-	TaskᐸIQueryᐸT2ˏBooleanᐳᐳ o-- "PerBlock" FuncᐸIQueryᐸT2ˏBooleanᐳᐳ : "Status"  FuncᐸIQueryᐸT2ˏBooleanᐳᐳ
+	TaskᐸIQueryᐸT2ˏBooleanᐳᐳ o-- "PerBlock" FuncᐸIQueryᐸT2ˏBooleanᐳᐳ : "Status" FuncᐸIQueryᐸT2ˏBooleanᐳᐳ
 	TaskᐸIQueryᐸT2ˏBooleanᐳᐳ o-- "PerBlock" TaskFactoryᐸIQueryᐸT2ˏBooleanᐳᐳ : TaskFactoryᐸIQueryᐸT2ˏBooleanᐳᐳ
 	TaskᐸIQueryᐸT2ˏT3ᐳᐳ o-- "PerBlock" FuncᐸIQueryᐸT2ˏT3ᐳᐳ : FuncᐸIQueryᐸT2ˏT3ᐳᐳ
 	TaskᐸIQueryᐸT2ˏT3ᐳᐳ o-- "PerBlock" TaskFactoryᐸIQueryᐸT2ˏT3ᐳᐳ : TaskFactoryᐸIQueryᐸT2ˏT3ᐳᐳ
-	FuncᐸIQueryᐸT2ˏBooleanᐳᐳ *--  StatusQueryᐸT2ᐳ : "Status"  IQueryᐸT2ˏBooleanᐳ
-	TaskFactoryᐸIQueryᐸT2ˏBooleanᐳᐳ *--  TaskScheduler : TaskScheduler
-	TaskFactoryᐸIQueryᐸT2ˏBooleanᐳᐳ *--  TaskCreationOptions : TaskCreationOptions
-	TaskFactoryᐸIQueryᐸT2ˏBooleanᐳᐳ *--  TaskContinuationOptions : TaskContinuationOptions
+	FuncᐸIQueryᐸT2ˏBooleanᐳᐳ *-- StatusQueryᐸT2ᐳ : "Status" IQueryᐸT2ˏBooleanᐳ
+	TaskFactoryᐸIQueryᐸT2ˏBooleanᐳᐳ *-- TaskScheduler : TaskScheduler
+	TaskFactoryᐸIQueryᐸT2ˏBooleanᐳᐳ *-- TaskCreationOptions : TaskCreationOptions
+	TaskFactoryᐸIQueryᐸT2ˏBooleanᐳᐳ *-- TaskContinuationOptions : TaskContinuationOptions
 	TaskFactoryᐸIQueryᐸT2ˏBooleanᐳᐳ o-- CancellationToken : Argument "cancellationToken"
-	FuncᐸIQueryᐸT2ˏT3ᐳᐳ *--  DataQueryᐸT2ˏT3ᐳ : IQueryᐸT2ˏT3ᐳ
-	TaskFactoryᐸIQueryᐸT2ˏT3ᐳᐳ *--  TaskScheduler : TaskScheduler
-	TaskFactoryᐸIQueryᐸT2ˏT3ᐳᐳ *--  TaskCreationOptions : TaskCreationOptions
-	TaskFactoryᐸIQueryᐸT2ˏT3ᐳᐳ *--  TaskContinuationOptions : TaskContinuationOptions
+	FuncᐸIQueryᐸT2ˏT3ᐳᐳ *-- DataQueryᐸT2ˏT3ᐳ : IQueryᐸT2ˏT3ᐳ
+	TaskFactoryᐸIQueryᐸT2ˏT3ᐳᐳ *-- TaskScheduler : TaskScheduler
+	TaskFactoryᐸIQueryᐸT2ˏT3ᐳᐳ *-- TaskCreationOptions : TaskCreationOptions
+	TaskFactoryᐸIQueryᐸT2ˏT3ᐳᐳ *-- TaskContinuationOptions : TaskContinuationOptions
 	TaskFactoryᐸIQueryᐸT2ˏT3ᐳᐳ o-- CancellationToken : Argument "cancellationToken"
-	StatusQueryᐸT2ᐳ *--  ConnectionProviderᐸT2ᐳ : IConnectionProviderᐸT2ᐳ
-	DataQueryᐸT2ˏT3ᐳ *--  ConnectionProviderᐸT2ᐳ : IConnectionProviderᐸT2ᐳ
+	StatusQueryᐸT2ᐳ *-- ConnectionProviderᐸT2ᐳ : IConnectionProviderᐸT2ᐳ
+	DataQueryᐸT2ˏT3ᐳ *-- ConnectionProviderᐸT2ᐳ : IConnectionProviderᐸT2ᐳ
 	namespace Pure.DI.UsageTests.Generics.GenericAsyncCompositionRootsWithConstraintsScenario {
 		class Composition {
 		<<partial>>

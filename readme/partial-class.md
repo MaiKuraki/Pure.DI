@@ -113,17 +113,15 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	Order --|> IOrder
 	Composition ..> OrderService : OrderService OrderService
-	Order *--  Int64 : Int64
-	OrderService *-- "2 " Order : IOrder
-	OrderService *--  String : "Order details"  String
+	Order *-- Int64 : Int64
+	OrderService *-- "2 instances" Order : IOrder
+	OrderService *-- String : "Order details" String
 	namespace Pure.DI.UsageTests.Advanced.PartialClassScenario {
 		class Composition {
 		<<partial>>

@@ -169,8 +169,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -188,9 +186,9 @@ classDiagram
 	Composition ..> IDevice : IDevice InstallIDevice(Pure.DI.UsageTests.Basics.BuildersWithNameTemplateScenario.IDevice buildingInstance)
 	Composition ..> Thermostat : Thermostat InstallThermostat(Pure.DI.UsageTests.Basics.BuildersWithNameTemplateScenario.Thermostat buildingInstance)
 	Composition ..> Webcam : Webcam InstallWebcam(Pure.DI.UsageTests.Basics.BuildersWithNameTemplateScenario.Webcam buildingInstance)
-	Webcam *--  Guid : Guid
-	Webcam *--  WiFi : INetworkɁ
-	Thermostat *--  WiFi : INetworkɁ
+	Webcam *-- Guid : Guid
+	Webcam *-- WiFi : INetworkɁ
+	Thermostat *-- WiFi : INetworkɁ
 	namespace Pure.DI.UsageTests.Basics.BuildersWithNameTemplateScenario {
 		class Composition {
 		<<partial>>

@@ -97,8 +97,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -106,9 +104,9 @@ classDiagram
 	GraphicsEngine --|> IGraphicsEngine
 	Window --|> IWindow
 	Composition ..> Window : IWindow Window
-	Window *--  LazyᐸIGraphicsEngineᐳ : LazyᐸIGraphicsEngineᐳ
+	Window *-- LazyᐸIGraphicsEngineᐳ : LazyᐸIGraphicsEngineᐳ
 	LazyᐸIGraphicsEngineᐳ o-- "PerBlock" FuncᐸIGraphicsEngineᐳ : FuncᐸIGraphicsEngineᐳ
-	FuncᐸIGraphicsEngineᐳ *--  GraphicsEngine : IGraphicsEngine
+	FuncᐸIGraphicsEngineᐳ *-- GraphicsEngine : IGraphicsEngine
 	namespace Pure.DI.UsageTests.BCL.LazyScenario {
 		class Composition {
 		<<partial>>

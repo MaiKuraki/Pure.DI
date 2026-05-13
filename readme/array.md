@@ -115,19 +115,17 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	TemperatureSensor --|> ISensor
-	WindSensor --|> ISensor : "External" 
+	WindSensor --|> ISensor : "External"
 	SensorService --|> ISensorService
 	Composition ..> SensorService : ISensorService Sensor
-	SensorService *--  ArrayᐸISensorᐳ : ArrayᐸISensorᐳ
-	ArrayᐸISensorᐳ *--  TemperatureSensor : ISensor
-	ArrayᐸISensorᐳ *--  WindSensor : "External"  ISensor
+	SensorService *-- ArrayᐸISensorᐳ : ArrayᐸISensorᐳ
+	ArrayᐸISensorᐳ *-- TemperatureSensor : ISensor
+	ArrayᐸISensorᐳ *-- WindSensor : "External" ISensor
 	class ArrayᐸISensorᐳ {
 			<<array>>
 	}

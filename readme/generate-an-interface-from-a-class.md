@@ -215,15 +215,13 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
 classDiagram
 	EmailSender --|> IEmailSender
 	Composition ..> App : App App
-	App *--  EmailSender : IEmailSender
+	App *-- EmailSender : IEmailSender
 	namespace Pure.DI.UsageTests.Interfaces.GenerateInterfaceScenario {
 		class App {
 				<<class>>

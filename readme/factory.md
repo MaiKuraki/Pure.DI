@@ -116,8 +116,6 @@ Class diagram:
 ```mermaid
 ---
  config:
-  maxTextSize: 2147483647
-  maxEdges: 2147483647
   class:
    hideEmptyMembersBox: true
 ---
@@ -125,7 +123,7 @@ classDiagram
 	DatabaseService --|> IDatabaseService
 	UserRegistry --|> IUserRegistry
 	Composition ..> UserRegistry : IUserRegistry Registry
-	UserRegistry *--  DatabaseService : IDatabaseService
+	UserRegistry *-- DatabaseService : IDatabaseService
 	namespace Pure.DI.UsageTests.Basics.FactoryScenario {
 		class Composition {
 		<<partial>>
