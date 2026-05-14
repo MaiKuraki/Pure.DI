@@ -265,9 +265,9 @@ classDiagram
 	Device --|> IDevice
 	TemperatureSensor --|> ISensor
 	HumiditySensor --|> ISensor : "Humidity"
-	Composition ..> LightweightRoot : LightweightRoot LightRoot133d
+	Composition ..> LightweightRoot : LightweightRoot LightRoot
 	Composition ..> HumiditySensor : ISensor HumiditySensor
-	Composition ..> TemperatureSensor : ISensor Root133d1
+	Composition ..> TemperatureSensor : ISensor Root1
 	TemperatureSensor *-- Device : IDevice
 	LightweightRoot o-- "PerBlock" FuncᐸISensorᐳ : FuncᐸISensorᐳ
 	FuncᐸISensorᐳ *-- TemperatureSensor : ISensor
@@ -282,8 +282,8 @@ classDiagram
 		class Composition {
 		<<partial>>
 		+ISensor HumiditySensor
-		-LightweightRoot LightRoot133d
-		-ISensor Root133d1
+		-LightweightRoot LightRoot
+		-ISensor Root1
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object Resolve(Type type)

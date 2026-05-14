@@ -113,12 +113,6 @@ The following partial class will be generated:
 ```c#
 partial class Composition
 {
-#if NET9_0_OR_GREATER
-  private readonly Lock _lock;
-#else
-  private readonly Object _lock;
-#endif
-
   private readonly int _argTimeoutSeconds;
   private readonly string _argAuthToken;
   private readonly string _argGatewayUrl;
@@ -129,11 +123,6 @@ partial class Composition
     _argTimeoutSeconds = timeoutSeconds;
     _argAuthToken = authToken ?? throw new ArgumentNullException(nameof(authToken));
     _argGatewayUrl = gatewayUrl ?? throw new ArgumentNullException(nameof(gatewayUrl));
-#if NET9_0_OR_GREATER
-    _lock = new Lock();
-#else
-    _lock = new Object();
-#endif
   }
 
   public IPaymentProcessor PaymentService

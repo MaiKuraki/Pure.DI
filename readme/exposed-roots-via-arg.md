@@ -69,23 +69,12 @@ The following partial class will be generated:
 ```c#
 partial class Composition
 {
-#if NET9_0_OR_GREATER
-  private readonly Lock _lock;
-#else
-  private readonly Object _lock;
-#endif
-
   private readonly OtherAssembly.CompositionInOtherProject _argBaseComposition;
 
   [OrdinalAttribute(128)]
   public Composition(OtherAssembly.CompositionInOtherProject baseComposition)
   {
     _argBaseComposition = baseComposition ?? throw new ArgumentNullException(nameof(baseComposition));
-#if NET9_0_OR_GREATER
-    _lock = new Lock();
-#else
-    _lock = new Object();
-#endif
   }
 
   public Program Program

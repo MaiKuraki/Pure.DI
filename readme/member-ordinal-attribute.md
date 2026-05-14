@@ -98,12 +98,6 @@ The following partial class will be generated:
 ```c#
 partial class PersonComposition
 {
-#if NET9_0_OR_GREATER
-  private readonly Lock _lock;
-#else
-  private readonly Object _lock;
-#endif
-
   private readonly int _argPersonId;
   private readonly string _argPersonName;
   private readonly DateTime _argPersonBirthday;
@@ -114,11 +108,6 @@ partial class PersonComposition
     _argPersonId = personId;
     _argPersonName = personName ?? throw new ArgumentNullException(nameof(personName));
     _argPersonBirthday = personBirthday;
-#if NET9_0_OR_GREATER
-    _lock = new Lock();
-#else
-    _lock = new Object();
-#endif
   }
 
   public IPerson Person

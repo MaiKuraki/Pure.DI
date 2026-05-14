@@ -138,12 +138,6 @@ The following partial class will be generated:
 ```c#
 partial class Composition
 {
-#if NET9_0_OR_GREATER
-  private readonly Lock _lock = new Lock();
-#else
-  private readonly Object _lock = new Object();
-#endif
-
   public Func<Request, Handler> CreateHandler
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

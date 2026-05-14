@@ -435,10 +435,10 @@ classDiagram
 	PrometheusMetrics --|> IMetrics
 	AppConfiguration --|> IConfiguration
 	ApplicationService --|> IApplicationService
-	Composition ..> LightweightRoot : LightweightRoot LightRoot133d
-	Composition ..> PrometheusMetrics : IMetrics Root133d1
-	Composition ..> MemoryCache : ICache Root133d2
-	Composition ..> ConsoleLogger : ILogger Root133d3
+	Composition ..> LightweightRoot : LightweightRoot LightRoot
+	Composition ..> PrometheusMetrics : IMetrics Root1
+	Composition ..> MemoryCache : ICache Root2
+	Composition ..> ConsoleLogger : ILogger Root3
 	Composition ..> AppConfiguration : IConfiguration Config
 	Composition ..> ApplicationService : IApplicationService ApplicationService
 	ApplicationService *-- ConsoleLogger : ILogger
@@ -476,10 +476,10 @@ classDiagram
 		<<partial>>
 		+IApplicationService ApplicationService
 		+IConfiguration Config
-		-LightweightRoot LightRoot133d
-		-ILogger Root133d3
-		-ICache Root133d2
-		-IMetrics Root133d1
+		-LightweightRoot LightRoot
+		-ILogger Root3
+		-ICache Root2
+		-IMetrics Root1
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object Resolve(Type type)

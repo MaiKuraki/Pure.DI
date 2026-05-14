@@ -311,9 +311,9 @@ Class diagram:
 classDiagram
 	SqlUserRepository --|> IUserRepository : "Primary"
 	UserService --|> IUserService
-	Composition ..> LightweightRoot : LightweightRoot LightRoot133d
+	Composition ..> LightweightRoot : LightweightRoot LightRoot
 	Composition ..> UserService : IUserService Root
-	Composition ..> SqlUserRepository : IUserRepository Root133d1
+	Composition ..> SqlUserRepository : IUserRepository Root1
 	UserService *-- SqlUserRepository : "Primary" IUserRepository
 	LightweightRoot o-- "PerBlock" FuncᐸIUserRepositoryᐳ : "Primary" FuncᐸIUserRepositoryᐳ
 	FuncᐸIUserRepositoryᐳ *-- SqlUserRepository : "Primary" IUserRepository
@@ -327,9 +327,9 @@ classDiagram
 	namespace Pure.DI.UsageTests.Hints.CheckForRootScenario {
 		class Composition {
 		<<partial>>
-		-LightweightRoot LightRoot133d
+		-LightweightRoot LightRoot
 		+IUserService Root
-		-IUserRepository Root133d1
+		-IUserRepository Root1
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object Resolve(Type type)

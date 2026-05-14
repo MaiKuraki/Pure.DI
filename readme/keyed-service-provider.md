@@ -333,9 +333,9 @@ Class diagram:
 classDiagram
 	PayPalGateway --|> IPaymentGateway : "PayPal"
 	OnlineOrderService --|> IOrderService : "Online"
-	Composition ..> LightweightRoot : LightweightRoot LightRoot133d
-	Composition ..> OnlineOrderService : IOrderService Root133d1
-	Composition ..> PayPalGateway : IPaymentGateway Root133d2
+	Composition ..> LightweightRoot : LightweightRoot LightRoot
+	Composition ..> OnlineOrderService : IOrderService Root1
+	Composition ..> PayPalGateway : IPaymentGateway Root2
 	OnlineOrderService o-- "Singleton" PayPalGateway : "PayPal" IPaymentGateway
 	LightweightRoot o-- "PerBlock" FuncᐸIPaymentGatewayᐳ : "PayPal" FuncᐸIPaymentGatewayᐳ
 	LightweightRoot o-- "PerBlock" FuncᐸIOrderServiceᐳ : "Online" FuncᐸIOrderServiceᐳ
@@ -352,9 +352,9 @@ classDiagram
 	namespace Pure.DI.UsageTests.BCL.KeyedServiceProviderScenario {
 		class Composition {
 		<<partial>>
-		-LightweightRoot LightRoot133d
-		-IPaymentGateway Root133d2
-		-IOrderService Root133d1
+		-LightweightRoot LightRoot
+		-IPaymentGateway Root2
+		-IOrderService Root1
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object GetService(Type type)

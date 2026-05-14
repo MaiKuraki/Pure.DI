@@ -313,9 +313,9 @@ Class diagram:
 classDiagram
 	TemperatureSensor --|> ISensor : "LivingRoom"
 	Thermostat --|> IThermostat
-	Composition ..> LightweightRoot : LightweightRoot LightRoot133d
-	Composition ..> Thermostat : IThermostat Root133d1
-	Composition ..> TemperatureSensor : ISensor Root133d2
+	Composition ..> LightweightRoot : LightweightRoot LightRoot
+	Composition ..> Thermostat : IThermostat Root1
+	Composition ..> TemperatureSensor : ISensor Root2
 	Thermostat o-- "Singleton" TemperatureSensor : "LivingRoom" ISensor
 	LightweightRoot o-- "PerBlock" FuncᐸISensorᐳ : "LivingRoom" FuncᐸISensorᐳ
 	LightweightRoot o-- "PerBlock" FuncᐸIThermostatᐳ : FuncᐸIThermostatᐳ
@@ -332,9 +332,9 @@ classDiagram
 	namespace Pure.DI.UsageTests.BCL.ServiceCollectionScenario {
 		class Composition {
 		<<partial>>
-		-LightweightRoot LightRoot133d
-		-ISensor Root133d2
-		-IThermostat Root133d1
+		-LightweightRoot LightRoot
+		-ISensor Root2
+		-IThermostat Root1
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object Resolve(Type type)

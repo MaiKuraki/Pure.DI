@@ -419,9 +419,9 @@ classDiagram
 	Composition --|> IDisposable
 	Configuration --|> IConfiguration
 	Session --|> ISession
-	Composition ..> LightweightRoot : LightweightRoot LightRoot133d
-	Composition ..> Session : ISession Root133d1
-	Composition ..> Configuration : IConfiguration Root133d2
+	Composition ..> LightweightRoot : LightweightRoot LightRoot
+	Composition ..> Session : ISession Root1
+	Composition ..> Configuration : IConfiguration Root2
 	Session o-- "Singleton" Configuration : IConfiguration
 	LightweightRoot o-- "PerBlock" FuncᐸIConfigurationᐳ : FuncᐸIConfigurationᐳ
 	LightweightRoot o-- "PerBlock" FuncᐸISessionᐳ : FuncᐸISessionᐳ
@@ -438,9 +438,9 @@ classDiagram
 	namespace Pure.DI.UsageTests.BCL.ServiceProviderWithScopeScenario {
 		class Composition {
 		<<partial>>
-		-LightweightRoot LightRoot133d
-		-IConfiguration Root133d2
-		-ISession Root133d1
+		-LightweightRoot LightRoot
+		-IConfiguration Root2
+		-ISession Root1
 		+ T ResolveᐸTᐳ()
 		+ T ResolveᐸTᐳ(object? tag)
 		+ object GetService(Type type)

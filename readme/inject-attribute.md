@@ -78,23 +78,12 @@ The following partial class will be generated:
 ```c#
 partial class PersonComposition
 {
-#if NET9_0_OR_GREATER
-  private readonly Lock _lock;
-#else
-  private readonly Object _lock;
-#endif
-
   private readonly int _argPersonId;
 
   [OrdinalAttribute(128)]
   public PersonComposition(int personId)
   {
     _argPersonId = personId;
-#if NET9_0_OR_GREATER
-    _lock = new Lock();
-#else
-    _lock = new Object();
-#endif
   }
 
   public IPerson Person
