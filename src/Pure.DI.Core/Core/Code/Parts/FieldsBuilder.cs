@@ -15,7 +15,7 @@ sealed class FieldsBuilder(
         var code = composition.Code;
         var membersCounter = composition.MembersCount;
         var compilation = composition.Compilation;
-        var nullable = compilation.Options.NullableContextOptions == NullableContextOptions.Disable ? "" : "?";
+        var isNullableEnabled = compilation.Options.NullableContextOptions != NullableContextOptions.Disable;
         var isAnyConstructorEnabled = constructors.IsEnabled(composition.Source);
         var skipFieldsInit = isAnyConstructorEnabled && !composition.IsScopeMethod;
         if (isAnyConstructorEnabled && composition.Singletons.Length > 0)
@@ -62,6 +62,7 @@ sealed class FieldsBuilder(
                 }
                 else
                 {
+                    var nullable = isNullableEnabled && singletonField.InstanceType.NullableAnnotation != NullableAnnotation.Annotated ? "?" : "";
                     code.AppendLine($"[{Names.NonSerializedAttributeTypeName}] private {typeResolver.Resolve(composition.Setup, singletonField.InstanceType)}{nullable} {singletonField.Name};");
                 }
 

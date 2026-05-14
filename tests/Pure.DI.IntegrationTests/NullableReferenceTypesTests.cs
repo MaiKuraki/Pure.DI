@@ -6285,6 +6285,242 @@ public class NullableReferenceTypesTests
     }
 
     [Fact]
+    public async Task ShouldNotGenerateDoubleNullableForNullableGenericDependencySingleton()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Microsoft.Extensions.Logging;
+                           using Pure.DI;
+
+                           namespace Microsoft.Extensions.Logging
+                           {
+                               public interface ILogger<T>
+                               {
+                               }
+
+                               public interface ILoggerFactory
+                               {
+                                   ILogger<T> CreateLogger<T>();
+                               }
+
+                               public interface ILoggingBuilder
+                               {
+                               }
+
+                               public sealed class LoggerFactory: ILoggerFactory
+                               {
+                                   public static ILoggerFactory Create(Action<ILoggingBuilder> configure) => new LoggerFactory();
+
+                                   public ILogger<T> CreateLogger<T>() => new Logger<T>();
+                               }
+
+                               public sealed class Logger<T>: ILogger<T>
+                               {
+                               }
+                           }
+
+                           namespace PureDiNullable
+                           {
+                               public class Class
+                               {
+                                   public Class(ILogger<Class>? logger) => Logger = logger;
+
+                                   public ILogger<Class>? Logger { get; }
+                               }
+
+                               partial class Composition
+                               {
+                                   private void Setup() =>
+                                       DI.Setup(nameof(Composition))
+                                           .Root<Class>(nameof(Class))
+                                           .Bind<ILoggerFactory>().As(Lifetime.Singleton).To(_ => LoggerFactory.Create(builder => { }))
+                                           .Bind<ILogger<TT>>().As(Lifetime.Singleton).To(ctx =>
+                                           {
+                                               ctx.Inject<ILoggerFactory>(out var factory);
+                                               return factory.CreateLogger<TT>();
+                                           });
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       Console.WriteLine(composition.Class.Logger is not null);
+                                   }
+                               }
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+        result.GeneratedCode.Contains("?? _singleton", StringComparison.Ordinal).ShouldBeFalse(result);
+        result.GeneratedCode.Contains("Microsoft.Extensions.Logging.ILogger<global::PureDiNullable.Class>? _singleton", StringComparison.Ordinal).ShouldBeTrue(result);
+    }
+
+    [Fact]
+    public async Task ShouldNotGenerateDoubleNullableForNullableGenericDependencyScoped()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IBox<T>
+                           {
+                           }
+
+                           class Box<T>: IBox<T>
+                           {
+                           }
+
+                           class Service
+                           {
+                               public Service(IBox<string>? box) => Box = box;
+
+                               public IBox<string>? Box { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<IBox<TT>>().As(Lifetime.Scoped).To<Box<TT>>()
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Service.Box is not null);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+        result.GeneratedCode.Contains("?? _scoped", StringComparison.Ordinal).ShouldBeFalse(result);
+        result.GeneratedCode.Contains("Sample.Box<string>? _scoped", StringComparison.Ordinal).ShouldBeTrue(result);
+    }
+
+    [Fact]
+    public async Task ShouldNotGenerateDoubleNullableForNullableArrayDependencySingleton()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IDependency
+                           {
+                           }
+
+                           class Dependency: IDependency
+                           {
+                           }
+
+                           class Service
+                           {
+                               public Service(IDependency[]? dependencies) => Dependencies = dependencies;
+
+                               public IDependency[]? Dependencies { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<IDependency>().To<Dependency>()
+                                       .Bind<IDependency[]?>().As(Lifetime.Singleton).To(ctx =>
+                                       {
+                                           ctx.Inject(out IDependency[] dependencies);
+                                           return dependencies;
+                                       })
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Service.Dependencies is { Length: 1 });
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+        result.GeneratedCode.Contains("[]?? _singleton", StringComparison.Ordinal).ShouldBeFalse(result);
+        result.GeneratedCode.Contains("IDependency[]? _singleton", StringComparison.Ordinal).ShouldBeTrue(result);
+    }
+
+    [Fact]
+    public async Task ShouldGenerateNullableBackingFieldForNonNullableGenericDependencySingleton()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           #nullable enable annotations
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample;
+
+                           interface IBox<T>
+                           {
+                           }
+
+                           class Box<T>: IBox<T>
+                           {
+                           }
+
+                           class Service
+                           {
+                               public Service(IBox<string> box) => Box = box;
+
+                               public IBox<string> Box { get; }
+                           }
+
+                           static class Setup
+                           {
+                               private static void SetupComposition()
+                               {
+                                   DI.Setup("Composition")
+                                       .Bind<IBox<TT>>().As(Lifetime.Singleton).To<Box<TT>>()
+                                       .Root<Service>("Service");
+                               }
+                           }
+
+                           public class Program
+                           {
+                               public static void Main() => Console.WriteLine(new Composition().Service.Box is not null);
+                           }
+                           """.RunAsync(new Options { LanguageVersion = LanguageVersion.CSharp10 });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+        result.GeneratedCode.Contains("Sample.Box<string>? _singleton", StringComparison.Ordinal).ShouldBeTrue(result);
+    }
+
+    [Fact]
     public async Task ShouldSupportNullableOnCannotResolvePartialMethod()
     {
         // Given
