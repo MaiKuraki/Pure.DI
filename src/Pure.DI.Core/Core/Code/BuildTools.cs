@@ -66,6 +66,11 @@ sealed class BuildTools(
         var code = new Lines();
         if (ctx.IsLockRequired && accLines.Count > 0)
         {
+            if (!ctx.RootContext.Root.IsStatic)
+            {
+                ctx.RootContext.LockIsInUse = true;
+            }
+
             locks.AddLockStatements(ctx.RootContext.Root.IsStatic, code, false);
             code.AppendLine(BlockStart);
             code.IncIndent();

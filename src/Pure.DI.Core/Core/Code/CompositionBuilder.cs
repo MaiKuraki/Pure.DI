@@ -26,6 +26,7 @@ class CompositionBuilder(
         var classArgs = new List<VarDeclaration>();
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         var isThreadSafe = false;
+        var isInstanceLockUsed = false;
         var isAnyConstructorEnabled = constructors.IsEnabled(graph);
         foreach (var root in graph.Roots)
         {
@@ -85,6 +86,7 @@ class CompositionBuilder(
                 else
                 {
                     isThreadSafe |= isThreadSafeRoot;
+                    isInstanceLockUsed |= ctx.LockIsInUse;
                 }
 
                 lines.AppendLine($"return {rootVarInjection.Var.CodeExpression};");
@@ -188,7 +190,7 @@ class CompositionBuilder(
         }
 
         var classArgsToStore = varDeclarationTools.Sort(classArgs).Distinct().ToImmutableArray();
-        var isLockRequired = isThreadSafe || HasRootOverrides(graph);
+        var isLockRequired = isInstanceLockUsed;
         var requiresParentScope = singletons.Length > 0
                                   || classArgsToStore.Length > 0
                                   || setupContextArgsToCopy.Length > 0
@@ -220,9 +222,6 @@ class CompositionBuilder(
         var diagram = classDiagramBuilder.Build(composition);
         return composition with { Diagram = diagram };
     }
-
-    private bool HasRootOverrides(DependencyGraph graph) =>
-        graph.Roots.Any(root => overridesRegistry.GetOverrides(root).Any());
 
     private static ImmutableArray<string> GetSetupContextMembersToCopy(ImmutableArray<SetupContextMembers> setupContextMembers)
     {

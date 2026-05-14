@@ -152,6 +152,11 @@ sealed class RootCodeBuilder(
         lines.AppendLine($"if ({checkExpression})");
         if (isLockRequired)
         {
+            if (!ctx.RootContext.Root.IsStatic)
+            {
+                ctx.RootContext.LockIsInUse = true;
+            }
+
             lines.IncIndent();
             locks.AddLockStatements(ctx.RootContext.Root.IsStatic, lines, false);
             lines.IncIndent();

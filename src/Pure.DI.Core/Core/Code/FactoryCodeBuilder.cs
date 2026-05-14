@@ -190,6 +190,11 @@ sealed class FactoryCodeBuilder(
                 var.Declaration.IsDeclared = true;
             }
 
+            if (!ctx.RootContext.Root.IsStatic)
+            {
+                ctx.RootContext.LockIsInUse = true;
+            }
+
             locks.AddLockStatements(ctx.RootContext.Root.IsStatic, lines, false);
             lines.AppendLine(BlockStart);
             lines.IncIndent();
