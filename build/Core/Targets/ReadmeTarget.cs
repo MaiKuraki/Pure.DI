@@ -25,6 +25,7 @@ class ReadmeTarget(
     private const string ContributingTemplateFile = "ContributingTemplate.md";
     private const string ReadmeFile = "README.md";
     private const string ContributingFile = "CONTRIBUTING.md";
+    private static readonly string Salt = $"{DateTime.Now.DayOfYear}d";
     private static readonly List<string> Reports =
     [
         "Transient", "Singleton", "Func", "Enum", "Array"
@@ -261,6 +262,8 @@ class ReadmeTarget(
             return;
         }
 
+        classDiagram = classDiagram.Replace(Salt, "");
+
         await writer.WriteLineAsync("Class diagram:");
         await writer.WriteLineAsync();
         await writer.WriteLineAsync("```mermaid");
@@ -270,7 +273,6 @@ class ReadmeTarget(
 
     private static async Task AddExample(string logsDirectory, string exampleSearchPattern, TextWriter writer)
     {
-        var salt = $"{DateTime.Now.DayOfYear}d";
         foreach (var generatedCodeFile in Directory.GetFiles(Path.Combine(logsDirectory, "Pure.DI", "Pure.DI.SourceGenerator"), exampleSearchPattern).OrderBy(i => i))
         {
             var ns = string.Join('.', Path.GetFileName(generatedCodeFile).Split('.').AsEnumerable().Reverse().Skip(3).Reverse()) + ".";
@@ -313,7 +315,7 @@ class ReadmeTarget(
                         .Replace("System.", "")
                         .Replace("Pure.DI.", "")
                         .Replace("Benchmarks.Model.", "")
-                        .Replace(salt, "")
+                        .Replace(Salt, "")
                         .Replace("(MethodImplOptions)256", "MethodImplOptions.AggressiveInlining")
                         .Replace("(MethodImplOptions)8", "MethodImplOptions.NoInlining")
                         .Replace("[NonSerializedAttribute] ", "")));
