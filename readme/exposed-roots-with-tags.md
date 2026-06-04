@@ -80,7 +80,7 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      OtherAssembly.IMyService transientIMyService55;
+      OtherAssembly.IMyService transientIMyService;
       if (_singletonCompositionWithTagsInOtherProject62 is null)
         lock (_lock)
           if (_singletonCompositionWithTagsInOtherProject62 is null)
@@ -88,9 +88,9 @@ partial class Composition
             _singletonCompositionWithTagsInOtherProject62 = new OtherAssembly.CompositionWithTagsInOtherProject();
           }
 
-      OtherAssembly.CompositionWithTagsInOtherProject localInstance_1182D1275 = _singletonCompositionWithTagsInOtherProject62;
-      transientIMyService55 = localInstance_1182D1275.MyService;
-      return new Program(transientIMyService55);
+      OtherAssembly.CompositionWithTagsInOtherProject localInstance_1182D127 = _singletonCompositionWithTagsInOtherProject62;
+      transientIMyService = localInstance_1182D127.MyService;
+      return new Program(transientIMyService);
     }
   }
 }

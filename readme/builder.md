@@ -97,13 +97,13 @@ partial class Composition
   public Player Equip(Player buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    Player transientPlayer243;
+    Player transientPlayer;
     Player localBuildingInstance = buildingInstance;
-    Guid transientGuid246 = Guid.NewGuid();
+    Guid transientGuid = Guid.NewGuid();
     localBuildingInstance.Weapon = new PhotonBlaster();
-    localBuildingInstance.SetId(transientGuid246);
-    transientPlayer243 = localBuildingInstance;
-    return transientPlayer243;
+    localBuildingInstance.SetId(transientGuid);
+    transientPlayer = localBuildingInstance;
+    return transientPlayer;
   }
 }
 ```

@@ -105,21 +105,21 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      IGps transientIGps236;
+      IGps transientIGps;
       EnsureDeviceFeatureProviderExists();
-      DeviceFeatureProvider localInstance_1182D1277 = _singletonDeviceFeatureProvider62;
-      transientIGps236 = localInstance_1182D1277.Gps;
-      Func<ICamera> perBlockFunc237 = new Func<ICamera>(
+      DeviceFeatureProvider localInstance_1182D127 = _singletonDeviceFeatureProvider62;
+      transientIGps = localInstance_1182D127.Gps;
+      Func<ICamera> perBlockFuncICamera = new Func<ICamera>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        ICamera transientICamera239;
+        ICamera transientICamera;
         EnsureDeviceFeatureProviderExists();
-        DeviceFeatureProvider localInstance_1182D1278 = _singletonDeviceFeatureProvider62;
-        transientICamera239 = localInstance_1182D1278.Camera;
-        return transientICamera239;
+        DeviceFeatureProvider localInstance_1182D1271 = _singletonDeviceFeatureProvider62;
+        transientICamera = localInstance_1182D1271.Camera;
+        return transientICamera;
       });
-      return new PhotoService(transientIGps236, perBlockFunc237);
+      return new PhotoService(transientIGps, perBlockFuncICamera);
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       void EnsureDeviceFeatureProviderExists()
       {

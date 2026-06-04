@@ -181,12 +181,12 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      DatabaseConnectionSettings transientDatabaseConnectionSettings27 = ConnectionSettings;
-      string transientString28 = LogLevel;
-      int transientInt3229 = MaxRetries;
-      int transientInt3230 = GetDefaultTimeout();
-      bool transientBoolean31 = EnableDiagnostics;
-      return new DataService(transientDatabaseConnectionSettings27, transientString28, transientInt3229, transientInt3230, transientBoolean31);
+      DatabaseConnectionSettings transientDatabaseConnectionSettings = ConnectionSettings;
+      string transientString = LogLevel;
+      int transientInt32 = MaxRetries;
+      int transientInt321 = GetDefaultTimeout();
+      bool transientBoolean = EnableDiagnostics;
+      return new DataService(transientDatabaseConnectionSettings, transientString, transientInt32, transientInt321, transientBoolean);
     }
   }
 

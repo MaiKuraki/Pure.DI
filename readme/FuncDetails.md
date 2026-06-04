@@ -84,13 +84,13 @@ partial class Func
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public partial CompositionRoot TestPureDIByCR()
   {
-    Func<IService3> perBlockFunc96 = new Func<IService3>(
+    Func<IService3> perBlockFuncIService3 = new Func<IService3>(
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
       return new Service3(new Service4(), new Service4());
     });
-    return new CompositionRoot(new Service1(new Service2Func(perBlockFunc96)), new Service2Func(perBlockFunc96), new Service2Func(perBlockFunc96), new Service2Func(perBlockFunc96), new Service3(new Service4(), new Service4()), new Service4(), new Service4());
+    return new CompositionRoot(new Service1(new Service2Func(perBlockFuncIService3)), new Service2Func(perBlockFuncIService3), new Service2Func(perBlockFuncIService3), new Service2Func(perBlockFuncIService3), new Service3(new Service4(), new Service4()), new Service4(), new Service4());
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]

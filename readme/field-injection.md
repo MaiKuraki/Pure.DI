@@ -82,9 +82,9 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var transientSmartKitchen295 = new SmartKitchen();
-      transientSmartKitchen295.CoffeeMachineImpl = new CoffeeMachine();
-      return transientSmartKitchen295;
+      var transientSmartKitchen = new SmartKitchen();
+      transientSmartKitchen.CoffeeMachineImpl = new CoffeeMachine();
+      return transientSmartKitchen;
     }
   }
 }

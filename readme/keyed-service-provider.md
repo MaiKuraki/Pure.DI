@@ -118,14 +118,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<IPaymentGateway> perBlockFunc421 = new Func<IPaymentGateway>(
+      Func<IPaymentGateway> perBlockFuncIPaymentGateway = new Func<IPaymentGateway>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
         EnsurePayPalGatewayPayPalExists();
         return _singletonPayPalGateway62;
       });
-      Func<IOrderService> perBlockFunc422 = new Func<IOrderService>(
+      Func<IOrderService> perBlockFuncIOrderService = new Func<IOrderService>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
@@ -134,8 +134,8 @@ partial class Composition
       });
       return new LightweightRoot()
       {
-        IPaymentGateway = perBlockFunc421,
-        IOrderService = perBlockFunc422
+        IPaymentGateway = perBlockFuncIPaymentGateway,
+        IOrderService = perBlockFuncIOrderService
       };
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       void EnsurePayPalGatewayPayPalExists()

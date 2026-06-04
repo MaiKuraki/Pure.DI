@@ -106,8 +106,8 @@ partial class Composition
               _singletonGraphicsAdapter62 = new GraphicsAdapter();
             }
 
-            GraphicsAdapter localInstance_1182D1279 = _singletonGraphicsAdapter62;
-            _singletonIGpu2147483112 = localInstance_1182D1279.HighPerfGpu;
+            GraphicsAdapter localInstance_1182D127 = _singletonGraphicsAdapter62;
+            _singletonIGpu2147483112 = localInstance_1182D127.HighPerfGpu;
           }
 
       return new RayTracer(_singletonIGpu2147483112);

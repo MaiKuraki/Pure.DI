@@ -141,7 +141,7 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<ILogger> perBlockFunc279 = new Func<ILogger>(
+      Func<ILogger> perBlockFuncILogger = new Func<ILogger>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
@@ -149,7 +149,7 @@ partial class Composition
       });
       return new LightweightRoot()
       {
-        ILogger2 = perBlockFunc279
+        ILogger2 = perBlockFuncILogger
       };
     }
   }

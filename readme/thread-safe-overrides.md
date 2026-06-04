@@ -153,13 +153,13 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<int, int, IOrderHandler> transientFunc143 =
+      Func<int, int, IOrderHandler> transientFuncInt32Int32IOrderHandler =
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       (localOrderId, localCustomerId) =>
       {
         // Retrieves a global processing token to be passed to the handler
-        ProcessingToken transientProcessingToken144 = new ProcessingToken("TOKEN-123");
-        ProcessingToken localToken = transientProcessingToken144;
+        ProcessingToken transientProcessingToken = new ProcessingToken("TOKEN-123");
+        ProcessingToken localToken = transientProcessingToken;
         // The factory is invoked in parallel, so we must lock
         // the context to safely perform overrides for the specific graph
         lock (_lock)
@@ -171,8 +171,8 @@ partial class Composition
           // Creates the handler with the overridden dependencies
           int overriddenInt32 = localOrderId;
           int overriddenInt321 = localCustomerId;
-          string overriddenString2 = $"Order:{localOrderId}-Cust:{localCustomerId}";
-          ProcessingToken overriddenProcessingToken3 = localToken;
+          string overriddenString = $"Order:{localOrderId}-Cust:{localCustomerId}";
+          ProcessingToken overriddenProcessingToken = localToken;
           if (_singletonTimeProvider63 is null)
             lock (_lock)
               if (_singletonTimeProvider63 is null)
@@ -180,10 +180,10 @@ partial class Composition
                 _singletonTimeProvider63 = new TimeProvider();
               }
 
-          return new OrderHandler(overriddenString2, _singletonTimeProvider63, overriddenInt32, overriddenInt321, overriddenProcessingToken3);
+          return new OrderHandler(overriddenString, _singletonTimeProvider63, overriddenInt32, overriddenInt321, overriddenProcessingToken);
         }
       };
-      return new OrderBatchProcessor(transientFunc143);
+      return new OrderBatchProcessor(transientFuncInt32Int32IOrderHandler);
     }
   }
 }

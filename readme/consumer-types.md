@@ -114,17 +114,17 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Serilog.ILogger transientILogger15;
+      Serilog.ILogger transientILogger1;
       Serilog.ILogger localLogger = _argLogger;
       // Using ConsumerTypes to get the type of the consumer.
       // This allows us to create a logger with a context specific to the consuming class.
-      transientILogger15 = localLogger.ForContext(new Type[3] { typeof(PaymentGateway), typeof(OrderProcessing), typeof(Composition) }[0]);
-      Serilog.ILogger transientILogger13;
+      transientILogger1 = localLogger.ForContext(new Type[3] { typeof(PaymentGateway), typeof(OrderProcessing), typeof(Composition) }[0]);
+      Serilog.ILogger transientILogger;
       Serilog.ILogger localLogger1 = _argLogger;
       // Using ConsumerTypes to get the type of the consumer.
       // This allows us to create a logger with a context specific to the consuming class.
-      transientILogger13 = localLogger1.ForContext(new Type[2] { typeof(OrderProcessing), typeof(Composition) }[0]);
-      return new OrderProcessing(transientILogger13, new PaymentGateway(transientILogger15));
+      transientILogger = localLogger1.ForContext(new Type[2] { typeof(OrderProcessing), typeof(Composition) }[0]);
+      return new OrderProcessing(transientILogger, new PaymentGateway(transientILogger1));
     }
   }
 }

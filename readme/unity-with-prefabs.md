@@ -189,40 +189,40 @@ partial class Scope: IDisposable
   public Clock BuildUp(Clock buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    Clock transientClock671;
-    Clock localBuildingInstance18 = buildingInstance;
+    Clock transientClock;
+    Clock localBuildingInstance = buildingInstance;
     if (_singletonClockService63 is null)
       lock (_lock)
         if (_singletonClockService63 is null)
         {
-          ClockConfig transientClockConfig673 = clockConfig;
-          _singletonClockService63 = new ClockService(transientClockConfig673);
+          ClockConfig transientClockConfig = clockConfig;
+          _singletonClockService63 = new ClockService(transientClockConfig);
           _disposables[_disposeIndex++] = _singletonClockService63;
         }
 
-    localBuildingInstance18.ClockService = _singletonClockService63;
-    transientClock671 = localBuildingInstance18;
-    return transientClock671;
+    localBuildingInstance.ClockService = _singletonClockService63;
+    transientClock = localBuildingInstance;
+    return transientClock;
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public ClockDigital BuildUp(ClockDigital buildingInstance)
   {
     if (buildingInstance is null) throw new ArgumentNullException(nameof(buildingInstance));
-    ClockDigital transientClockDigital667;
-    ClockDigital localBuildingInstance17 = buildingInstance;
+    ClockDigital transientClockDigital;
+    ClockDigital localBuildingInstance = buildingInstance;
     if (_singletonClockService63 is null)
       lock (_lock)
         if (_singletonClockService63 is null)
         {
-          ClockConfig transientClockConfig670 = clockConfig;
-          _singletonClockService63 = new ClockService(transientClockConfig670);
+          ClockConfig transientClockConfig = clockConfig;
+          _singletonClockService63 = new ClockService(transientClockConfig);
           _disposables[_disposeIndex++] = _singletonClockService63;
         }
 
-    localBuildingInstance17.ClockService = _singletonClockService63;
-    transientClockDigital667 = localBuildingInstance17;
-    return transientClockDigital667;
+    localBuildingInstance.ClockService = _singletonClockService63;
+    transientClockDigital = localBuildingInstance;
+    return transientClockDigital;
   }
 
   #pragma warning disable CS0162
@@ -263,8 +263,8 @@ partial class Scope: IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      ClockConfig transientClockConfig676 = clockConfig;
-      return new ClockManager(this, transientClockConfig676);
+      ClockConfig transientClockConfig = clockConfig;
+      return new ClockManager(this, transientClockConfig);
     }
   }
 

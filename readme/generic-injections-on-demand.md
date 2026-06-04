@@ -82,13 +82,13 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<IWorker<int>> perBlockFunc525 = new Func<IWorker<int>>(
+      Func<IWorker<int>> perBlockFuncIWorkerInt32 = new Func<IWorker<int>>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
         return new Worker<int>();
       });
-      return new Distributor<int>(perBlockFunc525);
+      return new Distributor<int>(perBlockFuncIWorkerInt32);
     }
   }
 }

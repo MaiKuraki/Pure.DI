@@ -103,13 +103,13 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      FileLogger transientFileLogger352;
-      FileLogger localLogger4 = new FileLogger();
-      DateTime transientDateTime354 = DateTime.Today;
-      DateTime localDate = transientDateTime354;
-      localLogger4.Init($"app-{localDate:yyyy-MM-dd}.log");
-      transientFileLogger352 = localLogger4;
-      return new OrderProcessingService(transientFileLogger352);
+      FileLogger transientFileLogger;
+      FileLogger localLogger = new FileLogger();
+      DateTime transientDateTime = DateTime.Today;
+      DateTime localDate = transientDateTime;
+      localLogger.Init($"app-{localDate:yyyy-MM-dd}.log");
+      transientFileLogger = localLogger;
+      return new OrderProcessingService(transientFileLogger);
     }
   }
 }

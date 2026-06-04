@@ -106,15 +106,15 @@ partial class DeepComposition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Service transientService80;
+      Service transientService;
       lock (_lock)
       {
         int overriddenInt32 = 42;
-        Service localService1 = new Service(overriddenInt32, new Dependency(overriddenInt32));
-        transientService80 = localService1;
+        Service localService = new Service(overriddenInt32, new Dependency(overriddenInt32));
+        transientService = localService;
       }
 
-      return transientService80;
+      return transientService;
     }
   }
 
@@ -257,16 +257,16 @@ partial class ShallowComposition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Service transientService85;
+      Service transientService;
       lock (_lock)
       {
         int overriddenInt32 = 42;
-        int transientInt3289 = 7;
-        Service localService2 = new Service(overriddenInt32, new Dependency(transientInt3289));
-        transientService85 = localService2;
+        int transientInt32 = 7;
+        Service localService = new Service(overriddenInt32, new Dependency(transientInt32));
+        transientService = localService;
       }
 
-      return transientService85;
+      return transientService;
     }
   }
 

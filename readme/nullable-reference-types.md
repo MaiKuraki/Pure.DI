@@ -121,12 +121,12 @@ partial class Composition
   public IReportService CreateReportService(string? connectionString)
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerable<IDatabase?> EnumerationOf_perBlockIEnumerable313()
+    IEnumerable<IDatabase?> EnumerationOf_perBlockIEnumerableIDatabase()
     {
       yield return new Database();
     }
 
-    return new ReportService(_argDefaultTitle, connectionString, new Database(), EnumerationOf_perBlockIEnumerable313());
+    return new ReportService(_argDefaultTitle, connectionString, new Database(), EnumerationOf_perBlockIEnumerableIDatabase());
   }
 }
 ```

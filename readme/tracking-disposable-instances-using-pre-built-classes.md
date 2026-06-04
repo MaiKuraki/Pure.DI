@@ -163,37 +163,37 @@ partial class Composition: IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      var perBlockOwn176 = new Abstractions.Own();
-      Func<Abstractions.Own<IDbConnection>> perBlockFunc174 = new Func<Abstractions.Own<IDbConnection>>(
+      var perBlockOwn = new Abstractions.Own();
+      Func<Abstractions.Own<IDbConnection>> perBlockFuncOwnIDbConnection = new Func<Abstractions.Own<IDbConnection>>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        Abstractions.Own<IDbConnection> perBlockOwn177;
+        Abstractions.Own<IDbConnection> perBlockOwnIDbConnection;
         // Creates the owner of an instance
-        Abstractions.Own localOwn = perBlockOwn176;
-        var transientDbConnection178 = new DbConnection();
+        Abstractions.Own localOwn = perBlockOwn;
+        var transientDbConnection = new DbConnection();
         lock (_lock)
         {
-          perBlockOwn176.Add(transientDbConnection178);
+          perBlockOwn.Add(transientDbConnection);
         }
 
-        IDbConnection localValue12 = transientDbConnection178;
-        perBlockOwn177 = new Abstractions.Own<IDbConnection>(localValue12, localOwn);
+        IDbConnection localValue1 = transientDbConnection;
+        perBlockOwnIDbConnection = new Abstractions.Own<IDbConnection>(localValue1, localOwn);
         lock (_lock)
         {
-          perBlockOwn176.Add(perBlockOwn177);
+          perBlockOwn.Add(perBlockOwnIDbConnection);
         }
 
-        return perBlockOwn177;
+        return perBlockOwnIDbConnection;
       });
-      var perBlockOwn179 = new Abstractions.Own();
-      Func<Abstractions.Own<IDbConnection>> perBlockFunc175 = new Func<Abstractions.Own<IDbConnection>>(
+      var perBlockOwn1 = new Abstractions.Own();
+      Func<Abstractions.Own<IDbConnection>> perBlockFuncOwnIDbConnection1 = new Func<Abstractions.Own<IDbConnection>>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        Abstractions.Own<IDbConnection> perBlockOwn180;
+        Abstractions.Own<IDbConnection> perBlockOwnIDbConnection1;
         // Creates the owner of an instance
-        Abstractions.Own localOwn1 = perBlockOwn179;
+        Abstractions.Own localOwn1 = perBlockOwn1;
         if (_singletonDbConnection63 is null)
           lock (_lock)
             if (_singletonDbConnection63 is null)
@@ -202,16 +202,16 @@ partial class Composition: IDisposable
               _disposables[_disposeIndex++] = _singletonDbConnection63;
             }
 
-        IDbConnection localValue14 = _singletonDbConnection63;
-        perBlockOwn180 = new Abstractions.Own<IDbConnection>(localValue14, localOwn1);
+        IDbConnection localValue3 = _singletonDbConnection63;
+        perBlockOwnIDbConnection1 = new Abstractions.Own<IDbConnection>(localValue3, localOwn1);
         lock (_lock)
         {
-          perBlockOwn179.Add(perBlockOwn180);
+          perBlockOwn1.Add(perBlockOwnIDbConnection1);
         }
 
-        return perBlockOwn180;
+        return perBlockOwnIDbConnection1;
       });
-      return new DataService(perBlockFunc174, perBlockFunc175);
+      return new DataService(perBlockFuncOwnIDbConnection, perBlockFuncOwnIDbConnection1);
     }
   }
 

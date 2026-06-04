@@ -100,13 +100,13 @@ partial class Composition
     get
     {
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      IEnumerable<IMiddleware<string>> EnumerationOf_perBlockIEnumerable396()
+      IEnumerable<IMiddleware<string>> EnumerationOf_perBlockIEnumerableIMiddlewareString()
       {
         yield return new LoggingMiddleware<string>();
         yield return new MetricsMiddleware<string>();
       }
 
-      return new Pipeline<string>(EnumerationOf_perBlockIEnumerable396());
+      return new Pipeline<string>(EnumerationOf_perBlockIEnumerableIMiddlewareString());
     }
   }
 
@@ -116,13 +116,13 @@ partial class Composition
     get
     {
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      IEnumerable<IMiddleware<int>> EnumerationOf_perBlockIEnumerable400()
+      IEnumerable<IMiddleware<int>> EnumerationOf_perBlockIEnumerableIMiddlewareInt32()
       {
         yield return new LoggingMiddleware<int>();
         yield return new MetricsMiddleware<int>();
       }
 
-      return new Pipeline<int>(EnumerationOf_perBlockIEnumerable400());
+      return new Pipeline<int>(EnumerationOf_perBlockIEnumerableIMiddlewareInt32());
     }
   }
 }

@@ -104,17 +104,17 @@ partial class Composition
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public IDashboardService GetDashboard(CancellationToken cancellationToken)
   {
-    Task<IUserPreferences> transientTask430;
-    Func<IUserPreferences> perBlockFunc431 = new Func<IUserPreferences>(
+    Task<IUserPreferences> transientTaskIUserPreferences;
+    Func<IUserPreferences> perBlockFuncIUserPreferences = new Func<IUserPreferences>(
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
       return new UserPreferences();
     });
-    Func<IUserPreferences> localFactory4 = perBlockFunc431;
-    CancellationToken localCancellationToken1 = cancellationToken;
-    transientTask430 = new Task<IUserPreferences>(localFactory4, localCancellationToken1);
-    return new DashboardService(transientTask430);
+    Func<IUserPreferences> localFactory = perBlockFuncIUserPreferences;
+    CancellationToken localCancellationToken = cancellationToken;
+    transientTaskIUserPreferences = new Task<IUserPreferences>(localFactory, localCancellationToken);
+    return new DashboardService(transientTaskIUserPreferences);
   }
 }
 ```

@@ -103,14 +103,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<ILogger> perBlockFunc442 = new Func<ILogger>(
+      Func<ILogger> perBlockFuncILogger = new Func<ILogger>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
         EnsureConsoleLoggerExists();
         return _singletonConsoleLogger62;
       });
-      Func<IOrderService> perBlockFunc443 = new Func<IOrderService>(
+      Func<IOrderService> perBlockFuncIOrderService = new Func<IOrderService>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
@@ -119,8 +119,8 @@ partial class Composition
       });
       return new LightweightRoot()
       {
-        ILogger1 = perBlockFunc442,
-        IOrderService1 = perBlockFunc443
+        ILogger1 = perBlockFuncILogger,
+        IOrderService1 = perBlockFuncIOrderService
       };
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       void EnsureConsoleLoggerExists()

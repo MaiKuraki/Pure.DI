@@ -143,21 +143,21 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<Request, Handler> transientFunc690 = request =>
+      Func<Request, Handler> transientFuncRequestHandler = request =>
       {
         // Outer override applies to the request handler and its main workflow.
-        IRequestContext overriddenIRequestContext6 = new RequestContext(request.TenantId, request.UserId, false);
-        Func<IRepository> transientFunc694 =
+        IRequestContext overriddenIRequestContext = new RequestContext(request.TenantId, request.UserId, false);
+        Func<IRepository> transientFuncIRepository =
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         () =>
         {
           // Inner override applies to repository dependencies only.
-          IRequestContext overriddenIRequestContext6 = RequestContext.System;
-          return new Repository(overriddenIRequestContext6);
+          IRequestContext overriddenIRequestContext = RequestContext.System;
+          return new Repository(overriddenIRequestContext);
         };
-        return new Handler(new Service(overriddenIRequestContext6, transientFunc694, new AuditWriter(overriddenIRequestContext6)));
+        return new Handler(new Service(overriddenIRequestContext, transientFuncIRepository, new AuditWriter(overriddenIRequestContext)));
       };
-      return transientFunc690;
+      return transientFuncRequestHandler;
     }
   }
 

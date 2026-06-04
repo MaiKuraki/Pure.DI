@@ -112,8 +112,8 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Cache transientCache103 = new Cache(typeof(IOrderService));
-      return new OrderService(transientCache103);
+      Cache transientCache = new Cache(typeof(IOrderService));
+      return new OrderService(transientCache);
     }
   }
 
@@ -122,8 +122,8 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Cache transientCache101 = new Cache(typeof(IInventoryService));
-      return new InventoryService(transientCache101);
+      Cache transientCache = new Cache(typeof(IInventoryService));
+      return new InventoryService(transientCache);
     }
   }
 }

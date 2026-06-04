@@ -97,32 +97,32 @@ partial class Composition
   public Task<IQuery<T2, bool>> GetStatusQueryAsync<T2>(CancellationToken cancellationToken)
     where T2: IDisposable
   {
-    Task<IQuery<T2, bool>> transientTask485;
+    Task<IQuery<T2, bool>> transientTaskIQueryTTDisposableBoolean;
     // Injects an instance factory
-    Func<IQuery<T2, bool>> perBlockFunc486 = new Func<IQuery<T2, bool>>(
+    Func<IQuery<T2, bool>> perBlockFuncIQueryTTDisposableBoolean = new Func<IQuery<T2, bool>>(
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
-      StatusQuery<T2> transientStatusQuery488;
+      StatusQuery<T2> transientStatusQueryTTDisposable;
       IConnectionProvider<T2> localConnectionProvider = new ConnectionProvider<T2>();
-      transientStatusQuery488 = new StatusQuery<T2>(localConnectionProvider);
-      return transientStatusQuery488;
+      transientStatusQueryTTDisposable = new StatusQuery<T2>(localConnectionProvider);
+      return transientStatusQueryTTDisposable;
     });
-    Func<IQuery<T2, bool>> localFactory6 = perBlockFunc486;
+    Func<IQuery<T2, bool>> localFactory = perBlockFuncIQueryTTDisposableBoolean;
     // Injects a task factory creating and scheduling task objects
-    TaskFactory<IQuery<T2, bool>> perBlockTaskFactory487;
-    CancellationToken localCancellationToken3 = cancellationToken;
-    TaskCreationOptions transientTaskCreationOptions491 = TaskCreationOptions.None;
-    TaskCreationOptions localTaskCreationOptions2 = transientTaskCreationOptions491;
-    TaskContinuationOptions transientTaskContinuationOptions492 = TaskContinuationOptions.None;
-    TaskContinuationOptions localTaskContinuationOptions2 = transientTaskContinuationOptions492;
-    TaskScheduler transientTaskScheduler493 = TaskScheduler.Default;
-    TaskScheduler localTaskScheduler2 = transientTaskScheduler493;
-    perBlockTaskFactory487 = new TaskFactory<IQuery<T2, bool>>(localCancellationToken3, localTaskCreationOptions2, localTaskContinuationOptions2, localTaskScheduler2);
-    TaskFactory<IQuery<T2, bool>> localTaskFactory2 = perBlockTaskFactory487;
+    TaskFactory<IQuery<T2, bool>> perBlockTaskFactoryIQueryTTDisposableBoolean;
+    CancellationToken localCancellationToken = cancellationToken;
+    TaskCreationOptions transientTaskCreationOptions = TaskCreationOptions.None;
+    TaskCreationOptions localTaskCreationOptions = transientTaskCreationOptions;
+    TaskContinuationOptions transientTaskContinuationOptions = TaskContinuationOptions.None;
+    TaskContinuationOptions localTaskContinuationOptions = transientTaskContinuationOptions;
+    TaskScheduler transientTaskScheduler = TaskScheduler.Default;
+    TaskScheduler localTaskScheduler = transientTaskScheduler;
+    perBlockTaskFactoryIQueryTTDisposableBoolean = new TaskFactory<IQuery<T2, bool>>(localCancellationToken, localTaskCreationOptions, localTaskContinuationOptions, localTaskScheduler);
+    TaskFactory<IQuery<T2, bool>> localTaskFactory = perBlockTaskFactoryIQueryTTDisposableBoolean;
     // Creates and starts a task using the instance factory
-    transientTask485 = localTaskFactory2.StartNew(localFactory6);
-    return transientTask485;
+    transientTaskIQueryTTDisposableBoolean = localTaskFactory.StartNew(localFactory);
+    return transientTaskIQueryTTDisposableBoolean;
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -130,29 +130,29 @@ partial class Composition
     where T2: IDisposable
     where T3: struct
   {
-    Task<IQuery<T2, T3>> transientTask494;
+    Task<IQuery<T2, T3>> transientTaskIQueryTTDisposableTTS;
     // Injects an instance factory
-    Func<IQuery<T2, T3>> perBlockFunc495 = new Func<IQuery<T2, T3>>(
+    Func<IQuery<T2, T3>> perBlockFuncIQueryTTDisposableTTS = new Func<IQuery<T2, T3>>(
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
       return new DataQuery<T2, T3>(new ConnectionProvider<T2>());
     });
-    Func<IQuery<T2, T3>> localFactory7 = perBlockFunc495;
+    Func<IQuery<T2, T3>> localFactory = perBlockFuncIQueryTTDisposableTTS;
     // Injects a task factory creating and scheduling task objects
-    TaskFactory<IQuery<T2, T3>> perBlockTaskFactory496;
-    CancellationToken localCancellationToken4 = cancellationToken;
-    TaskCreationOptions transientTaskCreationOptions500 = TaskCreationOptions.None;
-    TaskCreationOptions localTaskCreationOptions3 = transientTaskCreationOptions500;
-    TaskContinuationOptions transientTaskContinuationOptions501 = TaskContinuationOptions.None;
-    TaskContinuationOptions localTaskContinuationOptions3 = transientTaskContinuationOptions501;
-    TaskScheduler transientTaskScheduler502 = TaskScheduler.Default;
-    TaskScheduler localTaskScheduler3 = transientTaskScheduler502;
-    perBlockTaskFactory496 = new TaskFactory<IQuery<T2, T3>>(localCancellationToken4, localTaskCreationOptions3, localTaskContinuationOptions3, localTaskScheduler3);
-    TaskFactory<IQuery<T2, T3>> localTaskFactory3 = perBlockTaskFactory496;
+    TaskFactory<IQuery<T2, T3>> perBlockTaskFactoryIQueryTTDisposableTTS;
+    CancellationToken localCancellationToken = cancellationToken;
+    TaskCreationOptions transientTaskCreationOptions = TaskCreationOptions.None;
+    TaskCreationOptions localTaskCreationOptions = transientTaskCreationOptions;
+    TaskContinuationOptions transientTaskContinuationOptions = TaskContinuationOptions.None;
+    TaskContinuationOptions localTaskContinuationOptions = transientTaskContinuationOptions;
+    TaskScheduler transientTaskScheduler = TaskScheduler.Default;
+    TaskScheduler localTaskScheduler = transientTaskScheduler;
+    perBlockTaskFactoryIQueryTTDisposableTTS = new TaskFactory<IQuery<T2, T3>>(localCancellationToken, localTaskCreationOptions, localTaskContinuationOptions, localTaskScheduler);
+    TaskFactory<IQuery<T2, T3>> localTaskFactory = perBlockTaskFactoryIQueryTTDisposableTTS;
     // Creates and starts a task using the instance factory
-    transientTask494 = localTaskFactory3.StartNew(localFactory7);
-    return transientTask494;
+    transientTaskIQueryTTDisposableTTS = localTaskFactory.StartNew(localFactory);
+    return transientTaskIQueryTTDisposableTTS;
   }
 }
 ```

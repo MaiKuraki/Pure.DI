@@ -174,13 +174,13 @@ partial class Composition: IDisposable, IAsyncDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<Session> perBlockFunc602 = new Func<Session>(
+      Func<Session> perBlockFuncSession = new Func<Session>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
         return new Session(this);
       });
-      return new Program(perBlockFunc602);
+      return new Program(perBlockFuncSession);
     }
   }
 

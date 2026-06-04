@@ -112,9 +112,9 @@ partial class Composition
             _singletonGlobalCache62 = _singletonGlobalCache62Temp;
           }
 
-      var perBlockOrderProcessor561 = new OrderProcessor(_singletonGlobalCache62);
-      OnNewInstance<OrderProcessor>(ref perBlockOrderProcessor561, null, Lifetime.PerBlock);
-      return perBlockOrderProcessor561;
+      var perBlockOrderProcessor = new OrderProcessor(_singletonGlobalCache62);
+      OnNewInstance<OrderProcessor>(ref perBlockOrderProcessor, null, Lifetime.PerBlock);
+      return perBlockOrderProcessor;
     }
   }
 

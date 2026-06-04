@@ -135,25 +135,25 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<IConfiguration> perBlockFunc67 = new Func<IConfiguration>(
+      Func<IConfiguration> perBlockFuncIConfiguration = new Func<IConfiguration>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
         return new AppConfiguration();
       });
-      Func<ILogger> perBlockFunc68 = new Func<ILogger>(
+      Func<ILogger> perBlockFuncILogger = new Func<ILogger>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
         return new ConsoleLogger();
       });
-      Func<ICache> perBlockFunc69 = new Func<ICache>(
+      Func<ICache> perBlockFuncICache = new Func<ICache>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
         return new MemoryCache();
       });
-      Func<IMetrics> perBlockFunc70 = new Func<IMetrics>(
+      Func<IMetrics> perBlockFuncIMetrics = new Func<IMetrics>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
@@ -161,10 +161,10 @@ partial class Composition
       });
       return new LightweightRoot()
       {
-        Config = perBlockFunc67,
-        ILogger = perBlockFunc68,
-        ICache = perBlockFunc69,
-        IMetrics = perBlockFunc70
+        Config = perBlockFuncIConfiguration,
+        ILogger = perBlockFuncILogger,
+        ICache = perBlockFuncICache,
+        IMetrics = perBlockFuncIMetrics
       };
     }
   }

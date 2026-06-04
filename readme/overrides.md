@@ -150,7 +150,7 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<int, int, IWidget> transientFunc316 =
+      Func<int, int, IWidget> transientFuncInt32Int32IWidget =
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       (localWidgetId, localLayerIndex) =>
       {
@@ -159,13 +159,13 @@ partial class Composition
         // Overrides the 'name' argument with a formatted string
         // Resolves the 'Color' dependency tagged with 'Red'
         int overriddenInt32 = localWidgetId;
-        int overriddenInt324 = localLayerIndex;
-        string overriddenString2 = $"Widget {localWidgetId} on layer {localLayerIndex}";
-        Drawing.Color transientColor317 = Color.Red;
-        Drawing.Color localColor = transientColor317;
+        int overriddenInt321 = localLayerIndex;
+        string overriddenString = $"Widget {localWidgetId} on layer {localLayerIndex}";
+        Drawing.Color transientColor = Color.Red;
+        Drawing.Color localColor = transientColor;
         // Overrides the 'color' argument with the resolved value
         // Creates the instance using the overridden values
-        Drawing.Color overriddenColor5 = localColor;
+        Drawing.Color overriddenColor = localColor;
         if (_singletonClock63 is null)
           lock (_lock)
             if (_singletonClock63 is null)
@@ -173,9 +173,9 @@ partial class Composition
               _singletonClock63 = new Clock();
             }
 
-        return new Widget(overriddenString2, _singletonClock63, overriddenInt32, overriddenInt324, overriddenColor5);
+        return new Widget(overriddenString, _singletonClock63, overriddenInt32, overriddenInt321, overriddenColor);
       };
-      return new Dashboard(transientFunc316);
+      return new Dashboard(transientFuncInt32Int32IWidget);
     }
   }
 }

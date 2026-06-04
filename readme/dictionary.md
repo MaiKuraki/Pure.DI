@@ -98,32 +98,32 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Dictionary<Channel, INotificationChannel> transientDictionary386;
-      KeyValuePair<Channel, INotificationChannel> transientKeyValuePair389;
+      Dictionary<Channel, INotificationChannel> transientDictionaryChannelINotificationChannel;
+      KeyValuePair<Channel, INotificationChannel> transientKeyValuePairChannelINotificationChannel;
       EmailChannel localChanel = new EmailChannel();
-      transientKeyValuePair389 = new KeyValuePair<Channel, INotificationChannel>(Channel.Email, localChanel);
-      KeyValuePair<Channel, INotificationChannel> transientKeyValuePair390;
+      transientKeyValuePairChannelINotificationChannel = new KeyValuePair<Channel, INotificationChannel>(Channel.Email, localChanel);
+      KeyValuePair<Channel, INotificationChannel> transientKeyValuePairChannelINotificationChannel1;
       SmsChannel localChanel1 = new SmsChannel();
-      transientKeyValuePair390 = new KeyValuePair<Channel, INotificationChannel>(Channel.Sms, localChanel1);
-      KeyValuePair<Channel, INotificationChannel> transientKeyValuePair391;
+      transientKeyValuePairChannelINotificationChannel1 = new KeyValuePair<Channel, INotificationChannel>(Channel.Sms, localChanel1);
+      KeyValuePair<Channel, INotificationChannel> transientKeyValuePairChannelINotificationChannel2;
       PushChannel localChanel2 = new PushChannel();
-      transientKeyValuePair391 = new KeyValuePair<Channel, INotificationChannel>(Channel.Push, localChanel2);
+      transientKeyValuePairChannelINotificationChannel2 = new KeyValuePair<Channel, INotificationChannel>(Channel.Push, localChanel2);
       KeyValuePair<Channel, INotificationChannel>[] localPairs = new KeyValuePair<Channel, INotificationChannel>[3]
       {
-        transientKeyValuePair389,
-        transientKeyValuePair390,
-        transientKeyValuePair391
+        transientKeyValuePairChannelINotificationChannel,
+        transientKeyValuePairChannelINotificationChannel1,
+        transientKeyValuePairChannelINotificationChannel2
       };
-      EqualityComparer<Channel> transientEqualityComparer388 = EqualityComparer<Channel>.Default;
-      IEqualityComparer<Channel> localComparer = transientEqualityComparer388;
+      EqualityComparer<Channel> transientEqualityComparerChannel = EqualityComparer<Channel>.Default;
+      IEqualityComparer<Channel> localComparer = transientEqualityComparerChannel;
       Dictionary<Channel, INotificationChannel> localVal = new Dictionary<Channel, INotificationChannel>(localPairs.Length, localComparer);
       foreach (KeyValuePair<Channel, INotificationChannel> pair in localPairs)
       {
         localVal[pair.Key] = pair.Value;
       }
 
-      transientDictionary386 = localVal;
-      return new NotificationService(transientDictionary386);
+      transientDictionaryChannelINotificationChannel = localVal;
+      return new NotificationService(transientDictionaryChannelINotificationChannel);
     }
   }
 }

@@ -155,18 +155,18 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Func<IListeningSession> perBlockFunc610 = new Func<IListeningSession>(
+      Func<IListeningSession> perBlockFuncIListeningSession = new Func<IListeningSession>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
-        IListeningSession transientIListeningSession611;
+        IListeningSession transientIListeningSession;
         Composition localParentScope = this;
         // Create a child scope so scoped services (PlaybackQueue) are unique per session.
         var localScope = new Composition(localParentScope);
-        transientIListeningSession611 = localScope.Session;
-        return transientIListeningSession611;
+        transientIListeningSession = localScope.Session;
+        return transientIListeningSession;
       });
-      return new MusicApp(perBlockFunc610);
+      return new MusicApp(perBlockFuncIListeningSession);
     }
   }
 

@@ -17,7 +17,9 @@ DI.Setup(nameof(Composition))
     .Bind<INotificationSender>(Push).To<PushNotificationSender>()
     .Bind<IPaymentGateway>(Card, default).As(Singleton).To<StripePaymentGateway>()
     .Bind<IPaymentGateway>(Wallet).As(Singleton).To<WalletPaymentGateway>()
+ #pragma warning disable DIW003
     .Bind<IPaymentGateway>(Offline).To<OfflinePaymentGateway>()
+ #pragma warning restore DIW003
     .Bind<IInventoryService>().As(PerBlock).To<InventoryService>()
     .Bind<IAuditLog>().As(Singleton).To<AuditLog>()
     .Bind<IFraudCheck>().To<FraudCheck>()
@@ -46,7 +48,9 @@ DI.Setup(nameof(Composition))
     .Bind().To<PaymentSession>()
     .Bind().To<PaymentAttempt>()
     .Bind().To<NotificationEnvelope>()
+ #pragma warning disable DIW003
     .Bind().To<WarehouseReservation>()
+ #pragma warning restore DIW003
     .Bind().To<ManualOrderCommand>()
     .Arg<string>("baseUrl", BaseUrl)
     .Arg<string>("apiToken", ApiToken)
@@ -58,7 +62,9 @@ DI.Setup(nameof(Composition))
     .Root<IBackgroundJob>("StockSyncJob", StockSync)
     .Root<IBatchReport>("BatchReport")
     .Root<Owned<IOrderService>>("OwnedOrderService")
+ #pragma warning disable DIW005
     .Root<ManualOrderCommand>("CreateManualOrder");
+ #pragma warning restore DIW005
 
 DI.Setup("SecondaryComposition")
     .Bind<IClock>().To<SystemClock>()

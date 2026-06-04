@@ -98,8 +98,8 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Logger transientLogger99 = new Logger("OrderService");
-      return new OrderService(transientLogger99);
+      Logger transientLogger = new Logger("OrderService");
+      return new OrderService(transientLogger);
     }
   }
 
@@ -108,8 +108,8 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      Logger transientLogger97 = new Logger("PaymentService");
-      return new PaymentService(transientLogger97);
+      Logger transientLogger = new Logger("PaymentService");
+      return new PaymentService(transientLogger);
     }
   }
 }
