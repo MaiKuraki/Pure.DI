@@ -40,8 +40,8 @@ record Var(
                 return NameOverride;
             }
 
-            // Cache the base name (without prefix) since it never changes
-            _baseName ??= Declaration.NameProvider.GetVariableName(AbstractNode, Declaration.PerLifetimeId);
+            // Cache the declaration name since unique-name generation has already happened.
+            _baseName ??= Declaration.Name;
 
             // ReSharper disable once InvertIf
             if (AbstractNode.ActualLifetime is Lifetime.Singleton && constructors.IsEnabled(graph))

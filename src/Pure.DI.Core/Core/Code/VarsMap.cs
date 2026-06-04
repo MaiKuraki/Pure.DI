@@ -74,34 +74,42 @@ class VarsMap(
     /// <inheritdoc />
     public IDisposable Root(Lines lines)
     {
+        var nameScope = nameProvider.Root();
         return Disposables.Create(() => {
-            var keysToRemove = new List<int>();
-            foreach (var item in _map)
+            try
             {
-                if (IsRootPersistentNode(item.Value.AbstractNode))
+                var keysToRemove = new List<int>();
+                foreach (var item in _map)
                 {
-                    continue;
-                }
+                    if (IsRootPersistentNode(item.Value.AbstractNode))
+                    {
+                        continue;
+                    }
 
 #if DEBUG
-                lines.AppendLine($"// {item.Value.Declaration.Name}: remove ({nameof(Root)})");
+                    lines.AppendLine($"// {item.Value.Declaration.Name}: remove ({nameof(Root)})");
 #endif
-                keysToRemove.Add(item.Key);
-            }
+                    keysToRemove.Add(item.Key);
+                }
 
-            foreach (var key in keysToRemove)
+                foreach (var key in keysToRemove)
+                {
+                    _map.Remove(key);
+                }
+
+                _perBlockBindingIds.Clear();
+                foreach (var var in _map.Values)
+                {
+                    var.Declaration.ResetToDefaults();
+                    var.ResetToDefaults();
+                }
+
+                IsThreadSafe = false;
+            }
+            finally
             {
-                _map.Remove(key);
+                nameScope.Dispose();
             }
-
-            _perBlockBindingIds.Clear();
-            foreach (var var in _map.Values)
-            {
-                var.Declaration.ResetToDefaults();
-                var.ResetToDefaults();
-            }
-
-            IsThreadSafe = false;
         });
     }
 
