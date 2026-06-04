@@ -59,6 +59,78 @@ The _compositionTypeName_ parameter can be omitted:
 </details>
 
 <details>
+<summary>How to read generated code</summary>
+
+Generated code is regular C# code. Read it in two passes:
+
+1. First inspect the generated public API of the composition.
+2. Then inspect implementation details only when debugging lifetimes, scopes, or performance.
+
+The public API answers the main questions:
+
+- Which composition class was generated from `DI.Setup(...)`.
+- Which roots are available as properties or methods.
+- Which constructor arguments are required by the composition.
+- Whether `Resolve`/`ResolveByTag` methods, scopes, `Dispose`, or `DisposeAsync` were generated.
+
+For example, this setup:
+
+```c#
+DI.Setup("Composition")
+    .Arg<string>("connectionString")
+    .RootArg<Guid>("userId")
+    .Bind<IRepository>().To<Repository>()
+    .Bind<IService>().To<Service>()
+    .Root<IService>("CreateService");
+```
+
+produces a composition API shaped like this:
+
+```c#
+partial class Composition
+{
+    public Composition(string connectionString) { ... }
+
+    public IService CreateService(Guid userId) { ... }
+}
+```
+
+The implementation body shows how Pure.DI creates the graph:
+
+- `new Implementation(...)` calls show constructor injection.
+- Private fields usually represent cached singleton or scoped instances.
+- Lock statements appear when thread-safe access is required.
+- Local variables named for per-resolve or per-block lifetimes show reuse inside one generated root body.
+- `Dispose` and `DisposeAsync` release tracked singleton and scoped disposable instances.
+
+Use `Hint.FormatCode` only when reading or presenting generated code. It can increase compilation time and memory usage.
+
+</details>
+
+<details>
+<summary>Generated API reference</summary>
+
+| Setup element                          | Generated API                                                                                                                         |
+|----------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| `DI.Setup("Composition")`              | A partial class named `Composition`, unless the setup kind prevents class generation.                                                 |
+| `.Root<T>("Name")`                     | A public property named `Name`, or a method named `Name` when the root uses root arguments or generic type arguments.                 |
+| `.Root<T>()`                           | An anonymous private root. It is available only through generated `Resolve`/`ResolveByTag` methods when those methods can resolve it. |
+| `.Arg<T>("name")`                      | A composition constructor parameter when the argument is used by at least one root graph.                                             |
+| `.RootArg<T>("name")`                  | A parameter on root methods that use this value. Roots with root arguments cannot be resolved by `Resolve`/`ResolveByTag`.            |
+| `Lifetime.Transient`                   | A new instance is created at each injection site.                                                                                     |
+| `Lifetime.Singleton`                   | A private cached field is generated and reused by the composition.                                                                    |
+| `Lifetime.Scoped`                      | Scope-related constructors/members are generated and the instance is reused inside a scope.                                           |
+| `Lifetime.PerResolve`                  | A local value is reused during one root or `Resolve` call.                                                                            |
+| `Lifetime.PerBlock`                    | A local value is reused inside a generated code block.                                                                                |
+| Disposable singleton/scoped dependency | `Dispose` and/or `DisposeAsync` are generated on the composition.                                                                     |
+| `Hint.Resolve = Off`                   | `Resolve`/`ResolveByTag` methods and anonymous roots are not generated. Use named roots directly.                                     |
+| `Hint.ToString = On`                   | `ToString()` returns a Mermaid class diagram of the composition.                                                                      |
+| `Hint.Comments = Off`                  | XML documentation comments are not generated for the composition API.                                                                 |
+| `Hint.FormatCode = On`                 | Generated code is formatted for easier reading.                                                                                       |
+
+</details>
+
+<details>
 <summary>Setup arguments</summary>
 
 The first parameter is used to specify the name of the composition class. All sets with the same name will be combined to create one composition class. Alternatively, this name may contain a namespace, e.g. a composition class is generated for `Sample.Composition`:
@@ -1523,6 +1595,17 @@ See also:
 <summary>Comments</summary>
 
 Pure.DI can copy comments from setup calls into generated documentation comments for the composition class, composition arguments, and composition roots.
+When no user comment is provided, Pure.DI generates documentation for the generated API so the composition can be inspected from IntelliSense.
+
+Generated comments describe:
+
+- The composition roots exposed by the generated composition class.
+- The root contract, implementation type, tag, and lifetime.
+- Whether a root is a property or a method.
+- Composition constructor parameters created from used `Arg<T>(...)` values.
+- Root method parameters created from used `RootArg<T>(...)` values.
+- `Resolve`/`ResolveByTag` limitations for roots that require root arguments.
+- `Dispose`/`DisposeAsync` behavior for tracked singleton and scoped disposable instances.
 
 Use regular `//` comments before API calls when you want Pure.DI to include the text in the generated documentation:
 
@@ -1561,6 +1644,15 @@ public IService Service
 
 For other setup calls, such as `Arg<T>(...)`, comments are used as documentation text in the generated constructor documentation. Use regular `//` comments there unless you want XML markup to be shown as text.
 
+To suppress generated documentation comments, turn comments off for the setup:
+
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.Comments, "Off")
+    .Bind<IService>().To<Service>()
+    .Root<IService>("Service");
+```
+
 </details>
 
 <details>
@@ -1596,6 +1688,65 @@ flowchart TD
     compilation -.-> |Has problems| failed
     compilation ==> success
 ```
+
+</details>
+
+<details>
+<summary>Debugging generated code</summary>
+
+Use this workflow when you need to inspect or debug the generated composition:
+
+1. Save generated files in the project.
+
+```xml
+<PropertyGroup>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
+</PropertyGroup>
+```
+
+2. Enable formatting only while debugging.
+
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.FormatCode, "On")
+    .Bind<IService>().To<Service>()
+    .Root<IService>("Service");
+```
+
+3. Rebuild the project and open the generated `Composition.g.cs` file under the configured generated files folder.
+
+4. Start with the generated public API:
+
+- composition constructors;
+- root properties and root methods;
+- `Resolve`/`ResolveByTag` methods;
+- scope factory methods;
+- `Dispose`/`DisposeAsync`.
+
+5. Then inspect the root body that creates the graph. Constructor calls show the exact dependency path, private fields show cached singleton/scoped values, and local variables show per-resolve/per-block reuse.
+
+6. For a structural view, enable `Hint.ToString` and render the Mermaid diagram:
+
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.ToString, "On")
+    .Bind<IService>().To<Service>()
+    .Root<IService>("Service");
+
+var diagram = new Composition().ToString();
+```
+
+7. If an anonymous root is hard to step through, disable lightweight anonymous roots for debugging:
+
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.LightweightAnonymousRoot, "Off")
+    .Bind<IService>().To<Service>()
+    .Root<IService>();
+```
+
+Turn `FormatCode`, `ToString`, and extra debugging hints off again when they are no longer needed.
 
 </details>
 
@@ -1673,6 +1824,62 @@ You can set project properties to save generated files and control their storage
 
 </Project>
 ```
+
+</details>
+
+<details>
+<summary>Generated code troubleshooting</summary>
+
+### Generated files are not visible
+
+Set `EmitCompilerGeneratedFiles` to `true`, rebuild the project, and check the generated files folder configured by `CompilerGeneratedFilesOutputPath`. If the folder is empty, run `dotnet build-server shutdown`, rebuild, and check that the project references the `Pure.DI` package.
+
+### The root was generated as a method, not a property
+
+A root becomes a method when it needs runtime data, such as `RootArg<T>(...)`, or when the root itself is generic. Call it directly and pass the required arguments:
+
+```c#
+var service = composition.CreateService(userId);
+```
+
+### Resolve methods were not generated
+
+Check `Hint.Resolve`. When it is `Off`, `Resolve`/`ResolveByTag` methods are intentionally omitted and anonymous roots are not generated. Use named roots instead:
+
+```c#
+var service = composition.Service;
+```
+
+### Resolve cannot create a root with root arguments
+
+`Resolve`/`ResolveByTag` methods do not have a place to pass root arguments. Use the generated root method directly, or disable `Resolve` with `Hint.Resolve = Off` to avoid warnings and keep the generated API explicit.
+
+### A lock appears in generated code
+
+Pure.DI generates synchronization for thread-safe access to cached instances when needed. To remove it only when composition access is known to be single-threaded, use:
+
+```c#
+DI.Setup("Composition")
+    .Hint(Hint.ThreadSafe, "Off");
+```
+
+### Dispose or DisposeAsync was generated
+
+The composition tracks singleton and scoped instances that implement `IDisposable` or `IAsyncDisposable`. Dispose the composition when it owns such instances:
+
+```c#
+using var composition = new Composition();
+```
+
+or:
+
+```c#
+await using var composition = new Composition();
+```
+
+### Generated code is hard to read
+
+Temporarily enable `Hint.FormatCode` and save generated files with `EmitCompilerGeneratedFiles`. For graph-level inspection, enable `Hint.ToString` and use the Mermaid diagram.
 
 </details>
 

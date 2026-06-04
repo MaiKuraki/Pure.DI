@@ -27,7 +27,7 @@ sealed class DisposeMethodBuilder(
         if (isCommentsEnabled)
         {
             code.AppendLine("/// <summary>");
-            code.AppendLine("/// <inheritdoc/>");
+            code.AppendLine("/// Disposes tracked singleton and scoped instances created by this composition.");
             code.AppendLine("/// </summary>");
         }
 
@@ -79,7 +79,7 @@ sealed class DisposeMethodBuilder(
             if (isCommentsEnabled)
             {
                 code.AppendLine("/// <summary>");
-                code.AppendLine("/// <inheritdoc/>");
+                code.AppendLine("/// Asynchronously disposes tracked singleton and scoped instances created by this composition.");
                 code.AppendLine("/// </summary>");
             }
 

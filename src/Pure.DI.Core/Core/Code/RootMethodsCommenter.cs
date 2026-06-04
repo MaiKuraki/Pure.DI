@@ -7,7 +7,8 @@ sealed class RootMethodsCommenter(
 {
     public void AddComments(CompositionCode composition, Root root)
     {
-        if (!composition.Hints.IsCommentsEnabled)
+        var hints = composition.Hints;
+        if (!hints.IsCommentsEnabled)
         {
             return;
         }
@@ -44,6 +45,13 @@ sealed class RootMethodsCommenter(
             }
             finally
             {
+                code.AppendLine("/// </para>");
+            }
+
+            if (root.RootArgs.Length > 0)
+            {
+                code.AppendLine("/// <para>");
+                code.AppendLine($"/// This root requires root arguments and is generated as a method. It cannot be resolved by generated {hints.ResolveMethodName}/{hints.ResolveByTagMethodName} methods.");
                 code.AppendLine("/// </para>");
             }
 

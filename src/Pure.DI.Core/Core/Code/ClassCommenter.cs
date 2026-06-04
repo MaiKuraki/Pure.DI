@@ -136,7 +136,19 @@ sealed class ClassCommenter(
                 IReadOnlyCollection<string> CreateRootDescriptions(Root root) =>
                     root.Source.Comments.Count > 0
                         ? root.Source.Comments.Select(comment => comments.Escape(comments.GetText(comment))).ToList()
-                        : [$"Provides a composition root of type {formatter.FormatRef(root.Node.Type)}."];
+                        : [CreateRootDescription(root)];
+
+                string CreateRootDescription(Root root)
+                {
+                    var description = new StringBuilder();
+                    description.Append($"Provides a composition root of type {formatter.FormatRef(root.Node.Type)}.");
+                    if (root.RootArgs.Length > 0)
+                    {
+                        description.Append($" This root uses root arguments and cannot be resolved by generated {hints.ResolveMethodName}/{hints.ResolveByTagMethodName} methods.");
+                    }
+
+                    return description.ToString();
+                }
             }
 
             var root = orderedRoots.Find(i => i.IsPublic);

@@ -9,8 +9,8 @@ sealed class ApiMembersBuilder(
     : IClassPartBuilder
 {
     private const string CommentSummaryStart = "/// <summary>";
-    private const string CommentSummary = "/// Resolves the composition root.";
-    private const string CommentSummaryByTag = "/// Resolves the composition root by tag.";
+    private const string CommentSummary = "/// Resolves a generated composition root that does not require root arguments.";
+    private const string CommentSummaryByTag = "/// Resolves a generated composition root by tag when the root does not require root arguments.";
     private const string CommentSummaryFinish = "/// </summary>";
     private const string CommentParamType = "/// <param name=\"type\">The type of the composition root.</param>";
     private const string CommentParamTag = "/// <param name=\"tag\">The tag of a composition root.</param>";
@@ -176,7 +176,7 @@ sealed class ApiMembersBuilder(
     private static void FinishComments(Lines apiCode)
     {
         apiCode.AppendLine("/// <returns>An instance of a composition root.</returns>");
-        apiCode.AppendLine($"/// <exception cref=\"{Names.CannotResolveExceptionTypeName}\">Will be thrown if the corresponding composition root was not specified. To specify a composition root use API method such as <see cref=\"{Names.IConfigurationTypeName}.Root{{T}}\"/>.</exception>");
+        apiCode.AppendLine($"/// <exception cref=\"{Names.CannotResolveExceptionTypeName}\">Will be thrown if the corresponding composition root was not specified or if the root requires root arguments. To specify a composition root use API method such as <see cref=\"{Names.IConfigurationTypeName}.Root{{T}}\"/>.</exception>");
         apiCode.AppendLine($"/// <seealso cref=\"{Names.IConfigurationTypeName}.RootBind{{T}}\"/>");
         apiCode.AppendLine($"/// <seealso cref=\"{Names.IConfigurationTypeName}.Roots{{T}}\"/>");
         apiCode.AppendLine($"/// <seealso cref=\"{Names.IConfigurationTypeName}.Builder{{T}}\"/>");

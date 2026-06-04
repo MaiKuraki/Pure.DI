@@ -5,6 +5,7 @@
 **/*.DotSettings.user
 **/*.csproj.user
 **/*.log
+/tests/Pure.DI.GeneratedCodeReview/Generated
 benchmarks/data/*.log
 benchmarks/data/results/*.md
 *.suo
@@ -24,4 +25,3 @@ _ReSharper.Caches/
 /samples/UnityApp/*.csproj
 /samples/UnityApp/*.sln
 /samples/UnityApp/*.slnx
-

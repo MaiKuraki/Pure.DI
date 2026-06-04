@@ -13,7 +13,7 @@ sealed class ParameterizedConstructorCommenter(
 
         var code = composition.Code;
         code.AppendLine("/// <summary>");
-        code.AppendLine($"/// This parameterized constructor creates a new instance of <see cref=\"{composition.Name.ClassName}\"/> with arguments.");
+        code.AppendLine($"/// This parameterized constructor creates a new instance of <see cref=\"{composition.Name.ClassName}\"/> with composition arguments used by the object graph.");
         code.AppendLine("/// </summary>");
         foreach (var arg in composition.ClassArgs.GetArgsOfKind(ArgKind.Composition))
         {
@@ -34,13 +34,13 @@ sealed class ParameterizedConstructorCommenter(
             }
             else
             {
-                code.AppendLine($"/// <param name=\"{mdArg.ArgName}\">The composition argument of type {formatter.FormatRef(mdArg.Type)}.</param>");
+                code.AppendLine($"/// <param name=\"{mdArg.ArgName}\">The composition argument of type {formatter.FormatRef(mdArg.Type)}. Only arguments used by roots or their dependencies appear in this constructor.</param>");
             }
         }
 
         foreach (var arg in composition.SetupContextArgs.Where(i => i.Kind == SetupContextKind.Argument))
         {
-            code.AppendLine($"/// <param name=\"{arg.Name}\">The setup context of type {formatter.FormatRef(arg.Type)}.</param>");
+            code.AppendLine($"/// <param name=\"{arg.Name}\">The setup context argument of type {formatter.FormatRef(arg.Type)} copied from a dependent setup.</param>");
         }
     }
 }
