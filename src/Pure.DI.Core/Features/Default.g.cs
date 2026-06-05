@@ -30,8 +30,9 @@ namespace Pure.DI
                 .Bind<Owned<TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
-                        // Creates the owner of an instance
+                        // Tracks owned disposables
                         ctx.Inject<IOwned>(out var owned);
+                        // Creates the owned value
                         ctx.Inject<TT>(ctx.Tag, out var value);
                         return new Owned<TT>(value, owned);
                     })
@@ -39,14 +40,18 @@ namespace Pure.DI
                     .As(Lifetime.PerBlock)
                     .To(ctx => new global::System.Func<TT>(() =>
                     {
+                        // Creates a deferred value
                         ctx.Inject<TT>(ctx.Tag, out var value);
                         return value;
                     }))
                 .Bind<global::System.Func<TT1, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT>((TT1 arg1) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -55,9 +60,12 @@ namespace Pure.DI
                 .Bind<global::System.Func<TT1, TT2, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT2, TT>((TT1 arg1, TT2 arg2) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
                                 ctx.Override<TT2>(arg2);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -66,10 +74,13 @@ namespace Pure.DI
                 .Bind<global::System.Func<TT1, TT2, TT3, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT2, TT3, TT>((TT1 arg1, TT2 arg2, TT3 arg3) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
                                 ctx.Override<TT2>(arg2);
                                 ctx.Override<TT3>(arg3);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -78,11 +89,14 @@ namespace Pure.DI
                 .Bind<global::System.Func<TT1, TT2, TT3, TT4, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT2, TT3, TT4, TT>((TT1 arg1, TT2 arg2, TT3 arg3, TT4 arg4) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
                                 ctx.Override<TT2>(arg2);
                                 ctx.Override<TT3>(arg3);
                                 ctx.Override<TT4>(arg4);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -91,12 +105,15 @@ namespace Pure.DI
                 .Bind<global::System.Func<TT1, TT2, TT3, TT4, TT5, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT2, TT3, TT4, TT5, TT>((TT1 arg1, TT2 arg2, TT3 arg3, TT4 arg4, TT5 arg5) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
                                 ctx.Override<TT2>(arg2);
                                 ctx.Override<TT3>(arg3);
                                 ctx.Override<TT4>(arg4);
                                 ctx.Override<TT5>(arg5);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -105,13 +122,16 @@ namespace Pure.DI
                 .Bind<global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT>((TT1 arg1, TT2 arg2, TT3 arg3, TT4 arg4, TT5 arg5, TT6 arg6) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
                                 ctx.Override<TT2>(arg2);
                                 ctx.Override<TT3>(arg3);
                                 ctx.Override<TT4>(arg4);
                                 ctx.Override<TT5>(arg5);
                                 ctx.Override<TT6>(arg6);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -120,7 +140,9 @@ namespace Pure.DI
                 .Bind<global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT>((TT1 arg1, TT2 arg2, TT3 arg3, TT4 arg4, TT5 arg5, TT6 arg6, TT7 arg7) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
                                 ctx.Override<TT2>(arg2);
                                 ctx.Override<TT3>(arg3);
@@ -128,6 +150,7 @@ namespace Pure.DI
                                 ctx.Override<TT5>(arg5);
                                 ctx.Override<TT6>(arg6);
                                 ctx.Override<TT7>(arg7);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -136,7 +159,9 @@ namespace Pure.DI
                 .Bind<global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT>((TT1 arg1, TT2 arg2, TT3 arg3, TT4 arg4, TT5 arg5, TT6 arg6, TT7 arg7, TT8 arg8) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
                                 ctx.Override<TT2>(arg2);
                                 ctx.Override<TT3>(arg3);
@@ -145,6 +170,7 @@ namespace Pure.DI
                                 ctx.Override<TT6>(arg6);
                                 ctx.Override<TT7>(arg7);
                                 ctx.Override<TT8>(arg8);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -153,7 +179,9 @@ namespace Pure.DI
                 .Bind<global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT>((TT1 arg1, TT2 arg2, TT3 arg3, TT4 arg4, TT5 arg5, TT6 arg6, TT7 arg7, TT8 arg8, TT9 arg9) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
                                 ctx.Override<TT2>(arg2);
                                 ctx.Override<TT3>(arg3);
@@ -163,6 +191,7 @@ namespace Pure.DI
                                 ctx.Override<TT7>(arg7);
                                 ctx.Override<TT8>(arg8);
                                 ctx.Override<TT9>(arg9);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -171,7 +200,9 @@ namespace Pure.DI
                 .Bind<global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT10, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT10, TT>((TT1 arg1, TT2 arg2, TT3 arg3, TT4 arg4, TT5 arg5, TT6 arg6, TT7 arg7, TT8 arg8, TT9 arg9, TT10 arg10) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
                                 ctx.Override<TT2>(arg2);
                                 ctx.Override<TT3>(arg3);
@@ -182,6 +213,7 @@ namespace Pure.DI
                                 ctx.Override<TT8>(arg8);
                                 ctx.Override<TT9>(arg9);
                                 ctx.Override<TT10>(arg10);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -190,7 +222,9 @@ namespace Pure.DI
                 .Bind<global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT10, TT11, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT10, TT11, TT>((TT1 arg1, TT2 arg2, TT3 arg3, TT4 arg4, TT5 arg5, TT6 arg6, TT7 arg7, TT8 arg8, TT9 arg9, TT10 arg10, TT11 arg11) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
                                 ctx.Override<TT2>(arg2);
                                 ctx.Override<TT3>(arg3);
@@ -202,6 +236,7 @@ namespace Pure.DI
                                 ctx.Override<TT9>(arg9);
                                 ctx.Override<TT10>(arg10);
                                 ctx.Override<TT11>(arg11);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -210,7 +245,9 @@ namespace Pure.DI
                 .Bind<global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT10, TT11, TT12, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT10, TT11, TT12, TT>((TT1 arg1, TT2 arg2, TT3 arg3, TT4 arg4, TT5 arg5, TT6 arg6, TT7 arg7, TT8 arg8, TT9 arg9, TT10 arg10, TT11 arg11, TT12 arg12) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
                                 ctx.Override<TT2>(arg2);
                                 ctx.Override<TT3>(arg3);
@@ -223,6 +260,7 @@ namespace Pure.DI
                                 ctx.Override<TT10>(arg10);
                                 ctx.Override<TT11>(arg11);
                                 ctx.Override<TT12>(arg12);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -231,7 +269,9 @@ namespace Pure.DI
                 .Bind<global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT10, TT11, TT12, TT13, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT10, TT11, TT12, TT13, TT>((TT1 arg1, TT2 arg2, TT3 arg3, TT4 arg4, TT5 arg5, TT6 arg6, TT7 arg7, TT8 arg8, TT9 arg9, TT10 arg10, TT11 arg11, TT12 arg12, TT13 arg13) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
                                 ctx.Override<TT2>(arg2);
                                 ctx.Override<TT3>(arg3);
@@ -245,6 +285,7 @@ namespace Pure.DI
                                 ctx.Override<TT11>(arg11);
                                 ctx.Override<TT12>(arg12);
                                 ctx.Override<TT13>(arg13);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -253,7 +294,9 @@ namespace Pure.DI
                 .Bind<global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT10, TT11, TT12, TT13, TT14, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT10, TT11, TT12, TT13, TT14, TT>((TT1 arg1, TT2 arg2, TT3 arg3, TT4 arg4, TT5 arg5, TT6 arg6, TT7 arg7, TT8 arg8, TT9 arg9, TT10 arg10, TT11 arg11, TT12 arg12, TT13 arg13, TT14 arg14) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
                                 ctx.Override<TT2>(arg2);
                                 ctx.Override<TT3>(arg3);
@@ -268,6 +311,7 @@ namespace Pure.DI
                                 ctx.Override<TT12>(arg12);
                                 ctx.Override<TT13>(arg13);
                                 ctx.Override<TT14>(arg14);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -276,7 +320,9 @@ namespace Pure.DI
                 .Bind<global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT10, TT11, TT12, TT13, TT14, TT15, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT10, TT11, TT12, TT13, TT14, TT15, TT>((TT1 arg1, TT2 arg2, TT3 arg3, TT4 arg4, TT5 arg5, TT6 arg6, TT7 arg7, TT8 arg8, TT9 arg9, TT10 arg10, TT11 arg11, TT12 arg12, TT13 arg13, TT14 arg14, TT15 arg15) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
                                 ctx.Override<TT2>(arg2);
                                 ctx.Override<TT3>(arg3);
@@ -292,6 +338,7 @@ namespace Pure.DI
                                 ctx.Override<TT13>(arg13);
                                 ctx.Override<TT14>(arg14);
                                 ctx.Override<TT15>(arg15);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -300,7 +347,9 @@ namespace Pure.DI
                 .Bind<global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT10, TT11, TT12, TT13, TT14, TT15, TT16, TT>>()
                     .As(Lifetime.PerBlock)
                     .To(ctx => {
+                            // Creates a factory with runtime arguments
                             var factory = new global::System.Func<TT1, TT2, TT3, TT4, TT5, TT6, TT7, TT8, TT9, TT10, TT11, TT12, TT13, TT14, TT15, TT16, TT>((TT1 arg1, TT2 arg2, TT3 arg3, TT4 arg4, TT5 arg5, TT6 arg6, TT7 arg7, TT8 arg8, TT9 arg9, TT10 arg10, TT11 arg11, TT12 arg12, TT13 arg13, TT14 arg14, TT15 arg15, TT16 arg16) => {
+                                // Captures runtime arguments
                                 ctx.Override<TT1>(arg1);
                                 ctx.Override<TT2>(arg2);
                                 ctx.Override<TT3>(arg3);
@@ -317,6 +366,7 @@ namespace Pure.DI
                                 ctx.Override<TT14>(arg14);
                                 ctx.Override<TT15>(arg15);
                                 ctx.Override<TT16>(arg16);
+                                // Creates the result
                                 ctx.Inject<TT>(ctx.Tag, out var value);
                                 return value;
                             });
@@ -332,9 +382,9 @@ namespace Pure.DI
                 .Bind<global::System.Lazy<TT>>()
                     .To(ctx =>
                     {
-                        // Injects an instance factory
+                        // Creates a lazy value factory
                         ctx.Inject<global::System.Func<TT>>(ctx.Tag, out var factory);
-                        // Creates an instance that supports lazy initialization
+                        // Wraps it in Lazy<T>
                         return new global::System.Lazy<TT>(factory, true);
                     })
                 .Bind<global::System.Threading.CancellationToken>().To(_ => global::System.Threading.CancellationToken.None)
@@ -353,11 +403,11 @@ namespace Pure.DI
                 .Bind<global::System.Threading.Tasks.Task<TT>>()
                     .To(ctx =>
                     {
-                        // Injects an instance factory
+                        // Creates the task value factory
                         ctx.Inject(ctx.Tag, out global::System.Func<TT> factory);
-                        // Injects a task factory creating and scheduling task objects
+                        // Creates the task factory
                         ctx.Inject(out global::System.Threading.Tasks.TaskFactory<TT> taskFactory);
-                        // Creates and starts a task using the instance factory
+                        // Starts the task
                         return taskFactory.StartNew(factory);
                     })
 #endif                
@@ -365,8 +415,9 @@ namespace Pure.DI
                 .Bind<global::System.Threading.Tasks.ValueTask<TT>>()
                     .To(ctx =>
                     {
+                        // Creates the task result
                         ctx.Inject(ctx.Tag, out TT value);
-                        // Initializes a new instance of the ValueTask class using the supplied instance
+                        // Wraps it in ValueTask<T>
                         return new global::System.Threading.Tasks.ValueTask<TT>(value);
                     })
 #endif                
@@ -374,10 +425,11 @@ namespace Pure.DI
                 .Bind<global::System.Lazy<TT, TT1>>()
                     .To(ctx =>
                     {
-                        // Injects an instance factory
+                        // Creates a lazy value factory
                         ctx.Inject<global::System.Func<TT>>(ctx.Tag, out var factory);
-                        // Injects a metadata
+                        // Creates lazy metadata
                         ctx.Inject<TT1>(ctx.Tag, out var metadata);
+                        // Wraps them in Lazy<T, TMetadata>
                         return new global::System.Lazy<TT, TT1>(factory, metadata, true);
                     })
 #endif
@@ -389,9 +441,13 @@ namespace Pure.DI
                 .Bind<global::System.Collections.Generic.IDictionary<TT, TT1>>()
                 .Bind<global::System.Collections.Generic.Dictionary<TT, TT1>>()
                     .To(ctx => {
+                    // Creates dictionary entries
                     ctx.Inject(out global::System.Collections.Generic.KeyValuePair<TT, TT1>[] pairs);
+                    // Creates the key comparer
                     ctx.Inject(out global::System.Collections.Generic.IEqualityComparer<TT> comparer);
+                    // Creates the dictionary
                     var val = new global::System.Collections.Generic.Dictionary<TT, TT1>(pairs.Length, comparer);
+                    // Adds entries to the dictionary
                     foreach (var pair in pairs)
                     {
                         val[pair.Key] = pair.Value;
@@ -403,9 +459,13 @@ namespace Pure.DI
 #if NETSTANDARD1_0_OR_GREATER || NET || NETCOREAPP || NET40_OR_GREATER
                 .Bind<global::System.Collections.Concurrent.ConcurrentDictionary<TT, TT1>>()
                     .To(ctx => {
+                        // Creates dictionary entries
                         ctx.Inject(out global::System.Collections.Generic.KeyValuePair<TT, TT1>[] pairs);
+                        // Creates the key comparer
                         ctx.Inject(out global::System.Collections.Generic.IEqualityComparer<TT> comparer);
+                        // Creates the concurrent dictionary
                         var val = new global::System.Collections.Concurrent.ConcurrentDictionary<TT, TT1>(-1, pairs.Length, comparer);
+                        // Adds entries to the dictionary
                         foreach (var pair in pairs)
                         {
                             val[pair.Key] = pair.Value;
