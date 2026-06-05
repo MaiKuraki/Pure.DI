@@ -294,6 +294,9 @@ public static class TestExtensions
                 MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(Regex).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.Security.Cryptography.RandomNumberGenerator).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.Text.Json.JsonSerializerOptions).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(TimeProvider).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(IAsyncEnumerable<>).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(INotifyPropertyChanged).Assembly.Location));
 

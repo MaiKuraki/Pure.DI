@@ -413,6 +413,10 @@ namespace Pure.DI
                     .To(_ => global::System.Threading.Tasks.TaskScheduler.Default)
                 .Bind<global::System.Threading.Tasks.TaskCreationOptions>()
                     .To(_ => global::System.Threading.Tasks.TaskCreationOptions.None)
+#if NETSTANDARD || NET || NETCOREAPP || NET46_OR_GREATER
+                .Bind<global::System.Threading.Tasks.TaskCreationOptions>("TaskCompletionSource")
+                    .To(_ => global::System.Threading.Tasks.TaskCreationOptions.RunContinuationsAsynchronously)
+#endif
                 .Bind<global::System.Threading.Tasks.TaskContinuationOptions>()
                     .To(_ => global::System.Threading.Tasks.TaskContinuationOptions.None)
                 .Bind<global::System.Threading.Tasks.TaskFactory>().As(Lifetime.PerBlock)
@@ -421,6 +425,15 @@ namespace Pure.DI
                 .Bind<global::System.Threading.Tasks.TaskFactory<TT>>().As(Lifetime.PerBlock)
                     .To((global::System.Threading.CancellationToken cancellationToken, global::System.Threading.Tasks.TaskCreationOptions taskCreationOptions, global::System.Threading.Tasks.TaskContinuationOptions taskContinuationOptions, global::System.Threading.Tasks.TaskScheduler taskScheduler) =>
                     new global::System.Threading.Tasks.TaskFactory<TT>(cancellationToken, taskCreationOptions, taskContinuationOptions, taskScheduler))
+#if NETSTANDARD || NET || NETCOREAPP || NET46_OR_GREATER
+                .Bind<global::System.Threading.Tasks.TaskCompletionSource<TT>>().As(Lifetime.PerBlock)
+                    .To(ctx =>
+                    {
+                        ctx.Inject<global::System.Threading.Tasks.TaskCreationOptions>("TaskCompletionSource", out var taskCreationOptions);
+                        // Creates an async completion source
+                        return new global::System.Threading.Tasks.TaskCompletionSource<TT>(taskCreationOptions);
+                    })
+#endif
                 .Bind<global::System.Threading.Tasks.Task<TT>>()
                     .To(ctx =>
                     {
@@ -541,6 +554,9 @@ namespace Pure.DI
 #if NETSTANDARD || NET || NETCOREAPP || NET40_OR_GREATER
                 .Bind<global::System.Collections.Generic.ISet<TT>>()
 #endif
+#if NET5_0_OR_GREATER
+                .Bind<global::System.Collections.Generic.IReadOnlySet<TT>>()
+#endif
 #if NETSTANDARD || NET || NETCOREAPP || NET35_OR_GREATER
                 .Bind<global::System.Collections.Generic.HashSet<TT>>()
                     .To((TT[] arr, global::System.Collections.Generic.IEqualityComparer<TT> comparer) => new global::System.Collections.Generic.HashSet<TT>(arr, comparer))
@@ -599,6 +615,35 @@ namespace Pure.DI
 #endif
 #endif
                 // System services
+                .Bind<global::System.Globalization.CultureInfo>().To(_ =>
+                {
+                    // Provides the current culture
+                    return global::System.Globalization.CultureInfo.CurrentCulture;
+                })
+                .Bind<global::System.IFormatProvider>().To((global::System.Globalization.CultureInfo culture) => culture)
+                .Bind<global::System.Globalization.CompareInfo>().To((global::System.Globalization.CultureInfo culture) =>
+                {
+                    // Provides culture-sensitive string comparison
+                    return culture.CompareInfo;
+                })
+#if NET8_0_OR_GREATER
+                .Bind<global::System.TimeProvider>().To(_ =>
+                {
+                    // Provides the system time provider
+                    return global::System.TimeProvider.System;
+                })
+#endif
+                .Bind<global::System.StringComparer>().To(_ =>
+                {
+                    // Provides ordinal string comparison
+                    return global::System.StringComparer.Ordinal;
+                })
+                .Bind<global::System.StringComparison>().To(_ => global::System.StringComparison.Ordinal)
+                .Bind<global::System.Security.Cryptography.RandomNumberGenerator>().As(Lifetime.PerBlock).To(_ =>
+                {
+                    // Creates a cryptographic random number generator
+                    return global::System.Security.Cryptography.RandomNumberGenerator.Create();
+                })
 #if NET6_0_OR_GREATER
                 .Bind<global::System.Random>().To(_ =>
                 {

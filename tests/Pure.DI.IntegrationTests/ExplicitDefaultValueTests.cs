@@ -532,7 +532,7 @@ public class ExplicitDefaultValueTests
 
         // Then
         result.Success.ShouldBeTrue(result);
-        result.StdOut.ShouldBe(["OrdinalIgnoreCase"], result);
+        result.StdOut.ShouldBe(["Ordinal"], result);
     }
 
     [Fact]

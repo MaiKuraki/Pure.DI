@@ -5,6 +5,164 @@ namespace Pure.DI.IntegrationTests;
 /// </summary>
 public class BclInjectionTests
 {
+    [Fact]
+    public async Task ShouldSupportDefaultBclServiceBindings()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using System.Collections.Generic;
+                           using System.Globalization;
+                           using System.Security.Cryptography;
+                           using System.Text.Json;
+                           using System.Threading.Tasks;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               class Service
+                               {
+                                   private readonly TaskCompletionSource<int> _taskCompletionSource;
+                                   private readonly IReadOnlySet<IDependency> _dependencies;
+                                   private readonly CultureInfo _cultureInfo;
+                                   private readonly IFormatProvider _formatProvider;
+                                   private readonly CompareInfo _compareInfo;
+                                   private readonly StringComparer _stringComparer;
+                                   private readonly StringComparison _stringComparison;
+                                   private readonly RandomNumberGenerator _randomNumberGenerator;
+
+                                   public Service(
+                                       TaskCompletionSource<int> taskCompletionSource,
+                                       IReadOnlySet<IDependency> dependencies,
+                                       CultureInfo cultureInfo,
+                                       IFormatProvider formatProvider,
+                                       CompareInfo compareInfo,
+                                       StringComparer stringComparer,
+                                       StringComparison stringComparison,
+                                       RandomNumberGenerator randomNumberGenerator)
+                                   {
+                                       _taskCompletionSource = taskCompletionSource;
+                                       _dependencies = dependencies;
+                                       _cultureInfo = cultureInfo;
+                                       _formatProvider = formatProvider;
+                                       _compareInfo = compareInfo;
+                                       _stringComparer = stringComparer;
+                                       _stringComparison = stringComparison;
+                                       _randomNumberGenerator = randomNumberGenerator;
+                                   }
+
+                                   public void Run()
+                                   {
+                                       Console.WriteLine(_taskCompletionSource.Task.CreationOptions.HasFlag(TaskCreationOptions.RunContinuationsAsynchronously));
+                                       Console.WriteLine(_dependencies.Count);
+                                       Console.WriteLine(ReferenceEquals(_cultureInfo, CultureInfo.CurrentCulture));
+                                       Console.WriteLine(ReferenceEquals(_formatProvider, _cultureInfo));
+                                       Console.WriteLine(ReferenceEquals(_compareInfo, CultureInfo.CurrentCulture.CompareInfo));
+                                       Console.WriteLine(ReferenceEquals(_stringComparer, StringComparer.Ordinal));
+                                       Console.WriteLine(_stringComparison == StringComparison.Ordinal);
+                                       Console.WriteLine(_randomNumberGenerator.GetType().Name.Length > 0);
+                                   }
+                               }
+
+                               interface IDependency {}
+
+                               class Dependency1 : IDependency {}
+
+                               class Dependency2 : IDependency {}
+
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Bind<IDependency>(Tag.Unique).To<Dependency1>()
+                                           .Bind<IDependency>(Tag.Unique).To<Dependency2>()
+                                           .Root<Service>("Service");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       composition.Service.Run();
+                                   }
+                               }
+                           }
+                           """.RunAsync();
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe([
+            "True",
+            "2",
+            "True",
+            "True",
+            "True",
+            "True",
+            "True",
+            "True"], result);
+    }
+
+    [Fact]
+    public async Task ShouldSupportDefaultTimeProviderBinding()
+    {
+        // Given
+
+        // When
+        var result = await """
+                           using System;
+                           using Pure.DI;
+
+                           namespace Sample
+                           {
+                               class Service
+                               {
+                                   private readonly TimeProvider _timeProvider;
+
+                                   public Service(TimeProvider timeProvider)
+                                   {
+                                       _timeProvider = timeProvider;
+                                   }
+
+                                   public void Run()
+                                   {
+                                       Console.WriteLine(ReferenceEquals(_timeProvider, TimeProvider.System));
+                                   }
+                               }
+
+                               static class Setup
+                               {
+                                   private static void SetupComposition()
+                                   {
+                                       DI.Setup("Composition")
+                                           .Root<Service>("Service");
+                                   }
+                               }
+
+                               public class Program
+                               {
+                                   public static void Main()
+                                   {
+                                       var composition = new Composition();
+                                       composition.Service.Run();
+                                   }
+                               }
+                           }
+                           """.RunAsync(
+            new Options
+            {
+                PreprocessorSymbols = ["NET", "NET8_0_OR_GREATER", "NET6_0_OR_GREATER", "NET5_0_OR_GREATER"]
+            });
+
+        // Then
+        result.Success.ShouldBeTrue(result);
+        result.StdOut.ShouldBe(["True"], result);
+    }
+
     [Theory]
     [InlineData("System.Collections.Generic.IList")]
     [InlineData("System.Collections.Immutable.ImmutableArray")]
