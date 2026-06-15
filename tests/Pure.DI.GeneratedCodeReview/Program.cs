@@ -2,6 +2,10 @@ using Pure.DI;
 using Shouldly;
 using static Pure.DI.Tag;
 using static Pure.DI.Lifetime;
+// ReSharper disable InvertIf
+// ReSharper disable LocalizableElement
+// ReSharper disable NotAccessedPositionalProperty.Global
+// ReSharper disable ClassNeverInstantiated.Global
 
 DI.Setup(nameof(Composition))
     .Bind<IClock>().As(Singleton).To<SystemClock>()
@@ -10,12 +14,12 @@ DI.Setup(nameof(Composition))
     .Bind<IConfiguration>().As(Singleton).To<AppConfiguration>()
     .Bind<IEnvironmentInfo>().As(Singleton).To<EnvironmentInfo>()
     .Bind<IRepository<TT>>().As(PerBlock).To<InMemoryRepository<TT>>()
-    .Bind<IExternalApiClient>(Public, default).As(Singleton).To<PublicApiClient>()
+    .Bind<IExternalApiClient>(Public, null).As(Singleton).To<PublicApiClient>()
     .Bind<IExternalApiClient>(Internal).As(Singleton).To<InternalApiClient>()
-    .Bind<INotificationSender>(Email, default).To<EmailNotificationSender>()
+    .Bind<INotificationSender>(Email, null).To<EmailNotificationSender>()
     .Bind<INotificationSender>(Sms).To<SmsNotificationSender>()
     .Bind<INotificationSender>(Push).To<PushNotificationSender>()
-    .Bind<IPaymentGateway>(Card, default).As(Singleton).To<StripePaymentGateway>()
+    .Bind<IPaymentGateway>(Card, null).As(Singleton).To<StripePaymentGateway>()
     .Bind<IPaymentGateway>(Wallet).As(Singleton).To<WalletPaymentGateway>()
  #pragma warning disable DIW003
     .Bind<IPaymentGateway>(Offline).To<OfflinePaymentGateway>()
@@ -142,7 +146,7 @@ interface ICache
     string GetOrAdd(string key, Func<string> valueFactory);
 }
 
-interface IRepository<T>
+interface IRepository<in T>
 {
     void Save(T entity);
     int Count { get; }

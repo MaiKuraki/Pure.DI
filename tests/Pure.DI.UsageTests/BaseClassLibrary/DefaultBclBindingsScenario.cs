@@ -16,7 +16,6 @@ namespace Pure.DI.UsageTests.BCL.DefaultBclBindingsScenario;
 
 using System.Globalization;
 using System.Security.Cryptography;
-using System.Text.Json;
 using Shouldly;
 using Xunit;
 
@@ -24,7 +23,6 @@ using Xunit;
 //# using Pure.DI;
 //# using System.Globalization;
 //# using System.Security.Cryptography;
-//# using System.Text.Json;
 // }
 
 public class Scenario
@@ -60,12 +58,6 @@ public class Scenario
 }
 
 // {
-interface IPlugin;
-
-class SearchPlugin : IPlugin;
-
-class ExportPlugin : IPlugin;
-
 class ReportService(
     CultureInfo culture,
     IFormatProvider formatProvider,

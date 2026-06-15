@@ -1,8 +1,9 @@
-﻿namespace Pure.DI.Core.Code;
+﻿// ReSharper disable NotAccessedPositionalProperty.Global
+namespace Pure.DI.Core.Code;
 
 record VarDeclaration(
     INameProvider NameProvider,
-    IVarStateTracker stateTracker,
+    IVarStateTracker StateTracker,
     int PerLifetimeId,
     IDependencyNode Node)
 {
@@ -21,7 +22,7 @@ record VarDeclaration(
                 return;
             }
 
-            stateTracker.OnStateChanging(Node.BindingId);
+            StateTracker.OnStateChanging(Node.BindingId);
             _isDeclared = value;
         }
     }
@@ -34,7 +35,7 @@ record VarDeclaration(
     /// <summary>
     /// Gets the variable name.
     /// </summary>
-    public string Name { get; } = NameProvider.GetVariableName(Node, PerLifetimeId);
+    public string Name { get; } = NameProvider.GetVariableName(Node);
 
     /// <summary>
     /// Resets the declaration to its default state.

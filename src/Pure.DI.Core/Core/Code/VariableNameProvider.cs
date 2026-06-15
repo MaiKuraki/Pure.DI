@@ -18,7 +18,7 @@ class NameProvider(IUniqueNameProvider uniqueNameProvider): INameProvider
         });
     }
 
-    public string GetVariableName(IDependencyNode node, int transientId) =>
+    public string GetVariableName(IDependencyNode node) =>
         node switch
         {
             { Construct.Source: { Kind: MdConstructKind.Override, State: DpOverride @override } } => GetOverrideVariableName(@override.Source),

@@ -2,6 +2,7 @@
 // ReSharper disable ConvertIfStatementToSwitchStatement
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable InconsistentNaming
+// ReSharper disable ArrangeRedundantParentheses
 namespace Build.Core.Targets;
 
 using Pure.DI.Benchmarks.Benchmarks;
