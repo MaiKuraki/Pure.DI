@@ -5,6 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Uses Composition as an alternative IServiceProviderFactory
 builder.Host.UseServiceProviderFactory(composition);
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default));
 
 var app = builder.Build();
 

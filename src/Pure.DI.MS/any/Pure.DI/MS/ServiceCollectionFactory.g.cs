@@ -26,11 +26,18 @@ namespace Pure.DI.MS
     [global::System.CodeDom.Compiler.GeneratedCode("Pure.DI", "")]
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif
-    public class ServiceCollectionFactory<TComposition>
+    public class ServiceCollectionFactory<
+#if NET5_0_OR_GREATER || NET
+        [global::System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(global::System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | global::System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]
+#endif
+        TComposition>
     {
         private static readonly Func<TComposition, InstanceResolver, ServiceDescriptor> ServiceDescriptorProvider;
         private static readonly Func<TComposition, TComposition> ScopeFactory;
     
+#if NET5_0_OR_GREATER || NET
+        [global::System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("ReflectionAnalysis", "IL2111", Justification = "The reflection lookup is used only to detect the optional keyed ServiceDescriptor constructor when the referenced Microsoft DI assembly provides it.")]
+#endif
         static ServiceCollectionFactory()
         {
             var scopeConstructor = typeof(TComposition).GetConstructor(
@@ -64,11 +71,14 @@ namespace Pure.DI.MS
                 var compositionParameter = Expression.Parameter(typeof(TComposition));
                 var resolverParameter = Expression.Parameter(typeof(InstanceResolver));
                 var serviceProviderParameter = Expression.Parameter(typeof(IServiceProvider));
+                var typeField = typeof(InstanceResolver).GetField(nameof(InstanceResolver.Type));
+                var tagField = typeof(InstanceResolver).GetField(nameof(InstanceResolver.Tag));
+                var lifetimeField = typeof(InstanceResolver).GetField(nameof(InstanceResolver.Lifetime));
                 ServiceDescriptorProvider = Expression.Lambda<Func<TComposition, InstanceResolver, ServiceDescriptor>>(
                         Expression.New(
                             ctorWithTag,
-                            Expression.Field(resolverParameter, nameof(InstanceResolver.Type)),
-                            Expression.Field(resolverParameter, nameof(InstanceResolver.Tag)),
+                            Expression.Field(resolverParameter, typeField),
+                            Expression.Field(resolverParameter, tagField),
                             Expression.Lambda(
                                 resolverType,
                                 Expression.Call(
@@ -78,7 +88,7 @@ namespace Pure.DI.MS
                                     serviceProviderParameter),
                                 serviceProviderParameter,
                                 Expression.Parameter(typeof(object))),
-                            Expression.Field(resolverParameter, nameof(InstanceResolver.Lifetime))),
+                            Expression.Field(resolverParameter, lifetimeField)),
                         compositionParameter,
                         resolverParameter)
                     .Compile();

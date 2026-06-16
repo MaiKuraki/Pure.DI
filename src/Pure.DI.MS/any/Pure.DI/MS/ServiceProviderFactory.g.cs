@@ -35,9 +35,16 @@ namespace Pure.DI.MS
     [global::System.CodeDom.Compiler.GeneratedCode("Pure.DI", "")]
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif
-    public class ServiceProviderFactory<TComposition>: IServiceProviderFactory<IServiceCollection>
+    public class ServiceProviderFactory<
+#if NET5_0_OR_GREATER || NET
+        [global::System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(global::System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | global::System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]
+#endif
+        TComposition>: IServiceProviderFactory<IServiceCollection>
         where TComposition: ServiceProviderFactory<TComposition>
     {
+#if NET5_0_OR_GREATER || NET
+        [global::System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(global::System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods)]
+#endif
         private static readonly Type KeyedServiceProviderType = Type.GetType("Microsoft.Extensions.DependencyInjection.IKeyedServiceProvider, Microsoft.Extensions.DependencyInjection.Abstractions, Culture=neutral, PublicKeyToken=adb9793829ddae60", false);
         private static readonly MethodInfo GetKeyedServiceMethod = KeyedServiceProviderType?.GetMethod("GetKeyedService");
         private static readonly ParameterExpression TypeParameter = Expression.Parameter(typeof(Type));
