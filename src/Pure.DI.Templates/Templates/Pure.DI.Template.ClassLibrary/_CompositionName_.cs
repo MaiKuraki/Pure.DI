@@ -1,4 +1,8 @@
-﻿namespace _PureDIProjectName_;
+﻿using Pure.DI;
+using static Pure.DI.CompositionKind;
+using static Pure.DI.Lifetime;
+
+namespace _PureDIProjectName_;
 
 internal class $(CompositionName)
 {
