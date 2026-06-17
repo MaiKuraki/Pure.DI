@@ -72,6 +72,12 @@ or to run benchmarks:
 ./build.cmd benchmarks
 ```
 
+To install project templates locally, use the build target so template package versions are resolved from `Directory.Build.props`:
+
+```shell
+./build.cmd install
+```
+
 If you are using the Rider IDE, it already has a set of configurations to run these commands. This project uses [C# interactive](https://github.com/DevTeam/csharp-interactive) build automation system for .NET. This tool helps to make .NET builds more efficient.
 
 ![](https://raw.githubusercontent.com/DevTeam/csharp-interactive/master/docs/CSharpInteractive.gif)

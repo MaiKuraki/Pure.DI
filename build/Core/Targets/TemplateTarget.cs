@@ -3,6 +3,9 @@
 
 namespace Build.Core.Targets;
 
+using System.IO.Compression;
+using NuGet.Versioning;
+
 class TemplateTarget(
     Settings settings,
     Commands commands,
@@ -19,6 +22,7 @@ class TemplateTarget(
     {
         var packageVersion = settings.CurrentVersion;
         var packageVersionStr = packageVersion.ToString();
+        var maxPackageVersionStr = GetMaxPackageVersion(packageVersion).ToString();
         var templatesPath = Path.Combine("src", ProjectName, "Templates");
 
         string[] templateProjects = [
@@ -29,7 +33,11 @@ class TemplateTarget(
         var jsonConfigPath = Path.Combine(".template.config", "template.json");
         var jsonConfigs = templateProjects.Select(templateProjectPath => Path.Combine(templateProjectPath, jsonConfigPath)).ToList();
 
-        await UpdateJsonFileWithVersion(jsonConfigs, "$(version)", packageVersionStr, cancellationToken);
+        var originalJsonConfigs = await UpdateTemplateJsonFilesAsync(
+            jsonConfigs,
+            packageVersionStr,
+            maxPackageVersionStr,
+            cancellationToken);
 
         try
         {
@@ -48,6 +56,7 @@ class TemplateTarget(
                 .BuildAsync(cancellationToken: cancellationToken).EnsureSuccess();
 
             var targetPackage = Path.Combine(packagesDirectory, $"{ProjectName}.{packageVersion}.nupkg");
+            EnsureTemplatePackageHasResolvedVersions(targetPackage);
             await SmokeTestTemplatePackageAsync(targetPackage, cancellationToken);
 
             artifactsWriter.PublishArtifact($"{targetPackage} => .");
@@ -68,7 +77,7 @@ class TemplateTarget(
         }
         finally
         {
-            await UpdateJsonFileWithVersion(jsonConfigs, packageVersionStr, "$(version)", cancellationToken);
+            await RestoreJsonFilesAsync(originalJsonConfigs, cancellationToken);
         }
     }
 
@@ -95,6 +104,34 @@ class TemplateTarget(
 
             await CreateAndBuildTemplateProjectAsync("di", "SmokeConsole", consoleAppDirectory, hiveDirectory, cancellationToken);
             await CreateAndBuildTemplateProjectAsync("dilib", "SmokeLib", classLibraryDirectory, hiveDirectory, cancellationToken);
+            await CreateAndBuildTemplateProjectAsync(
+                "di",
+                "SmokeConsoleCustomComposition",
+                Path.Combine(outputDirectory, "SmokeConsoleCustomComposition"),
+                hiveDirectory,
+                cancellationToken,
+                "CustomComposition");
+            await CreateAndBuildTemplateProjectAsync(
+                "dilib",
+                "SmokeLibCustomComposition",
+                Path.Combine(outputDirectory, "SmokeLibCustomComposition"),
+                hiveDirectory,
+                cancellationToken,
+                "CustomComposition");
+            await CreateAndAssertBuildFailsAsync(
+                "di",
+                "SmokeConsoleBadComposition",
+                Path.Combine(outputDirectory, "SmokeConsoleBadComposition"),
+                hiveDirectory,
+                "123Bad",
+                cancellationToken);
+            await CreateAndAssertBuildFailsAsync(
+                "di",
+                "SmokeConsoleRootComposition",
+                Path.Combine(outputDirectory, "SmokeConsoleRootComposition"),
+                hiveDirectory,
+                "Root",
+                cancellationToken);
         }
         finally
         {
@@ -110,16 +147,23 @@ class TemplateTarget(
         string projectName,
         string outputDirectory,
         string hiveDirectory,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        string? compositionName = null)
     {
-        await new DotNetNew()
+        var dotNetNew = new DotNetNew()
             .WithTemplateName(templateName)
             .WithName(projectName)
             .WithOutput(outputDirectory)
             .WithForce(true)
             .AddArgs("--debug:custom-hive", hiveDirectory)
-            .WithShortName($"creating a project from the {templateName} template")
-            .RunAsync(cancellationToken: cancellationToken).EnsureSuccess();
+            .WithShortName($"creating a project from the {templateName} template");
+
+        if (!string.IsNullOrWhiteSpace(compositionName))
+        {
+            dotNetNew = dotNetNew.AddArgs("--compositionName", compositionName);
+        }
+
+        await dotNetNew.RunAsync(cancellationToken: cancellationToken).EnsureSuccess();
 
         var guidelinesPath = Path.Combine(outputDirectory, ".junie", "guidelines.md");
         if (File.Exists(guidelinesPath))
@@ -134,15 +178,93 @@ class TemplateTarget(
             .RunAsync(cancellationToken: cancellationToken).EnsureSuccess();
     }
 
-    private static async Task UpdateJsonFileWithVersion(
-        IEnumerable<string> jsonFiles,
-        string targetStr,
-        string packageVersionStr, CancellationToken cancellationToken)
+    private static async Task CreateAndAssertBuildFailsAsync(
+        string templateName,
+        string projectName,
+        string outputDirectory,
+        string hiveDirectory,
+        string compositionName,
+        CancellationToken cancellationToken)
     {
+        await new DotNetNew()
+            .WithTemplateName(templateName)
+            .WithName(projectName)
+            .WithOutput(outputDirectory)
+            .WithForce(true)
+            .AddArgs("--debug:custom-hive", hiveDirectory, "--compositionName", compositionName)
+            .WithShortName($"creating a project from the {templateName} template with invalid composition name {compositionName}")
+            .RunAsync(cancellationToken: cancellationToken).EnsureSuccess();
+
+        var result = await new DotNetBuild()
+            .WithProject(Path.Combine(outputDirectory, $"{projectName}.csproj"))
+            .WithShortName($"building the project from the {templateName} template with invalid composition name {compositionName}")
+            .RunAsync(cancellationToken: cancellationToken);
+
+        if (result.ExitCode == 0)
+        {
+            Error($"The {templateName} template unexpectedly accepted the composition name '{compositionName}'.");
+            throw new InvalidOperationException($"The {templateName} template unexpectedly accepted the composition name '{compositionName}'.");
+        }
+    }
+
+    private static NuGetVersion GetMaxPackageVersion(NuGetVersion packageVersion) =>
+        new(packageVersion.Major, packageVersion.Minor + 1, 0);
+
+    private static bool HasUnresolvedVersionDefaults(string content) =>
+        content.Contains("$(PureDIVersionDefault)", StringComparison.Ordinal)
+        || content.Contains("$(PureDIMaxVersionDefault)", StringComparison.Ordinal);
+
+    private static void EnsureTemplatePackageHasResolvedVersions(string packagePath)
+    {
+        using var archive = ZipFile.OpenRead(packagePath);
+        foreach (var entry in archive.Entries.Where(i => i.FullName.EndsWith("template.json", StringComparison.Ordinal)))
+        {
+            using var streamReader = new StreamReader(entry.Open());
+            var content = streamReader.ReadToEnd();
+            if (!HasUnresolvedVersionDefaults(content))
+            {
+                continue;
+            }
+
+            Error($"The template package contains unresolved Pure.DI version placeholders: {entry.FullName}");
+            throw new InvalidOperationException($"The template package contains unresolved Pure.DI version placeholders: {entry.FullName}");
+        }
+    }
+
+    private static async Task<IReadOnlyDictionary<string, string>> UpdateTemplateJsonFilesAsync(
+        IEnumerable<string> jsonFiles,
+        string packageVersionStr,
+        string maxPackageVersionStr,
+        CancellationToken cancellationToken)
+    {
+        var originalJsonConfigs = new Dictionary<string, string>();
         foreach (var jsonFile in jsonFiles)
         {
             var content = await File.ReadAllTextAsync(jsonFile, cancellationToken);
-            content = content.Replace(targetStr, packageVersionStr);
+            originalJsonConfigs.Add(jsonFile, content);
+
+            content = content
+                .Replace("$(PureDIVersionDefault)", packageVersionStr)
+                .Replace("$(PureDIMaxVersionDefault)", maxPackageVersionStr);
+
+            if (HasUnresolvedVersionDefaults(content))
+            {
+                Error($"Could not resolve Pure.DI version placeholders in {jsonFile}");
+                throw new InvalidOperationException($"Could not resolve Pure.DI version placeholders in {jsonFile}");
+            }
+
+            await File.WriteAllTextAsync(jsonFile, content, cancellationToken);
+        }
+
+        return originalJsonConfigs;
+    }
+
+    private static async Task RestoreJsonFilesAsync(
+        IReadOnlyDictionary<string, string> jsonFiles,
+        CancellationToken cancellationToken)
+    {
+        foreach (var (jsonFile, content) in jsonFiles)
+        {
             await File.WriteAllTextAsync(jsonFile, content, cancellationToken);
         }
     }

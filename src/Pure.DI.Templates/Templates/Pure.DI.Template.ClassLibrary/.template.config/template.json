@@ -74,8 +74,23 @@
       "type": "parameter",
       "datatype": "string",
       "description": "Version of Pure.DI that will be referenced.",
-      "defaultValue": "$(version)",
+      "defaultValue": "$(PureDIVersionDefault)",
       "replaces": "$(PureDIVersion)"
+    },
+    "pureDiMaxVersion": {
+      "type": "generated",
+      "generator": "constant",
+      "description": "Maximum exclusive version of Pure.DI that will be referenced.",
+      "parameters": {
+        "value": "$(PureDIMaxVersionDefault)"
+      },
+      "replaces": "$(PureDIMaxVersion)"
+    },
+    "skipRestore": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Skip automatic restore.",
+      "defaultValue": "false"
     }
   },
   "sources": [
@@ -90,6 +105,22 @@
   "primaryOutputs": [
     {
       "path": "_PureDIProjectName_.csproj"
+    }
+  ],
+  "postActions": [
+    {
+      "condition": "(!skipRestore)",
+      "description": "Restore NuGet packages required by this project.",
+      "manualInstructions": [
+        {
+          "text": "Run 'dotnet restore'"
+        }
+      ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "args": {
+        "files": "_PureDIProjectName_.csproj"
+      },
+      "continueOnError": true
     }
   ]
 }
