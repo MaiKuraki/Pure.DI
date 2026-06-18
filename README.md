@@ -353,6 +353,7 @@ dotnet run
 - [Service provider](readme/service-provider.md)
 - [Service provider with scope](readme/service-provider-with-scope.md)
 - [Overriding the BCL binding](readme/overriding-the-bcl-binding.md)
+- [Default BCL bindings](readme/default-bcl-bindings.md)
 ### Generics
 - [Generics](readme/generics.md)
 - [Generic composition roots](readme/generic-composition-roots.md)
@@ -2407,7 +2408,7 @@ AI needs to understand the situation it’s in (context). This means knowing det
 | --------------- | ---- | ------ |
 | [AGENTS_SMALL.md](AGENTS_SMALL.md) | 62KB | 16K |
 | [AGENTS_MEDIUM.md](AGENTS_MEDIUM.md) | 112KB | 28K |
-| [AGENTS.md](AGENTS.md) | 411KB | 105K |
+| [AGENTS.md](AGENTS.md) | 413KB | 105K |
 
 For different IDEs, you can use the _AGENTS.md_ file as is by simply copying it to the root directory. For use with _JetBrains Rider_ and _Junie_, please refer to [these instructions](https://www.jetbrains.com/help/junie/customize-guidelines.html). For example, you can copy any _AGENTS.md_ file into your project (using _Pure.DI_) as _.junie/guidelines.md._
 ## How to contribute to Pure.DI

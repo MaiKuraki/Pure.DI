@@ -130,7 +130,7 @@ partial class Composition: IDisposable, IAsyncDisposable
   private object[] _disposables;
   private int _disposeIndex;
 
-  private Dependency? _scopedDependency62;
+  private Dependency? _scopedDependency71;
 
   [OrdinalAttribute(256)]
   public Composition()
@@ -157,15 +157,15 @@ partial class Composition: IDisposable, IAsyncDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      if (_scopedDependency62 is null)
+      if (_scopedDependency71 is null)
         lock (_lock)
-          if (_scopedDependency62 is null)
+          if (_scopedDependency71 is null)
           {
-            _scopedDependency62 = new Dependency();
-            _disposables[_disposeIndex++] = _scopedDependency62;
+            _scopedDependency71 = new Dependency();
+            _disposables[_disposeIndex++] = _scopedDependency71;
           }
 
-      return new Service(_scopedDependency62);
+      return new Service(_scopedDependency71);
     }
   }
 
@@ -178,6 +178,7 @@ partial class Composition: IDisposable, IAsyncDisposable
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         return new Session(this);
       });
       return new Program(perBlockFuncSession);
@@ -194,7 +195,7 @@ partial class Composition: IDisposable, IAsyncDisposable
       _disposeIndex = 0;
       disposables = _disposables;
       _disposables = new object[1];
-      _scopedDependency62 = null;
+      _scopedDependency71 = null;
     }
 
     while (disposeIndex-- > 0)
@@ -230,7 +231,7 @@ partial class Composition: IDisposable, IAsyncDisposable
       _disposeIndex = 0;
       disposables = _disposables;
       _disposables = new object[1];
-      _scopedDependency62 = null;
+      _scopedDependency71 = null;
     }
 
     while (disposeIndex-- > 0)

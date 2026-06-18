@@ -68,21 +68,21 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private Configuration? _singletonConfiguration62;
+  private Configuration? _singletonConfiguration71;
 
   public EmailService MyEmailService
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      if (_singletonConfiguration62 is null)
+      if (_singletonConfiguration71 is null)
         lock (_lock)
-          if (_singletonConfiguration62 is null)
+          if (_singletonConfiguration71 is null)
           {
-            _singletonConfiguration62 = new Configuration();
+            _singletonConfiguration71 = new Configuration();
           }
 
-      return new EmailService(_singletonConfiguration62);
+      return new EmailService(_singletonConfiguration71);
     }
   }
 }

@@ -99,21 +99,21 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private PayPalGateway? _singletonPayPalGateway63;
+  private PayPalGateway? _singletonPayPalGateway72;
 
   public IPaymentGateway PayPalRoot
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      if (_singletonPayPalGateway63 is null)
+      if (_singletonPayPalGateway72 is null)
         lock (_lock)
-          if (_singletonPayPalGateway63 is null)
+          if (_singletonPayPalGateway72 is null)
           {
-            _singletonPayPalGateway63 = new PayPalGateway();
+            _singletonPayPalGateway72 = new PayPalGateway();
           }
 
-      return _singletonPayPalGateway63;
+      return _singletonPayPalGateway72;
     }
   }
 
@@ -122,14 +122,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      if (_singletonPayPalGateway63 is null)
+      if (_singletonPayPalGateway72 is null)
         lock (_lock)
-          if (_singletonPayPalGateway63 is null)
+          if (_singletonPayPalGateway72 is null)
           {
-            _singletonPayPalGateway63 = new PayPalGateway();
+            _singletonPayPalGateway72 = new PayPalGateway();
           }
 
-      return new PaymentProcessor(new CreditCardGateway(), _singletonPayPalGateway63, new CreditCardGateway());
+      return new PaymentProcessor(new CreditCardGateway(), _singletonPayPalGateway72, new CreditCardGateway());
     }
   }
 }

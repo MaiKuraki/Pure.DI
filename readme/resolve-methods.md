@@ -102,6 +102,7 @@ partial class Composition
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         return new TemperatureSensor(new Device());
       });
       return new LightweightRoot()

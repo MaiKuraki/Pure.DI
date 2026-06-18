@@ -72,21 +72,21 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private DbConnection? _singletonDbConnection62;
+  private DbConnection? _singletonDbConnection71;
 
   public IOrderService OrderService
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      if (_singletonDbConnection62 is null)
+      if (_singletonDbConnection71 is null)
         lock (_lock)
-          if (_singletonDbConnection62 is null)
+          if (_singletonDbConnection71 is null)
           {
-            _singletonDbConnection62 = new DbConnection();
+            _singletonDbConnection71 = new DbConnection();
           }
 
-      return new OrderService(_singletonDbConnection62);
+      return new OrderService(_singletonDbConnection71);
     }
   }
 }

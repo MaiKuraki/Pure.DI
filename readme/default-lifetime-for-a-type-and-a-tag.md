@@ -116,29 +116,29 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private LiveAudioSource? _singletonLiveAudioSource62;
-  private BufferedAudioSource? _singletonBufferedAudioSource63;
+  private LiveAudioSource? _singletonLiveAudioSource71;
+  private BufferedAudioSource? _singletonBufferedAudioSource72;
 
   public IPlaybackSession PlaybackSession
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      if (_singletonLiveAudioSource62 is null)
+      if (_singletonLiveAudioSource71 is null)
         lock (_lock)
-          if (_singletonLiveAudioSource62 is null)
+          if (_singletonLiveAudioSource71 is null)
           {
-            _singletonLiveAudioSource62 = new LiveAudioSource();
+            _singletonLiveAudioSource71 = new LiveAudioSource();
           }
 
-      if (_singletonBufferedAudioSource63 is null)
+      if (_singletonBufferedAudioSource72 is null)
         lock (_lock)
-          if (_singletonBufferedAudioSource63 is null)
+          if (_singletonBufferedAudioSource72 is null)
           {
-            _singletonBufferedAudioSource63 = new BufferedAudioSource();
+            _singletonBufferedAudioSource72 = new BufferedAudioSource();
           }
 
-      return new PlaybackSession(_singletonLiveAudioSource62, _singletonBufferedAudioSource63);
+      return new PlaybackSession(_singletonLiveAudioSource71, _singletonBufferedAudioSource72);
     }
   }
 }

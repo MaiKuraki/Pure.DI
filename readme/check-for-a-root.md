@@ -125,6 +125,7 @@ partial class Composition
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         return new SqlUserRepository();
       });
       return new LightweightRoot()

@@ -104,15 +104,16 @@ partial class Composition
   public ICommand GetCommand(CancellationToken cancellationToken)
   {
     Task<IDataService> transientTaskIDataService;
-    // Injects an instance factory
+    // Creates the task value factory
     Func<IDataService> perBlockFuncIDataService = new Func<IDataService>(
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
+      // Creates a deferred value
       return new DataService();
     });
     Func<IDataService> localFactory = perBlockFuncIDataService;
-    // Injects a task factory creating and scheduling task objects
+    // Creates the task factory
     TaskFactory<IDataService> perBlockTaskFactoryIDataService;
     CancellationToken localCancellationToken = cancellationToken;
     TaskCreationOptions transientTaskCreationOptions = TaskCreationOptions.None;
@@ -123,7 +124,7 @@ partial class Composition
     TaskScheduler localTaskScheduler = transientTaskScheduler;
     perBlockTaskFactoryIDataService = new TaskFactory<IDataService>(localCancellationToken, localTaskCreationOptions, localTaskContinuationOptions, localTaskScheduler);
     TaskFactory<IDataService> localTaskFactory = perBlockTaskFactoryIDataService;
-    // Creates and starts a task using the instance factory
+    // Starts the task
     transientTaskIDataService = localTaskFactory.StartNew(localFactory);
     return new LoadDataCommand(transientTaskIDataService);
   }

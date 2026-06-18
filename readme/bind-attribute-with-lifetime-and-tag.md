@@ -89,28 +89,28 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private IGpu? _singletonIGpu2147483112;
-  private GraphicsAdapter? _singletonGraphicsAdapter62;
+  private IGpu? _singletonIGpu2147483103;
+  private GraphicsAdapter? _singletonGraphicsAdapter71;
 
   public IRenderer Renderer
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      if (_singletonIGpu2147483112 is null)
+      if (_singletonIGpu2147483103 is null)
         lock (_lock)
-          if (_singletonIGpu2147483112 is null)
+          if (_singletonIGpu2147483103 is null)
           {
-            if (_singletonGraphicsAdapter62 is null)
+            if (_singletonGraphicsAdapter71 is null)
             {
-              _singletonGraphicsAdapter62 = new GraphicsAdapter();
+              _singletonGraphicsAdapter71 = new GraphicsAdapter();
             }
 
-            GraphicsAdapter localInstance_1182D127 = _singletonGraphicsAdapter62;
-            _singletonIGpu2147483112 = localInstance_1182D127.HighPerfGpu;
+            GraphicsAdapter localInstance_1182D127 = _singletonGraphicsAdapter71;
+            _singletonIGpu2147483103 = localInstance_1182D127.HighPerfGpu;
           }
 
-      return new RayTracer(_singletonIGpu2147483112);
+      return new RayTracer(_singletonIGpu2147483103);
     }
   }
 }

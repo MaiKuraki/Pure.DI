@@ -143,7 +143,7 @@ partial class Composition: IDisposable
   private object[] _disposables;
   private int _disposeIndex;
 
-  private RequestContext? _scopedRequestContext62;
+  private RequestContext? _scopedRequestContext71;
 
   [OrdinalAttribute(256)]
   public Composition()
@@ -170,15 +170,15 @@ partial class Composition: IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      if (_scopedRequestContext62 is null)
+      if (_scopedRequestContext71 is null)
         lock (_lock)
-          if (_scopedRequestContext62 is null)
+          if (_scopedRequestContext71 is null)
           {
-            _scopedRequestContext62 = new RequestContext();
-            _disposables[_disposeIndex++] = _scopedRequestContext62;
+            _scopedRequestContext71 = new RequestContext();
+            _disposables[_disposeIndex++] = _scopedRequestContext71;
           }
 
-      return new CheckoutService(_scopedRequestContext62);
+      return new CheckoutService(_scopedRequestContext71);
     }
   }
 
@@ -191,6 +191,7 @@ partial class Composition: IDisposable
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         return new RequestScope(this);
       });
       return new App(perBlockFuncRequestScope);
@@ -207,7 +208,7 @@ partial class Composition: IDisposable
       _disposeIndex = 0;
       disposables = _disposables;
       _disposables = new object[1];
-      _scopedRequestContext62 = null;
+      _scopedRequestContext71 = null;
     }
 
     while (disposeIndex-- > 0)

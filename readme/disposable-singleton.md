@@ -106,22 +106,22 @@ partial class Composition: IDisposable
   private object[] _disposables = new object[1];
   private int _disposeIndex;
 
-  private AcousticSensorBus? _singletonAcousticSensorBus62;
+  private AcousticSensorBus? _singletonAcousticSensorBus71;
 
   public ICombatSystem CombatSystem
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      if (_singletonAcousticSensorBus62 is null)
+      if (_singletonAcousticSensorBus71 is null)
         lock (_lock)
-          if (_singletonAcousticSensorBus62 is null)
+          if (_singletonAcousticSensorBus71 is null)
           {
-            _singletonAcousticSensorBus62 = new AcousticSensorBus();
-            _disposables[_disposeIndex++] = _singletonAcousticSensorBus62;
+            _singletonAcousticSensorBus71 = new AcousticSensorBus();
+            _disposables[_disposeIndex++] = _singletonAcousticSensorBus71;
           }
 
-      return new SubmarineCombatSystem(_singletonAcousticSensorBus62);
+      return new SubmarineCombatSystem(_singletonAcousticSensorBus71);
     }
   }
 
@@ -135,7 +135,7 @@ partial class Composition: IDisposable
       _disposeIndex = 0;
       disposables = _disposables;
       _disposables = new object[1];
-      _singletonAcousticSensorBus62 = null;
+      _singletonAcousticSensorBus71 = null;
     }
 
     while (disposeIndex-- > 0)

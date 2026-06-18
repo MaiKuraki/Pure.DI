@@ -116,7 +116,7 @@ partial class Composition
     {
       var perBlockOwned = new Owned();
       Owned<IQuery> perBlockOwnedIQuery;
-      // Creates the owner of an instance
+      // Tracks owned disposables
       Owned transientOwned;
       Owned localOwned1 = perBlockOwned;
       transientOwned = localOwned1;
@@ -126,6 +126,7 @@ partial class Composition
       }
 
       IOwned localOwned = transientOwned;
+      // Creates the owned value
       var transientDbConnection = new DbConnection();
       lock (_lock)
       {

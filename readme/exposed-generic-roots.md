@@ -74,7 +74,7 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private OtherAssembly.CompositionWithGenericRootsInOtherProject? _singletonCompositionWithGenericRootsInOtherProject62;
+  private OtherAssembly.CompositionWithGenericRootsInOtherProject? _singletonCompositionWithGenericRootsInOtherProject71;
 
   public Program Program
   {
@@ -82,14 +82,14 @@ partial class Composition
     get
     {
       OtherAssembly.IMyGenericService<int> transientIMyGenericServiceInt32;
-      if (_singletonCompositionWithGenericRootsInOtherProject62 is null)
+      if (_singletonCompositionWithGenericRootsInOtherProject71 is null)
         lock (_lock)
-          if (_singletonCompositionWithGenericRootsInOtherProject62 is null)
+          if (_singletonCompositionWithGenericRootsInOtherProject71 is null)
           {
-            _singletonCompositionWithGenericRootsInOtherProject62 = new OtherAssembly.CompositionWithGenericRootsInOtherProject();
+            _singletonCompositionWithGenericRootsInOtherProject71 = new OtherAssembly.CompositionWithGenericRootsInOtherProject();
           }
 
-      OtherAssembly.CompositionWithGenericRootsInOtherProject localInstance_1182D127 = _singletonCompositionWithGenericRootsInOtherProject62;
+      OtherAssembly.CompositionWithGenericRootsInOtherProject localInstance_1182D127 = _singletonCompositionWithGenericRootsInOtherProject71;
       transientIMyGenericServiceInt32 = localInstance_1182D127.GetMyService<int>();
       return new Program(transientIMyGenericServiceInt32);
     }

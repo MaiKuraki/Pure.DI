@@ -4741,6 +4741,71 @@ To run the above code, the following NuGet packages must be added:
 >[!NOTE]
 >Overriding BCL bindings allows you to provide custom implementations for standard types, enabling specialized behavior for your application.
 
+## Default BCL bindings
+
+Pure.DI provides default bindings for commonly used .NET BCL types, so they can be injected without extra setup code.
+
+```c#
+using Shouldly;
+using Pure.DI;
+using System.Globalization;
+using System.Security.Cryptography;
+
+DI.Setup(nameof(Composition))
+    .Root<ReportService>("ReportService");
+
+var composition = new Composition();
+var reportService = composition.ReportService;
+
+reportService.Culture.ShouldBe(CultureInfo.CurrentCulture);
+reportService.FormatProvider.ShouldBe(reportService.Culture);
+reportService.CompareInfo.ShouldBe(CultureInfo.CurrentCulture.CompareInfo);
+reportService.StringComparer.ShouldBe(StringComparer.Ordinal);
+reportService.StringComparison.ShouldBe(StringComparison.Ordinal);
+reportService.TimeProvider.ShouldBe(TimeProvider.System);
+reportService.Completion.Task.CreationOptions
+    .HasFlag(TaskCreationOptions.RunContinuationsAsynchronously)
+    .ShouldBeTrue();
+
+var bytes = new byte[4];
+reportService.RandomNumberGenerator.GetBytes(bytes);
+bytes.Length.ShouldBe(4);
+
+class ReportService(
+    CultureInfo culture,
+    IFormatProvider formatProvider,
+    CompareInfo compareInfo,
+    StringComparer stringComparer,
+    StringComparison stringComparison,
+    TimeProvider timeProvider,
+    TaskCompletionSource<string> completion,
+    RandomNumberGenerator randomNumberGenerator)
+{
+    public CultureInfo Culture { get; } = culture;
+
+    public IFormatProvider FormatProvider { get; } = formatProvider;
+
+    public CompareInfo CompareInfo { get; } = compareInfo;
+
+    public StringComparer StringComparer { get; } = stringComparer;
+
+    public StringComparison StringComparison { get; } = stringComparison;
+
+    public TimeProvider TimeProvider { get; } = timeProvider;
+
+    public TaskCompletionSource<string> Completion { get; } = completion;
+
+    public RandomNumberGenerator RandomNumberGenerator { get; } = randomNumberGenerator;
+}
+```
+
+To run the above code, the following NuGet packages must be added:
+ - [Pure.DI](https://www.nuget.org/packages/Pure.DI)
+ - [Shouldly](https://www.nuget.org/packages/Shouldly)
+
+>[!NOTE]
+>Default BCL bindings can still be overridden in the composition when an application needs a different policy.
+
 ## Generics
 
 Generic types are also supported.
@@ -11245,7 +11310,7 @@ The [project file](/samples/AvaloniaApp/AvaloniaApp.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.4.2">
+        <PackageReference Include="Pure.DI" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -11316,11 +11381,11 @@ The [project file](/samples/BlazorServerApp/BlazorServerApp.csproj) looks like t
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.4.2">
+        <PackageReference Include="Pure.DI" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.4.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.4.3" />
     </ItemGroup>
 
 </Project>
@@ -11398,11 +11463,11 @@ The [project file](/samples/BlazorWebAssemblyApp/BlazorWebAssemblyApp.csproj) lo
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.4.2">
+        <PackageReference Include="Pure.DI" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.4.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.4.3" />
     </ItemGroup>
 
 </Project>
@@ -11496,7 +11561,7 @@ The [project file](/samples/ShroedingersCatNativeAOT/ShroedingersCatNativeAOT.cs
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.4.2">
+        <PackageReference Include="Pure.DI" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -11599,7 +11664,7 @@ The [project file](/samples/ShroedingersCat/ShroedingersCat.csproj) looks like t
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.4.2">
+        <PackageReference Include="Pure.DI" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -11688,7 +11753,7 @@ The [project file](/samples/ShroedingersCatTopLevelStatements/ShroedingersCatTop
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.4.2">
+        <PackageReference Include="Pure.DI" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -11796,11 +11861,11 @@ The [project file](/samples/EF/EF.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.4.2">
+        <PackageReference Include="Pure.DI" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.4.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.4.3" />
     </ItemGroup>
 
 </Project>
@@ -11871,11 +11936,11 @@ The [project file](/samples/GrpcService/GrpcService.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.4.2">
+        <PackageReference Include="Pure.DI" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.4.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.4.3" />
     </ItemGroup>
 
 </Project>
@@ -12042,11 +12107,11 @@ The [project file](/samples/MAUIApp/MAUIApp.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.4.2">
+        <PackageReference Include="Pure.DI" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.4.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.4.3" />
     </ItemGroup>
 
 </Project>
@@ -12142,11 +12207,11 @@ The [project file](/samples/MinimalWebAPI/MinimalWebAPI.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.4.2">
+        <PackageReference Include="Pure.DI" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.4.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.4.3" />
     </ItemGroup>
 
 </Project>
@@ -12353,11 +12418,11 @@ The [project file](/samples/WebAPI/WebAPI.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.4.2">
+        <PackageReference Include="Pure.DI" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.4.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.4.3" />
     </ItemGroup>
 
 </Project>
@@ -12429,11 +12494,11 @@ The [project file](/samples/WebApp/WebApp.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.4.2">
+        <PackageReference Include="Pure.DI" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pure.DI.MS" Version="2.4.2" />
+        <PackageReference Include="Pure.DI.MS" Version="2.4.3" />
     </ItemGroup>
 
 </Project>
@@ -12509,7 +12574,7 @@ The [project file](/samples/WinFormsAppNetCore/WinFormsAppNetCore.csproj) looks 
 <Project Sdk="Microsoft.NET.Sdk">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.4.2">
+        <PackageReference Include="Pure.DI" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -12590,7 +12655,7 @@ The [project file](/samples/WinFormsApp/WinFormsApp.csproj) looks like this:
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.4.2">
+        <PackageReference Include="Pure.DI" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -12709,7 +12774,7 @@ The [project file](/samples/WpfAppNetCore/WpfAppNetCore.csproj) looks like this:
 <Project Sdk="Microsoft.NET.Sdk">
    ...
     <ItemGroup>
-        <PackageReference Include="Pure.DI" Version="2.4.2">
+        <PackageReference Include="Pure.DI" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

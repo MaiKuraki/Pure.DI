@@ -112,7 +112,7 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private Clock? _singletonClock62;
+  private Clock? _singletonClock71;
 
   public ITeam Team
   {
@@ -120,21 +120,20 @@ partial class Composition
     get
     {
       Func<int, string, IPerson> perBlockFuncInt32StringIPerson;
+      // Creates a factory with runtime arguments
       Func<int, string, IPerson> localFactory = new Func<int, string, IPerson>((int localArg11, string localArg2) =>
       {
-        lock (_lock)
-        {
-          int overriddenInt32 = localArg11;
-          string overriddenString = localArg2;
-          if (_singletonClock62 is null)
-            lock (_lock)
-              if (_singletonClock62 is null)
-              {
-                _singletonClock62 = new Clock();
-              }
+        // Creates the result
+        int overriddenInt32 = localArg11;
+        string overriddenString = localArg2;
+        if (_singletonClock71 is null)
+          lock (_lock)
+            if (_singletonClock71 is null)
+            {
+              _singletonClock71 = new Clock();
+            }
 
-          return new Person(overriddenString, _singletonClock62, overriddenInt32);
-        }
+        return new Person(overriddenString, _singletonClock71, overriddenInt32);
       });
       perBlockFuncInt32StringIPerson = localFactory;
       return new Team(perBlockFuncInt32StringIPerson);

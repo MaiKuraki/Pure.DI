@@ -98,7 +98,7 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private DeviceFeatureProvider? _singletonDeviceFeatureProvider62;
+  private DeviceFeatureProvider? _singletonDeviceFeatureProvider71;
 
   public IPhotoService PhotoService
   {
@@ -107,15 +107,16 @@ partial class Composition
     {
       IGps transientIGps;
       EnsureDeviceFeatureProviderExists();
-      DeviceFeatureProvider localInstance_1182D127 = _singletonDeviceFeatureProvider62;
+      DeviceFeatureProvider localInstance_1182D127 = _singletonDeviceFeatureProvider71;
       transientIGps = localInstance_1182D127.Gps;
       Func<ICamera> perBlockFuncICamera = new Func<ICamera>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         ICamera transientICamera;
         EnsureDeviceFeatureProviderExists();
-        DeviceFeatureProvider localInstance_1182D1271 = _singletonDeviceFeatureProvider62;
+        DeviceFeatureProvider localInstance_1182D1271 = _singletonDeviceFeatureProvider71;
         transientICamera = localInstance_1182D1271.Camera;
         return transientICamera;
       });
@@ -123,11 +124,11 @@ partial class Composition
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       void EnsureDeviceFeatureProviderExists()
       {
-        if (_singletonDeviceFeatureProvider62 is null)
+        if (_singletonDeviceFeatureProvider71 is null)
           lock (_lock)
-            if (_singletonDeviceFeatureProvider62 is null)
+            if (_singletonDeviceFeatureProvider71 is null)
             {
-              _singletonDeviceFeatureProvider62 = new DeviceFeatureProvider();
+              _singletonDeviceFeatureProvider71 = new DeviceFeatureProvider();
             }
       }
     }

@@ -150,8 +150,8 @@ partial class Composition: IDisposable
   private object[] _disposables = new object[1];
   private int _disposeIndex;
 
-  private RequestContext? _scopedRequestContext62;
-  private IdGenerator? _singletonIdGenerator63;
+  private RequestContext? _scopedRequestContext71;
+  private IdGenerator? _singletonIdGenerator72;
 
   internal static Composition SetupScope(Composition parentScope, Composition childScope)
   {
@@ -170,20 +170,20 @@ partial class Composition: IDisposable
     get
     {
       var root = _root ?? this;
-      if (_scopedRequestContext62 is null)
+      if (_scopedRequestContext71 is null)
         lock (_lock)
-          if (_scopedRequestContext62 is null)
+          if (_scopedRequestContext71 is null)
           {
-            if (root._singletonIdGenerator63 is null)
+            if (root._singletonIdGenerator72 is null)
             {
-              root._singletonIdGenerator63 = new IdGenerator();
+              root._singletonIdGenerator72 = new IdGenerator();
             }
 
-            _scopedRequestContext62 = new RequestContext(root._singletonIdGenerator63);
-            _disposables[_disposeIndex++] = _scopedRequestContext62;
+            _scopedRequestContext71 = new RequestContext(root._singletonIdGenerator72);
+            _disposables[_disposeIndex++] = _scopedRequestContext71;
           }
 
-      return new CheckoutService(_scopedRequestContext62);
+      return new CheckoutService(_scopedRequestContext71);
     }
   }
 
@@ -206,8 +206,8 @@ partial class Composition: IDisposable
       _disposeIndex = 0;
       disposables = _disposables;
       _disposables = new object[1];
-      _scopedRequestContext62 = null;
-      _singletonIdGenerator63 = null;
+      _scopedRequestContext71 = null;
+      _singletonIdGenerator72 = null;
     }
 
     while (disposeIndex-- > 0)

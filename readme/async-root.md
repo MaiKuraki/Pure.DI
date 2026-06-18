@@ -71,15 +71,16 @@ partial class Composition
   public Task<IBackupService> GetBackupServiceAsync(CancellationToken cancellationToken)
   {
     Task<IBackupService> transientTaskIBackupService;
-    // Injects an instance factory
+    // Creates the task value factory
     Func<IBackupService> perBlockFuncIBackupService = new Func<IBackupService>(
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
+      // Creates a deferred value
       return new BackupService(new FileStore());
     });
     Func<IBackupService> localFactory = perBlockFuncIBackupService;
-    // Injects a task factory creating and scheduling task objects
+    // Creates the task factory
     TaskFactory<IBackupService> perBlockTaskFactoryIBackupService;
     CancellationToken localCancellationToken = cancellationToken;
     TaskCreationOptions transientTaskCreationOptions = TaskCreationOptions.None;
@@ -90,7 +91,7 @@ partial class Composition
     TaskScheduler localTaskScheduler = transientTaskScheduler;
     perBlockTaskFactoryIBackupService = new TaskFactory<IBackupService>(localCancellationToken, localTaskCreationOptions, localTaskContinuationOptions, localTaskScheduler);
     TaskFactory<IBackupService> localTaskFactory = perBlockTaskFactoryIBackupService;
-    // Creates and starts a task using the instance factory
+    // Starts the task
     transientTaskIBackupService = localTaskFactory.StartNew(localFactory);
     return transientTaskIBackupService;
   }

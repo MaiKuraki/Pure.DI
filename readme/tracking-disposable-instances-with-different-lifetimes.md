@@ -148,7 +148,7 @@ partial class Composition: IDisposable
   private object[] _disposables = new object[1];
   private int _disposeIndex;
 
-  private Connection? _singletonConnection63;
+  private Connection? _singletonConnection72;
 
   public QueryHandler QueryHandler
   {
@@ -160,8 +160,9 @@ partial class Composition: IDisposable
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         Owned<IConnection> perBlockOwnedIConnection;
-        // Creates the owner of an instance
+        // Tracks owned disposables
         Owned transientOwned;
         Owned localOwned1 = perBlockOwned;
         transientOwned = localOwned1;
@@ -171,6 +172,7 @@ partial class Composition: IDisposable
         }
 
         IOwned localOwned = transientOwned;
+        // Creates the owned value
         var transientConnection = new Connection();
         lock (_lock)
         {
@@ -191,8 +193,9 @@ partial class Composition: IDisposable
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         Owned<IConnection> perBlockOwnedIConnection1;
-        // Creates the owner of an instance
+        // Tracks owned disposables
         Owned transientOwned1;
         Owned localOwned3 = perBlockOwned1;
         transientOwned1 = localOwned3;
@@ -202,15 +205,16 @@ partial class Composition: IDisposable
         }
 
         IOwned localOwned2 = transientOwned1;
-        if (_singletonConnection63 is null)
+        // Creates the owned value
+        if (_singletonConnection72 is null)
           lock (_lock)
-            if (_singletonConnection63 is null)
+            if (_singletonConnection72 is null)
             {
-              _singletonConnection63 = new Connection();
-              _disposables[_disposeIndex++] = _singletonConnection63;
+              _singletonConnection72 = new Connection();
+              _disposables[_disposeIndex++] = _singletonConnection72;
             }
 
-        IConnection localValue3 = _singletonConnection63;
+        IConnection localValue3 = _singletonConnection72;
         perBlockOwnedIConnection1 = new Owned<IConnection>(localValue3, localOwned2);
         lock (_lock)
         {
@@ -233,7 +237,7 @@ partial class Composition: IDisposable
       _disposeIndex = 0;
       disposables = _disposables;
       _disposables = new object[1];
-      _singletonConnection63 = null;
+      _singletonConnection72 = null;
     }
 
     while (disposeIndex-- > 0)

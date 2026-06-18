@@ -96,7 +96,7 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private ConsoleLogger? _singletonConsoleLogger62;
+  private ConsoleLogger? _singletonConsoleLogger71;
 
   private LightweightRoot LightRoot
   {
@@ -107,15 +107,17 @@ partial class Composition
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         EnsureConsoleLoggerExists();
-        return _singletonConsoleLogger62;
+        return _singletonConsoleLogger71;
       });
       Func<IOrderService> perBlockFuncIOrderService = new Func<IOrderService>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         EnsureConsoleLoggerExists();
-        return new OrderService(_singletonConsoleLogger62);
+        return new OrderService(_singletonConsoleLogger71);
       });
       return new LightweightRoot()
       {
@@ -125,11 +127,11 @@ partial class Composition
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       void EnsureConsoleLoggerExists()
       {
-        if (_singletonConsoleLogger62 is null)
+        if (_singletonConsoleLogger71 is null)
           lock (_lock)
-            if (_singletonConsoleLogger62 is null)
+            if (_singletonConsoleLogger71 is null)
             {
-              _singletonConsoleLogger62 = new ConsoleLogger();
+              _singletonConsoleLogger71 = new ConsoleLogger();
             }
       }
     }

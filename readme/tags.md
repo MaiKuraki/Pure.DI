@@ -107,21 +107,21 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private InternalApiClient? _singletonInternalApiClient63;
+  private InternalApiClient? _singletonInternalApiClient72;
 
   public IApiClient InternalRoot
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      if (_singletonInternalApiClient63 is null)
+      if (_singletonInternalApiClient72 is null)
         lock (_lock)
-          if (_singletonInternalApiClient63 is null)
+          if (_singletonInternalApiClient72 is null)
           {
-            _singletonInternalApiClient63 = new InternalApiClient();
+            _singletonInternalApiClient72 = new InternalApiClient();
           }
 
-      return _singletonInternalApiClient63;
+      return _singletonInternalApiClient72;
     }
   }
 
@@ -130,14 +130,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      if (_singletonInternalApiClient63 is null)
+      if (_singletonInternalApiClient72 is null)
         lock (_lock)
-          if (_singletonInternalApiClient63 is null)
+          if (_singletonInternalApiClient72 is null)
           {
-            _singletonInternalApiClient63 = new InternalApiClient();
+            _singletonInternalApiClient72 = new InternalApiClient();
           }
 
-      return new ApiFacade(new RestApiClient(), _singletonInternalApiClient63, new RestApiClient());
+      return new ApiFacade(new RestApiClient(), _singletonInternalApiClient72, new RestApiClient());
     }
   }
 }

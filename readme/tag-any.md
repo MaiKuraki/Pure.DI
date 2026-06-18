@@ -117,6 +117,7 @@ partial class Composition
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         Queue transientQueue2 = new Queue(42);
         return transientQueue2;
       });

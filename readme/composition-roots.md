@@ -145,6 +145,7 @@ partial class Composition
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         return new FileLogger();
       });
       return new LightweightRoot()

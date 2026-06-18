@@ -98,18 +98,19 @@ partial class Composition
     where T2: IDisposable
   {
     Task<IQuery<T2, bool>> transientTaskIQueryTTDisposableBoolean;
-    // Injects an instance factory
+    // Creates the task value factory
     Func<IQuery<T2, bool>> perBlockFuncIQueryTTDisposableBoolean = new Func<IQuery<T2, bool>>(
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
+      // Creates a deferred value
       StatusQuery<T2> transientStatusQueryTTDisposable;
       IConnectionProvider<T2> localConnectionProvider = new ConnectionProvider<T2>();
       transientStatusQueryTTDisposable = new StatusQuery<T2>(localConnectionProvider);
       return transientStatusQueryTTDisposable;
     });
     Func<IQuery<T2, bool>> localFactory = perBlockFuncIQueryTTDisposableBoolean;
-    // Injects a task factory creating and scheduling task objects
+    // Creates the task factory
     TaskFactory<IQuery<T2, bool>> perBlockTaskFactoryIQueryTTDisposableBoolean;
     CancellationToken localCancellationToken = cancellationToken;
     TaskCreationOptions transientTaskCreationOptions = TaskCreationOptions.None;
@@ -120,7 +121,7 @@ partial class Composition
     TaskScheduler localTaskScheduler = transientTaskScheduler;
     perBlockTaskFactoryIQueryTTDisposableBoolean = new TaskFactory<IQuery<T2, bool>>(localCancellationToken, localTaskCreationOptions, localTaskContinuationOptions, localTaskScheduler);
     TaskFactory<IQuery<T2, bool>> localTaskFactory = perBlockTaskFactoryIQueryTTDisposableBoolean;
-    // Creates and starts a task using the instance factory
+    // Starts the task
     transientTaskIQueryTTDisposableBoolean = localTaskFactory.StartNew(localFactory);
     return transientTaskIQueryTTDisposableBoolean;
   }
@@ -131,15 +132,16 @@ partial class Composition
     where T3: struct
   {
     Task<IQuery<T2, T3>> transientTaskIQueryTTDisposableTTS;
-    // Injects an instance factory
+    // Creates the task value factory
     Func<IQuery<T2, T3>> perBlockFuncIQueryTTDisposableTTS = new Func<IQuery<T2, T3>>(
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
+      // Creates a deferred value
       return new DataQuery<T2, T3>(new ConnectionProvider<T2>());
     });
     Func<IQuery<T2, T3>> localFactory = perBlockFuncIQueryTTDisposableTTS;
-    // Injects a task factory creating and scheduling task objects
+    // Creates the task factory
     TaskFactory<IQuery<T2, T3>> perBlockTaskFactoryIQueryTTDisposableTTS;
     CancellationToken localCancellationToken = cancellationToken;
     TaskCreationOptions transientTaskCreationOptions = TaskCreationOptions.None;
@@ -150,7 +152,7 @@ partial class Composition
     TaskScheduler localTaskScheduler = transientTaskScheduler;
     perBlockTaskFactoryIQueryTTDisposableTTS = new TaskFactory<IQuery<T2, T3>>(localCancellationToken, localTaskCreationOptions, localTaskContinuationOptions, localTaskScheduler);
     TaskFactory<IQuery<T2, T3>> localTaskFactory = perBlockTaskFactoryIQueryTTDisposableTTS;
-    // Creates and starts a task using the instance factory
+    // Starts the task
     transientTaskIQueryTTDisposableTTS = localTaskFactory.StartNew(localFactory);
     return transientTaskIQueryTTDisposableTTS;
   }

@@ -86,8 +86,9 @@ partial class Composition
     get
     {
       ValueTask<IConnection> transientValueTaskIConnection;
+      // Creates the task result
       IConnection localValue = new CloudConnection();
-      // Initializes a new instance of the ValueTask class using the supplied instance
+      // Wraps it in ValueTask<T>
       transientValueTaskIConnection = new ValueTask<IConnection>(localValue);
       return new DataProcessor(transientValueTaskIConnection);
     }

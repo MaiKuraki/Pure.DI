@@ -101,7 +101,7 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private NetworkDataSource? _singletonNetworkDataSource64;
+  private NetworkDataSource? _singletonNetworkDataSource73;
 
   public (IDashboard dashboard, TelemetryRegistry registry) Root
   {
@@ -110,15 +110,15 @@ partial class Composition
     {
       var perBlockTelemetryRegistry = new TelemetryRegistry();
       var perBlockSqlDataSource = new SqlDataSource();
-      if (_singletonNetworkDataSource64 is null)
+      if (_singletonNetworkDataSource73 is null)
         lock (_lock)
-          if (_singletonNetworkDataSource64 is null)
+          if (_singletonNetworkDataSource73 is null)
           {
-            NetworkDataSource _singletonNetworkDataSource64Temp;
-            _singletonNetworkDataSource64Temp = new NetworkDataSource();
-            perBlockTelemetryRegistry.Add(_singletonNetworkDataSource64Temp);
+            NetworkDataSource _singletonNetworkDataSource73Temp;
+            _singletonNetworkDataSource73Temp = new NetworkDataSource();
+            perBlockTelemetryRegistry.Add(_singletonNetworkDataSource73Temp);
             Thread.MemoryBarrier();
-            _singletonNetworkDataSource64 = _singletonNetworkDataSource64Temp;
+            _singletonNetworkDataSource73 = _singletonNetworkDataSource73Temp;
           }
 
       var transientSqlDataSource = new SqlDataSource();
@@ -127,7 +127,7 @@ partial class Composition
         perBlockTelemetryRegistry.Add(transientSqlDataSource);
       }
 
-      var transientDashboard = new Dashboard(transientSqlDataSource, _singletonNetworkDataSource64, perBlockSqlDataSource);
+      var transientDashboard = new Dashboard(transientSqlDataSource, _singletonNetworkDataSource73, perBlockSqlDataSource);
       lock (_lock)
       {
         perBlockTelemetryRegistry.Add(transientDashboard);

@@ -88,6 +88,7 @@ partial class Composition
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         return new NpgsqlConnection();
       });
       return new ConnectionPool(perBlockFuncIDbConnection);

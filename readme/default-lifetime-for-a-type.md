@@ -120,7 +120,7 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private GnssTimeSource? _singletonGnssTimeSource62;
+  private GnssTimeSource? _singletonGnssTimeSource71;
 
   public IBaseStationController Controller
   {
@@ -128,15 +128,15 @@ partial class Composition
     get
     {
       EnsureGnssTimeSourceExists();
-      return new BaseStationController(_singletonGnssTimeSource62, new RadioScheduler(_singletonGnssTimeSource62));
+      return new BaseStationController(_singletonGnssTimeSource71, new RadioScheduler(_singletonGnssTimeSource71));
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       void EnsureGnssTimeSourceExists()
       {
-        if (_singletonGnssTimeSource62 is null)
+        if (_singletonGnssTimeSource71 is null)
           lock (_lock)
-            if (_singletonGnssTimeSource62 is null)
+            if (_singletonGnssTimeSource71 is null)
             {
-              _singletonGnssTimeSource62 = new GnssTimeSource();
+              _singletonGnssTimeSource71 = new GnssTimeSource();
             }
       }
     }

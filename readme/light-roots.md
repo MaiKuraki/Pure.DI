@@ -139,24 +139,28 @@ partial class Composition
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         return new AppConfiguration();
       });
       Func<ILogger> perBlockFuncILogger = new Func<ILogger>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         return new ConsoleLogger();
       });
       Func<ICache> perBlockFuncICache = new Func<ICache>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         return new MemoryCache();
       });
       Func<IMetrics> perBlockFuncIMetrics = new Func<IMetrics>(
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         return new PrometheusMetrics();
       });
       return new LightweightRoot()

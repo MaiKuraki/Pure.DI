@@ -146,7 +146,7 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private TimeProvider? _singletonTimeProvider63;
+  private TimeProvider? _singletonTimeProvider72;
 
   public IOrderBatchProcessor OrderProcessor
   {
@@ -173,14 +173,14 @@ partial class Composition
           int overriddenInt321 = localCustomerId;
           string overriddenString = $"Order:{localOrderId}-Cust:{localCustomerId}";
           ProcessingToken overriddenProcessingToken = localToken;
-          if (_singletonTimeProvider63 is null)
+          if (_singletonTimeProvider72 is null)
             lock (_lock)
-              if (_singletonTimeProvider63 is null)
+              if (_singletonTimeProvider72 is null)
               {
-                _singletonTimeProvider63 = new TimeProvider();
+                _singletonTimeProvider72 = new TimeProvider();
               }
 
-          return new OrderHandler(overriddenString, _singletonTimeProvider63, overriddenInt32, overriddenInt321, overriddenProcessingToken);
+          return new OrderHandler(overriddenString, _singletonTimeProvider72, overriddenInt32, overriddenInt321, overriddenProcessingToken);
         }
       };
       return new OrderBatchProcessor(transientFuncInt32Int32IOrderHandler);

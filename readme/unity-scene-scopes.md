@@ -170,8 +170,8 @@ partial class Scope: IDisposable
   private object[] _disposables = new object[2];
   private int _disposeIndex;
 
-  private ClockService? _singletonClockService64;
-  private ClockSession? _scopedClockSession65;
+  private ClockService? _singletonClockService73;
+  private ClockSession? _scopedClockSession74;
 
   internal static Scope SetupScope(Scope parentScope, Scope childScope)
   {
@@ -191,26 +191,26 @@ partial class Scope: IDisposable
     var root = _root ?? this;
     Clock transientClock;
     Clock localBuildingInstance = buildingInstance;
-    if (root._singletonClockService64 is null)
+    if (root._singletonClockService73 is null)
       lock (_lock)
-        if (root._singletonClockService64 is null)
+        if (root._singletonClockService73 is null)
         {
           ClockConfig transientClockConfig = clockConfig;
-          root._singletonClockService64 = new ClockService(transientClockConfig);
-          root._disposables[root._disposeIndex++] = root._singletonClockService64;
+          root._singletonClockService73 = new ClockService(transientClockConfig);
+          root._disposables[root._disposeIndex++] = root._singletonClockService73;
         }
 
-    if (_scopedClockSession65 is null)
+    if (_scopedClockSession74 is null)
       lock (_lock)
-        if (_scopedClockSession65 is null)
+        if (_scopedClockSession74 is null)
         {
           string transientString = sceneName;
-          _scopedClockSession65 = new ClockSession(transientString);
-          _disposables[_disposeIndex++] = _scopedClockSession65;
+          _scopedClockSession74 = new ClockSession(transientString);
+          _disposables[_disposeIndex++] = _scopedClockSession74;
         }
 
-    localBuildingInstance.ClockService = root._singletonClockService64;
-    localBuildingInstance.Session = _scopedClockSession65;
+    localBuildingInstance.ClockService = root._singletonClockService73;
+    localBuildingInstance.Session = _scopedClockSession74;
     transientClock = localBuildingInstance;
     return transientClock;
   }
@@ -279,8 +279,8 @@ partial class Scope: IDisposable
       _disposeIndex = 0;
       disposables = _disposables;
       _disposables = new object[2];
-      _singletonClockService64 = null;
-      _scopedClockSession65 = null;
+      _singletonClockService73 = null;
+      _scopedClockSession74 = null;
     }
 
     while (disposeIndex-- > 0)

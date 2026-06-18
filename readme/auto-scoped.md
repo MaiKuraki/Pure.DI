@@ -130,7 +130,7 @@ partial class Composition
   private readonly Object _lock;
 #endif
 
-  private PlaybackQueue? _scopedPlaybackQueue62;
+  private PlaybackQueue? _scopedPlaybackQueue71;
 
   [OrdinalAttribute(256)]
   public Composition()
@@ -159,6 +159,7 @@ partial class Composition
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         IListeningSession transientIListeningSession;
         Composition localParentScope = this;
         // Create a child scope so scoped services (PlaybackQueue) are unique per session.
@@ -175,14 +176,14 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      if (_scopedPlaybackQueue62 is null)
+      if (_scopedPlaybackQueue71 is null)
         lock (_lock)
-          if (_scopedPlaybackQueue62 is null)
+          if (_scopedPlaybackQueue71 is null)
           {
-            _scopedPlaybackQueue62 = new PlaybackQueue();
+            _scopedPlaybackQueue71 = new PlaybackQueue();
           }
 
-      return new ListeningSession(_scopedPlaybackQueue62);
+      return new ListeningSession(_scopedPlaybackQueue71);
     }
   }
 }

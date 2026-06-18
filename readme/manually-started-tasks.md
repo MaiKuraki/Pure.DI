@@ -109,6 +109,7 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
+      // Creates a deferred value
       return new UserPreferences();
     });
     Func<IUserPreferences> localFactory = perBlockFuncIUserPreferences;

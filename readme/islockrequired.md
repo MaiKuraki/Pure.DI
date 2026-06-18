@@ -93,7 +93,7 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private IService? _singletonIService63;
+  private IService? _singletonIService72;
 
   public IService Service
   {
@@ -126,9 +126,9 @@ partial class Composition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
-      if (_singletonIService63 is null)
+      if (_singletonIService72 is null)
         lock (_lock)
-          if (_singletonIService63 is null)
+          if (_singletonIService72 is null)
           {
             Service transientService;
             // In a thread-safe context, IsLockRequired is true
@@ -148,10 +148,10 @@ partial class Composition
             transientServiceFinish:
               ;
             IService localService = transientService;
-            _singletonIService63 = localService;
+            _singletonIService72 = localService;
           }
 
-      return _singletonIService63;
+      return _singletonIService72;
     }
   }
 }

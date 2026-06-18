@@ -108,8 +108,8 @@ partial class Composition
   private readonly Object _lock = new Object();
 #endif
 
-  private (IDatabaseConnection conn3, IDatabaseConnection conn4) _singletonValueTuple65;
-  private bool _singletonValueTuple65Created;
+  private (IDatabaseConnection conn3, IDatabaseConnection conn4) _singletonValueTuple74;
+  private bool _singletonValueTuple74Created;
 
   public OrderRepository Repository
   {
@@ -117,17 +117,17 @@ partial class Composition
     get
     {
       var perBlockDatabaseConnection = new DatabaseConnection();
-      if (!_singletonValueTuple65Created)
+      if (!_singletonValueTuple74Created)
         lock (_lock)
-          if (!_singletonValueTuple65Created)
+          if (!_singletonValueTuple74Created)
           {
             var perBlockDatabaseConnection1 = new DatabaseConnection();
-            _singletonValueTuple65 = (perBlockDatabaseConnection1, perBlockDatabaseConnection1);
+            _singletonValueTuple74 = (perBlockDatabaseConnection1, perBlockDatabaseConnection1);
             Thread.MemoryBarrier();
-            _singletonValueTuple65Created = true;
+            _singletonValueTuple74Created = true;
           }
 
-      return new OrderRepository(perBlockDatabaseConnection, perBlockDatabaseConnection, _singletonValueTuple65);
+      return new OrderRepository(perBlockDatabaseConnection, perBlockDatabaseConnection, _singletonValueTuple74);
     }
   }
 }

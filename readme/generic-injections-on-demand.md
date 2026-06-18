@@ -86,6 +86,7 @@ partial class Composition
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       () =>
       {
+        // Creates a deferred value
         return new Worker<int>();
       });
       return new Distributor<int>(perBlockFuncIWorkerInt32);

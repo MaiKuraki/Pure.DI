@@ -94,25 +94,18 @@ The following partial class will be generated:
 ```c#
 partial class Composition
 {
-#if NET9_0_OR_GREATER
-  private readonly Lock _lock = new Lock();
-#else
-  private readonly Object _lock = new Object();
-#endif
-
   public ISmartHome SmartHome
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     get
     {
       Func<int, ISensor> perBlockFuncInt32ISensor;
+      // Creates a factory with runtime arguments
       Func<int, ISensor> localFactory = new Func<int, ISensor>((int localArg1) =>
       {
-        lock (_lock)
-        {
-          int overriddenInt32 = localArg1;
-          return new Sensor(overriddenInt32);
-        }
+        // Creates the result
+        int overriddenInt32 = localArg1;
+        return new Sensor(overriddenInt32);
       });
       perBlockFuncInt32ISensor = localFactory;
       return new SmartHome(perBlockFuncInt32ISensor);

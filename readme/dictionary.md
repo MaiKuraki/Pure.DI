@@ -99,6 +99,7 @@ partial class Composition
     get
     {
       Dictionary<Channel, INotificationChannel> transientDictionaryChannelINotificationChannel;
+      // Creates dictionary entries
       KeyValuePair<Channel, INotificationChannel> transientKeyValuePairChannelINotificationChannel;
       EmailChannel localChanel = new EmailChannel();
       transientKeyValuePairChannelINotificationChannel = new KeyValuePair<Channel, INotificationChannel>(Channel.Email, localChanel);
@@ -114,9 +115,12 @@ partial class Composition
         transientKeyValuePairChannelINotificationChannel1,
         transientKeyValuePairChannelINotificationChannel2
       };
+      // Creates the key comparer
       EqualityComparer<Channel> transientEqualityComparerChannel = EqualityComparer<Channel>.Default;
       IEqualityComparer<Channel> localComparer = transientEqualityComparerChannel;
+      // Creates the dictionary
       Dictionary<Channel, INotificationChannel> localVal = new Dictionary<Channel, INotificationChannel>(localPairs.Length, localComparer);
+      // Adds entries to the dictionary
       foreach (KeyValuePair<Channel, INotificationChannel> pair in localPairs)
       {
         localVal[pair.Key] = pair.Value;
@@ -149,9 +153,9 @@ classDiagram
 	NotificationService *-- DictionaryᐸChannelˏINotificationChannelᐳ : IReadOnlyDictionaryᐸChannelˏINotificationChannelᐳ
 	DictionaryᐸChannelˏINotificationChannelᐳ *-- ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ : ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ
 	DictionaryᐸChannelˏINotificationChannelᐳ *-- EqualityComparerᐸChannelᐳ : IEqualityComparerᐸChannelᐳ
-	ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ *-- KeyValuePairᐸChannelˏINotificationChannelᐳ : "Unique tag #69" KeyValuePairᐸChannelˏINotificationChannelᐳ
 	ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ *-- KeyValuePairᐸChannelˏINotificationChannelᐳ : "Unique tag #70" KeyValuePairᐸChannelˏINotificationChannelᐳ
 	ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ *-- KeyValuePairᐸChannelˏINotificationChannelᐳ : "Unique tag #71" KeyValuePairᐸChannelˏINotificationChannelᐳ
+	ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ *-- KeyValuePairᐸChannelˏINotificationChannelᐳ : "Unique tag #72" KeyValuePairᐸChannelˏINotificationChannelᐳ
 	class ArrayᐸKeyValuePairᐸChannelˏINotificationChannelᐳᐳ {
 			<<array>>
 	}

@@ -88,6 +88,7 @@ partial class Func
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     () =>
     {
+      // Creates a deferred value
       return new Service3(new Service4(), new Service4());
     });
     return new CompositionRoot(new Service1(new Service2Func(perBlockFuncIService3)), new Service2Func(perBlockFuncIService3), new Service2Func(perBlockFuncIService3), new Service2Func(perBlockFuncIService3), new Service3(new Service4(), new Service4()), new Service4(), new Service4());
